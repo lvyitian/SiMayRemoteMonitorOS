@@ -22,27 +22,29 @@
  - SiMay.Core--系统统一公共库【如统一的通讯指令丶共用组件丶通信数据实体丶字符串编解码等..】
  - SiMay.Serialize--轻量级二进制序列化库【作用:系统通信数据实体化】
 
-### SiMay.RemoteMonitor.Windows【Windows控制端】##
- - SiMay.RemoteMonitor--控制端主程序
+### SiMay.RemoteMonitor【主控端】##
+ - SiMay.RemoteControlsCore 主控端核心库
+ - SiMay.RemoteMonitor--Windows主控端(基于核心库)
+ - SiMay.HttpRemoteMonitor【计划，未完成】 --Http主控端展示层(基于核心库，支持.NET Core)，基于WebSocket与前端通信
+ - WebRemoteMonitorSystem--Web监控前端
 
 ### SiMay.RemoteService【远程服务端】##
- - SiMay.RemoteClient.NewCore--服务端主程序
- - SiMay.UpdateClient--服务端更新程序【未启用】
+ - SiMay.RemoteService --内存加载Loader
+ - SiMay.RemoteClient.NewCore--被控端核心库/被控端主程序
  - SiMay.Daemon--服务端守护进程【未启用】
 
 ### SiMay.SessionProvider【会话提供库】##
- - SiMay.Net.SessionProvider--会话提供库【作用：提供服务器监听模式或者中间会话代理协议】(技术验证，不定时重构)
- - SiMay.Net.SessionProvider.Core--代理协议统一公用库【作用：统一中间库和服务器的通信指令及序列化等】(技术验证，不定时重构)
- - SiMay.Net.SessionProviderService--中间会话代理服务器【作用：提供保持服务端会话保持丶数据转发功能，基于此实现多平台端监控】(技术验证，不定时重构)
+ - SiMay.Net.SessionProvider--会话提供库【作用：提供服务器监听模式或者中间会话代理协议】
+ - SiMay.Net.SessionProvider.Core--代理协议统一公用库【作用：统一中间库和服务器的通信指令及序列化等】
+ - SiMay.Net.SessionProviderService--中间会话代理服务器【作用：提供保持服务端会话保持丶数据转发功能，基于此实现多平台端监控】
 
 ### SiMay.Sockets【Socket通信库】##
- - SiMay.Socket.V4 1.0--通信引擎【.NET4.0】
- - SiMay.Socket 1.0--通信引擎【支持.NET 4.0以下】
+ - SiMay.Socket.V4 1.0--轻量级通信引擎【计划.NET Core】
  - SiMaySocketTestApp--通信引擎测试程序
 
 ### SiMay.Web.MonitorService【Web监控服务端】##
- - SiMay.Net.HttpRemoteMonitorService--WebSocket监控服务端
- - WebRemoteMonitorSystem--Web监控前端页面
+ - SiMay.Net.HttpRemoteMonitorService--WebSocket监控服务端【计划弃用】
+
 
 ### 编译
 1.Bin目录为生成目录，重新生成后，主控程序将编译到此目录，Bin->dat目录为服务端目录，被控服务端编译后在此。(没有目录新建一下)
@@ -63,7 +65,7 @@
 
 设置 主控端设置 会话服务器地址 为 中间服务器的地址，端口。-->设置会话模式为:中间会话模式-->(中间会话服务器系统设置位于系统菜单右键)确认连接密码与中间服务器密码一致。-->创建客户端，将ip，端口指向中间服务器即可
 
-4.web端监控
+4.web端监控【完善中，不可用】
 配置IIS，部署SiMay.WebRemoteMonitor网站，编译启动SiMay.Net.HttpRemoteMonitorService，配置地址指向中间服务器ip，端口即可(无系统设置，需手动配置配置文件)，如连接成功，中间服务器出现主控制连接在线日志即可
 使用浏览器，访问SiMay.WebRemoteMonitor网站，输入SiMay.Net.HttpRemoteMonitorService配置的账号密码即可，当有中间服务器有被控端会话时，将自动连接至http服务，此时网页可看到被控服务端计算机屏幕视图，长按视图打开更多功能。
 
@@ -89,6 +91,10 @@
  - 完善更多web监控功能
 
 ### SiMay远程监控管理系统更新说明 --by_koko
+
+### 6.0更新
+1.跨.NET Core支持，完善中间会话服务器、Web端实时监控管理 --未完成
+2.二进制序列器性能优化，提升系统性能 -- 未完成
 
 ### 5.0更新
 1. 优化了通讯库,支持FULL丶PACK数据处理方式，更友好的配置接口
