@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.352
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiMay.SocketTestApp", "SiMay.SocketTestApp.csproj", "{0D35F461-0A05-42B2-ACC2-F3F5EDF06FCF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiMay.Sockets", "..\SiMay.Sockets\SiMay.Sockets.csproj", "{B0F8473C-10B8-4CF7-AE18-32037FA9BBAE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0D35F461-0A05-42B2-ACC2-F3F5EDF06FCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D35F461-0A05-42B2-ACC2-F3F5EDF06FCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D35F461-0A05-42B2-ACC2-F3F5EDF06FCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D35F461-0A05-42B2-ACC2-F3F5EDF06FCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0F8473C-10B8-4CF7-AE18-32037FA9BBAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0F8473C-10B8-4CF7-AE18-32037FA9BBAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0F8473C-10B8-4CF7-AE18-32037FA9BBAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0F8473C-10B8-4CF7-AE18-32037FA9BBAE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {26FEEDB4-F13B-441F-B7CE-0D4FAC6D6DCE}
+	EndGlobalSection
+EndGlobal

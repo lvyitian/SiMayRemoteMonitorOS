@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{BF5B6F41-D688-447F-BF81-EA821216F188}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SiMay.Net.SessionProvider</RootNamespace>
+    <AssemblyName>SiMay.Net.SessionProvider</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Delegate\NetNotifyEventHandler.cs" />
+    <Compile Include="Delegate\ProxyNotifyEventHandler.cs" />
+    <Compile Include="Notify\ProxyNotify.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Providers\TcpProxySessionProviderHandle.cs" />
+    <Compile Include="Providers\TcpSocketSessionProviderHandle.cs" />
+    <Compile Include="SendMessageHelper.cs" />
+    <Compile Include="SessionBased\SessionHandle.cs" />
+    <Compile Include="SessionBased\TcpProxySessionBased.cs" />
+    <Compile Include="SessionBased\TcpSocketSessionBased.cs" />
+    <Compile Include="Notify\SessionCompletedNotify.cs" />
+    <Compile Include="SessionProvider.cs" />
+    <Compile Include="SessionProviderFactory.cs" />
+    <Compile Include="SessionProviderOptions.cs" />
+    <Compile Include="SessionProviderType.cs" />
+    <Compile Include="SessionWorkType.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SiMay.Basic\SiMay.Basic.csproj">
+      <Project>{B30CD716-698A-4DA2-BD1A-C152B16993C0}</Project>
+      <Name>SiMay.Basic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SiMay.Net.SessionProvider.Core\SiMay.Net.SessionProvider.Core.csproj">
+      <Project>{8bfdb408-d26d-4689-b426-be45ad195880}</Project>
+      <Name>SiMay.Net.SessionProvider.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SiMay.Sockets.V4\SiMay.Sockets.V4.csproj">
+      <Project>{d181fcce-ecc7-4710-89cc-d97f94a6181b}</Project>
+      <Name>SiMay.Sockets.V4</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

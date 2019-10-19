@@ -1,0 +1,530 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{97E36F9B-145B-41DB-B6CF-E054B010869E}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SiMay.RemoteMonitor</RootNamespace>
+    <AssemblyName>SiMayRemoteMonitor</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\Bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\Bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>
+    </ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Attributes\ApplicationName.cs" />
+    <Compile Include="Attributes\ControlSourceAttribute.cs" />
+    <Compile Include="Attributes\EnabledAttribute.cs" />
+    <Compile Include="Attributes\OnTools.cs" />
+    <Compile Include="Attributes\ResourceName.cs" />
+    <Compile Include="Controls\Helper\AwaitAutoResetEvent.cs" />
+    <Compile Include="Controls\RegistryEditorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\RegistryEditorForm.designer.cs">
+      <DependentUpon>RegistryEditorForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\RegValueEditBinaryForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\RegValueEditBinaryForm.designer.cs">
+      <DependentUpon>RegValueEditBinaryForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\RegValueEditMultiStringForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\RegValueEditMultiStringForm.designer.cs">
+      <DependentUpon>RegValueEditMultiStringForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\RegValueEditStringForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\RegValueEditStringForm.designer.cs">
+      <DependentUpon>RegValueEditStringForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\RegValueEditWordForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\RegValueEditWordForm.designer.cs">
+      <DependentUpon>RegValueEditWordForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\StartupItemAdd.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\StartupItemAdd.designer.cs">
+      <DependentUpon>StartupItemAdd.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ScreenQtyForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\ScreenQtyForm.Designer.cs">
+      <DependentUpon>ScreenQtyForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\StartupManager.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\StartupManager.Designer.cs">
+      <DependentUpon>StartupManager.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\TcpConnectionManager.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\TcpConnectionManager.designer.cs">
+      <DependentUpon>TcpConnectionManager.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Entitys\KeyValueItem.cs" />
+    <Compile Include="Entitys\ListViewSortHelper.cs" />
+    <Compile Include="Enums\FileItemType.cs" />
+    <Compile Include="Enums\FileTransferNotify.cs" />
+    <Compile Include="Extensions\ListViewExtensions.cs" />
+    <Compile Include="MainForm\RemoteUpdateServiceForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm\RemoteUpdateServiceForm.Designer.cs">
+      <DependentUpon>RemoteUpdateServiceForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\FileListViewItem.cs" />
+    <Compile Include="SysConstantsExtend.cs" />
+    <Compile Include="Extensions\ControlExtension.cs" />
+    <Compile Include="UserControls\HexEditor\ByteCollection.cs" />
+    <Compile Include="UserControls\HexEditor\Caret.cs" />
+    <Compile Include="UserControls\HexEditor\EditView.cs" />
+    <Compile Include="UserControls\HexEditor\HexEditor.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UserControls\HexEditor\HexViewHandler.cs" />
+    <Compile Include="UserControls\HexEditor\IKeyMouseEventHandler.cs" />
+    <Compile Include="UserControls\HexEditor\StringViewHandler.cs" />
+    <Compile Include="UserControls\RegistryTreeView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UserControls\RegistryValueLstItem.cs" />
+    <Compile Include="UserControls\UListView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UserControls\UToolStripMenuItem.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UserControls\UToolStripButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="MainForm\AboutForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm\AboutDialog.Designer.cs">
+      <DependentUpon>AboutForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AppConfiguration.cs" />
+    <Compile Include="Controls\AudioConfigurationForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\AudioConfigurationForm.Designer.cs">
+      <DependentUpon>AudioConfigurationForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\AudioManager.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\AudioManager.Designer.cs">
+      <DependentUpon>AudioManager.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MainForm\BuilderServiceForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm\BuilderServiceForm.Designer.cs">
+      <DependentUpon>BuilderServiceForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Delegate\SessionNotifyEventHandler.cs" />
+    <Compile Include="MainForm\DesktopRecordForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm\DesktopRecordForm.Designer.cs">
+      <DependentUpon>DesktopRecordForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MainForm\DesktopRecordViewerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm\DesktopRecordViewerForm.Designer.cs">
+      <DependentUpon>DesktopRecordViewerForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MainForm\EnterForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm\EnterForm.Designer.cs">
+      <DependentUpon>EnterForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MainForm\ExceptionForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm\ExceptionForm.Designer.cs">
+      <DependentUpon>ExceptionForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\FileManager.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\FileManager.Designer.cs">
+      <DependentUpon>FileManager.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\FileTransferModeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\FileTransferModeForm.Designer.cs">
+      <DependentUpon>FileTransferModeForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ControlSource\IControlSource.cs" />
+    <Compile Include="MessageAdapter.cs" />
+    <Compile Include="Notify\SessionNotifyType.cs" />
+    <Compile Include="UserControls\USessionListItem.cs" />
+    <Compile Include="MainForm\NotifyMessageBoxForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm\NotifyMessageBoxForm.Designer.cs">
+      <DependentUpon>NotifyMessageBoxForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\KeyboardManager.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\KeyboardManager.Designer.cs">
+      <DependentUpon>KeyboardManager.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MainForm\LockWindowsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm\LockWindowsForm.Designer.cs">
+      <DependentUpon>LockWindowsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MainForm\MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm\MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ProcessListviewitem.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="MainForm\ProgressForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm\ProgressForm.Designer.cs">
+      <DependentUpon>ProgressForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Controls\RegistryEditForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\RegistryEditForm.Designer.cs">
+      <DependentUpon>RegistryEditForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\RegistryManager.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\RegistryManager.Designer.cs">
+      <DependentUpon>RegistryManager.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ScreenManager.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\ScreenManager.Designer.cs">
+      <DependentUpon>ScreenManager.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MainForm\AppSettingForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm\AppSettingForm.Designer.cs">
+      <DependentUpon>AppSettingForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ShellManager.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\ShellManager.Designer.cs">
+      <DependentUpon>ShellManager.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SystemManager.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\SystemManager.Designer.cs">
+      <DependentUpon>SystemManager.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SysUtilExtend.cs" />
+    <Compile Include="UserControls\UDesktopView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\UDesktopView.Designer.cs">
+      <DependentUpon>UDesktopView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VideoManager.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\VideoManager.Designer.cs">
+      <DependentUpon>VideoManager.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\WordTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UserControls\WordTextBox.designer.cs">
+      <DependentUpon>WordTextBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Win32Api.cs" />
+    <EmbeddedResource Include="Controls\AudioConfigurationForm.resx">
+      <DependentUpon>AudioConfigurationForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\AudioManager.resx">
+      <DependentUpon>AudioManager.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\RegistryEditorForm.resx">
+      <DependentUpon>RegistryEditorForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\RegValueEditBinaryForm.resx">
+      <DependentUpon>RegValueEditBinaryForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\RegValueEditMultiStringForm.resx">
+      <DependentUpon>RegValueEditMultiStringForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\RegValueEditStringForm.resx">
+      <DependentUpon>RegValueEditStringForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\RegValueEditWordForm.resx">
+      <DependentUpon>RegValueEditWordForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\StartupItemAdd.resx">
+      <DependentUpon>StartupItemAdd.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\ScreenQtyForm.resx">
+      <DependentUpon>ScreenQtyForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\StartupManager.resx">
+      <DependentUpon>StartupManager.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\TcpConnectionManager.resx">
+      <DependentUpon>TcpConnectionManager.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm\AboutForm.resx">
+      <DependentUpon>AboutForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm\BuilderServiceForm.resx">
+      <DependentUpon>BuilderServiceForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm\DesktopRecordForm.resx">
+      <DependentUpon>DesktopRecordForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm\DesktopRecordViewerForm.resx">
+      <DependentUpon>DesktopRecordViewerForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm\EnterForm.resx">
+      <DependentUpon>EnterForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm\ExceptionForm.resx">
+      <DependentUpon>ExceptionForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\FileManager.resx">
+      <DependentUpon>FileManager.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\FileTransferModeForm.resx">
+      <DependentUpon>FileTransferModeForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm\NotifyMessageBoxForm.resx">
+      <DependentUpon>NotifyMessageBoxForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\KeyboardManager.resx">
+      <DependentUpon>KeyboardManager.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm\LockWindowsForm.resx">
+      <DependentUpon>LockWindowsForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm\MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm\ProgressForm.resx">
+      <DependentUpon>ProgressForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm\RemoteUpdateServiceForm.resx">
+      <DependentUpon>RemoteUpdateServiceForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\RegistryEditForm.resx">
+      <DependentUpon>RegistryEditForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\RegistryManager.resx">
+      <DependentUpon>RegistryManager.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\ScreenManager.resx">
+      <DependentUpon>ScreenManager.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm\AppSettingForm.resx">
+      <DependentUpon>AppSettingForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\ShellManager.resx">
+      <DependentUpon>ShellManager.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\SystemManager.resx">
+      <DependentUpon>SystemManager.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserControls\UDesktopView.resx">
+      <DependentUpon>UDesktopView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\VideoManager.resx">
+      <DependentUpon>VideoManager.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="app.manifest">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ok.ico" />
+    <None Include="Resources\erro.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\createService.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\abort.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\KeyboradManager.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\exit.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\FileManager.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\syset.bmp" />
+    <Content Include="Resources\SystemManager.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\AudioManager.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\ShellManager.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\ScreenManager.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\ViedoManager.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\downloadexc.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\RegEditManager.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SiMay.Basic\SiMay.Basic.csproj">
+      <Project>{b30cd716-698a-4da2-bd1a-c152b16993c0}</Project>
+      <Name>SiMay.Basic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SiMay.Core\SiMay.Core.csproj">
+      <Project>{1aadc6f7-6ff9-4c68-8a26-e507f22b9060}</Project>
+      <Name>SiMay.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SiMay.Net.SessionProvider\SiMay.Net.SessionProvider.csproj">
+      <Project>{bf5b6f41-d688-447f-bf81-ea821216f188}</Project>
+      <Name>SiMay.Net.SessionProvider</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SiMay.RemoteControlsCore\SiMay.RemoteControlsCore.csproj">
+      <Project>{44dfa13c-03c3-4f07-9d78-30f981bfabc5}</Project>
+      <Name>SiMay.RemoteControlsCore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SiMay.Serialize\SiMay.Serialize.csproj">
+      <Project>{4888d6bb-46d9-4519-8758-e13e397aa226}</Project>
+      <Name>SiMay.Serialize</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,178 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1AADC6F7-6FF9-4C68-8A26-E507F22B9060}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SiMay.Core</RootNamespace>
+    <AssemblyName>SiMay.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\Bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\Bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AppConfig\AbstractConfigBase.cs" />
+    <Compile Include="ByteConverter.cs" />
+    <Compile Include="Common\FileHelper.cs" />
+    <Compile Include="Common\GeoLocationHelper.cs" />
+    <Compile Include="Common\PlatformHelper.cs" />
+    <Compile Include="Common\RegistryKeyHelper.cs" />
+    <Compile Include="Common\RegValueHelper.cs" />
+    <Compile Include="Entitys\GeoInformation.cs" />
+    <Compile Include="Entitys\RegValueData.cs" />
+    <Compile Include="Entitys\ServiceOptions.cs" />
+    <Compile Include="Enums\RemoteUpdateType.cs" />
+    <Compile Include="Enums\StartupType.cs" />
+    <Compile Include="Enums\ConnectionWorkType.cs" />
+    <Compile Include="Enums\DifferStatus.cs" />
+    <Compile Include="Enums\FileType.cs" />
+    <Compile Include="Enums\MessageIcon.cs" />
+    <Compile Include="Enums\MouseKeyEnum.cs" />
+    <Compile Include="Enums\SystemSessionType.cs" />
+    <Compile Include="Enums\TcpConnectionState.cs" />
+    <Compile Include="Enums\WordType.cs" />
+    <Compile Include="Extensions\RegistryKeyExtensions.cs" />
+    <Compile Include="FileIconUtil.cs" />
+    <Compile Include="Extensions\UnicodeExtensions.cs" />
+    <Compile Include="LogHelper.cs" />
+    <Compile Include="MessageHead.cs" />
+    <Compile Include="MessageHelper.cs" />
+    <Compile Include="PacketModelBinder\Attributes\PacketHandler.cs" />
+    <Compile Include="PacketModelBinder\PacketModelBinder.cs" />
+    <Compile Include="Packets\AckPack.cs" />
+    <Compile Include="Packets\Audio\AudioDeviceStatesPack.cs" />
+    <Compile Include="Packets\Audio\AudioOptionsPack.cs" />
+    <Compile Include="Packets\BasePack.cs" />
+    <Compile Include="Packets\DesktopRecordGetFramePack.cs" />
+    <Compile Include="Packets\DesktopViewDescribePack.cs" />
+    <Compile Include="Packets\DesktopViewGetFramePack.cs" />
+    <Compile Include="Packets\FileManager\FileCopyPack.cs" />
+    <Compile Include="Packets\FileManager\FileCreateDirectoryPack.cs" />
+    <Compile Include="Packets\FileManager\FileDeletePack.cs" />
+    <Compile Include="Packets\FileManager\FileDirectoryGetFilesPack.cs" />
+    <Compile Include="Packets\FileManager\FileDownloadPack.cs" />
+    <Compile Include="Packets\FileManager\FileExceptionPack.cs" />
+    <Compile Include="Packets\FileManager\FileExcutePack.cs" />
+    <Compile Include="Packets\FileManager\FileGetTreeDirectoryPack.cs" />
+    <Compile Include="Packets\FileManager\FileListItemsPack.cs" />
+    <Compile Include="Packets\FileManager\FileRedirectionPath.cs" />
+    <Compile Include="Packets\FileManager\FileReNamePack.cs" />
+    <Compile Include="Packets\FileManager\FileTextPack.cs" />
+    <Compile Include="Packets\FileManager\FileUploadPack.cs" />
+    <Compile Include="Packets\LoginPack.cs" />
+    <Compile Include="Packets\MessagePack.cs" />
+    <Compile Include="Packets\OpenDialogPack.cs" />
+    <Compile Include="Packets\RegEdit\DoChangeRegistryValuePack.cs" />
+    <Compile Include="Packets\RegEdit\DoCreateRegistryKeyPack.cs" />
+    <Compile Include="Packets\RegEdit\DoCreateRegistryValuePack.cs" />
+    <Compile Include="Packets\RegEdit\DoDeleteRegistryKeyPack.cs" />
+    <Compile Include="Packets\RegEdit\DoDeleteRegistryValuePack.cs" />
+    <Compile Include="Packets\RegEdit\DoLoadRegistryKeyPack.cs" />
+    <Compile Include="Packets\RegEdit\DoRenameRegistryKeyPack.cs" />
+    <Compile Include="Packets\RegEdit\DoRenameRegistryValuePack.cs" />
+    <Compile Include="Packets\RegEdit\GetChangeRegistryValueResponsePack.cs" />
+    <Compile Include="Packets\RegEdit\GetCreateRegistryKeyResponsePack.cs" />
+    <Compile Include="Packets\RegEdit\GetCreateRegistryValueResponsePack.cs" />
+    <Compile Include="Packets\RegEdit\GetDeleteRegistryKeyResponsePack.cs" />
+    <Compile Include="Packets\RegEdit\GetDeleteRegistryValueResponsePack.cs" />
+    <Compile Include="Packets\RegEdit\GetRegistryKeysResponsePack.cs" />
+    <Compile Include="Packets\RegEdit\GetRenameRegistryKeyResponsePack.cs" />
+    <Compile Include="Packets\RegEdit\GetRenameRegistryValueResponsePack.cs" />
+    <Compile Include="Packets\RegEdit\RegSeekerMatch.cs" />
+    <Compile Include="Packets\RegEdit\RegValueData.cs" />
+    <Compile Include="Packets\Reg\RegDeleteSubKeyPack.cs" />
+    <Compile Include="Packets\Reg\RegDeleteValuePack.cs" />
+    <Compile Include="Packets\Reg\RegNewSubkeyPack.cs" />
+    <Compile Include="Packets\Reg\RegNewValuePack.cs" />
+    <Compile Include="Packets\Reg\RegOpenSubKeyPack.cs" />
+    <Compile Include="Packets\Reg\RegOperFinshPack.cs" />
+    <Compile Include="Packets\Reg\RegRootDirectorysPack.cs" />
+    <Compile Include="Packets\Reg\RegSubKeyValuePack.cs" />
+    <Compile Include="Packets\Reg\RegValueItem.cs" />
+    <Compile Include="Packets\Reg\RegValuesPack.cs" />
+    <Compile Include="Packets\RemoteUpdatePack.cs" />
+    <Compile Include="Packets\Screen\ScreenBitInfoPack.cs" />
+    <Compile Include="Packets\Screen\ScreenClipoardValuePack.cs" />
+    <Compile Include="Packets\Screen\ScreenFragmentPack.cs" />
+    <Compile Include="Packets\Screen\ScreenHotRectanglePack.cs" />
+    <Compile Include="Packets\Screen\ScreenMKeyPack.cs" />
+    <Compile Include="Packets\Screen\ScreenSetClipoardPack.cs" />
+    <Compile Include="Packets\Screen\ScreenSetQtyPack.cs" />
+    <Compile Include="Packets\ServicePluginPack.cs" />
+    <Compile Include="Packets\Startup\Enums\OperFlag.cs" />
+    <Compile Include="Packets\Startup\StartupItemPack.cs" />
+    <Compile Include="Packets\Startup\StartupOperResponsePack.cs" />
+    <Compile Include="Packets\SysManager\ProcessInfo.cs" />
+    <Compile Include="Packets\SysManager\SysKillPack.cs" />
+    <Compile Include="Packets\SysManager\SysWindowMaxPack.cs" />
+    <Compile Include="Packets\SysManager\SystemInfoPack.cs" />
+    <Compile Include="Packets\TcpConnection\TcpConnectionItem.cs" />
+    <Compile Include="Packets\TcpConnection\TcpConnectionPack.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RegValueHelper.cs" />
+    <Compile Include="ScreenSpy\JpgCompression.cs" />
+    <Compile Include="ScreenSpy\ScreenCaptureHelper.cs" />
+    <Compile Include="ScreenSpy\ScreenSpy.cs" />
+    <Compile Include="ScreenSpy\Entitys\Fragment.cs" />
+    <Compile Include="WinSound\Win32.cs" />
+    <Compile Include="WinSound\WinSound.cs" />
+    <Compile Include="WinSound\WinSoundPlayer.cs" />
+    <Compile Include="WinSound\WinSoundRecord.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\SiMay.Basic\SiMay.Basic.csproj">
+      <Project>{B30CD716-698A-4DA2-BD1A-C152B16993C0}</Project>
+      <Name>SiMay.Basic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SiMay.Serialize\SiMay.Serialize.csproj">
+      <Project>{4888d6bb-46d9-4519-8758-e13e397aa226}</Project>
+      <Name>SiMay.Serialize</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SiMay.Sockets.V4\SiMay.Sockets.V4.csproj">
+      <Project>{d181fcce-ecc7-4710-89cc-d97f94a6181b}</Project>
+      <Name>SiMay.Sockets.V4</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
