@@ -65,7 +65,7 @@
 设置 主控端设置 会话服务器地址 为 中间服务器的地址，端口。-->设置会话模式为:中间会话模式-->(中间会话服务器系统设置位于系统菜单右键)确认连接密码与中间服务器密码一致。-->创建客户端，将ip，端口指向中间服务器即可
 
 4.web端监控【完善中，不可用】
- 配置IIS，部署SiMay.WebRemoteMonitor网站，编译启动SiMay.Net.HttpRemoteMonitorService，配置地址指向中间服务器ip，端口即可(无系统设置，需手动配置配置文件)，如连接成功，中间服务器出现主控制连接在线日志即可
+配置IIS，部署SiMay.WebRemoteMonitor网站，编译启动SiMay.Net.HttpRemoteMonitorService，配置地址指向中间服务器ip，端口即可(无系统设置，需手动配置配置文件)，如连接成功，中间服务器出现主控制连接在线日志即可
 使用浏览器，访问SiMay.WebRemoteMonitor网站，输入SiMay.Net.HttpRemoteMonitorService配置的账号密码即可，当有中间服务器有被控端会话时，将自动连接至http服务，此时网页可看到被控服务端计算机屏幕视图，长按视图打开更多功能。
 
 ### 技术架构
