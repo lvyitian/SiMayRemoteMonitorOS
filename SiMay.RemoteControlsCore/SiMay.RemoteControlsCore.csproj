@@ -55,7 +55,7 @@
     <Compile Include="HandlerAdapters\AdapterHandlerBase.cs" />
     <Compile Include="HandlerAdapters\AudioAdapterHandler.cs" />
     <Compile Include="HandlerAdapters\KeyboardAdapterHandler.cs" />
-    <Compile Include="HandlerAdapters\RegistryAdapterHandler.cs" />
+    <Compile Include="HandlerAdapters\RegistryEditorAdapterHandler.cs" />
     <Compile Include="HandlerAdapters\RemoteFileAdapterHandler.cs" />
     <Compile Include="HandlerAdapters\RemoteScreenAdapterHandler.cs" />
     <Compile Include="HandlerAdapters\ShellAdapterHandler.cs" />

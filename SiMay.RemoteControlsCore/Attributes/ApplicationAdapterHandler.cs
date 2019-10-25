@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace SiMay.RemoteControlsCore
 {
     /// <summary>
-    /// 表示应用处理器所在属性字段(唯一)
+    /// 应用处理器属性字段(唯一)
     /// </summary>
     public class ApplicationAdapterHandlerAttribute : Attribute
     {

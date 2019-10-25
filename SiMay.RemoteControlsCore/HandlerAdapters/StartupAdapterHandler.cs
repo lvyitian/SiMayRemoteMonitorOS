@@ -76,6 +76,11 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             OnStartupItemHandlerEvent?.Invoke(this, pack.StartupItems);
         }
 
+        public void GetStartup()
+        {
+            SendAsyncMessage(MessageHead.S_STARTUP_GET_LIST);
+        }
+
         public void AddStartupItem(string path, string name, StartupType startupType)
         {
             SendAsyncMessage(MessageHead.S_STARTUP_ADD_ITEM, new StartupItemPack()

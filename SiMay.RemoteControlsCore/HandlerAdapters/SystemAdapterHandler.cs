@@ -14,11 +14,11 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 {
     public class SystemAdapterHandler : AdapterHandlerBase
     {
-        public Action<SystemAdapterHandler, IEnumerable<ProcessItem>> OnProcessListHandlerEvent;
+        public event Action<SystemAdapterHandler, IEnumerable<ProcessItem>> OnProcessListHandlerEvent;
 
-        public Action<SystemAdapterHandler, IEnumerable<SystemInfoItem>> OnSystemInfoHandlerEvent;
+        public event Action<SystemAdapterHandler, IEnumerable<SystemInfoItem>> OnSystemInfoHandlerEvent;
 
-        public Action<SystemAdapterHandler, string, string> OnOccupyHandlerEvent;
+        public event Action<SystemAdapterHandler, string, string> OnOccupyHandlerEvent;
 
         private PacketModelBinder<SessionHandler> _handlerBinder = new PacketModelBinder<SessionHandler>();
         internal override void MessageReceived(SessionHandler session)
@@ -48,6 +48,11 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         {
             var processLst = session.CompletedBuffer.GetMessageEntity<ProcessListPack>().ProcessList;
             OnProcessListHandlerEvent?.Invoke(this, processLst);
+        }
+
+        public void GetSystemInfoItems()
+        {
+            SendAsyncMessage(MessageHead.S_SYSTEM_GET_SYSTEMINFO);
         }
 
         public void GetProcessList()

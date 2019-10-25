@@ -6,8 +6,6 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using System.IO;
-using SiMay.Net.SessionProvider.SessionBased;
 using SiMay.RemoteControlsCore;
 
 namespace SiMay.RemoteMonitor.UserControls
@@ -38,8 +36,7 @@ namespace SiMay.RemoteMonitor.UserControls
 
         private void img_DoubleClick(object sender, EventArgs e)
         {
-            if (this.OnDoubleClickEvent != null)
-                this.OnDoubleClickEvent(SessionSyncContext);
+            this.OnDoubleClickEvent?.Invoke(SessionSyncContext);
         }
 
         private void UDesktopView_Load(object sender, EventArgs e)

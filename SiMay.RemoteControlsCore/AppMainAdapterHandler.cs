@@ -216,7 +216,7 @@ namespace SiMay.RemoteControlsCore
             // Tokens参数说明
             // [0]为该连接工作类型，MainWork为主连接，Work工作连接，NONE为未知连接
             // [1]如果连接为Work类型，则是消息处理器，否则是主连接上下文对象
-            object[] tokens = session.AppTokens;
+            var tokens = session.AppTokens;
             var sessionWorkType = tokens[SysConstants.INDEX_WORKTYPE].ConvertTo<ConnectionWorkType>();
 
             if (sessionWorkType == ConnectionWorkType.WORKCON)
@@ -300,7 +300,7 @@ namespace SiMay.RemoteControlsCore
             }
             else
             {
-                var context = SysUtil.ApplicationTypes.Where(x => x.AppKey.Equals(appKey)).FirstOrDefault();
+                var context = SysUtil.ApplicationTypes.FirstOrDefault(x => x.AppKey.Equals(appKey));
                 if (context != null)
                 {
 
@@ -313,7 +313,7 @@ namespace SiMay.RemoteControlsCore
                     handlerBase.IdentifyId = identifyId;
                     handlerBase.OriginName = originName;
                     handlerBase.ResetAppKey = context.Type.GetAppKey();
-                    var s = context.Type.GetProperties();
+                    
                     //每个应用至少标记一个应用处理器属性
                     var handlerFieder = context
                         .Type

@@ -13,7 +13,7 @@ using SiMay.Sockets.Tcp;
 using SiMay.Sockets.Tcp.Client;
 using SiMay.Sockets.Tcp.Session;
 using SiMay.Sockets.Tcp.TcpConfiguration;
-using SiMay.ServiceCore.ControlService;
+using SiMay.ServiceCore.ApplicationService;
 using SiMay.Core.PacketModelBinding;
 using SiMay.Core.PacketModelBinder.Attributes;
 using SiMay.Basic;

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Win32;
 using SiMay.Core;
-using SiMay.ServiceCore.ControlService;
+using SiMay.ServiceCore.ApplicationService;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

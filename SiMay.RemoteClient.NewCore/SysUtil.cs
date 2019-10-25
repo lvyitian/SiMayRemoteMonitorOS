@@ -1,7 +1,7 @@
 ﻿using SiMay.Basic;
-using SiMay.ServiceCore.ControlService;
+using SiMay.ServiceCore.ApplicationService;
 using SiMay.ServiceCore.Extensions;
-using SiMay.ServiceCore.ServiceSource;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +25,7 @@ namespace SiMay.ServiceCore
             var types = Assembly.GetExecutingAssembly().GetTypes();
             foreach (var type in types)
             {
-                if (typeof(IServiceSource).IsAssignableFrom(type) && type.IsClass)
+                if (typeof(IApplicationService).IsAssignableFrom(type) && type.IsClass)
                 {
                     if (typeof(ServiceManager).IsSubclassOf(type))
                         throw new Exception(type.FullName + " type must inherit ServiceManager base class!");

@@ -16,29 +16,21 @@ namespace SiMay.RemoteControlsCore
             public string AppKey { get; set; }
             public Type Type { get; set; }
         }
-        public static IEnumerable<ApplicationItem> ApplicationTypes { get; private set; }
+        public static IReadOnlyList<ApplicationItem> ApplicationTypes { get; private set; }
         static SysUtil()
         {
-            List<ApplicationItem> applicationTypes = new List<ApplicationItem>();
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                foreach (var type in assembly.GetTypes())
+            ApplicationTypes = AppDomain.CurrentDomain
+                .GetAssemblies()
+                .SelectMany(a => a.GetTypes())
+                .Where(t => typeof(IApplication).IsAssignableFrom(t) && t.IsClass)
+                .Where(t => t.GetCustomAttribute<DisableAttribute>() == null)
+                .Select(t => new ApplicationItem()
                 {
-                    if (typeof(IApplication).IsAssignableFrom(type) && type.IsClass)
-                    {
-                        if (type.GetCustomAttribute<DisableAttribute>() != null)
-                            continue;
-                        var context = new ApplicationItem()
-                        {
-                            Rank = type.GetRank(),
-                            AppKey = type.GetAppKey() ?? throw new Exception(type.Name + ":The AppKey cannot be empty!"),
-                            Type = type
-                        };
-                        applicationTypes.Add(context);
-                    }
-                } 
-            }
-            ApplicationTypes = applicationTypes;
+                    Rank = t.GetRank(),
+                    AppKey = t.GetAppKey() ?? throw new Exception(t.Name + ":The AppKey cannot be empty!"),
+                    Type = t
+                })
+                .ToList();
         }
     }
 }

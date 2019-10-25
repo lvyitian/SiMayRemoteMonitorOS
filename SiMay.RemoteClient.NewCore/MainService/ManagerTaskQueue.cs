@@ -1,4 +1,4 @@
-﻿using SiMay.ServiceCore.ControlService;
+﻿using SiMay.ServiceCore.ApplicationService;
 using System;
 using System.Collections.Generic;
 using System.Linq;
