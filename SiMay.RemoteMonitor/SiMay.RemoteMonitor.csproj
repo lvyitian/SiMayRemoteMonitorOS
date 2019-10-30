@@ -25,6 +25,7 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -36,6 +37,7 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>
@@ -50,6 +52,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -60,6 +63,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -86,10 +90,10 @@
     <Compile Include="Application\FileApplication.Designer.cs">
       <DependentUpon>FileApplication.cs</DependentUpon>
     </Compile>
+    <Compile Include="Application\FileCommon\WindowsForFileStream.cs" />
     <Compile Include="Attributes\ApplicationName.cs" />
     <Compile Include="Attributes\OnTools.cs" />
     <Compile Include="Attributes\ResourceName.cs" />
-    <Compile Include="Application\FileCommon\AwaitAutoResetEvent.cs" />
     <Compile Include="Application\RegEditorApplication.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -147,7 +151,6 @@
     <Compile Include="Entitys\KeyValueItem.cs" />
     <Compile Include="Helper\ListViewSortHelper.cs" />
     <Compile Include="Enums\FileItemType.cs" />
-    <Compile Include="Enums\FileTransferNotify.cs" />
     <Compile Include="Extensions\ListViewExtensions.cs" />
     <Compile Include="MainApplication\RemoteUpdateServiceForm.cs">
       <SubType>Form</SubType>

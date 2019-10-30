@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SiMay.RemoteMonitor.Enums
+namespace SiMay.RemoteControlsCore
 {
-    public enum FileTransferNotify
+    public enum FileTransferFlag
     {
         Begin,
         Transfering,

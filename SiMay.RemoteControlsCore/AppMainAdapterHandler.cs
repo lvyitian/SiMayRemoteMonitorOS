@@ -312,7 +312,7 @@ namespace SiMay.RemoteControlsCore
                     handlerBase.Session = session;
                     handlerBase.IdentifyId = identifyId;
                     handlerBase.OriginName = originName;
-                    handlerBase.ResetAppKey = context.Type.GetAppKey();
+                    handlerBase.ResetApplicationKey = context.Type.GetAppKey();
                     
                     //每个应用至少标记一个应用处理器属性
                     var handlerFieder = context
@@ -640,6 +640,8 @@ namespace SiMay.RemoteControlsCore
         /// <param name="syncContext"></param>
         public void RemoteCloseDesktopView(SessionSyncContext syncContext)
         {
+            if (!syncContext.KeyDictions.ContainsKey(SysConstants.DesktopView))
+                return;
             var view = syncContext.KeyDictions[SysConstants.DesktopView].ConvertTo<IDesktopView>();
             view.CloseDesktopView();
 

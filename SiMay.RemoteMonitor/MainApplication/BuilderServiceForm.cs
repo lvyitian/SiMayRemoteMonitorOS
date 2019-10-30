@@ -95,7 +95,7 @@ namespace SiMay.RemoteMonitor.MainApplication
             };
             string name = "SiMayService.exe";
 
-            string datfileName = Path.Combine(System.Windows.Forms.Application.StartupPath, "dat{0}".FormatTo(name));
+            string datfileName = Path.Combine(Environment.CurrentDirectory, "dat", name);
 
             logList.Items.Add("准备将配置信息写入文件中");
 
@@ -118,7 +118,7 @@ namespace SiMay.RemoteMonitor.MainApplication
             {
                 logList.Items.Add("配置信息写入中...");
                 var optionsBytes = PacketSerializeHelper.SerializePacket(options);
-                bool err = WirteOptions(optionsBytes, datfileName, dlg.FileName);
+                bool err = this.WirteOptions(optionsBytes, datfileName, dlg.FileName);
 
                 if (err != true)
                 {

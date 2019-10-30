@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SiMay.RemoteControlsCore;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -15,35 +16,6 @@ namespace SiMay.RemoteMonitor.Application
         {
             InitializeComponent();
         }
-
-        public enum TransferMode
-        {
-            /// <summary>
-            /// 覆盖
-            /// </summary>
-            Replace,
-            /// <summary>
-            /// 全部覆盖
-            /// </summary>
-            ReplaceAll,
-            /// <summary>
-            /// 续传
-            /// </summary>
-            Continuingly,
-            /// <summary>
-            /// 全部续传
-            /// </summary>
-            ContinuinglyAll,
-            /// <summary>
-            /// 跳过
-            /// </summary>
-            JumpOver,
-            /// <summary>
-            /// 取消传输
-            /// </summary>
-            Cancel
-        }
-
         public string TipMessage
         {
             get { return tip.Text; }

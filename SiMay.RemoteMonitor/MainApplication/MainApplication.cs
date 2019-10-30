@@ -296,16 +296,14 @@ namespace SiMay.RemoteMonitor.MainApplication
         /// <returns></returns>
         private IEnumerable<UDesktopView> GetSelectedDesktopView()
         {
-            var selectedViews = new List<UDesktopView>();
             foreach (UDesktopView view in desktopViewLayout.Controls)
             {
                 if (view.Checked)
                 {
-                    selectedViews.Add(view);
+                    yield return view;
                     view.Checked = false;
                 }
             }
-            return selectedViews;
         }
 
         /// <summary>
@@ -315,8 +313,6 @@ namespace SiMay.RemoteMonitor.MainApplication
         /// <returns></returns>
         private IEnumerable<USessionListItem> GetSelectedListItem()
         {
-            var selectedItems = new List<USessionListItem>();
-
             if (onlineList.SelectedItems.Count != 0)
             {
                 var SelectItem = onlineList.SelectedItems;
@@ -327,13 +323,11 @@ namespace SiMay.RemoteMonitor.MainApplication
                 {
                     if (item.Checked)
                     {
-                        selectedItems.Add(item);
+                        yield return item;
                         item.Checked = false;
                     }
                 }
             }
-
-            return selectedItems;
         }
 
         private void LockWindow()

@@ -11,7 +11,7 @@ namespace SiMay.Core
 
     public class LogHelper : IDisposable
     {
-        public static string fileName = Environment.CurrentDirectory + @"\SiMaylog.log";
+        public static string fileName = Path.Combine(Environment.CurrentDirectory, "SiMaylog.log");
 
         static bool _isDisposed = false;
         static object _lock = new object();

@@ -17,7 +17,7 @@ namespace SiMay.RemoteControlsCore
         /// <summary>
         /// 重连AppKey
         /// </summary>
-        public string ResetAppKey { get; set; }
+        public string ResetApplicationKey { get; set; }
 
         /// <summary>
         /// 来源备注名

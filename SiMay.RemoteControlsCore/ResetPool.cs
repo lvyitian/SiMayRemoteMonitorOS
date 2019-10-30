@@ -41,7 +41,7 @@ namespace SiMay.RemoteControlsCore
                     string id = task.AdapterHandler.IdentifyId.Split('|')[0];
                     var syncContext = _syncContexts.FirstOrDefault(x => x.KeyDictions[SysConstants.IdentifyId].ConvertTo<string>() == id);
 
-                    LogHelper.WriteErrorByCurrentMethod("beigin Reset--{0},{1},{2}".FormatTo(task.AdapterHandler.ResetAppKey, task.AdapterHandler.IdentifyId, id));
+                    LogHelper.WriteErrorByCurrentMethod("beigin Reset--{0},{1},{2}".FormatTo(task.AdapterHandler.ResetApplicationKey, task.AdapterHandler.IdentifyId, id));
 
                     if (syncContext != null)
                     {
@@ -53,10 +53,10 @@ namespace SiMay.RemoteControlsCore
                             continue;
                         }
                         byte[] data = MessageHelper.CopyMessageHeadTo(MessageHead.S_MAIN_ACTIVATE_CTRLSERVICE,
-                            task.AdapterHandler.ResetAppKey);
+                            task.AdapterHandler.ResetApplicationKey);
                         syncContext.Session.SendMessageDoHasCOM(data);
 
-                        LogHelper.WriteErrorByCurrentMethod("send reset command--{0},{1},{2}".FormatTo(task.AdapterHandler.ResetAppKey, task.AdapterHandler.IdentifyId, id));
+                        LogHelper.WriteErrorByCurrentMethod("send reset command--{0},{1},{2}".FormatTo(task.AdapterHandler.ResetApplicationKey, task.AdapterHandler.IdentifyId, id));
                     }
 
                     //}
@@ -67,7 +67,7 @@ namespace SiMay.RemoteControlsCore
         public void Put(SuspendTaskContext context)
         {
             _suspendWorkQueue.Add(context);
-            LogHelper.WriteErrorByCurrentMethod("Session Close--{0},{1}".FormatTo(context.AdapterHandler.ResetAppKey, context.AdapterHandler.IdentifyId));
+            LogHelper.WriteErrorByCurrentMethod("Session Close--{0},{1}".FormatTo(context.AdapterHandler.ResetApplicationKey, context.AdapterHandler.IdentifyId));
         }
         public SuspendTaskContext FindTask(string identifyId)
         {
@@ -84,7 +84,7 @@ namespace SiMay.RemoteControlsCore
             if (task != null)
             {
                 _suspendWorkQueue.Remove(task);
-                LogHelper.WriteErrorByCurrentMethod("ResetTask Remove--{0},{1}".FormatTo(task.AdapterHandler.ResetAppKey, task.AdapterHandler.IdentifyId));
+                LogHelper.WriteErrorByCurrentMethod("ResetTask Remove--{0},{1}".FormatTo(task.AdapterHandler.ResetApplicationKey, task.AdapterHandler.IdentifyId));
             }
             else
                 return false;
