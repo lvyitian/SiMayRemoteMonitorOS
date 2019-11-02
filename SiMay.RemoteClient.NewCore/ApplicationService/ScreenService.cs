@@ -61,8 +61,6 @@ namespace SiMay.ServiceCore.ApplicationService
 
             _spy = new ScreenSpy();
             _spy.OnDifferencesNotice += ScreenDifferences_OnDifferencesNotice;
-
-            this.SendDesktopBitInfo();
         }
 
         [PacketHandler(MessageHead.S_SCREEN_SET_CLIPBOARD_TEXT)]
@@ -95,7 +93,8 @@ namespace SiMay.ServiceCore.ApplicationService
 
         }
 
-        private void SendDesktopBitInfo()
+        [PacketHandler(MessageHead.S_SCREEN_GET_INIT_BITINFO)]
+        public void SendDesktopBitInfo(TcpSocketSaeaSession session)
         {
             SendAsyncToServer(MessageHead.C_SCREEN_BITINFO,
                new ScreenInitBitPack()

@@ -1,8 +1,6 @@
 ﻿using SiMay.Core;
 using SiMay.RemoteMonitor.Attributes;
-using static SiMay.Serialize.PacketSerializeHelper;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using SiMay.Basic;
@@ -15,6 +13,7 @@ using SiMay.RemoteMonitor.MainApplication;
 using SiMay.Net.SessionProvider.SessionBased;
 using SiMay.RemoteControlsCore.HandlerAdapters;
 using static SiMay.RemoteMonitor.Win32Api;
+using static SiMay.Serialize.PacketSerializeHelper;
 
 namespace SiMay.RemoteMonitor.Application
 {
@@ -46,7 +45,7 @@ namespace SiMay.RemoteMonitor.Application
         private int _recvImgCount = 0;
         private bool _isControl = false;
         private long _traffic = 0;
-        private int _ctrlMode = 0;//0=全屏控制1=原始比例
+        private ScreenDisplayMode _screenDisplayMode = ScreenDisplayMode.Fullscreen;//0=全屏控制1=原始比例
         private string _title = "//远程桌面【右键更多选项】 #Name# 帧率 {0}/秒 总流量 {1} KB";
 
         //当前图像高宽
@@ -80,6 +79,7 @@ namespace SiMay.RemoteMonitor.Application
         {
             _continueTask = true;
             _timer.Start();
+            this.RemoteScreenAdapterHandler.GetInitializeBitInfo();
         }
 
         private void ScreenSpyForm_Load(object sender, EventArgs e)
@@ -118,6 +118,70 @@ namespace SiMay.RemoteMonitor.Application
             this.Text = string.Format(this._title = this._title.Replace("#Name#", this.RemoteScreenAdapterHandler.OriginName), "0", "0.0");
             this.RemoteScreenAdapterHandler.Session.Socket.NoDelay = false;
             this.RemoteScreenAdapterHandler.OnClipoardReceivedEventHandler += OnClipoardReceivedEventHandler;
+            this.RemoteScreenAdapterHandler.OnServcieInitEventHandler += OnServcieInitEventHandler;
+            this.RemoteScreenAdapterHandler.OnScreenFragmentEventHandler += OnScreenFragmentEventHandler;
+            this.RemoteScreenAdapterHandler.GetInitializeBitInfo();
+        }
+
+        private void OnServcieInitEventHandler(RemoteScreenAdapterHandler adapterHandler, int height, int width)
+        {
+            this._srcImageWidth = width;
+            this._srcImageHeight = height;
+
+            if (_screenDisplayMode == 0)
+            {
+                _currentImageHeight = this.imgDesktop.Height;
+                _currentImageWidth = this.imgDesktop.Width;
+            }
+            else
+            {
+                _currentImageWidth = this._srcImageWidth;
+                _currentImageHeight = this._srcImageHeight;
+            }
+
+            _image = new Bitmap(_currentImageWidth, _currentImageHeight);
+
+            Graphics g = Graphics.FromImage(_image);
+            g.Clear(Color.Black);
+            g.DrawString("桌面加载中...", new Font("微软雅黑", 15, FontStyle.Regular), new SolidBrush(Color.Red), new Point((height / 2) - 40, width / 2));
+            g.Dispose();
+            adapterHandler.StartGetScreen(this.ClientSize.Height, this.ClientSize.Width, Math.Abs(this.imgDesktop.Left), Math.Abs(this.imgDesktop.Top), this._screenDisplayMode);
+        }
+
+        private void OnScreenFragmentEventHandler(RemoteScreenAdapterHandler adapterHandler, Core.ScreenSpy.Entitys.Fragment[] fragments, ScreenReceivedType type)
+        {
+            switch (type)
+            {
+                case ScreenReceivedType.Noninterlaced:
+                    foreach (var fragment in fragments)
+                    {
+                        using (MemoryStream ms = new MemoryStream(fragment.FragmentData))
+                        {
+                            this.DisplayScreen(Image.FromStream(ms), new Rectangle(fragment.X, fragment.Y, fragment.Width, fragment.Height));
+                            _traffic += ms.Length;
+                        }
+                    }
+                    _recvImgCount++;
+                    adapterHandler.GetNextScreen(this.ClientSize.Height, this.ClientSize.Width, Math.Abs(this.imgDesktop.Left), Math.Abs(this.imgDesktop.Top), this._screenDisplayMode);
+                    break;
+                case ScreenReceivedType.Difference:
+
+                    foreach (var fragment in fragments)
+                    {
+                        using (MemoryStream ms = new MemoryStream(fragment.FragmentData))
+                        {
+                            this.DisplayScreen(Image.FromStream(ms), new Rectangle(fragment.X, fragment.Y, fragment.Width, fragment.Height));
+                            _traffic += ms.Length;
+                        }
+                    }
+                    break;
+                case ScreenReceivedType.DifferenceEnd:
+                    _recvImgCount++;
+                    adapterHandler.GetNextScreen(this.ClientSize.Height, this.ClientSize.Width, Math.Abs(this.imgDesktop.Left), Math.Abs(this.imgDesktop.Top), this._screenDisplayMode);
+                    break;
+                default:
+                    break;
+            }
         }
 
         private void OnClipoardReceivedEventHandler(RemoteScreenAdapterHandler adapterHandler, string text)
@@ -144,7 +208,8 @@ namespace SiMay.RemoteMonitor.Application
                 {
                     case IDM_SCREENMON:
 
-                        if (_ctrlMode == 1) return;
+                        if (_screenDisplayMode == ScreenDisplayMode.Original)
+                            return;
 
                         CheckMenuItem(sysMenuHandle, IDM_SCREENMON, MF_CHECKED);
                         CheckMenuItem(sysMenuHandle, IDM_FULL_SCREEN, MF_UNCHECKED);
@@ -158,15 +223,16 @@ namespace SiMay.RemoteMonitor.Application
                         this._currentImageWidth = this._srcImageWidth;
 
                         this._image = new Bitmap(this._currentImageWidth, this._currentImageHeight);
-                        _ctrlMode = 1;
+                        _screenDisplayMode = ScreenDisplayMode.Original;
                         break;
                     case IDM_FULL_SCREEN:
-                        if (_ctrlMode == 0) return;
+                        if (_screenDisplayMode == ScreenDisplayMode.Fullscreen)
+                            return;
 
                         CheckMenuItem(sysMenuHandle, IDM_FULL_SCREEN, MF_CHECKED);
                         CheckMenuItem(sysMenuHandle, IDM_SCREENMON, MF_UNCHECKED);
 
-                        CheckMenuItem(sysMenuHandle, IDM_KEYMOUSE_CTRL, MF_UNCHECKED);
+                        //CheckMenuItem(sysMenuHandle, IDM_KEYMOUSE_CTRL, MF_UNCHECKED);
                         //EnableMenuItem(sysMenuHandle, IDM_KEYMOUSE_CTRL, MF_DISABLED);
 
                         this.imgDesktop.Dock = DockStyle.Fill;
@@ -175,7 +241,7 @@ namespace SiMay.RemoteMonitor.Application
                         this._currentImageHeight = this.imgDesktop.Height;
                         this._currentImageWidth = this.imgDesktop.Width;
                         this._image = new Bitmap(this._currentImageWidth, this._currentImageHeight);
-                        _ctrlMode = 0;
+                        _screenDisplayMode = ScreenDisplayMode.Fullscreen;
                         break;
                     case IDM_KEYMOUSE_CTRL:
                         if (_isControl == true)
@@ -269,7 +335,7 @@ namespace SiMay.RemoteMonitor.Application
             }
 
             //适应屏幕
-            if (_ctrlMode == 0)
+            if (_screenDisplayMode == 0)
             {
                 if (_currentImageWidth != this.imgDesktop.Width || _currentImageHeight != this.imgDesktop.Height)
                 {
@@ -285,114 +351,6 @@ namespace SiMay.RemoteMonitor.Application
             }
 
             base.WndProc(ref m);
-        }
-
-        //[PacketHandler(MessageHead.C_SCREEN_BITINFO)]
-        public void SetBitmapHandler(SessionHandler session)
-        {
-            var bitinfo = session.CompletedBuffer.GetMessageEntity<ScreenInitBitPack>();
-            //原始图像尺寸
-            this._srcImageWidth = bitinfo.Width;
-            this._srcImageHeight = bitinfo.Height;
-
-            if (_ctrlMode == 0)
-            {
-                _currentImageHeight = this.imgDesktop.Height;
-                _currentImageWidth = this.imgDesktop.Width;
-            }
-            else
-            {
-                _currentImageWidth = this._srcImageWidth;
-                _currentImageHeight = this._srcImageHeight;
-            }
-
-            _image = new Bitmap(_currentImageWidth, _currentImageHeight);
-
-            Graphics g = Graphics.FromImage(_image);
-            g.Clear(Color.Black);
-            g.DrawString("桌面加载中...", new Font("微软雅黑", 15, FontStyle.Regular), new SolidBrush(Color.Red), new Point((bitinfo.Width / 2) - 40, bitinfo.Height / 2));
-            g.Dispose();
-
-            var rect = SerializePacket(new ScreenHotRectanglePack()
-            {
-                X = Math.Abs(this.imgDesktop.Left),
-                Y = Math.Abs(this.imgDesktop.Top),
-                Height = this.ClientSize.Height,
-                Width = this.ClientSize.Width,
-                CtrlMode = _ctrlMode
-            });
-            //第一帧不计入连续帧
-            for (int i = 0; i < 3; i++)
-            {
-                //_adapter.SendAsyncMessage(MessageHead.S_SCREEN_NEXT_SCREENBITMP, rect);
-            }
-        }
-
-
-        //已接收帧数
-        int _frameCount = 0;
-
-        private void GetNextScreen()
-        {
-            if (this.RemoteScreenAdapterHandler.IsClose)
-                return;
-
-            _frameCount++;
-            //Console.WriteLine(this.imgDesktop.Height + " | " + Width + "|" + this.Height + " | " + this.Width);
-
-            if (_frameCount == 1)//使帧数更连续
-            {
-                var rect = SerializePacket(new ScreenHotRectanglePack()
-                {
-                    X = Math.Abs(this.imgDesktop.Left),
-                    Y = Math.Abs(this.imgDesktop.Top),
-                    Height = this.ClientSize.Height,
-                    Width = this.ClientSize.Width,
-                    CtrlMode = _ctrlMode
-                });
-                //for (int i = 0; i < 3; i++)
-                //    _adapter.SendAsyncMessage(MessageHead.S_SCREEN_NEXT_SCREENBITMP, rect);
-            }
-            else if (_frameCount == 3)
-                _frameCount = 0;
-        }
-
-        //[PacketHandler(MessageHead.C_SCREEN_DIFFBITMAP)]
-        public void FullFragmentHandler(SessionHandler session)
-        {
-            int dataSize = session.CompletedBuffer.Length;
-            var fragments = session.CompletedBuffer.GetMessageEntity<ScreenFragmentPack>();
-            foreach (var fragment in fragments.Fragments)
-            {
-                using (MemoryStream ms = new MemoryStream(fragment.FragmentData))
-                    this.DisplayScreen(Image.FromStream(ms), new Rectangle(fragment.X, fragment.Y, fragment.Width, fragment.Height));
-            }
-            _traffic += dataSize;
-
-            _recvImgCount++;
-
-            this.GetNextScreen();
-        }
-
-        //[PacketHandler(MessageHead.C_SCREEN_BITMP)]
-        public void SigleFragmentHandler(SessionHandler session)
-        {
-            int dataSize = session.CompletedBuffer.Length;
-            var fragments = session.CompletedBuffer.GetMessageEntity<ScreenFragmentPack>();
-
-            foreach (var fragment in fragments.Fragments)
-            {
-                using (MemoryStream ms = new MemoryStream(fragment.FragmentData))
-                    this.DisplayScreen(Image.FromStream(ms), new Rectangle(fragment.X, fragment.Y, fragment.Width, fragment.Height));
-            }
-
-            _traffic += dataSize;
-        }
-        //[PacketHandler(MessageHead.C_SCREEN_SCANCOMPLETE)]
-        public void ScanFinishHandler(SessionHandler session)
-        {
-            _recvImgCount++;
-            this.GetNextScreen();
         }
 
         private void DisplayScreen(Image bit, Rectangle rect)
@@ -431,7 +389,7 @@ namespace SiMay.RemoteMonitor.Application
             int x = e.X;
             int y = e.Y;
 
-            if (_ctrlMode == 0)
+            if (_screenDisplayMode == 0)
             {
                 x = (int)(e.X / ((float)this.imgDesktop.Width / (float)this._srcImageWidth));
                 y = (int)(e.Y / ((float)this.imgDesktop.Height / (float)this._srcImageHeight));
@@ -467,7 +425,7 @@ namespace SiMay.RemoteMonitor.Application
             int x = e.X;
             int y = e.Y;
 
-            if (_ctrlMode == 0)
+            if (_screenDisplayMode == 0)
             {
                 x = (int)(e.X / ((float)this.imgDesktop.Width / (float)this._srcImageWidth));
                 y = (int)(e.Y / ((float)this.imgDesktop.Height / (float)this._srcImageHeight));
@@ -499,6 +457,9 @@ namespace SiMay.RemoteMonitor.Application
         {
             _timer.Stop();
             _timer.Dispose();
+            this.RemoteScreenAdapterHandler.OnClipoardReceivedEventHandler -= OnClipoardReceivedEventHandler;
+            this.RemoteScreenAdapterHandler.OnServcieInitEventHandler -= OnServcieInitEventHandler;
+            this.RemoteScreenAdapterHandler.OnScreenFragmentEventHandler -= OnScreenFragmentEventHandler;
             this.RemoteScreenAdapterHandler.CloseHandler();
         }
 
@@ -510,7 +471,7 @@ namespace SiMay.RemoteMonitor.Application
             int x = e.X;
             int y = e.Y;
 
-            if (_ctrlMode == 0)
+            if (_screenDisplayMode == 0)
             {
                 x = (int)(e.X / ((float)this.imgDesktop.Width / (float)this._srcImageWidth));
                 y = (int)(e.Y / ((float)this.imgDesktop.Height / (float)this._srcImageHeight));

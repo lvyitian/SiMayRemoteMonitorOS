@@ -55,6 +55,8 @@
     <Compile Include="Entitys\SuspendTaskContext.cs" />
     <Compile Include="Enum\BrandColorMode.cs" />
     <Compile Include="Enum\FileTransferFlage.cs" />
+    <Compile Include="Enum\ScreenDisplayMode.cs" />
+    <Compile Include="Enum\ScreenReceivedType.cs" />
     <Compile Include="Enum\ScreenScanMode.cs" />
     <Compile Include="Enum\TransferMode.cs" />
     <Compile Include="Enum\TransferTaskFlage.cs" />
@@ -93,6 +95,10 @@
     <ProjectReference Include="..\SiMay.Net.SessionProvider\SiMay.Net.SessionProvider.csproj">
       <Project>{BF5B6F41-D688-447F-BF81-EA821216F188}</Project>
       <Name>SiMay.Net.SessionProvider</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SiMay.Serialize\SiMay.Serialize.csproj">
+      <Project>{4888d6bb-46d9-4519-8758-e13e397aa226}</Project>
+      <Name>SiMay.Serialize</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
