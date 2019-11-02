@@ -11,8 +11,9 @@ using static SiMay.RemoteMonitor.Win32Api;
 
 namespace SiMay.RemoteMonitor.Application
 {
+    [Disable]
     [OnTools]
-    [ApplicationName("键盘记录")]
+    [ApplicationName("输入记录")]
     [AppResourceName("KeyboradManager")]
     [Application(typeof(KeyboardAdapterHandler), "RemoteKeyboradJob", 40)]
     public partial class KeyboardApplication : Form, IApplication
@@ -25,7 +26,7 @@ namespace SiMay.RemoteMonitor.Application
         [ApplicationAdapterHandler]
         public KeyboardAdapterHandler KeyboardAdapterHandler { get; set; }
 
-        private string _title = "//远程键盘记录 #Name#";
+        private string _title = "//远程输入记录 #Name#";
         public KeyboardApplication()
         {
             InitializeComponent();
@@ -101,7 +102,7 @@ namespace SiMay.RemoteMonitor.Application
                         if (!Directory.Exists(savaPath))
                             Directory.CreateDirectory(savaPath);
 
-                        string fileName = savaPath + "\\" + DateTime.Now.ToFileTime() + " 键盘离线文件.txt";
+                        string fileName = Path.Combine(savaPath, DateTime.Now.ToFileTime() + " 输入记录离线文件.txt");
                         StreamWriter fs = new StreamWriter(fileName, true);
                         fs.WriteLine(txtKey.Text);
                         fs.Close();

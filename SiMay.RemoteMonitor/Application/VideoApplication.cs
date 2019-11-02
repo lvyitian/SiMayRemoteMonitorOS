@@ -80,7 +80,6 @@ namespace SiMay.RemoteMonitor.Application
 
         protected override void WndProc(ref Message m)
         {
-
             if (m.Msg == WM_SYSCOMMAND)
             {
                 IntPtr sysMenuHandle = GetSystemMenu(m.HWnd, false);
@@ -91,7 +90,7 @@ namespace SiMay.RemoteMonitor.Application
                         CheckMenuItem(sysMenuHandle, IDM_DEFAULT, MF_UNCHECKED);
                         CheckMenuItem(sysMenuHandle, IDM_LOW, MF_UNCHECKED);
 
-                        VideoAppAdapterHandler.RemoteSetFrameQuantity(3);
+                        this.VideoAppAdapterHandler.RemoteSetFrameQuantity(3);
                         break;
                     case IDM_DEFAULT:
 
@@ -99,7 +98,7 @@ namespace SiMay.RemoteMonitor.Application
                         CheckMenuItem(sysMenuHandle, IDM_DEFAULT, MF_CHECKED);
                         CheckMenuItem(sysMenuHandle, IDM_LOW, MF_UNCHECKED);
 
-                        VideoAppAdapterHandler.RemoteSetFrameQuantity(2);
+                        this.VideoAppAdapterHandler.RemoteSetFrameQuantity(2);
                         break;
                     case IDM_LOW:
 
@@ -107,7 +106,7 @@ namespace SiMay.RemoteMonitor.Application
                         CheckMenuItem(sysMenuHandle, IDM_DEFAULT, MF_UNCHECKED);
                         CheckMenuItem(sysMenuHandle, IDM_LOW, MF_CHECKED);
 
-                        VideoAppAdapterHandler.RemoteSetFrameQuantity(1);
+                        this.VideoAppAdapterHandler.RemoteSetFrameQuantity(1);
                         break;
                     case IDM_SAVE:
 

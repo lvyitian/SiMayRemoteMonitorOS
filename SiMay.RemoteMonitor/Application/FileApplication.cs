@@ -37,7 +37,6 @@ namespace SiMay.RemoteMonitor.Application
         private const Int32 IDM_DIR_VIDEO = 1003;
         private const Int32 IDM_DIR_PIC = 1004;
         private const Int32 IDM_DIR_HOME = 1005;
-        private const int FILE_BUFFER_SIZE = 1024 * 512;
 
         [ApplicationAdapterHandler]
         public RemoteFileAdapterHandler RemoteFileAdapterHandler { get; set; }
@@ -732,7 +731,7 @@ namespace SiMay.RemoteMonitor.Application
                 case FileTransferFlag.Transfering:
                     this.transferProgress.Value = Convert.ToInt32(position / (float)fileSize * 100);
                     this.transferCaption.Text = $"正在传输:{Path.GetFileName(fileName)} 文件大小:{FileHelper.LengthToFileSize(fileSize)}";
-                    this.transferDatalenght.Text = $"已传输{FileHelper.LengthToFileSize(position)}";
+                    this.transferDatalenght.Text = $"已传输:{FileHelper.LengthToFileSize(position)}";
                     this.time.Text = "传输时间:{0}s".FormatTo((DateTime.Now - _startTime).TotalSeconds.ToString("0"));
                     break;
                 case FileTransferFlag.End:
@@ -799,7 +798,7 @@ namespace SiMay.RemoteMonitor.Application
                 LogHelper.WriteErrorByCurrentMethod(ex);
             }
 
-
+            this.transferCaption.Text = "目录上传完成!";
         }
 
         private void toolStripDropDownButton1_Click(object sender, EventArgs e)

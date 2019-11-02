@@ -53,7 +53,9 @@
     <Compile Include="Attributes\Disable.cs" />
     <Compile Include="Entitys\SessionSyncContext.cs" />
     <Compile Include="Entitys\SuspendTaskContext.cs" />
+    <Compile Include="Enum\BrandColorMode.cs" />
     <Compile Include="Enum\FileTransferFlage.cs" />
+    <Compile Include="Enum\ScreenScanMode.cs" />
     <Compile Include="Enum\TransferMode.cs" />
     <Compile Include="Enum\TransferTaskFlage.cs" />
     <Compile Include="Extension\AppTypeExtension.cs" />

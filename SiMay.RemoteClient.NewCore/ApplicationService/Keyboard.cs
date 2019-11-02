@@ -110,7 +110,7 @@ namespace SiMay.ServiceCore.ApplicationService
                 timer.Interval = 5000;
                 timer.Start();
 
-                System.Windows.Forms.Application.Run(); //消息循环
+                //System.Windows.Forms.Application.Run(); //消息循环
             });
             _hookThread.IsBackground = true;
             _hookThread.Start();

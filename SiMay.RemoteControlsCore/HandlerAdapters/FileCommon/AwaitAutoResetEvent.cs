@@ -29,35 +29,29 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
         public void SetOneData(byte[] data = null)
         {
-            //lock (this._lock)
-            //{
-                StackFrame frame = new StackFrame(1, false);
-                LogHelper.DebugWriteLog(frame.GetMethod().Name + " SetOneData version:" + _version);
-                if (Interlocked.Increment(ref _version) >= 0)
-                {
-                    _buffer = data;
-                    _event.Set();
-                    LogHelper.DebugWriteLog(frame.GetMethod().Name + " SetOneData finish version:" + _version);
-                }
-            //}
+            StackFrame frame = new StackFrame(1, false);
+            LogHelper.DebugWriteLog(frame.GetMethod().Name + " SetOneData version:" + _version);
+            if (Interlocked.Increment(ref _version) >= 0)
+            {
+                _buffer = data;
+                _event.Set();
+                LogHelper.DebugWriteLog(frame.GetMethod().Name + " SetOneData finish version:" + _version);
+            }
         }
         public byte[] AwaitOneData()
         {
-            //lock (this._lock)
-            //{
-                StackFrame frame = new StackFrame(1, false);
-                LogHelper.DebugWriteLog(frame.GetMethod().Name + " AwaitOneData version:" + _version);
-                var re = Interlocked.Decrement(ref _version);
-                LogHelper.DebugWriteLog("re:" + re);
-                if (re <= 0)
-                {
-                    LogHelper.DebugWriteLog(frame.GetMethod().Name + " AwaitOneData ----wait version:" + _version);
-                    _event.Reset();
-                    _event.WaitOne();
-                    LogHelper.DebugWriteLog(frame.GetMethod().Name + " AwaitOneData ----wait finish version:" + _version);
-                }
-                return this._buffer;
-            //}
+            StackFrame frame = new StackFrame(1, false);
+            LogHelper.DebugWriteLog(frame.GetMethod().Name + " AwaitOneData version:" + _version);
+            var re = Interlocked.Decrement(ref _version);
+            LogHelper.DebugWriteLog("re:" + re);
+            if (re <= 0)
+            {
+                LogHelper.DebugWriteLog(frame.GetMethod().Name + " AwaitOneData ----wait version:" + _version);
+                _event.Reset();
+                _event.WaitOne(1000);
+                LogHelper.DebugWriteLog(frame.GetMethod().Name + " AwaitOneData ----wait finish version:" + _version);
+            }
+            return this._buffer;
         }
 
         /// <summary>

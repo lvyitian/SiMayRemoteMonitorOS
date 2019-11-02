@@ -317,18 +317,11 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <returns></returns>
         public async Task DownloadFile(IFileStream fileStream, string remoteFileName)
         {
-            long position = fileStream.Length;
-            reset:
-            SendAsyncMessage(MessageHead.S_FILE_DOWNLOAD,
-                new FileDownloadPack()
-                {
-                    FileName = remoteFileName,
-                    Position = position
-                });
-
             //LogHelper.DebugWriteLog("begin download frist Data fileName:" + Path.GetFileName(localFileName));
 
-            var responsed = await this.AwaitFristDownloadData();//首数据包，带文件状态信息及文件分块
+            long position = fileStream.Length;
+            reset:
+            var responsed = await this.AwaitOpenDownloadData(remoteFileName, position);//首数据包，带文件状态信息及文件分块
 
             var status = 0;
             //返回null表示已断开连接
@@ -362,7 +355,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
                 if (fileStream.Length >= responsed.FileSize)
                     break;//文件传输完成
 
-                var data = await this.AwaitDataPack().ConfigureAwait(true);
+                var data = await this.AwaitDownloadDataPack().ConfigureAwait(true);
                 //LogHelper.DebugWriteLog("download data:" + (data == null ? "null" : data.Data.Length.ToString()));
                 if (this.IsClose)
                     break;//传输中途关闭应用
@@ -403,10 +396,16 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             LogHelper.DebugWriteLog("C_FILE_FRIST_DATA SetOpenEvent head:" + string.Join(",", session.CompletedBuffer.Take(2).Select(c => c.ToString()).ToArray()) /*+ " fileName:" + session.CompletedBuffer.GetMessageEntity<FileFristDownloadDataPack>().fileName*/);
             _workerStreamEvent.SetOneData(session.CompletedBuffer);
         }
-        private async Task<FileFristDownloadDataPack> AwaitFristDownloadData()
+        private async Task<FileFristDownloadDataPack> AwaitOpenDownloadData(string remoteFileName, long position)
         {
             return await Task.Run(() =>
             {
+                SendAsyncMessage(MessageHead.S_FILE_DOWNLOAD,
+                new FileDownloadPack()
+                {
+                    FileName = remoteFileName,
+                    Position = position
+                });
 
                 if (_isWorkSessionOfLines)//判断是否离线，再进入阻塞等待
                 {
@@ -427,7 +426,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             LogHelper.DebugWriteLog("SetDataOneEvent head:" + string.Join(",", session.CompletedBuffer.Take(2).Select(c => c.ToString()).ToArray()));
             _workerStreamEvent.SetOneData(session.CompletedBuffer);
         }
-        private async Task<FileDownloadDataPack> AwaitDataPack()
+        private async Task<FileDownloadDataPack> AwaitDownloadDataPack()
         {
             return await Task.Run(() =>
             {
@@ -472,13 +471,9 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             Func<string, TransferMode> onSelectedFileTransferMode)
         {
             reset:
-            SendAsyncMessage(MessageHead.S_FILE_UPLOAD,
-                new FileUploadPack()
-                {
-                    FileName = remoteFileName
-                });
+
             LogHelper.DebugWriteLog("begin upload");
-            var responsed = await this.AwaitUploadFileStatus();//获取远程文件状态
+            var responsed = await this.AwaitOpenUploadFileStatus(remoteFileName);//获取远程文件状态
             if (responsed == null)//返回null表示等待结果期间连接中断
             {
                 var isReset = await this.AwaitResetUploadFile();
@@ -640,10 +635,15 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             LogHelper.DebugWriteLog("SetUploadFileStatus head:" + string.Join(",", session.CompletedBuffer.Take(2).Select(c => c.ToString()).ToArray()));
             _workerStreamEvent.SetOneData(session.CompletedBuffer);
         }
-        private async Task<FileUploadFileStatus> AwaitUploadFileStatus()
+        private async Task<FileUploadFileStatus> AwaitOpenUploadFileStatus(string remoteFileName)
         {
             return await Task.Run(() =>
             {
+                SendAsyncMessage(MessageHead.S_FILE_UPLOAD,
+                    new FileUploadPack()
+                    {
+                        FileName = remoteFileName
+                    });
                 //LogHelper.DebugWriteLog("get status");
                 if (_isWorkSessionOfLines)
                 {
@@ -678,13 +678,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             reset:
             this._filesQueue.Clear();
             TransferTaskFlage = TransferTaskFlage.Allow;
-            SendAsyncMessage(MessageHead.S_FILE_GETDIR_FILES,
-                new FileDirectoryGetFilesPack()
-                {
-                    DirectoryPath = remotedirectory
-                });
-
-            var result = await this.AwaitGetDirectoryFiles();
+            var result = await this.AwaitGetDirectoryFiles(remotedirectory);
             if (!result)
             {
                 var isReset = await this.AwaitResetDownloadDirectory();
@@ -731,10 +725,15 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             _filesTriggerEvent.Set();
         }
 
-        private async Task<bool> AwaitGetDirectoryFiles()
+        private async Task<bool> AwaitGetDirectoryFiles(string remotedirectory)
         {
             return await Task.Run(() =>
             {
+                SendAsyncMessage(MessageHead.S_FILE_GETDIR_FILES,
+                    new FileDirectoryGetFilesPack()
+                    {
+                        DirectoryPath = remotedirectory
+                    });
                 if (this._isWorkSessionOfLines)
                 {
                     _filesTriggerEvent.Reset();

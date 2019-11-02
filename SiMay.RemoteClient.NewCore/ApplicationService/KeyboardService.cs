@@ -10,7 +10,7 @@ using System;
 
 namespace SiMay.ServiceCore.ApplicationService
 {
-    [ServiceName("键盘记录")]
+    [ServiceName("键盘输入记录")]
     [ServiceKey("RemoteKeyboradJob")]
     public class KeyboardService : ServiceManager, IApplicationService
     {
