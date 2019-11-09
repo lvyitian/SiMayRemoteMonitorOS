@@ -68,12 +68,12 @@ namespace SiMay.ServiceCore.Helper
         }
         public static bool ExistRecordDevice()
         {
-            return Win32.waveInGetNumDevs() > 0 ? true : false;
+            return WindSound.Win32.waveInGetNumDevs() > 0 ? true : false;
         }
 
         public static bool ExistPlayDevice()
         {
-            return Win32.waveOutGetNumDevs() > 0 ? true : false;
+            return WindSound.Win32.waveOutGetNumDevs() > 0 ? true : false;
         }
 
         //public static string GetLocalIPV4()

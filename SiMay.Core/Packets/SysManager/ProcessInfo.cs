@@ -18,6 +18,8 @@ namespace SiMay.Core.Packets
         public int ProcessMemorySize { get; set; }
 
         public int ProcessThreadCount { get; set; }
+        public int SessionId { get; set; }
+        public string User { get; set; }
         public string FilePath { get; set; }
     }
 }

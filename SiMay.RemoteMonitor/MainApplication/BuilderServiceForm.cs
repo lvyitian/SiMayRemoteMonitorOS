@@ -90,6 +90,9 @@ namespace SiMay.RemoteMonitor.MainApplication
                 IsHide = ishide.Checked,
                 IsAutoRun = sutoRun.Checked,
                 IsMutex = mutex.Checked,
+                InstallService = svcInstallCheckBox.Checked,
+                ServiceName = "SiMayService",
+                ServiceDisplayName = "SiMay远程被控服务",
                 SessionMode = int.Parse(AppConfiguration.SessionMode),
                 GroupName = groupNameBox.Text
             };

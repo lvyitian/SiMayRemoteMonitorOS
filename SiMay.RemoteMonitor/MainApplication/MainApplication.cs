@@ -753,7 +753,7 @@ namespace SiMay.RemoteMonitor.MainApplication
             DialogResult result = input.ShowDialog();
             if (input.Value != "" && result == DialogResult.OK)
             {
-                this.GetSelectedDesktopView().ForEach(c =>
+                this.GetSelectedListItem().ForEach(c =>
                 {
                     this._appMainAdapterHandler.RemoteOpenUrl(c.SessionSyncContext, input.Value);
                 });

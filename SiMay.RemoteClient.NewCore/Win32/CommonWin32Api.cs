@@ -7,7 +7,7 @@ using System.Text;
 
 namespace SiMay.ServiceCore
 {
-    public static class Win32Api
+    public static class CommonWin32Api
     {
         [DllImport("user32.dll", EntryPoint = "PostMessage")]
         public static extern int PostMessage(

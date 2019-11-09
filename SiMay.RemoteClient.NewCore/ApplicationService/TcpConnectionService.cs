@@ -124,30 +124,30 @@ namespace SiMay.ServiceCore.ApplicationService
                         table[i].state = 12; // 12 for Delete_TCB state
                         var ptr = Marshal.AllocCoTaskMem(Marshal.SizeOf(table[i]));
                         Marshal.StructureToPtr(table[i], ptr, false);
-                        var result = Win32Api.SetTcpEntry(ptr);
+                        var result = CommonWin32Api.SetTcpEntry(ptr);
                     }
                 }
             }
             this.GetTcpConnectionList(session);
         }
-        private static Win32Api.MibTcprowOwnerPid[] GetTable()
+        private static CommonWin32Api.MibTcprowOwnerPid[] GetTable()
         {
-            Win32Api.MibTcprowOwnerPid[] tTable;
+            CommonWin32Api.MibTcprowOwnerPid[] tTable;
             var afInet = 2;
             var buffSize = 0;
-            var ret = Win32Api.GetExtendedTcpTable(IntPtr.Zero, ref buffSize, true, afInet, Win32Api.TcpTableClass.TcpTableOwnerPidAll);
+            var ret = CommonWin32Api.GetExtendedTcpTable(IntPtr.Zero, ref buffSize, true, afInet, CommonWin32Api.TcpTableClass.TcpTableOwnerPidAll);
             var buffTable = Marshal.AllocHGlobal(buffSize);
             try
             {
-                ret = Win32Api.GetExtendedTcpTable(buffTable, ref buffSize, true, afInet, Win32Api.TcpTableClass.TcpTableOwnerPidAll);
+                ret = CommonWin32Api.GetExtendedTcpTable(buffTable, ref buffSize, true, afInet, CommonWin32Api.TcpTableClass.TcpTableOwnerPidAll);
                 if (ret != 0)
                     return null;
-                var tab = (Win32Api.MibTcptableOwnerPid)Marshal.PtrToStructure(buffTable, typeof(Win32Api.MibTcptableOwnerPid));
+                var tab = (CommonWin32Api.MibTcptableOwnerPid)Marshal.PtrToStructure(buffTable, typeof(CommonWin32Api.MibTcptableOwnerPid));
                 var rowPtr = (IntPtr)((long)buffTable + Marshal.SizeOf(tab.dwNumEntries));
-                tTable = new Win32Api.MibTcprowOwnerPid[tab.dwNumEntries];
+                tTable = new CommonWin32Api.MibTcprowOwnerPid[tab.dwNumEntries];
                 for (var i = 0; i < tab.dwNumEntries; i++)
                 {
-                    var tcpRow = (Win32Api.MibTcprowOwnerPid)Marshal.PtrToStructure(rowPtr, typeof(Win32Api.MibTcprowOwnerPid));
+                    var tcpRow = (CommonWin32Api.MibTcprowOwnerPid)Marshal.PtrToStructure(rowPtr, typeof(CommonWin32Api.MibTcprowOwnerPid));
                     tTable[i] = tcpRow;
                     rowPtr = (IntPtr)((long)rowPtr + Marshal.SizeOf(tcpRow));
                 }

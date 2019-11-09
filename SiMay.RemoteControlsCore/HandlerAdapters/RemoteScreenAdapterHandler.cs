@@ -169,7 +169,10 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
                                         Text = text
                                     });
         }
-
+        public void SendCtrlAltDel()
+        {
+            SendAsyncMessage(MessageHead.S_SCREEN_CTRL_ALT_DEL);
+        }
 
         public void GetRemoteClipoardText()
         {

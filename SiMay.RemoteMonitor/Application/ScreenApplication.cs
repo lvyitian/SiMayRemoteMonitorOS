@@ -37,6 +37,7 @@ namespace SiMay.RemoteMonitor.Application
         private const Int32 IDM_Qty = 1011;
         private const Int32 IDM_SET_CLIPBOARD = 1012;
         private const Int32 IDM_GET_CLIPBOARD = 1013;
+        private const Int32 IDM_CTRL_ALT_DEL = 1014;
 
         [ApplicationAdapterHandler]
         public RemoteScreenAdapterHandler RemoteScreenAdapterHandler { get; set; }
@@ -105,6 +106,7 @@ namespace SiMay.RemoteMonitor.Application
             InsertMenu(sysMenuHandle, index++, MF_BYPOSITION, IDM_4X, "4位彩色");
             InsertMenu(sysMenuHandle, index++, MF_BYPOSITION, IDM_16X, "16位高彩");
             InsertMenu(sysMenuHandle, index++, MF_BYPOSITION, IDM_Qty, "质量设置");
+            InsertMenu(sysMenuHandle, index++, MF_BYPOSITION, IDM_CTRL_ALT_DEL, "Ctrl + Alt + Del");
 
             CheckMenuItem(sysMenuHandle, IDM_FULL_SCREEN, MF_CHECKED);
             CheckMenuItem(sysMenuHandle, IDM_FULL_DIFFER, MF_CHECKED);
@@ -331,6 +333,9 @@ namespace SiMay.RemoteMonitor.Application
                     case IDM_GET_CLIPBOARD:
                         this.RemoteScreenAdapterHandler.GetRemoteClipoardText();
                         break;
+                    case IDM_CTRL_ALT_DEL:
+                        this.RemoteScreenAdapterHandler.SendCtrlAltDel();
+                        break;
                 }
             }
 
@@ -339,12 +344,15 @@ namespace SiMay.RemoteMonitor.Application
             {
                 if (_currentImageWidth != this.imgDesktop.Width || _currentImageHeight != this.imgDesktop.Height)
                 {
+                    //最小化窗体时，控件大小==0
+                    if (this.imgDesktop.Width == 0 && this.imgDesktop.Height == 0)
+                    {
+                        base.WndProc(ref m);
+                        return;
+                    }
+
                     _currentImageWidth = this.imgDesktop.Width;
                     _currentImageHeight = this.imgDesktop.Height;
-
-                    //最小化窗体时，控件大小==0
-                    if (_currentImageWidth == 0 && _currentImageHeight == 0)
-                        return;
 
                     _image = new Bitmap(_currentImageWidth, _currentImageHeight);
                 }

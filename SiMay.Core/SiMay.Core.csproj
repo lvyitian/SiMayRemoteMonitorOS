@@ -145,6 +145,7 @@
     <Compile Include="Packets\TcpConnection\TcpConnectionPack.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegValueHelper.cs" />
+    <Compile Include="ScreenSpy\Interface\ICapturer.cs" />
     <Compile Include="ScreenSpy\JpgCompression.cs" />
     <Compile Include="ScreenSpy\ScreenCaptureHelper.cs" />
     <Compile Include="ScreenSpy\ScreenSpy.cs" />

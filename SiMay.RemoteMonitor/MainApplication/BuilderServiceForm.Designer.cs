@@ -51,6 +51,7 @@
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.logList = new System.Windows.Forms.ListBox();
             this.button3 = new System.Windows.Forms.Button();
+            this.svcInstallCheckBox = new System.Windows.Forms.CheckBox();
             this.groupBox4.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -68,12 +69,13 @@
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.svcInstallCheckBox);
             this.groupBox4.Controls.Add(this.mutex);
             this.groupBox4.Controls.Add(this.sutoRun);
             this.groupBox4.Controls.Add(this.ishide);
-            this.groupBox4.Location = new System.Drawing.Point(11, 354);
+            this.groupBox4.Location = new System.Drawing.Point(11, 331);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(402, 69);
+            this.groupBox4.Size = new System.Drawing.Size(402, 52);
             this.groupBox4.TabIndex = 28;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "功能选项";
@@ -81,7 +83,7 @@
             // mutex
             // 
             this.mutex.AutoSize = true;
-            this.mutex.Location = new System.Drawing.Point(193, 20);
+            this.mutex.Location = new System.Drawing.Point(268, 20);
             this.mutex.Name = "mutex";
             this.mutex.Size = new System.Drawing.Size(72, 16);
             this.mutex.TabIndex = 11;
@@ -101,7 +103,7 @@
             // ishide
             // 
             this.ishide.AutoSize = true;
-            this.ishide.Location = new System.Drawing.Point(106, 20);
+            this.ishide.Location = new System.Drawing.Point(181, 20);
             this.ishide.Name = "ishide";
             this.ishide.Size = new System.Drawing.Size(72, 16);
             this.ishide.TabIndex = 10;
@@ -262,9 +264,9 @@
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.logList);
-            this.groupBox2.Location = new System.Drawing.Point(11, 185);
+            this.groupBox2.Location = new System.Drawing.Point(11, 173);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(402, 162);
+            this.groupBox2.Size = new System.Drawing.Size(402, 152);
             this.groupBox2.TabIndex = 26;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "配置日志";
@@ -275,9 +277,9 @@
             this.logList.ForeColor = System.Drawing.Color.Lime;
             this.logList.FormattingEnabled = true;
             this.logList.ItemHeight = 12;
-            this.logList.Location = new System.Drawing.Point(10, 15);
+            this.logList.Location = new System.Drawing.Point(12, 20);
             this.logList.Name = "logList";
-            this.logList.Size = new System.Drawing.Size(382, 184);
+            this.logList.Size = new System.Drawing.Size(382, 124);
             this.logList.TabIndex = 9;
             // 
             // button3
@@ -289,6 +291,16 @@
             this.button3.Text = "创建服务端文件";
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
+            // 
+            // svcInstallCheckBox
+            // 
+            this.svcInstallCheckBox.AutoSize = true;
+            this.svcInstallCheckBox.Location = new System.Drawing.Point(94, 20);
+            this.svcInstallCheckBox.Name = "svcInstallCheckBox";
+            this.svcInstallCheckBox.Size = new System.Drawing.Size(72, 16);
+            this.svcInstallCheckBox.TabIndex = 12;
+            this.svcInstallCheckBox.Text = "服务安装";
+            this.svcInstallCheckBox.UseVisualStyleBackColor = true;
             // 
             // BuilderServiceForm
             // 
@@ -341,5 +353,6 @@
         private System.Windows.Forms.CheckBox mutex;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox groupNameBox;
+        private System.Windows.Forms.CheckBox svcInstallCheckBox;
     }
 }

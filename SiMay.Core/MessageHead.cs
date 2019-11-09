@@ -54,6 +54,7 @@ namespace SiMay.Core
         S_SCREEN_SETQTY,                                   //设置图像质量
         S_SCREEN_GET_CLIPOARD_TEXT,                         //获取剪切板Text
         S_SCREEN_GET_INIT_BITINFO,                          //获取初始化屏幕信息
+        S_SCREEN_CTRL_ALT_DEL,                              //模拟Ctrl+Alt+Del
 
         C_SCREEN_BITINFO = 2000,                           //桌面大小信息
         C_SCREEN_SCANCOMPLETE,                             //屏幕扫描完成

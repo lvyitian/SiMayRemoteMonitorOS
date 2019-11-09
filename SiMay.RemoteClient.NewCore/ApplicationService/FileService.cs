@@ -18,7 +18,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using static SiMay.ServiceCore.Win32Api;
+using static SiMay.ServiceCore.CommonWin32Api;
 
 namespace SiMay.ServiceCore.ApplicationService
 {

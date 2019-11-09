@@ -52,6 +52,8 @@ namespace SiMay.RemoteMonitor.Application
             this.processList.Columns.Add("窗口句柄", 70);
             this.processList.Columns.Add("内存", 70);
             this.processList.Columns.Add("线程数量", 70);
+            this.processList.Columns.Add("会话Id", 70);
+            this.processList.Columns.Add("用户", 70);
             this.processList.Columns.Add("文件位置", 300);
 
             this.SystemAdapterHandler.OnProcessListHandlerEvent += OnProcessListHandlerEvent;
@@ -97,7 +99,7 @@ namespace SiMay.RemoteMonitor.Application
                 {
                     var process = processLst[processIndex];
                     processLst.RemoveAt(processIndex);
-                    item.Update(process.ProcessId, process.ProcessName, process.WindowName, process.WindowHandler, process.ProcessMemorySize, process.ProcessThreadCount, process.FilePath);
+                    item.Update(process.ProcessId, process.ProcessName, process.WindowName, process.WindowHandler, process.ProcessMemorySize, process.ProcessThreadCount, process.FilePath, process.SessionId, process.User);
                 }
                 else
                     waitRemoveItems.Enqueue(item);
@@ -109,11 +111,11 @@ namespace SiMay.RemoteMonitor.Application
                 if (waitRemoveItems.Count > 0)
                 {
                     var processItem = waitRemoveItems.Dequeue();
-                    processItem.Update(item.ProcessId, item.ProcessName, item.WindowName, item.WindowHandler, item.ProcessMemorySize, item.ProcessThreadCount, item.FilePath);
+                    processItem.Update(item.ProcessId, item.ProcessName, item.WindowName, item.WindowHandler, item.ProcessMemorySize, item.ProcessThreadCount, item.FilePath, item.SessionId, item.User);
                 }
                 else
                 {
-                    var processItem = new ProcListViewItem(item.ProcessId, item.ProcessName, item.WindowName, item.WindowHandler, item.ProcessMemorySize, item.ProcessThreadCount, item.FilePath);
+                    var processItem = new ProcListViewItem(item.ProcessId, item.ProcessName, item.WindowName, item.WindowHandler, item.ProcessMemorySize, item.ProcessThreadCount, item.FilePath, item.SessionId, item.User);
                     processList.Items.Add(processItem);
                 }
             }

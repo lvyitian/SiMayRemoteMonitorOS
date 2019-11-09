@@ -152,5 +152,17 @@ namespace SiMay.ServiceCore
                 SysConfigs.SetConfig("Offlinekeyboard", value);
             }
         }
+
+        public static string HasSystemAuthority
+        {
+            get
+            {
+                return SysConfigs.GetConfig("HasSystemAuthority");
+            }
+            set
+            {
+                SysConfigs.SetConfig("HasSystemAuthority", value);
+            }
+        }
     }
 }

@@ -17,7 +17,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using static SiMay.ServiceCore.Win32Api;
+using static SiMay.ServiceCore.CommonWin32Api;
+using System.Management;
 
 namespace SiMay.ServiceCore.ApplicationService
 {
@@ -114,8 +115,16 @@ namespace SiMay.ServiceCore.ApplicationService
                     WindowHandler = (int)c.MainWindowHandle,
                     WindowName = c.MainWindowTitle,
                     ProcessMemorySize = ((int)c.WorkingSet64) / 1024,
+                    SessionId = c.SessionId,
+                    User = "Not",
                     FilePath = this.GetProcessFilePath(c)
                 }).ToArray();
+
+            //processList = processList.Join(GetProcessUserName(), p => p.ProcessId, p => p.Key, (p, n) =>
+            //{
+            //    p.User = n.Value;
+            //    return p;
+            //}).ToArray();
 
             SendAsyncToServer(MessageHead.C_SYSTEM_PROCESS_LIST,
                 new ProcessListPack()
@@ -123,7 +132,29 @@ namespace SiMay.ServiceCore.ApplicationService
                     ProcessList = processList
                 });
         }
+        private static IEnumerable<KeyValuePair<int, string>> GetProcessUserName()
+        {
+            var processUserNameDictions = new Dictionary<int, string>();
+            SelectQuery query1 = new SelectQuery("Select   *   from   Win32_Process");
+            ManagementObjectSearcher searcher1 = new ManagementObjectSearcher(query1);
+            foreach (ManagementObject disk in searcher1.Get())
+            {
+                try
+                {
+                    ManagementBaseObject inPar = null;
+                    ManagementBaseObject outPar = null;
+                    inPar = disk.GetMethodParameters("GetOwner");
+                    outPar = disk.InvokeMethod("GetOwner", inPar, null);
+                    processUserNameDictions.Add(int.Parse(disk["ProcessId"].ToString()), outPar["User"].ToString());
+                }
+                catch (Exception)
+                {
 
+                    throw;
+                }
+            }
+            return processUserNameDictions;
+        }
         private string GetProcessFilePath(Process process)
         {
             try

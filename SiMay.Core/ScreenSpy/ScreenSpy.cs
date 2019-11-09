@@ -18,27 +18,30 @@ namespace SiMay.Core.ScreenSpy
             IntPtr Source,
             int Length);
 
-        private Bitmap _m_Oldbmp;
+        //private Bitmap _m_Oldbmp;
 
+        private ICapturer _capturer;
+        public ScreenSpy(ICapturer capturer)
+            => _capturer = capturer;
         private int _row = 8;
         private int _column = 8;
         private JpgCompression _jpgCompression = new JpgCompression(50);
-        private Rectangle _clientHotRegion = new Rectangle(-1, -1, -1, -1);
+        private Rectangle _clientHotRegion = Rectangle.Empty;
 
         public event Action<Fragment[], DifferStatus> OnDifferencesNotice;
 
 
         public int ScreenWidth
         {
-            get { return _m_Oldbmp.Width; }
+            get { return _capturer.CurrentScreenBounds.Width; }
         }
 
         public int ScreenHeight
         {
-            get { return _m_Oldbmp.Height; }
+            get { return _capturer.CurrentScreenBounds.Height; }
         }
 
-        private PixelFormat _format = PixelFormat.Format16bppRgb555;
+        private PixelFormat _format = PixelFormat.Format32bppPArgb;
 
         public int SetFormat
         {
@@ -61,6 +64,7 @@ namespace SiMay.Core.ScreenSpy
                         //    _format = PixelFormat.Format32bppPArgb;
                         //    break;
                 }
+                _capturer.PixelFormat = _format;
             }
         }
 
@@ -72,32 +76,30 @@ namespace SiMay.Core.ScreenSpy
             }
         }
 
-        public ScreenSpy()
-        {
-            var map = ScreenCaptureHelper.CaptureNoCursor();
-            _m_Oldbmp = new Bitmap(map.Width, map.Height);
-        }
-
         public void FindDifferences(bool hotRegionScan, Rectangle rect)
         {
-            Bitmap nBit = ScreenCaptureHelper.CaptureNoCursor();
+            //Bitmap nBit = ScreenCaptureHelper.CaptureNoCursor();
 
-            if (!hotRegionScan)
-                nBit = ScreenCaptureHelper.SizeImage(nBit, rect.Width, rect.Height);
+            _capturer.Capture();
+            var currenFrame = _capturer.CurrentFrame;
+            var previousFrame = _capturer.PreviousFrame;
 
-            if (_m_Oldbmp.Height != nBit.Height
-                || _m_Oldbmp.Width != nBit.Width)
-            {
-                _m_Oldbmp.Dispose();
-                _m_Oldbmp = new Bitmap(nBit.Width, nBit.Height);
-            }
+            //if (!hotRegionScan)
+            //    nBit = ScreenCaptureHelper.SizeImage(nBit, rect.Width, rect.Height);
 
-            int newBitHeight = nBit.Height / _row;
-            int newBitWidth = nBit.Width / _column;
+            //if (_m_Oldbmp.Height != nBit.Height
+            //    || _m_Oldbmp.Width != nBit.Width)
+            //{
+            //    _m_Oldbmp.Dispose();
+            //    _m_Oldbmp = new Bitmap(nBit.Width, nBit.Height);
+            //}
+
+            int currentFrameHeight = currenFrame.Height / _row;
+            int currentFrameWidth = currenFrame.Width / _column;
 
             //余
-            int surplusHeight = nBit.Height % _row;
-            int surplusWidth = nBit.Width % _column;
+            int surplusHeight = currenFrame.Height % _row;
+            int surplusWidth = currenFrame.Width % _column;
 
             List<byte> Buffer = new List<byte>();
 
@@ -112,7 +114,7 @@ namespace SiMay.Core.ScreenSpy
                         //计算是否撞热区域
                         int hotRegionX = rect.X + rect.Width;
                         int hotRegionY = rect.Y + rect.Height;
-                        bool result = x >= (rect.X - newBitWidth) && x <= hotRegionX && y >= (rect.Y - newBitHeight) && y <= hotRegionY;
+                        bool result = x >= (rect.X - currentFrameWidth) && x <= hotRegionX && y >= (rect.Y - currentFrameHeight) && y <= hotRegionY;
                         if (result || !hotRegionScan)
                         {
                             int sw = 0;
@@ -125,14 +127,14 @@ namespace SiMay.Core.ScreenSpy
                             if ((j + 1) == _column)
                                 sw = surplusWidth;
 
-                            int cloneWidth = newBitWidth + sw;
-                            int cloneHeight = newBitHeight + sh;
+                            int cloneWidth = currentFrameWidth + sw;
+                            int cloneHeight = currentFrameHeight + sh;
 
-                            Bitmap m_new = nBit.Clone(
+                            Bitmap m_new = currenFrame.Clone(
                                 new Rectangle(x, y, cloneWidth, cloneHeight),
                                 _format);
 
-                            Bitmap m_old = _m_Oldbmp.Clone(
+                            Bitmap m_old = previousFrame.Clone(
                                 new Rectangle(x, y, cloneWidth, cloneHeight),
                                 _format);
 
@@ -150,7 +152,7 @@ namespace SiMay.Core.ScreenSpy
 
                                 //    m_new.Save(ms, ImageFormat.Jpeg);
 
-                                    var fragments = new Fragment[] {
+                                var fragments = new Fragment[] {
                                         new Fragment(){
                                             X = x,
                                             Y = y,
@@ -159,15 +161,15 @@ namespace SiMay.Core.ScreenSpy
                                             FragmentData = _jpgCompression.Compress(m_new)
                                         }
                                      };
-                                    this.OnDifferencesNotice?.Invoke(fragments, DifferStatus.NEXTSCREEN);
+                                this.OnDifferencesNotice?.Invoke(fragments, DifferStatus.NEXTSCREEN);
                                 //}
                             }
                             else
                                 m_old.Dispose();
                         }
-                        x += newBitWidth;
+                        x += currentFrameWidth;
                     }
-                    y += newBitHeight;
+                    y += currentFrameHeight;
                 }
             }
             catch { }
@@ -176,31 +178,35 @@ namespace SiMay.Core.ScreenSpy
 
             this.OnDifferencesNotice?.Invoke(null, DifferStatus.COMPLETE);
 
-            if (_m_Oldbmp != null)
-                _m_Oldbmp.Dispose();
+            //if (_m_Oldbmp != null)
+            //    _m_Oldbmp.Dispose();
 
-            _m_Oldbmp = nBit;
+            //_m_Oldbmp = nBit;
         }
 
         public void FullFindDifferences(bool hotRegionScan, Rectangle rect)
         {
-            Bitmap nBit = ScreenCaptureHelper.CaptureNoCursor();
+            //Bitmap nBit = ScreenCaptureHelper.CaptureNoCursor();
 
-            if (!hotRegionScan)
-                nBit = ScreenCaptureHelper.SizeImage(nBit, rect.Width, rect.Height);
+            _capturer.Capture();
+            var currenFrame = _capturer.CurrentFrame;
+            var previousFrame = _capturer.PreviousFrame;
 
-            if (_m_Oldbmp.Height != nBit.Height
-                || _m_Oldbmp.Width != nBit.Width)
-            {
-                _m_Oldbmp.Dispose();
-                _m_Oldbmp = new Bitmap(nBit.Width, nBit.Height);
-            }
+            //if (!hotRegionScan)
+            //    currenFrame = ScreenCaptureHelper.SizeImage(currenFrame, rect.Width, rect.Height);
 
-            int newBitHeight = nBit.Height / _row;
-            int newBitWidth = nBit.Width / _column;
+            //if (_m_Oldbmp.Height != currenFrame.Height
+            //    || _m_Oldbmp.Width != currenFrame.Width)
+            //{
+            //    _m_Oldbmp.Dispose();
+            //    _m_Oldbmp = new Bitmap(currenFrame.Width, currenFrame.Height);
+            //}
 
-            int surplusHeight = nBit.Height % _row;
-            int surplusWidth = nBit.Width % _column;
+            int currentFrameHeight = currenFrame.Height / _row;
+            int currentFrameWidth = currenFrame.Width / _column;
+
+            int surplusHeight = currenFrame.Height % _row;
+            int surplusWidth = currenFrame.Width % _column;
 
             var fragments = new List<Fragment>();
 
@@ -215,7 +221,7 @@ namespace SiMay.Core.ScreenSpy
                         //计算是否撞热区域
                         int hotRegionX = rect.X + rect.Width;
                         int hotRegionY = rect.Y + rect.Height;
-                        bool result = x >= (rect.X - newBitWidth) && x <= hotRegionX && y >= (rect.Y - newBitHeight) && y <= hotRegionY;
+                        bool result = x >= (rect.X - currentFrameWidth) && x <= hotRegionX && y >= (rect.Y - currentFrameHeight) && y <= hotRegionY;
                         if (result || !hotRegionScan)//如果是全屏监控就无论是否撞热区域
                         {
                             int sw = 0;
@@ -228,29 +234,26 @@ namespace SiMay.Core.ScreenSpy
                             if ((j + 1) == _column)
                                 sw = surplusWidth;
 
-                            int cloneWidth = newBitWidth + sw;
-                            int cloneHeight = newBitHeight + sh;
+                            int cloneWidth = currentFrameWidth + sw;
+                            int cloneHeight = currentFrameHeight + sh;
 
-                            Bitmap m_new = nBit.Clone(
+                            Bitmap m_new = currenFrame.Clone(
                                 new Rectangle(x, y, cloneWidth, cloneHeight),
                                 _format);
 
-                            Bitmap m_old = _m_Oldbmp.Clone(
+                            Bitmap m_old = previousFrame.Clone(
                                 new Rectangle(x, y, cloneWidth, cloneHeight),
                                 _format);
 
-                            bool isEqually = BitmapComprae(m_new, m_old);
+                            var isequal = BitmapComprae(m_new, m_old);
 
                             bool isHotRectChanged = hotRegionScan ? (rect.X != _clientHotRegion.X ||
                                 rect.Y != _clientHotRegion.Y ||
                                 rect.Width != _clientHotRegion.Width ||
                                 rect.Height != _clientHotRegion.Height) : false;
 
-                            if (isEqually || isHotRectChanged)
+                            if (isequal || isHotRectChanged)
                             {
-                                //using (MemoryStream ms = new MemoryStream())
-                                //{
-                                //    m_new.Save(ms, ImageFormat.Jpeg);
                                 fragments.Add(new Fragment()
                                 {
                                     X = x,
@@ -259,15 +262,14 @@ namespace SiMay.Core.ScreenSpy
                                     Width = cloneWidth,
                                     FragmentData = _jpgCompression.Compress(m_new)
                                 });
-                                //}
                             }
                             else
                                 m_old.Dispose();
                         }
 
-                        x += newBitWidth;
+                        x += currentFrameWidth;
                     }
-                    y += newBitHeight;
+                    y += currentFrameHeight;
                 }
             }
             catch { }
@@ -280,10 +282,105 @@ namespace SiMay.Core.ScreenSpy
                 fragments.Clear();
             }
 
-            if (_m_Oldbmp != null)
-                _m_Oldbmp.Dispose();
+            if (previousFrame != null)
+                previousFrame.Dispose();
 
-            _m_Oldbmp = nBit;
+            previousFrame = currenFrame;
+        }
+
+        private Rectangle DiffArea(Bitmap currentFrame, Bitmap previousFrame)
+        {
+            if (currentFrame.Height != previousFrame.Height || currentFrame.Width != previousFrame.Width)
+            {
+                throw new Exception("Bitmaps are not of equal dimensions.");
+            }
+            if (!Bitmap.IsAlphaPixelFormat(currentFrame.PixelFormat) || !Bitmap.IsAlphaPixelFormat(previousFrame.PixelFormat) ||
+                !Bitmap.IsCanonicalPixelFormat(currentFrame.PixelFormat) || !Bitmap.IsCanonicalPixelFormat(previousFrame.PixelFormat))
+            {
+                throw new Exception("Bitmaps must be 32 bits per pixel and contain alpha channel.");
+            }
+            var width = currentFrame.Width;
+            var height = currentFrame.Height;
+            int left = int.MaxValue;
+            int top = int.MaxValue;
+            int right = int.MinValue;
+            int bottom = int.MinValue;
+
+            BitmapData bd1 = null;
+            BitmapData bd2 = null;
+
+            try
+            {
+                bd1 = previousFrame.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, currentFrame.PixelFormat);
+                bd2 = currentFrame.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, previousFrame.PixelFormat);
+
+                var bytesPerPixel = Bitmap.GetPixelFormatSize(currentFrame.PixelFormat) / 8;
+                var totalSize = bd1.Height * bd1.Width * bytesPerPixel;
+
+                unsafe
+                {
+                    byte* scan1 = (byte*)bd1.Scan0.ToPointer();
+                    byte* scan2 = (byte*)bd2.Scan0.ToPointer();
+
+                    for (int counter = 0; counter < totalSize - bytesPerPixel; counter += bytesPerPixel)
+                    {
+                        byte* data1 = scan1 + counter;
+                        byte* data2 = scan2 + counter;
+
+                        if (data1[0] != data2[0] ||
+                            data1[1] != data2[1] ||
+                            data1[2] != data2[2] ||
+                            data1[3] != data2[3])
+                        {
+                            // Change was found.
+                            var pixel = counter / 4;
+                            var row = (int)Math.Floor((double)pixel / bd1.Width);
+                            var column = pixel % bd1.Width;
+                            if (row < top)
+                            {
+                                top = row;
+                            }
+                            if (row > bottom)
+                            {
+                                bottom = row;
+                            }
+                            if (column < left)
+                            {
+                                left = column;
+                            }
+                            if (column > right)
+                            {
+                                right = column;
+                            }
+                        }
+                    }
+                }
+
+                if (left < right && top < bottom)
+                {
+                    // Bounding box is valid.  Padding is necessary to prevent artifacts from
+                    // moving windows.
+                    left = Math.Max(left - 10, 0);
+                    top = Math.Max(top - 10, 0);
+                    right = Math.Min(right + 10, width);
+                    bottom = Math.Min(bottom + 10, height);
+
+                    return new Rectangle(left, top, right - left, bottom - top);
+                }
+                else
+                {
+                    return Rectangle.Empty;
+                }
+            }
+            catch
+            {
+                return Rectangle.Empty;
+            }
+            finally
+            {
+                currentFrame.UnlockBits(bd1);
+                previousFrame.UnlockBits(bd2);
+            }
         }
 
         private bool BitmapComprae(Bitmap m_new, Bitmap m_old)
@@ -318,7 +415,7 @@ namespace SiMay.Core.ScreenSpy
 
         public void Dispose()
         {
-            _m_Oldbmp.Dispose();
+            _capturer.Dispose();
         }
 
         ~ScreenSpy()
