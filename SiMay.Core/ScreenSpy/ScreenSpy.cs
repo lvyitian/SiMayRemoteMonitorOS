@@ -76,21 +76,14 @@ namespace SiMay.Core.ScreenSpy
 
         public void FindDifferences(bool hotRegionScan, Rectangle rect)
         {
-            //Bitmap nBit = ScreenCaptureHelper.CaptureNoCursor();
-
             _capturer.Capture();
             var currenFrame = _capturer.CurrentFrame;
             var previousFrame = _capturer.PreviousFrame;
 
-            //if (!hotRegionScan)
-            //    nBit = ScreenCaptureHelper.SizeImage(nBit, rect.Width, rect.Height);
-
-            //if (_m_Oldbmp.Height != nBit.Height
-            //    || _m_Oldbmp.Width != nBit.Width)
-            //{
-            //    _m_Oldbmp.Dispose();
-            //    _m_Oldbmp = new Bitmap(nBit.Width, nBit.Height);
-            //}
+            if (!hotRegionScan)
+                _capturer.Size = new Size(rect.Width, rect.Height);
+            else
+                _capturer.Size = Size.Empty;
 
             int currentFrameHeight = currenFrame.Height / _row;
             int currentFrameWidth = currenFrame.Width / _column;
@@ -173,21 +166,14 @@ namespace SiMay.Core.ScreenSpy
 
         public void FullFindDifferences(bool hotRegionScan, Rectangle rect)
         {
-            //Bitmap nBit = ScreenCaptureHelper.CaptureNoCursor();
-
             _capturer.Capture();
             var currenFrame = _capturer.CurrentFrame;
             var previousFrame = _capturer.PreviousFrame;
 
-            //if (!hotRegionScan)
-            //    currenFrame = ScreenCaptureHelper.SizeImage(currenFrame, rect.Width, rect.Height);
-
-            //if (_m_Oldbmp.Height != currenFrame.Height
-            //    || _m_Oldbmp.Width != currenFrame.Width)
-            //{
-            //    _m_Oldbmp.Dispose();
-            //    _m_Oldbmp = new Bitmap(currenFrame.Width, currenFrame.Height);
-            //}
+            if (!hotRegionScan)
+                _capturer.Size = new Size(rect.Width, rect.Height);
+            else
+                _capturer.Size = Size.Empty;
 
             int currentFrameHeight = currenFrame.Height / _row;
             int currentFrameWidth = currenFrame.Width / _column;

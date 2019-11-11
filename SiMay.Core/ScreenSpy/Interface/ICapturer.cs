@@ -13,6 +13,7 @@ namespace SiMay.Core.ScreenSpy
         int SelectedScreen { get; }
         Bitmap CurrentFrame { get; set; }
         Bitmap PreviousFrame { get; set; }
+        Size Size { get; set; }
         PixelFormat PixelFormat { get; set; }
         Rectangle CurrentScreenBounds { get; }
         int GetScreenCount();

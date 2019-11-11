@@ -24,6 +24,7 @@ using SiMay.RemoteService.Interface;
 using SiMay.Core.Extensions;
 using SiMay.ServiceCore.Helper;
 using SiMay.ServiceCore.Attributes;
+using System.Drawing;
 
 namespace SiMay.ServiceCore.MainService
 {
@@ -493,7 +494,7 @@ namespace SiMay.ServiceCore.MainService
                 Thread.Sleep(getframe.TimeSpan);
 
                 byte[] data = MessageHelper.CopyMessageHeadTo(MessageHead.C_MAIN_SCREENWALL_IMG,
-                    ImageExtensionHelper.CaptureNoCursorToBytes(getframe.Width, getframe.Height));
+                    ImageExtensionHelper.CaptureNoCursorToBytes(new Size(getframe.Width, getframe.Height)));
 
                 SendMessageToServer(data);
             });
@@ -567,7 +568,7 @@ namespace SiMay.ServiceCore.MainService
                 Thread.Sleep(_screen_record_spantime);
 
                 byte[] data = MessageHelper.CopyMessageHeadTo(MessageHead.C_MAIN_SCREEN_RECORD_IMG,
-                    ImageExtensionHelper.CaptureNoCursorToBytes(_screen_record_width, _screen_record_height));
+                    ImageExtensionHelper.CaptureNoCursorToBytes(new Size(_screen_record_width, _screen_record_height)));
 
                 SendMessageToServer(data);
             });

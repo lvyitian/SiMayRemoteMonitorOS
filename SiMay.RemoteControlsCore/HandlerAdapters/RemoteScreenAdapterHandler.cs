@@ -144,12 +144,12 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
         public void RemoteChangeScanMode(ScreenScanMode scanMode)
         {
-            SendAsyncMessage(MessageHead.S_SCREEN_CHANGESCANMODE, new byte[] { scanMode.ConvertTo<byte>() });
+            SendAsyncMessage(MessageHead.S_SCREEN_CHANGESCANMODE, new byte[] { (byte)scanMode });
         }
 
         public void RemoteResetBrandColor(BrandColorMode mode)
         {
-            SendAsyncMessage(MessageHead.S_SCREEN_RESET, new byte[] { mode.ConvertTo<byte>() });
+            SendAsyncMessage(MessageHead.S_SCREEN_RESET, new byte[] { (byte)mode });
         }
 
         public void RemoteSetScreenQuantity(long qty)

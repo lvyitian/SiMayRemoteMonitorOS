@@ -8,7 +8,7 @@ namespace SiMay.RemoteControlsCore.Enum
 {
     public enum ScreenScanMode
     {
-        Noninterlaced,
-        Difference
+        Difference,
+        Noninterlaced
     }
 }

