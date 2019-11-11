@@ -18,8 +18,6 @@ namespace SiMay.Core.ScreenSpy
             IntPtr Source,
             int Length);
 
-        //private Bitmap _m_Oldbmp;
-
         private ICapturer _capturer;
         public ScreenSpy(ICapturer capturer)
             => _capturer = capturer;
@@ -41,7 +39,7 @@ namespace SiMay.Core.ScreenSpy
             get { return _capturer.CurrentScreenBounds.Height; }
         }
 
-        private PixelFormat _format = PixelFormat.Format32bppPArgb;
+        private PixelFormat _format = PixelFormat.Format16bppRgb555;
 
         public int SetFormat
         {
@@ -147,11 +145,6 @@ namespace SiMay.Core.ScreenSpy
 
                             if (isEqually || isHotRectChanged)
                             {
-                                //using (MemoryStream ms = new MemoryStream())
-                                //{
-
-                                //    m_new.Save(ms, ImageFormat.Jpeg);
-
                                 var fragments = new Fragment[] {
                                         new Fragment(){
                                             X = x,
@@ -162,7 +155,6 @@ namespace SiMay.Core.ScreenSpy
                                         }
                                      };
                                 this.OnDifferencesNotice?.Invoke(fragments, DifferStatus.NEXTSCREEN);
-                                //}
                             }
                             else
                                 m_old.Dispose();
@@ -177,11 +169,6 @@ namespace SiMay.Core.ScreenSpy
             _clientHotRegion = rect;
 
             this.OnDifferencesNotice?.Invoke(null, DifferStatus.COMPLETE);
-
-            //if (_m_Oldbmp != null)
-            //    _m_Oldbmp.Dispose();
-
-            //_m_Oldbmp = nBit;
         }
 
         public void FullFindDifferences(bool hotRegionScan, Rectangle rect)
@@ -281,11 +268,6 @@ namespace SiMay.Core.ScreenSpy
                 this.OnDifferencesNotice(fragments.ToArray(), DifferStatus.FULLDIFFERENCES);
                 fragments.Clear();
             }
-
-            if (previousFrame != null)
-                previousFrame.Dispose();
-
-            previousFrame = currenFrame;
         }
 
         private Rectangle DiffArea(Bitmap currentFrame, Bitmap previousFrame)

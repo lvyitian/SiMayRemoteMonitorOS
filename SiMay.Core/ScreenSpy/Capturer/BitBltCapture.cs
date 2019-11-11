@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
-namespace SiMay.ServiceCore.ApplicationService
+namespace SiMay.Core.ScreenSpy
 {
     public class BitBltCapture : ICapturer
     {
@@ -19,7 +19,8 @@ namespace SiMay.ServiceCore.ApplicationService
         public Bitmap PreviousFrame { get; set; }
         public int SelectedScreen { get; private set; } = Screen.AllScreens.ToList().IndexOf(Screen.PrimaryScreen);
 
-        private PixelFormat _pixelFormat = PixelFormat.Format32bppPArgb;
+        private PixelFormat _pixelFormat = PixelFormat.Format16bppRgb555;
+        private bool _isRetainPreviousFrame;
         public PixelFormat PixelFormat
         {
             get
@@ -32,8 +33,9 @@ namespace SiMay.ServiceCore.ApplicationService
                 {
                     if (value == _pixelFormat)
                         return;
+                    if (_isRetainPreviousFrame)
+                        PreviousFrame = new Bitmap(CurrentScreenBounds.Width, CurrentScreenBounds.Height, value);
                     CurrentFrame = new Bitmap(CurrentScreenBounds.Width, CurrentScreenBounds.Height, value);
-                    PreviousFrame = new Bitmap(CurrentScreenBounds.Width, CurrentScreenBounds.Height, value);
                     _pixelFormat = value;
                 }
             }
@@ -49,7 +51,8 @@ namespace SiMay.ServiceCore.ApplicationService
             {
                 lock (_screenLock)
                 {
-                    PreviousFrame = (Bitmap)CurrentFrame.Clone();
+                    if (_isRetainPreviousFrame)
+                        PreviousFrame = (Bitmap)CurrentFrame.Clone();
                     Graphic.CopyFromScreen(CurrentScreenBounds.Left, CurrentScreenBounds.Top, 0, 0, new Size(CurrentScreenBounds.Width, CurrentScreenBounds.Height));
                 }
             }
@@ -61,9 +64,11 @@ namespace SiMay.ServiceCore.ApplicationService
 
         public void Dispose()
         {
+            if (_isRetainPreviousFrame)
+                PreviousFrame.Dispose();
+
             Graphic.Dispose();
             CurrentFrame.Dispose();
-            PreviousFrame.Dispose();
         }
 
         public int GetScreenCount()
@@ -76,10 +81,12 @@ namespace SiMay.ServiceCore.ApplicationService
             return SystemInformation.VirtualScreen;
         }
 
-        public BitBltCapture()
+        public BitBltCapture(bool isRetainPreviousFrame)
         {
+            _isRetainPreviousFrame = isRetainPreviousFrame;
+            if (isRetainPreviousFrame)
+                PreviousFrame = new Bitmap(CurrentScreenBounds.Width, CurrentScreenBounds.Height, PixelFormat);
             CurrentFrame = new Bitmap(CurrentScreenBounds.Width, CurrentScreenBounds.Height, PixelFormat);
-            PreviousFrame = new Bitmap(CurrentScreenBounds.Width, CurrentScreenBounds.Height, PixelFormat);
             Graphic = Graphics.FromImage(CurrentFrame);
         }
     }

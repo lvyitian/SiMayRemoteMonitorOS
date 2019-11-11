@@ -114,8 +114,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ApplicationService\Screen\BitBltCapture.cs" />
-    <Compile Include="ApplicationService\Screen\SwitchDesktopBitBltCapture.cs" />
     <Compile Include="Attributes\ServiceName.cs" />
     <Compile Include="Attributes\ServiceKeyAttribute.cs" />
     <Compile Include="ApplicationService\RegistryEditorService.cs" />
@@ -124,6 +122,7 @@
     <Compile Include="ApplicationService\StartupService.cs" />
     <Compile Include="ApplicationService\TcpConnectionService.cs" />
     <Compile Include="Entitys\EventList.cs" />
+    <Compile Include="Helper\ImageExtensionHelper.cs" />
     <Compile Include="Helper\ServiceInstallerHelper.cs" />
     <Compile Include="MainService\UpdateService.cs" />
     <Compile Include="MainService\ComputerSessionHelper.cs" />

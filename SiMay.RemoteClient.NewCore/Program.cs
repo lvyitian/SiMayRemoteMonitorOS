@@ -68,7 +68,7 @@ namespace SiMay.ServiceCore
             {
                 var startParameter = new StartParameterEx()
                 {
-                    Host = "192.168.1.102",
+                    Host = "192.168.1.104",
                     Port = 5200,
                     //Port = 522,
                     GroupName = "默认分组",

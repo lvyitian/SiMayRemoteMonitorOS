@@ -40,6 +40,7 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Management" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
@@ -145,9 +146,9 @@
     <Compile Include="Packets\TcpConnection\TcpConnectionPack.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegValueHelper.cs" />
+    <Compile Include="ScreenSpy\Capturer\BitBltCapture.cs" />
     <Compile Include="ScreenSpy\Interface\ICapturer.cs" />
     <Compile Include="ScreenSpy\JpgCompression.cs" />
-    <Compile Include="ScreenSpy\ScreenCaptureHelper.cs" />
     <Compile Include="ScreenSpy\ScreenSpy.cs" />
     <Compile Include="ScreenSpy\Entitys\Fragment.cs" />
     <Compile Include="WinSound\Win32.cs" />
