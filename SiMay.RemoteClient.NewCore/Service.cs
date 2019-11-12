@@ -1,6 +1,8 @@
 ﻿using SiMay.Core;
+using SiMay.Core.PacketModelBinding;
 using SiMay.ServiceCore.Win32;
 using SiMay.Sockets.Tcp;
+using SiMay.Sockets.Tcp.Session;
 using SiMay.Sockets.Tcp.TcpConfiguration;
 using System;
 using System.Collections.Generic;
@@ -28,13 +30,9 @@ namespace SiMay.ServiceCore
         {
             InitializeComponent();
         }
+        private int _port = 0;
         protected override void OnStart(string[] args)
         {
-            var desktopName = Win32Interop.GetCurrentDesktop();
-            var openProcessString = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Path.GetFileName(Assembly.GetExecutingAssembly().Location));
-            //用户进程启动
-            var result = Win32Interop.OpenInteractiveProcess(openProcessString + " \"-user\"", desktopName, true, out _);
-
             var serverConfig = new TcpSocketSaeaServerConfiguration();
             serverConfig.AppKeepAlive = true;
             serverConfig.PendingConnectionBacklog = 0;
@@ -50,6 +48,7 @@ namespace SiMay.ServiceCore
                     case TcpSocketCompletionNotify.OnDataReceiveing:
                         break;
                     case TcpSocketCompletionNotify.OnDataReceived:
+                        this.MessageHeadHandler(session.CompletedBuffer.GetMessageHead<MessageHead>(), session);
                         break;
                     case TcpSocketCompletionNotify.OnClosed:
                         break;
@@ -63,7 +62,8 @@ namespace SiMay.ServiceCore
             {
                 try
                 {
-                    var ipEndPoint = new IPEndPoint(IPAddress.Any, 10000 + trycount);
+                    _port = 10000 + trycount;
+                    var ipEndPoint = new IPEndPoint(IPAddress.Any, _port);
                     trunkService.Listen(ipEndPoint);
                     completed = true;
                     break;
@@ -80,8 +80,17 @@ namespace SiMay.ServiceCore
 
             if (!completed)
                 Environment.Exit(0);//监听所有端口失败
+
+            var desktopName = Win32Interop.GetCurrentDesktop();
+            var openProcessString = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Path.GetFileName(Assembly.GetExecutingAssembly().Location));
+            //用户进程启动
+            var result = Win32Interop.OpenInteractiveProcess(openProcessString + $" \"-user\" \"{_port}\"", desktopName, true, out _);
         }
 
+        private void MessageHeadHandler(MessageHead messageHead, TcpSocketSaeaSession session)
+        {
+
+        }
         protected override void OnStop()
         {
         }

@@ -33,7 +33,7 @@ namespace SiMay.ServiceCore.ApplicationService
         private bool _isStopTask = false;
         private System.IO.FileStream _fileStream;
         private ManualResetEvent _event = new ManualResetEvent(true);
-        private PacketModelBinder<TcpSocketSaeaSession> _handlerBinder = new PacketModelBinder<TcpSocketSaeaSession>();
+        private PacketModelBinder<TcpSocketSaeaSession, MessageHead> _handlerBinder = new PacketModelBinder<TcpSocketSaeaSession, MessageHead>();
         public override void OnNotifyProc(TcpSocketCompletionNotify notify, TcpSocketSaeaSession session)
         {
             switch (notify)
@@ -45,7 +45,7 @@ namespace SiMay.ServiceCore.ApplicationService
                 case TcpSocketCompletionNotify.OnDataReceiveing:
                     break;
                 case TcpSocketCompletionNotify.OnDataReceived:
-                    _handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead(), this);
+                    _handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);
                     break;
                 case TcpSocketCompletionNotify.OnClosed:
                     this._isSessionClose = true;

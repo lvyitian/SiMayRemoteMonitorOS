@@ -87,7 +87,7 @@ namespace SiMay.RemoteControlsCore
         /// 离线重连池
         /// </summary>
         private ResetPool _resetPool;
-        private PacketModelBinder<SessionHandler> _handlerBinder = new PacketModelBinder<SessionHandler>();
+        private PacketModelBinder<SessionHandler, MessageHead> _handlerBinder = new PacketModelBinder<SessionHandler, MessageHead>();
 
         public void StartService()
         {
@@ -225,10 +225,10 @@ namespace SiMay.RemoteControlsCore
                 appTokens[SysConstants.INDEX_WORKER].ConvertTo<AdapterHandlerBase>().MessageReceived(session);
             }
             else if (sessionWorkType == ConnectionWorkType.MAINCON)
-                _handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead(), this);
+                _handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);
             else if (sessionWorkType == ConnectionWorkType.NONE) //未经过验证的连接的消息只能进入该方法块处理，连接密码验证正确才能正式处理消息
             {
-                switch (session.CompletedBuffer.GetMessageHead())
+                switch (session.CompletedBuffer.GetMessageHead<MessageHead>())
                 {
                     case MessageHead.C_GLOBAL_CONNECT://连接确认包
                         this.ValiditySession(session);
@@ -313,7 +313,7 @@ namespace SiMay.RemoteControlsCore
                     handlerBase.IdentifyId = identifyId;
                     handlerBase.OriginName = originName;
                     handlerBase.ResetApplicationKey = context.Type.GetAppKey();
-                    
+
                     //每个应用至少标记一个应用处理器属性
                     var handlerFieder = context
                         .Type

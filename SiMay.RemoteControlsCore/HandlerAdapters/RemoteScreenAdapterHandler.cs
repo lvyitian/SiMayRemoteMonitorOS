@@ -39,13 +39,13 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         //已接收帧数
         private int _frameCount = 0;
 
-        private PacketModelBinder<SessionHandler> _handlerBinder = new PacketModelBinder<SessionHandler>();
+        private PacketModelBinder<SessionHandler, MessageHead> _handlerBinder = new PacketModelBinder<SessionHandler, MessageHead>();
         internal override void MessageReceived(SessionHandler session)
         {
             if (this.IsClose)
                 return;
 
-            _handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead(), this);
+            _handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);
         }
 
         public void RemoteMouseKeyEvent(MOUSEKEY_ENUM @event, int point1, int point2)

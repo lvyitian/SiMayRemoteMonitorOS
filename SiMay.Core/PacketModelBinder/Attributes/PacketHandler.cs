@@ -7,8 +7,8 @@ namespace SiMay.Core.PacketModelBinder.Attributes
 {
     public class PacketHandler : Attribute
     {
-        public MessageHead MessageHead { get; set; }
-        public PacketHandler(MessageHead head)
+        public object MessageHead { get; set; }
+        public PacketHandler(object head)
             => MessageHead = head;
     }
 }

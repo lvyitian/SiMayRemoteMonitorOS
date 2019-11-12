@@ -18,12 +18,12 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// </summary>
         public event Action<TcpConnectionAdapterHandler, IEnumerable<TcpConnectionItem>> OnTcpListHandlerEvent;
 
-        private PacketModelBinder<SessionHandler> _handlerBinder = new PacketModelBinder<SessionHandler>();
+        private PacketModelBinder<SessionHandler, MessageHead> _handlerBinder = new PacketModelBinder<SessionHandler, MessageHead>();
         internal override void MessageReceived(SessionHandler session)
         {
             if (this.IsClose)
                 return;
-            _handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead(), this);
+            _handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);
         }
 
         [PacketHandler(MessageHead.C_TCP_LIST)]

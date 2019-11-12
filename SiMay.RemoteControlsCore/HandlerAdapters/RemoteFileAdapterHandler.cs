@@ -80,13 +80,13 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         private ManualResetEvent _filesTriggerEvent = new ManualResetEvent(false);
         private Queue<DirectoryFileItem> _filesQueue = new Queue<DirectoryFileItem>();
 
-        private PacketModelBinder<SessionHandler> _handlerBinder = new PacketModelBinder<SessionHandler>();
+        private PacketModelBinder<SessionHandler, MessageHead> _handlerBinder = new PacketModelBinder<SessionHandler, MessageHead>();
         internal override void MessageReceived(SessionHandler session)
         {
             if (this.IsClose)
                 return;
 
-            _handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead(), this);
+            _handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);
         }
 
         /// <summary>

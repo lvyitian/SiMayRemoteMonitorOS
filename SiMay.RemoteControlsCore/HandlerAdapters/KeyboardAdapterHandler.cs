@@ -17,13 +17,13 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
         public event Action<KeyboardAdapterHandler, string> OnOffLineKeyboradEventHandler;
 
-        private PacketModelBinder<SessionHandler> _handlerBinder = new PacketModelBinder<SessionHandler>();
+        private PacketModelBinder<SessionHandler, MessageHead> _handlerBinder = new PacketModelBinder<SessionHandler, MessageHead>();
         internal override void MessageReceived(SessionHandler session)
         {
             if (this.IsClose)
                 return;
 
-            _handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead(), this);
+            _handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);
         }
 
         [PacketHandler(MessageHead.C_KEYBOARD_DATA)]

@@ -8,14 +8,14 @@ using System.Text;
 
 namespace SiMay.Core.PacketModelBinding
 {
-    public class PacketModelBinder<TSession>
+    public class PacketModelBinder<TSession,TMessageHead>
     {
         private bool _init = false;
         private ConcurrentDictionary<string, Action<TSession>> _reflectionCache = new ConcurrentDictionary<string, Action<TSession>>();
-        public bool InvokePacketHandler(TSession session, MessageHead head, object source)
+        public bool InvokePacketHandler(TSession session, TMessageHead head, object source)
         {
             var sourceName = source.GetType().Name;
-            var actionKey = sourceName + "_" + (short)head;
+            var actionKey = sourceName + "_" + Convert.ToInt16(head);
 
             if (!_init)
             {
@@ -43,7 +43,7 @@ namespace SiMay.Core.PacketModelBinding
                         continue;
 
                     var handlerHead = (attr as PacketHandler).MessageHead;
-                    var key = source.GetType().Name + "_" + (short)handlerHead;
+                    var key = source.GetType().Name + "_" + Convert.ToInt16(handlerHead);
                     var targetAction = Delegate.CreateDelegate(typeof(Action<TSession>), source, method) as Action<TSession>;
                     _reflectionCache.TryAdd(key, targetAction);
                 }

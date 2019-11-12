@@ -15,7 +15,7 @@ namespace SiMay.ServiceCore.ApplicationService
     public class KeyboardService : ServiceManager, IApplicationService
     {
         private Keyboard _keyboard;
-        private PacketModelBinder<TcpSocketSaeaSession> _handlerBinder = new PacketModelBinder<TcpSocketSaeaSession>();
+        private PacketModelBinder<TcpSocketSaeaSession, MessageHead> _handlerBinder = new PacketModelBinder<TcpSocketSaeaSession, MessageHead>();
         public override void OnNotifyProc(TcpSocketCompletionNotify notify, TcpSocketSaeaSession session)
         {
             switch (notify)
@@ -27,7 +27,7 @@ namespace SiMay.ServiceCore.ApplicationService
                 case TcpSocketCompletionNotify.OnDataReceiveing:
                     break;
                 case TcpSocketCompletionNotify.OnDataReceived:
-                    this._handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead(), this);                    //this.OnMessage(session);
+                    this._handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);                    //this.OnMessage(session);
                     break;
                 case TcpSocketCompletionNotify.OnClosed:
                     if (_keyboard != null)

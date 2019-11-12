@@ -182,7 +182,7 @@ namespace SiMay.Net.HttpRemoteMonitorService
             }
             else if (sessionWorkType == ConnectionWorkType.MAINCON)
             {
-                MessageHead cmd = session.CompletedBuffer.GetMessageHead();
+                MessageHead cmd = session.CompletedBuffer.GetMessageHead<MessageHead>();
                 switch (cmd)
                 {
                     case MessageHead.C_MAIN_LOGIN://上线包
@@ -195,7 +195,7 @@ namespace SiMay.Net.HttpRemoteMonitorService
             }
             else if (sessionWorkType == ConnectionWorkType.NONE) //初始消息只能进入该方法块处理，连接密码验证正确才能正式处理消息
             {
-                switch (session.CompletedBuffer.GetMessageHead())
+                switch (session.CompletedBuffer.GetMessageHead<MessageHead>())
                 {
                     case MessageHead.C_GLOBAL_CONNECT://连接确认包
                                                      //CheckSessionValidity(session);

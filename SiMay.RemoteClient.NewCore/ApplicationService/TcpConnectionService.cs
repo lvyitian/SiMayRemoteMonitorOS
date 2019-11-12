@@ -22,7 +22,7 @@ namespace SiMay.ServiceCore.ApplicationService
     [ServiceKey("TcpConnectionManagerJob")]
     public class TcpConnectionService : ServiceManager, IApplicationService
     {
-        private PacketModelBinder<TcpSocketSaeaSession> _handlerBinder = new PacketModelBinder<TcpSocketSaeaSession>();
+        private PacketModelBinder<TcpSocketSaeaSession, MessageHead> _handlerBinder = new PacketModelBinder<TcpSocketSaeaSession, MessageHead>();
 
         /// <summary>
         /// 通知远程一切就绪
@@ -56,7 +56,7 @@ namespace SiMay.ServiceCore.ApplicationService
                 case TcpSocketCompletionNotify.OnDataReceiveing:
                     break;
                 case TcpSocketCompletionNotify.OnDataReceived:
-                    this._handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead(), this);
+                    this._handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);
                     break;
                 case TcpSocketCompletionNotify.OnClosed:
                     this._handlerBinder.Dispose();
