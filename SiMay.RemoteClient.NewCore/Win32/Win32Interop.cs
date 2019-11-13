@@ -28,13 +28,12 @@ namespace SiMay.ServiceCore.Win32
             return desktopName;
         }
 
-        public static uint GetRDPSession()
+        public static IEnumerable<WTSAPI32.WTS_SESSION_INFO> EnumerateSessions()
         {
             IntPtr ppSessionInfo = IntPtr.Zero;
             Int32 count = 0;
             Int32 retval = WTSAPI32.WTSEnumerateSessions(WTSAPI32.WTS_CURRENT_SERVER_HANDLE, 0, 1, ref ppSessionInfo, ref count);
             Int32 dataSize = Marshal.SizeOf(typeof(WTSAPI32.WTS_SESSION_INFO));
-            var sessList = new List<WTSAPI32.WTS_SESSION_INFO>();
             Int64 current = (Int64)ppSessionInfo;
 
             if (retval != 0)
@@ -43,12 +42,16 @@ namespace SiMay.ServiceCore.Win32
                 {
                     WTSAPI32.WTS_SESSION_INFO sessInf = (WTSAPI32.WTS_SESSION_INFO)Marshal.PtrToStructure((System.IntPtr)current, typeof(WTSAPI32.WTS_SESSION_INFO));
                     current += dataSize;
-                    sessList.Add(sessInf);
+                    yield return sessInf;
                 }
             }
+        }
+        public static uint GetRDPSession()
+        {
+            var sessList = EnumerateSessions();
             uint retVal = 0;
-            var rdpSession = sessList.Find(ses => ses.pWinStationName.ToLower().Contains("rdp") && ses.State == 0);
-            if (sessList.Exists(ses => ses.pWinStationName.ToLower().Contains("rdp") && ses.State == 0))
+            WTSAPI32.WTS_SESSION_INFO rdpSession = sessList.FirstOrDefault(ses => ses.pWinStationName.ToLower().Contains("rdp") && ses.State == 0);
+            if (sessList.Any(ses => ses.pWinStationName.ToLower().Contains("rdp") && ses.State == 0))
             {
                 retVal = (uint)rdpSession.SessionID;
             }
@@ -60,22 +63,11 @@ namespace SiMay.ServiceCore.Win32
             return User32.OpenInputDesktop(0, false, ACCESS_MASK.GENERIC_ALL);
         }
 
-        public static bool OpenInteractiveProcess(string applicationName, string desktopName, bool hiddenWindow, out PROCESS_INFORMATION procInfo)
+        public static bool OpenInteractiveProcess(string applicationName, string desktopName, bool hiddenWindow, uint dwSessionId, out PROCESS_INFORMATION procInfo)
         {
             uint winlogonPid = 0;
             IntPtr hUserTokenDup = IntPtr.Zero, hPToken = IntPtr.Zero, hProcess = IntPtr.Zero;
             procInfo = new PROCESS_INFORMATION();
-
-            // Obtain session ID for active session.
-            uint dwSessionId = Kernel32.WTSGetActiveConsoleSessionId();
-
-            // Check for RDP session.  If active, use that session ID instead.
-            var rdpSessionID = GetRDPSession();
-            if (rdpSessionID > 0)
-            {
-                dwSessionId = rdpSessionID;
-            }
-
             // Obtain the process ID of the winlogon process that is running within the currently active session.
             Process[] processes = Process.GetProcessesByName("winlogon");
             foreach (Process p in processes)

@@ -155,7 +155,6 @@ namespace SiMay.ServiceCore.ApplicationService
         {
             var registryKey = RegistryEditor.GetWritableRegistryKey(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System");
             registryKey.SetValue("SoftwareSASGeneration", 00000003, Microsoft.Win32.RegistryValueKind.DWord);
-            User32.SendSAS(false);
         }
 
         [PacketHandler(MessageHead.S_SCREEN_CHANGESCANMODE)]

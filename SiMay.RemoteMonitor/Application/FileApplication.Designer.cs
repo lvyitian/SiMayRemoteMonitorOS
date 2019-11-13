@@ -425,8 +425,8 @@
             // fileList
             // 
             this.fileList.AllowDrop = true;
-            this.fileList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.fileList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.fileList.CheckBoxes = true;
             this.fileList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
@@ -468,7 +468,7 @@
             this.columnHeader4.Text = "修改日期";
             this.columnHeader4.Width = 130;
             // 
-            // FileManager
+            // FileApplication
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -476,12 +476,10 @@
             this.Controls.Add(this.linkLabel1);
             this.Controls.Add(this.txtSavePath);
             this.Controls.Add(this.label2);
-
-
             this.Controls.Add(this.fileList);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.statusStrip1);
-            this.Name = "FileManager";
+            this.Name = "FileApplication";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "远程文件管理";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FileManager_FormClosing);
