@@ -50,6 +50,7 @@ namespace SiMay.ServiceCore
                 switch (notity)
                 {
                     case TcpSocketCompletionNotify.OnConnected:
+                        LogHelper.DebugWriteLog("OnConnected");
                         break;
                     case TcpSocketCompletionNotify.OnSend:
                         break;
@@ -72,7 +73,7 @@ namespace SiMay.ServiceCore
                 try
                 {
                     _port = 10000 + trycount;
-                    var ipEndPoint = new IPEndPoint(IPAddress.Any, _port);
+                    var ipEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), _port);
                     trunkService.Listen(ipEndPoint);
                     completed = true;
                     break;
@@ -84,11 +85,11 @@ namespace SiMay.ServiceCore
                 completed = false;
                 Thread.Sleep(1000);
             }
-
-            LogHelper.WriteErrorByCurrentMethod("listen all tcp port not completed，please check!");
-
             if (!completed)
+            {
+                LogHelper.WriteErrorByCurrentMethod("listen all tcp port not completed，please check!");
                 Environment.Exit(0);//监听所有端口失败
+            }
 
 
             // Obtain session ID for active session.
@@ -111,27 +112,29 @@ namespace SiMay.ServiceCore
                             var token = _userProcessSessionIdList[i];
                             if (token.Actived)
                                 continue;
-                            if ((int)(DateTime.Now - token.LastActiveTime).TotalSeconds > 30)//如果用户进程30秒内未重新激活
+                            LogHelper.DebugWriteLog("!Actived:" + token.SessionId);
+                            if ((int)(DateTime.Now - token.LastActiveTime).TotalSeconds > 5)//如果用户进程5秒内未重新激活
                             {
                                 bool completed = this.CreateProcessAsUser((uint)token.SessionId);//可能用户进程已结束，重新启动用户进程
+                                LogHelper.DebugWriteLog("Restart ProcessAsUser:" + completed);
                                 if (!completed && !Win32Interop.EnumerateSessions().Any(c => c.SessionID == token.SessionId))
                                 {
                                     _userProcessSessionIdList.RemoveAt(i);//如果重启失败移除会话信息，可能会话已注销
                                     i--;
-
                                     if (_userProcessSessionIdList.Count == 0)//可能系统已注销
                                     {
                                         var activeSessionId = Kernel32.WTSGetActiveConsoleSessionId();//获取活动会话
-                                        this.CreateProcessAsUser(activeSessionId, true);
+                                        var isOk = this.CreateProcessAsUser(activeSessionId, true);
+                                        LogHelper.DebugWriteLog("Restart ProcessAsUser activeSessionId:" + activeSessionId + " status:" + isOk);
                                     }
                                     continue;
                                 }
                                 token.LastActiveTime = DateTime.Now;//延迟最后时间，给用户进程足够时间激活
                             }
                         }
-
+                    Thread.Sleep(1000);
                 }
-                Thread.Sleep(5000);
+
             }, true);
         }
 
@@ -140,7 +143,7 @@ namespace SiMay.ServiceCore
             var desktopName = Win32Interop.GetCurrentDesktop();
             var openProcessString = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Path.GetFileName(Assembly.GetExecutingAssembly().Location));
             //用户进程启动
-            var result = Win32Interop.OpenInteractiveProcess(openProcessString + $" \"-user\" \"-port:{_port}\" \"sessionId:{dwSessionId}\"", desktopName, true, dwSessionId, out _);
+            var result = Win32Interop.OpenInteractiveProcess(openProcessString + $" \"-user\" \"-port:{_port}\" \"-sessionId:{dwSessionId}\"", desktopName, true, dwSessionId, out _);
             if (isPush)
                 _userProcessSessionIdList.Add(new UserProcessToken()
                 {
@@ -154,7 +157,9 @@ namespace SiMay.ServiceCore
         [PacketHandler(TrunkMessageHead.S_Active)]
         private void ActiveHandler(TcpSocketSaeaSession session)
         {
+
             var sessionId = session.CompletedBuffer.GetMessageEntity<ActivePack>().SessionId;
+            LogHelper.DebugWriteLog("ActiveHandler:" + sessionId);
             session.AppTokens = new object[] {
                 sessionId
             };
@@ -171,7 +176,7 @@ namespace SiMay.ServiceCore
         {
             if (session.AppTokens == null && session.AppTokens.Length == 0)
                 return;
-
+            LogHelper.DebugWriteLog("SessionClosedHandler");
             var sessionId = (int)session.AppTokens[0];
 
             lock (_lock)
@@ -181,6 +186,7 @@ namespace SiMay.ServiceCore
                     return;//已主动退出
                 token.Actived = false;//当连接意外离线时 
                 token.LastActiveTime = DateTime.Now;
+                LogHelper.DebugWriteLog("连接意外断开");
             }
         }
 
@@ -198,6 +204,7 @@ namespace SiMay.ServiceCore
         [PacketHandler(TrunkMessageHead.S_SendSas)]
         private void SendSasHandler(TcpSocketSaeaSession session)
         {
+            LogHelper.DebugWriteLog("SendSasHandler");
             User32.SendSAS(false);
         }
 
@@ -216,6 +223,7 @@ namespace SiMay.ServiceCore
 
                 if (_userProcessSessionIdList.Count <= 0)//主动退出
                 {
+                    LogHelper.DebugWriteLog("InitiativeExitHandler");
                     _isRun = false;
                     Environment.Exit(0);
                 }

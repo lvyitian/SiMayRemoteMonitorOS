@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace SiMay.ServiceCore.MainService
@@ -47,6 +48,8 @@ namespace SiMay.ServiceCore.MainService
                     SetExecutingFileHide(false);
                     break;
                 case UNSTALL:
+                    UserTrunkContext.UserTrunkContextInstance?.InitiativeExit();
+                    Thread.Sleep(1000);//等待服务响应
                     UnInstallService();
                     break;
             }

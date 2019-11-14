@@ -156,6 +156,7 @@
     </Compile>
     <Compile Include="SysUtil.cs" />
     <Compile Include="TrunkService\TrunkMessageHead.cs" />
+    <Compile Include="TrunkService\UserTrunkContext.cs" />
     <Compile Include="Win32\CommonWin32Api.cs" />
     <Compile Include="Win32\ADVAPI32.cs" />
     <Compile Include="Win32\GDI32.cs" />

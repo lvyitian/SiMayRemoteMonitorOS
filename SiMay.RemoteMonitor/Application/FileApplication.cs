@@ -355,8 +355,8 @@ namespace SiMay.RemoteMonitor.Application
                     if (fileList.Items[i].Checked)
                     {
                         var item = fileList.Items[i].ConvertTo<FileListViewItem>();
-                        item.Checked = false;
                         yield return item;
+                        item.Checked = false;
                     }
                 }
             }

@@ -68,7 +68,7 @@ namespace SiMay.ServiceCore
             {
                 var startParameter = new StartParameterEx()
                 {
-                    Host = "127.0.0.1",
+                    Host = "192.168.1.104",
                     Port = 5200,
                     //Port = 522,
                     GroupName = "默认分组",
@@ -123,9 +123,16 @@ namespace SiMay.ServiceCore
                         Environment.Exit(0);
                 }
 
-                AppConfiguartion.HasSystemAuthority = args.Any(c => c.Equals(SERVICE_USER_START, StringComparison.OrdinalIgnoreCase)) ? 
+                AppConfiguartion.HasSystemAuthority = args.Any(c => c.Equals(SERVICE_USER_START, StringComparison.OrdinalIgnoreCase)) ?
                     "true" :
                     "false";
+
+                //初始化连接服务
+                if (args.Any(c => c.Equals(SERVICE_USER_START, StringComparison.OrdinalIgnoreCase)))
+                {
+                    LogHelper.DebugWriteLog("初始化连接服务");
+                    new UserTrunkContext(args);
+                }
 
                 //非SYSTEM用户进程启动则进入安装服务
                 if (startParameter.InstallService && !args.Any(c => c.Equals(SERVICE_USER_START, StringComparison.OrdinalIgnoreCase)))

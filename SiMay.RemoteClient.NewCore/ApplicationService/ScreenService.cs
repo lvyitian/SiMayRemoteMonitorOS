@@ -68,6 +68,12 @@ namespace SiMay.ServiceCore.ApplicationService
             _spy.OnDifferencesNotice += ScreenDifferences_OnDifferencesNotice;
         }
 
+        [PacketHandler(MessageHead.S_GLOBAL_ONCLOSE)]
+        public void CloseSession(TcpSocketSaeaSession session)
+        {
+            this.CloseSession();
+        }
+
         [PacketHandler(MessageHead.S_SCREEN_SET_CLIPBOARD_TEXT)]
         public void SetClipoardHandler(TcpSocketSaeaSession session)
         {
@@ -155,6 +161,8 @@ namespace SiMay.ServiceCore.ApplicationService
         {
             var registryKey = RegistryEditor.GetWritableRegistryKey(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System");
             registryKey.SetValue("SoftwareSASGeneration", 00000003, Microsoft.Win32.RegistryValueKind.DWord);
+
+            UserTrunkContext.UserTrunkContextInstance?.SendSas();
         }
 
         [PacketHandler(MessageHead.S_SCREEN_CHANGESCANMODE)]
