@@ -20,7 +20,8 @@ namespace SiMay.Core.ScreenSpy
         IntPtr hdc, // handle to DC  
                         int nIndex // index of capability  
                         );
-
+        [DllImport("User32.dll")]
+        private static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);
         const int DESKTOPVERTRES = 117;
         const int DESKTOPHORZRES = 118;
 
@@ -75,6 +76,7 @@ namespace SiMay.Core.ScreenSpy
                 var hdc = GetDC(IntPtr.Zero);
                 int screenHeight = GetDeviceCaps(hdc, DESKTOPVERTRES);
                 int screenWidth = GetDeviceCaps(hdc, DESKTOPHORZRES);
+                ReleaseDC(IntPtr.Zero, hdc);
                 return new Size(screenWidth, screenHeight);
             }
         }
