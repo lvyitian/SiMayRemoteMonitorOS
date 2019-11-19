@@ -19,6 +19,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using static SiMay.ServiceCore.CommonWin32Api;
 using System.Management;
+using SiMay.ServiceCore.Win32;
 
 namespace SiMay.ServiceCore.ApplicationService
 {
@@ -103,6 +104,38 @@ namespace SiMay.ServiceCore.ApplicationService
         public void HandlerGetSystemProcessList(TcpSocketSaeaSession session)
             => this.SendProcessList();
 
+
+        [PacketHandler(MessageHead.S_SYSTEM_ENUMSESSIONS)]
+        public void GetSessionItemHandler(TcpSocketSaeaSession session)
+            => SendSessionItem();
+
+        [PacketHandler(MessageHead.S_SYSTEM_CREATE_USER_PROCESS)]
+        public void CreateProcessAsUser(TcpSocketSaeaSession session)
+        {
+            var sessionId = session.CompletedBuffer.GetMessageEntity<CreateProcessAsUserPack>().SessionId;
+            UserTrunkContext.UserTrunkContextInstance.CreateProcessAsUser(sessionId);
+        }
+
+        private void SendSessionItem()
+        {
+            var sessions = UserTrunkContext.UserTrunkContextInstance.GetSessionItems()
+                .Select(c => new SiMay.Core.Packets.SysManager.SessionItem()
+                {
+                    UserName = c.UserName,
+                    SessionId = c.SessionId,
+                    SessionState = c.SessionState,
+                    WindowStationName = c.WindowStationName,
+                    HasUserProcess = c.HasUserProcess
+                })
+                .ToArray();
+
+            SendAsyncToServer(MessageHead.C_SYSTEM_SESSIONS,
+                        new SessionsPack()
+                        {
+                            Sessions = sessions
+                        });
+        }
+
         private void SendProcessList()
         {
             var processList = Process.GetProcesses()
@@ -116,7 +149,7 @@ namespace SiMay.ServiceCore.ApplicationService
                     WindowName = c.MainWindowTitle,
                     ProcessMemorySize = ((int)c.WorkingSet64) / 1024,
                     SessionId = c.SessionId,
-                    User = "Not",
+                    User = "Not",//WTSAPI32.GetUserNameBySessionId(c.SessionId),
                     FilePath = this.GetProcessFilePath(c)
                 }).ToArray();
 
@@ -131,29 +164,6 @@ namespace SiMay.ServiceCore.ApplicationService
                 {
                     ProcessList = processList
                 });
-        }
-        private static IEnumerable<KeyValuePair<int, string>> GetProcessUserName()
-        {
-            var processUserNameDictions = new Dictionary<int, string>();
-            SelectQuery query1 = new SelectQuery("Select   *   from   Win32_Process");
-            ManagementObjectSearcher searcher1 = new ManagementObjectSearcher(query1);
-            foreach (ManagementObject disk in searcher1.Get())
-            {
-                try
-                {
-                    ManagementBaseObject inPar = null;
-                    ManagementBaseObject outPar = null;
-                    inPar = disk.GetMethodParameters("GetOwner");
-                    outPar = disk.InvokeMethod("GetOwner", inPar, null);
-                    processUserNameDictions.Add(int.Parse(disk["ProcessId"].ToString()), outPar["User"].ToString());
-                }
-                catch (Exception)
-                {
-
-                    throw;
-                }
-            }
-            return processUserNameDictions;
         }
         private string GetProcessFilePath(Process process)
         {

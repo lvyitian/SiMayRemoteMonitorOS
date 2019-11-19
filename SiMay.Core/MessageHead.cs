@@ -55,6 +55,8 @@ namespace SiMay.Core
         S_SCREEN_GET_CLIPOARD_TEXT,                         //获取剪切板Text
         S_SCREEN_GET_INIT_BITINFO,                          //获取初始化屏幕信息
         S_SCREEN_CTRL_ALT_DEL,                              //模拟Ctrl+Alt+Del
+        S_SCREEN_CHANGE_MONITOR,                            //切换监视器
+        S_SCREEN_DELETE_WALLPAPER,                          //移除壁纸
 
         C_SCREEN_BITINFO = 2000,                           //桌面大小信息
         C_SCREEN_SCANCOMPLETE,                             //屏幕扫描完成
@@ -121,11 +123,14 @@ namespace SiMay.Core
         S_SYSTEM_MAXIMIZE,               //最大化窗口
         S_SYSTEM_MINIMIZE,               //最小化窗体
         S_SYSTEM_GET_OCCUPY,                //获取系统占用率信息
+        S_SYSTEM_ENUMSESSIONS,                  //获取所有会话信息
+        S_SYSTEM_CREATE_USER_PROCESS,       //创建用户进程
 
         //接收指令
         C_SYSTEM_PROCESS_LIST = 2000,           //进程列表
         C_SYSTEM_SYSTEMINFO,             //系统信息
         C_SYSTEM_OCCUPY_INFO,                   //系统占用率信息
+        C_SYSTEM_SESSIONS,                  //会话信息
 
         //键盘记录---------------------------------------------------------------
         S_KEYBOARD_ONOPEN = 1000,                      //窗口打开

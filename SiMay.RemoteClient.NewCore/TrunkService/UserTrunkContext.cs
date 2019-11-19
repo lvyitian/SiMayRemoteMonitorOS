@@ -1,6 +1,7 @@
 ﻿using SiMay.Basic;
 using SiMay.Core;
 using SiMay.Core.PacketModelBinder.Attributes;
+using SiMay.Core.PacketModelBinding;
 using SiMay.Sockets.Tcp;
 using SiMay.Sockets.Tcp.Client;
 using SiMay.Sockets.Tcp.Session;
@@ -10,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 
 namespace SiMay.ServiceCore
 {
@@ -17,17 +19,11 @@ namespace SiMay.ServiceCore
     {
         public static UserTrunkContext UserTrunkContextInstance;
 
-        public event Action<SessionItem[]> OnSessionItemEventHandler;
-
         public int CurrentSessionId
         {
             get
             {
                 return _sessionId;
-            }
-            set
-            {
-                _sessionId = value;
             }
         }
 
@@ -36,6 +32,8 @@ namespace SiMay.ServiceCore
         private int _sessionId;
         private TcpSocketSaeaSession _trunkTcpSession;
         private TcpSocketSaeaClientAgent _socketSaeaClientAgent;
+        private AutoResetEvent _autoReset = new AutoResetEvent(false);
+        private PacketModelBinder<TcpSocketSaeaSession, TrunkMessageHead> _handlerBinder = new PacketModelBinder<TcpSocketSaeaSession, TrunkMessageHead>();
         public UserTrunkContext(string[] args)
         {
             if (!int.TryParse(GetValueParse(args, "-port"), out _port))
@@ -78,10 +76,12 @@ namespace SiMay.ServiceCore
                     case TcpSocketCompletionNotify.OnDataReceiveing:
                         break;
                     case TcpSocketCompletionNotify.OnDataReceived:
+                        _handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<TrunkMessageHead>(), this);
                         break;
                     case TcpSocketCompletionNotify.OnClosed:
                         LogHelper.DebugWriteLog("InitConntectTrunkService:OnClosed");
                         _trunkTcpSession = null;
+                        _autoReset.Set();
                         SessionCloseHandler();
                         break;
                     default:
@@ -109,14 +109,23 @@ namespace SiMay.ServiceCore
         [PacketHandler(TrunkMessageHead.C_SessionItems)]
         private void SessionItemsHandler(TcpSocketSaeaSession session)
         {
-            var sessionItems = session.CompletedBuffer.GetMessageEntity<SessionStatusPack>();
-            this.OnSessionItemEventHandler?.Invoke(sessionItems.Sessions);
+            LogHelper.DebugWriteLog("C_SessionItems:SessionItemsHandler");
+            Thread.Sleep(100);//延迟一会，防止WaitOne之前Set
+            _autoReset.Set();
         }
 
-        public void GetSessionItems()
+        public SessionItem[] GetSessionItems()
         {
+            LogHelper.DebugWriteLog("GetSessionItems--1");
             var data = MessageHelper.CopyMessageHeadTo(TrunkMessageHead.S_EnumerateSessions);
             Send(data);
+            _autoReset.WaitOne();
+            if (_trunkTcpSession == null)
+                return new SessionItem[0];
+
+            var sessionItems = _trunkTcpSession.CompletedBuffer.GetMessageEntity<SessionStatusPack>();
+            LogHelper.DebugWriteLog("GetSessionItems");
+            return sessionItems.Sessions;
         }
 
         public void CreateProcessAsUser(int sessionId)

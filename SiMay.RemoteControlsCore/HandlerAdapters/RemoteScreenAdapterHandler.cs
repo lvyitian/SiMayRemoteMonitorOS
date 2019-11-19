@@ -24,7 +24,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <summary>
         /// 远程屏幕服务初始化完成
         /// </summary>
-        public event Action<RemoteScreenAdapterHandler, int, int> OnServcieInitEventHandler;
+        public event Action<RemoteScreenAdapterHandler, int, int, int, MonitorItem[]> OnServcieInitEventHandler;
 
         /// <summary>
         /// 获取剪切板
@@ -63,7 +63,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         public void SetBitmapHandler(SessionHandler session)
         {
             var bitinfo = session.CompletedBuffer.GetMessageEntity<ScreenInitBitPack>();
-            this.OnServcieInitEventHandler?.Invoke(this, bitinfo.Height, bitinfo.Width);
+            this.OnServcieInitEventHandler?.Invoke(this, bitinfo.Height, bitinfo.Width, bitinfo.PrimaryScreenIndex, bitinfo.Monitors);
         }
 
         [PacketHandler(MessageHead.C_SCREEN_DIFFBITMAP)]
@@ -126,11 +126,23 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
                 _frameCount = 0;
         }
 
+        public void MonitorChange(int screenIndex)
+        {
+            SendAsyncMessage(MessageHead.S_SCREEN_CHANGE_MONITOR,
+                new MonitorChangePack()
+                {
+                    MonitorIndex = screenIndex
+                });
+        }
+
         public void GetInitializeBitInfo()
         {
             SendAsyncMessage(MessageHead.S_SCREEN_GET_INIT_BITINFO);
         }
-
+        public void RemoteDeleteWallPaper()
+        {
+            SendAsyncMessage(MessageHead.S_SCREEN_DELETE_WALLPAPER);
+        }
         public void RemoteMouseBlock(bool islock)
         {
             byte @lock = islock ? (byte)10 : (byte)11;

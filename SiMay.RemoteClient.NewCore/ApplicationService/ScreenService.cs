@@ -21,6 +21,7 @@ using SiMay.ServiceCore.Win32;
 //using static SiMay.ServiceCore.Win32.User32;
 using SiMay.Basic;
 using SiMay.ServiceCore.ApplicationService.Registry;
+using System.Linq;
 
 namespace SiMay.ServiceCore.ApplicationService
 {
@@ -28,8 +29,8 @@ namespace SiMay.ServiceCore.ApplicationService
     [ServiceKey("RemoteDesktopJob")]
     public class ScreenService : ServiceManager, IApplicationService
     {
-
         private int _bscanmode = 1; //0差异 1逐行
+        private static string wallpaper = string.Empty;
         private bool _hasSystemAuthor = AppConfiguartion.HasSystemAuthority.Equals("true", StringComparison.OrdinalIgnoreCase);
         private ScreenSpy _spy;
         private PacketModelBinder<TcpSocketSaeaSession, MessageHead> _handlerBinder = new PacketModelBinder<TcpSocketSaeaSession, MessageHead>();
@@ -47,6 +48,7 @@ namespace SiMay.ServiceCore.ApplicationService
                     this._handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);
                     break;
                 case TcpSocketCompletionNotify.OnClosed:
+                    User32.SystemParametersInfo(User32.SPI_SETDESKWALLPAPER, 0, wallpaper, User32.SPIF_UPDATEINIFILE | User32.SPIF_SENDWININICHANGE);
                     this._handlerBinder.Dispose();
                     break;
             }
@@ -72,6 +74,15 @@ namespace SiMay.ServiceCore.ApplicationService
         public void CloseSession(TcpSocketSaeaSession session)
         {
             this.CloseSession();
+        }
+
+        [PacketHandler(MessageHead.S_SCREEN_DELETE_WALLPAPER)]
+        public void DeleteWallPaper(TcpSocketSaeaSession session)
+        {
+            wallpaper = new string('\0', 260);
+            User32.SystemParametersInfo(0x73, 260, wallpaper, 0);
+            wallpaper = wallpaper.Substring(0, wallpaper.IndexOf('\0'));
+            User32.SystemParametersInfo(User32.SPI_SETDESKWALLPAPER, 0, "", 0);
         }
 
         [PacketHandler(MessageHead.S_SCREEN_SET_CLIPBOARD_TEXT)]
@@ -106,13 +117,31 @@ namespace SiMay.ServiceCore.ApplicationService
 
         [PacketHandler(MessageHead.S_SCREEN_GET_INIT_BITINFO)]
         public void SendDesktopBitInfo(TcpSocketSaeaSession session)
+            => SendDesktopInitInfo();
+
+        private void SendDesktopInitInfo()
         {
             SendAsyncToServer(MessageHead.C_SCREEN_BITINFO,
                new ScreenInitBitPack()
                {
                    Height = _spy.ScreenHeight,
-                   Width = _spy.ScreenWidth
+                   Width = _spy.ScreenWidth,
+                   PrimaryScreenIndex = _spy.Capturer.SelectedScreen,
+                   Monitors = Screen.AllScreens.Select(c => new MonitorItem()
+                   {
+                       DeviceName = c.DeviceName,
+                       Primary = c.Primary
+                   }).ToArray()
                });
+        }
+
+        [PacketHandler(MessageHead.S_SCREEN_CHANGE_MONITOR)]
+        public void MonitorChangeHandler(TcpSocketSaeaSession session)
+        {
+            var currenMonitor = session.CompletedBuffer.GetMessageEntity<MonitorChangePack>().MonitorIndex;
+            _spy.Capturer.SelectedScreen = currenMonitor;
+
+            SendDesktopInitInfo();
         }
 
         private void ScreenDifferences_OnDifferencesNotice(Fragment[] fragments, DifferStatus nCode)
@@ -162,7 +191,10 @@ namespace SiMay.ServiceCore.ApplicationService
             var registryKey = RegistryEditor.GetWritableRegistryKey(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System");
             registryKey.SetValue("SoftwareSASGeneration", 00000003, Microsoft.Win32.RegistryValueKind.DWord);
 
-            UserTrunkContext.UserTrunkContextInstance?.SendSas();
+            if (AppConfiguartion.HasSystemAuthority.Equals("true", StringComparison.OrdinalIgnoreCase))
+                UserTrunkContext.UserTrunkContextInstance?.SendSas();
+            else
+                User32.SendSAS(true);
         }
 
         [PacketHandler(MessageHead.S_SCREEN_CHANGESCANMODE)]
@@ -203,8 +235,12 @@ namespace SiMay.ServiceCore.ApplicationService
         public void MouseKeyEvent(TcpSocketSaeaSession session)
         {
             var @event = session.CompletedBuffer.GetMessageEntity<ScreenMKeyPack>();
-            int p1 = @event.Point1;
-            int p2 = @event.Point2;
+            Screen[] allScreens = Screen.AllScreens;
+            int offsetX = allScreens[_spy.Capturer.SelectedScreen].Bounds.X;
+            int offsetY = allScreens[_spy.Capturer.SelectedScreen].Bounds.Y;
+
+            int p1 = @event.Point1 + offsetX;
+            int p2 = @event.Point2 + offsetY;
             switch (@event.Key)
             {
                 case MOUSEKEY_ENUM.Move:

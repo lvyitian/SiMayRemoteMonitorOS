@@ -38,6 +38,8 @@ namespace SiMay.RemoteMonitor.Application
         private const Int32 IDM_SET_CLIPBOARD = 1012;
         private const Int32 IDM_GET_CLIPBOARD = 1013;
         private const Int32 IDM_CTRL_ALT_DEL = 1014;
+        private const Int32 IDM_DELETE_WALLPAPER = 1015;
+        private const Int32 IDM_CHANGE_MONITOR = 1016;
 
         [ApplicationAdapterHandler]
         public RemoteScreenAdapterHandler RemoteScreenAdapterHandler { get; set; }
@@ -46,18 +48,16 @@ namespace SiMay.RemoteMonitor.Application
         private int _recvImgCount = 0;
         private bool _isControl = false;
         private long _traffic = 0;
-        private ScreenDisplayMode _screenDisplayMode = ScreenDisplayMode.Fullscreen;//0=全屏控制1=原始比例
+        private ScreenDisplayMode _screenDisplayMode = ScreenDisplayMode.Fullscreen;
         private string _title = "//远程桌面【右键更多选项】 #Name# 帧率 {0}/秒 总流量 {1} KB";
 
-        //当前图像高宽
-        private int _currentImageHeight = 0;
-        private int _currentImageWidth = 0;
-
         //原始图像高宽
-        private int _srcImageHeight = 0;
-        private int _srcImageWidth = 0;
+        private int _srcImageHeight = 1000;
+        private int _srcImageWidth = 1500;
         private bool _continueTask = true;
 
+        private int _currenMonitorIndex = 0;
+        private MonitorItem[] _monitorItems;
         private Bitmap _image;
         private Timer _timer;
 
@@ -106,6 +106,8 @@ namespace SiMay.RemoteMonitor.Application
             InsertMenu(sysMenuHandle, index++, MF_BYPOSITION, IDM_4X, "4位彩色");
             InsertMenu(sysMenuHandle, index++, MF_BYPOSITION, IDM_16X, "16位高彩");
             InsertMenu(sysMenuHandle, index++, MF_BYPOSITION, IDM_Qty, "质量设置");
+            InsertMenu(sysMenuHandle, index++, MF_BYPOSITION, IDM_DELETE_WALLPAPER, "清除壁纸");
+            InsertMenu(sysMenuHandle, index++, MF_BYPOSITION, IDM_CHANGE_MONITOR, "监视器设置");
             InsertMenu(sysMenuHandle, index++, MF_BYPOSITION, IDM_CTRL_ALT_DEL, "Ctrl + Alt + Del");
 
             CheckMenuItem(sysMenuHandle, IDM_FULL_SCREEN, MF_CHECKED);
@@ -125,29 +127,18 @@ namespace SiMay.RemoteMonitor.Application
             this.RemoteScreenAdapterHandler.GetInitializeBitInfo();
         }
 
-        private void OnServcieInitEventHandler(RemoteScreenAdapterHandler adapterHandler, int height, int width)
+        private void OnServcieInitEventHandler(RemoteScreenAdapterHandler adapterHandler, int height, int width, int currentMonitorIndex, MonitorItem[] monitorItems)
         {
+            this._currenMonitorIndex = currentMonitorIndex;
+            this._monitorItems = monitorItems;
             this._srcImageWidth = width;
             this._srcImageHeight = height;
-
-            if (_screenDisplayMode == 0)
-            {
-                _currentImageHeight = this.imgDesktop.Height;
-                _currentImageWidth = this.imgDesktop.Width;
-            }
-            else
-            {
-                _currentImageWidth = this._srcImageWidth;
-                _currentImageHeight = this._srcImageHeight;
-            }
-
-            _image = new Bitmap(_currentImageWidth, _currentImageHeight);
-
+            _image = new Bitmap(width, height);
             Graphics g = Graphics.FromImage(_image);
             g.Clear(Color.Black);
             g.DrawString("桌面加载中...", new Font("微软雅黑", 15, FontStyle.Regular), new SolidBrush(Color.Red), new Point((height / 2) - 40, width / 2));
             g.Dispose();
-            adapterHandler.StartGetScreen(this.ClientSize.Height, this.ClientSize.Width, Math.Abs(this.imgDesktop.Left), Math.Abs(this.imgDesktop.Top), this._screenDisplayMode);
+            adapterHandler.GetNextScreen(this._image.Height, this._image.Width, Math.Abs(this.imgDesktop.Left), Math.Abs(this.imgDesktop.Top), this._screenDisplayMode);
         }
 
         private void OnScreenFragmentEventHandler(RemoteScreenAdapterHandler adapterHandler, Core.ScreenSpy.Entitys.Fragment[] fragments, ScreenReceivedType type)
@@ -164,7 +155,8 @@ namespace SiMay.RemoteMonitor.Application
                         }
                     }
                     _recvImgCount++;
-                    adapterHandler.GetNextScreen(this.ClientSize.Height, this.ClientSize.Width, Math.Abs(this.imgDesktop.Left), Math.Abs(this.imgDesktop.Top), this._screenDisplayMode);
+                    //adapterHandler.GetNextScreen(this.ClientSize.Height, this.ClientSize.Width, Math.Abs(this.imgDesktop.Left), Math.Abs(this.imgDesktop.Top), this._screenDisplayMode);
+                    adapterHandler.GetNextScreen(this._image.Height, this._image.Width, Math.Abs(this.imgDesktop.Left), Math.Abs(this.imgDesktop.Top), this._screenDisplayMode);
                     break;
                 case ScreenReceivedType.Difference:
 
@@ -179,7 +171,8 @@ namespace SiMay.RemoteMonitor.Application
                     break;
                 case ScreenReceivedType.DifferenceEnd:
                     _recvImgCount++;
-                    adapterHandler.GetNextScreen(this.ClientSize.Height, this.ClientSize.Width, Math.Abs(this.imgDesktop.Left), Math.Abs(this.imgDesktop.Top), this._screenDisplayMode);
+                    //adapterHandler.GetNextScreen(this.ClientSize.Height, this.ClientSize.Width, Math.Abs(this.imgDesktop.Left), Math.Abs(this.imgDesktop.Top), this._screenDisplayMode);
+                    adapterHandler.GetNextScreen(this._image.Height, this._image.Width, Math.Abs(this.imgDesktop.Left), Math.Abs(this.imgDesktop.Top), this._screenDisplayMode);
                     break;
                 default:
                     break;
@@ -189,7 +182,7 @@ namespace SiMay.RemoteMonitor.Application
         private void OnClipoardReceivedEventHandler(RemoteScreenAdapterHandler adapterHandler, string text)
         {
             Clipboard.SetText(text);
-            MessageBoxHelper.ShowBoxExclamation("已获取至剪切板!");
+            MessageBoxHelper.ShowBoxExclamation("已获取剪切板内容!");
         }
 
         private void Timer_Tick(object sender, EventArgs e)
@@ -221,10 +214,10 @@ namespace SiMay.RemoteMonitor.Application
                         this.imgDesktop.Dock = DockStyle.None;
                         this.imgDesktop.SizeMode = PictureBoxSizeMode.AutoSize;
 
-                        this._currentImageHeight = this._srcImageHeight;
-                        this._currentImageWidth = this._srcImageWidth;
+                        //this._currentImageHeight = this._srcImageHeight;
+                        //this._currentImageWidth = this._srcImageWidth;
 
-                        this._image = new Bitmap(this._currentImageWidth, this._currentImageHeight);
+                        //this._image = new Bitmap(this._currentImageWidth, this._currentImageHeight);
                         _screenDisplayMode = ScreenDisplayMode.Original;
                         break;
                     case IDM_FULL_SCREEN:
@@ -239,10 +232,11 @@ namespace SiMay.RemoteMonitor.Application
 
                         this.imgDesktop.Dock = DockStyle.Fill;
                         this.imgDesktop.SizeMode = PictureBoxSizeMode.StretchImage;
-
-                        this._currentImageHeight = this.imgDesktop.Height;
-                        this._currentImageWidth = this.imgDesktop.Width;
-                        this._image = new Bitmap(this._currentImageWidth, this._currentImageHeight);
+                        //_currentImageWidth = this.imgDesktop.Width > _srcImageWidth ? _srcImageWidth : this.imgDesktop.Width;
+                        //_currentImageHeight = this.imgDesktop.Height > _srcImageHeight ? _srcImageHeight : this.imgDesktop.Height;
+                        //this._currentImageHeight = this.imgDesktop.Height;
+                        //this._currentImageWidth = this.imgDesktop.Width;
+                        //this._image = new Bitmap(this._currentImageWidth, this._currentImageHeight);
                         _screenDisplayMode = ScreenDisplayMode.Fullscreen;
                         break;
                     case IDM_KEYMOUSE_CTRL:
@@ -336,27 +330,39 @@ namespace SiMay.RemoteMonitor.Application
                     case IDM_CTRL_ALT_DEL:
                         this.RemoteScreenAdapterHandler.SendCtrlAltDel();
                         break;
+                    case IDM_CHANGE_MONITOR:
+                        var dialog = new ScreenMonitorChangeForm();
+                        dialog.SetMonitors(_monitorItems, _currenMonitorIndex);
+                        if (dialog.ShowDialog() == DialogResult.OK)
+                        {
+                            _currenMonitorIndex = dialog.CurrentMonitorIndex;
+                            this.RemoteScreenAdapterHandler.MonitorChange(dialog.CurrentMonitorIndex);
+                        }
+                        break;
+                    case IDM_DELETE_WALLPAPER:
+                        this.RemoteScreenAdapterHandler.RemoteDeleteWallPaper();
+                        break;
                 }
             }
 
             //适应屏幕
-            if (_screenDisplayMode == 0)
-            {
-                if (_currentImageWidth != this.imgDesktop.Width || _currentImageHeight != this.imgDesktop.Height)
-                {
-                    //最小化窗体时，控件大小==0
-                    if (this.imgDesktop.Width == 0 && this.imgDesktop.Height == 0)
-                    {
-                        base.WndProc(ref m);
-                        return;
-                    }
+            //if (_screenDisplayMode == 0)
+            //{
+            //    if (_currentImageWidth != this.imgDesktop.Width || _currentImageHeight != this.imgDesktop.Height)
+            //    {
+            //        //最小化窗体时，控件大小==0
+            //        if (this.imgDesktop.Width == 0 && this.imgDesktop.Height == 0)
+            //        {
+            //            base.WndProc(ref m);
+            //            return;
+            //        }
 
-                    _currentImageWidth = this.imgDesktop.Width;
-                    _currentImageHeight = this.imgDesktop.Height;
+            //        _currentImageWidth = this.imgDesktop.Width > _srcImageWidth ? _srcImageWidth : this.imgDesktop.Width;
+            //        _currentImageHeight = this.imgDesktop.Height > _srcImageHeight ? _srcImageHeight : this.imgDesktop.Height;
 
-                    _image = new Bitmap(_currentImageWidth, _currentImageHeight);
-                }
-            }
+            //        _image = new Bitmap(_currentImageWidth, _currentImageHeight);
+            //    }
+            //}
 
             base.WndProc(ref m);
         }

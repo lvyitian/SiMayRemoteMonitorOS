@@ -37,6 +37,7 @@ namespace SiMay.RemoteMonitor.Application
             this.button3 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.processList = new SiMay.RemoteMonitor.UserControls.UListView();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.systemInfoList = new SiMay.RemoteMonitor.UserControls.UListView();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -58,8 +59,16 @@ namespace SiMay.RemoteMonitor.Application
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.moryUse = new System.Windows.Forms.ToolStripStatusLabel();
             this.refreshTimer = new System.Windows.Forms.Timer(this.components);
+            this.sessionsListView = new SiMay.RemoteMonitor.UserControls.UListView();
+            this.userName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.sessionId = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.state = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.windowsStationName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.userProcessCreated = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.button1 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
+            this.tabPage3.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
@@ -71,6 +80,7 @@ namespace SiMay.RemoteMonitor.Application
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl1.Controls.Add(this.tabPage1);
+            this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Location = new System.Drawing.Point(7, 29);
             this.tabControl1.Name = "tabControl1";
@@ -142,6 +152,18 @@ namespace SiMay.RemoteMonitor.Application
             this.processList.UseWindowsThemStyle = true;
             this.processList.View = System.Windows.Forms.View.Details;
             // 
+            // tabPage3
+            // 
+            this.tabPage3.Controls.Add(this.button1);
+            this.tabPage3.Controls.Add(this.sessionsListView);
+            this.tabPage3.Location = new System.Drawing.Point(4, 22);
+            this.tabPage3.Name = "tabPage3";
+            this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage3.Size = new System.Drawing.Size(608, 404);
+            this.tabPage3.TabIndex = 2;
+            this.tabPage3.Text = "会话管理";
+            this.tabPage3.UseVisualStyleBackColor = true;
+            // 
             // tabPage2
             // 
             this.tabPage2.BackColor = System.Drawing.SystemColors.ButtonHighlight;
@@ -205,7 +227,7 @@ namespace SiMay.RemoteMonitor.Application
             // 关闭窗口ToolStripMenuItem
             // 
             this.关闭窗口ToolStripMenuItem.Name = "关闭窗口ToolStripMenuItem";
-            this.关闭窗口ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.关闭窗口ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.关闭窗口ToolStripMenuItem.Text = "关闭窗口";
             this.关闭窗口ToolStripMenuItem.Click += new System.EventHandler(this.关闭窗口ToolStripMenuItem_Click);
             // 
@@ -318,7 +340,66 @@ namespace SiMay.RemoteMonitor.Application
             this.refreshTimer.Interval = 1500;
             this.refreshTimer.Tick += new System.EventHandler(this.RefreshTimer_Tick);
             // 
-            // SystemManager
+            // sessionsListView
+            // 
+            this.sessionsListView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.sessionsListView.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.sessionsListView.CheckBoxes = true;
+            this.sessionsListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.userName,
+            this.sessionId,
+            this.state,
+            this.windowsStationName,
+            this.userProcessCreated});
+            this.sessionsListView.FullRowSelect = true;
+            this.sessionsListView.HideSelection = false;
+            this.sessionsListView.Location = new System.Drawing.Point(13, 14);
+            this.sessionsListView.Name = "sessionsListView";
+            this.sessionsListView.Size = new System.Drawing.Size(582, 349);
+            this.sessionsListView.TabIndex = 12;
+            this.sessionsListView.UseCompatibleStateImageBehavior = false;
+            this.sessionsListView.UseWindowsThemStyle = true;
+            this.sessionsListView.View = System.Windows.Forms.View.Details;
+            // 
+            // userName
+            // 
+            this.userName.Text = "用户名";
+            this.userName.Width = 100;
+            // 
+            // sessionId
+            // 
+            this.sessionId.Text = "会话标识";
+            this.sessionId.Width = 100;
+            // 
+            // state
+            // 
+            this.state.Text = "会话状态";
+            this.state.Width = 100;
+            // 
+            // windowsStationName
+            // 
+            this.windowsStationName.Text = "窗口站";
+            this.windowsStationName.Width = 100;
+            // 
+            // userProcessCreated
+            // 
+            this.userProcessCreated.Text = "被控用户进程";
+            this.userProcessCreated.Width = 100;
+            // 
+            // button1
+            // 
+            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.button1.Location = new System.Drawing.Point(507, 369);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(88, 24);
+            this.button1.TabIndex = 13;
+            this.button1.Text = "创建用户进程";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // SystemApplication
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -327,13 +408,14 @@ namespace SiMay.RemoteMonitor.Application
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
-            this.Name = "SystemManager";
+            this.Name = "SystemApplication";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "SystemManager";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.SystemManagerFom_FormClosing);
             this.Load += new System.EventHandler(this.SystemManager_Load);
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
+            this.tabPage3.ResumeLayout(false);
             this.tabPage2.ResumeLayout(false);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
@@ -373,5 +455,13 @@ namespace SiMay.RemoteMonitor.Application
         private System.Windows.Forms.ToolStripMenuItem 低ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 暂停ToolStripMenuItem;
         private System.Windows.Forms.Timer refreshTimer;
+        private System.Windows.Forms.TabPage tabPage3;
+        private UListView sessionsListView;
+        private System.Windows.Forms.ColumnHeader userName;
+        private System.Windows.Forms.ColumnHeader sessionId;
+        private System.Windows.Forms.ColumnHeader state;
+        private System.Windows.Forms.ColumnHeader windowsStationName;
+        private System.Windows.Forms.ColumnHeader userProcessCreated;
+        private System.Windows.Forms.Button button1;
     }
 }

@@ -3,21 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace SiMay.ServiceCore
+namespace SiMay.Core.Packets.SysManager
 {
-    public class ActivePack
+    public class CreateProcessAsUserPack
     {
         public int SessionId { get; set; }
     }
 
-    public class SessionStatusPack
+    public class SessionsPack : BasePacket
     {
         public SessionItem[] Sessions { get; set; }
-    }
-
-    public class CreateUserProcessPack
-    {
-        public int SessionId { get; set; }
     }
 
     public class SessionItem

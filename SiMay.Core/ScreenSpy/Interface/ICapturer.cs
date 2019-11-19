@@ -10,11 +10,10 @@ namespace SiMay.Core.ScreenSpy
 {
     public interface ICapturer : IDisposable
     {
-        int SelectedScreen { get; }
+        int SelectedScreen { get; set; }
         Bitmap CurrentFrame { get; set; }
         Bitmap PreviousFrame { get; set; }
         Size Size { get; set; }
-        PixelFormat PixelFormat { get; set; }
         Rectangle CurrentScreenBounds { get; }
         int GetScreenCount();
         void Capture();

@@ -28,7 +28,13 @@ namespace SiMay.Core.ScreenSpy
 
         public event Action<Fragment[], DifferStatus> OnDifferencesNotice;
 
-
+        public ICapturer Capturer
+        {
+            get
+            {
+                return _capturer;
+            }
+        }
         public int ScreenWidth
         {
             get { return _capturer.CurrentScreenBounds.Width; }
@@ -62,7 +68,6 @@ namespace SiMay.Core.ScreenSpy
                         //    _format = PixelFormat.Format32bppPArgb;
                         //    break;
                 }
-                _capturer.PixelFormat = _format;
             }
         }
 

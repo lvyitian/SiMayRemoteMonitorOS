@@ -127,6 +127,7 @@
     <Compile Include="Packets\Reg\RegValueItem.cs" />
     <Compile Include="Packets\Reg\RegValuesPack.cs" />
     <Compile Include="Packets\RemoteUpdatePack.cs" />
+    <Compile Include="Packets\Screen\MonitorChangePack.cs" />
     <Compile Include="Packets\Screen\ScreenBitInfoPack.cs" />
     <Compile Include="Packets\Screen\ScreenClipoardValuePack.cs" />
     <Compile Include="Packets\Screen\ScreenFragmentPack.cs" />
@@ -138,6 +139,7 @@
     <Compile Include="Packets\Startup\Enums\OperFlag.cs" />
     <Compile Include="Packets\Startup\StartupItemPack.cs" />
     <Compile Include="Packets\Startup\StartupOperResponsePack.cs" />
+    <Compile Include="Packets\SysManager\SessionManagerPack.cs" />
     <Compile Include="Packets\SysManager\ProcessInfo.cs" />
     <Compile Include="Packets\SysManager\SysKillPack.cs" />
     <Compile Include="Packets\SysManager\SysWindowMaxPack.cs" />

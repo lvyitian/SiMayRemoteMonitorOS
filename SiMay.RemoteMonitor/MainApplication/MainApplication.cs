@@ -101,6 +101,17 @@ namespace SiMay.RemoteMonitor.MainApplication
             if (!int.TryParse(AppConfiguration.DesktopRefreshTimeSpan, out this._deskrefreshTimeSpan))
                 this._deskrefreshTimeSpan = 1500;
 
+            if (AppConfiguration.SessionMode == "1")
+            {
+                this.stripHost.Text = AppConfiguration.ServiceIPAddress;
+                this.stripHost.Text = AppConfiguration.ServicePort;
+            }
+            else
+            {
+                this.stripHost.Text = AppConfiguration.IPAddress;
+                this.stripPort.Text = AppConfiguration.Port;
+            }
+
             this.columntrackBar.Value = this._desktopViewHeight;
             this.rowtrackBar.Value = this._desktopViewWidth;
             this.row.Text = rowtrackBar.Value.ToString();

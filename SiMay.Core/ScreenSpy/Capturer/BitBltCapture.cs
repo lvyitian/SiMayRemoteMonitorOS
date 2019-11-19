@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 
@@ -12,12 +13,35 @@ namespace SiMay.Core.ScreenSpy
 {
     public class BitBltCapture : ICapturer
     {
+        [DllImport("user32.dll")]
+        static extern IntPtr GetDC(IntPtr ptr);
+        [DllImport("gdi32.dll")]
+        static extern int GetDeviceCaps(
+        IntPtr hdc, // handle to DC  
+                        int nIndex // index of capability  
+                        );
+
+        const int DESKTOPVERTRES = 117;
+        const int DESKTOPHORZRES = 118;
+
         public Bitmap CurrentFrame { get; set; }
-        public Rectangle CurrentScreenBounds { get; set; } = Screen.PrimaryScreen.Bounds;
+        public Rectangle CurrentScreenBounds { get; set; }
         public bool IsCapturing { get; set; }
         public int PauseForMilliseconds { get; set; }
         public Bitmap PreviousFrame { get; set; }
-        public int SelectedScreen { get; private set; } = Screen.AllScreens.ToList().IndexOf(Screen.PrimaryScreen);
+        public int SelectedScreen
+        {
+            get
+            {
+                return _selectedScreen;
+            }
+            set
+            {
+                var screen = Screen.AllScreens[value];
+                CurrentScreenBounds = this.GetScreenRectangle(screen);
+                _selectedScreen = value;
+            }
+        }
         public Size Size
         {
             get
@@ -42,32 +66,18 @@ namespace SiMay.Core.ScreenSpy
         private PixelFormat _pixelFormat = PixelFormat.Format16bppRgb555;
         private bool _isRetainPreviousFrame;
         private Size _imageSize = Size.Empty;
-        public PixelFormat PixelFormat
+        private int _selectedScreen = Screen.AllScreens.ToList().IndexOf(Screen.PrimaryScreen);
+        private Graphics Graphic { get; set; }
+        private Size DesktopSize
         {
             get
             {
-                return _pixelFormat;
-            }
-            set
-            {
-                _pixelFormat = value;
-                //后续解决
-                //lock (_screenLock)
-                //{
-                //    if (value == _pixelFormat)
-                //        return;
-                //    _pixelFormat = value;
-
-                //    ResizeImage();
-
-                //    _originBitmap = new Bitmap(CurrentScreenBounds.Width, CurrentScreenBounds.Height, _pixelFormat);
-                //    Graphic = Graphics.FromImage(_originBitmap);
-                //}
+                var hdc = GetDC(IntPtr.Zero);
+                int screenHeight = GetDeviceCaps(hdc, DESKTOPVERTRES);
+                int screenWidth = GetDeviceCaps(hdc, DESKTOPHORZRES);
+                return new Size(screenWidth, screenHeight);
             }
         }
-        private Graphics Graphic { get; set; }
-
-
         private object _screenLock = new object();
         private Bitmap _originBitmap;
         public void Capture()
@@ -78,11 +88,15 @@ namespace SiMay.Core.ScreenSpy
                 {
                     if (_isRetainPreviousFrame)
                         PreviousFrame = (Bitmap)CurrentFrame.Clone();
-                    Graphic.CopyFromScreen(CurrentScreenBounds.Left, CurrentScreenBounds.Top, 0, 0, new Size(CurrentScreenBounds.Width, CurrentScreenBounds.Height));
 
-
+                    Graphic.CopyFromScreen(CurrentScreenBounds.X, CurrentScreenBounds.Y, 0, 0, new Size(DesktopSize.Width, DesktopSize.Height));
                     if (!_imageSize.IsEmpty)
-                        CurrentFrame = new Bitmap(_originBitmap, _imageSize);
+                    {
+                        if (_imageSize.Width >= _originBitmap.Width || _imageSize.Height >= _originBitmap.Height)
+                            CurrentFrame = _originBitmap;
+                        else
+                            CurrentFrame = new Bitmap(_originBitmap, _imageSize);
+                    }
                     else
                         CurrentFrame = _originBitmap;
                 }
@@ -91,6 +105,12 @@ namespace SiMay.Core.ScreenSpy
             {
                 LogHelper.WriteErrorByCurrentMethod(ex);
             }
+        }
+
+        private Rectangle GetScreenRectangle(Screen screen)
+        {
+            var bounds = screen.Bounds;
+            return new Rectangle(new Point(bounds.X, bounds.Y), DesktopSize);
         }
 
         public void Dispose()
@@ -120,12 +140,13 @@ namespace SiMay.Core.ScreenSpy
         }
         public BitBltCapture(bool isRetainPreviousFrame, Size imageSize)
         {
+            CurrentScreenBounds = GetScreenRectangle(Screen.PrimaryScreen);
             _isRetainPreviousFrame = isRetainPreviousFrame;
             _imageSize = imageSize;
 
             ResizeImage();
 
-            _originBitmap = new Bitmap(CurrentScreenBounds.Width, CurrentScreenBounds.Height, _pixelFormat);
+            _originBitmap = new Bitmap(DesktopSize.Width, DesktopSize.Height, _pixelFormat);
             Graphic = Graphics.FromImage(_originBitmap);
         }
 

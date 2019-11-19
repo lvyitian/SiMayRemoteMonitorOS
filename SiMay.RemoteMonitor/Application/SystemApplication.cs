@@ -52,17 +52,27 @@ namespace SiMay.RemoteMonitor.Application
             this.processList.Columns.Add("窗口句柄", 70);
             this.processList.Columns.Add("内存", 70);
             this.processList.Columns.Add("线程数量", 70);
-            this.processList.Columns.Add("会话Id", 70);
-            this.processList.Columns.Add("用户", 70);
+            this.processList.Columns.Add("会话标识", 70);
+            this.processList.Columns.Add("用户名称", 70);
             this.processList.Columns.Add("文件位置", 300);
 
             this.SystemAdapterHandler.OnProcessListHandlerEvent += OnProcessListHandlerEvent;
             this.SystemAdapterHandler.OnSystemInfoHandlerEvent += OnSystemInfoHandlerEvent;
             this.SystemAdapterHandler.OnOccupyHandlerEvent += OnOccupyHandlerEvent;
+            this.SystemAdapterHandler.OnSessionsEventHandler += OnSessionsEventHandler;
             this._title = _title.Replace("#Name#", SystemAdapterHandler.OriginName);
             this.Text = this._title;
             this.SystemAdapterHandler.GetSystemInfoItems();
+            this.SystemAdapterHandler.EnumSession();
             this.GetSystemInfos();
+        }
+
+        private void OnSessionsEventHandler(SystemAdapterHandler adapterHandler, IEnumerable<Core.Packets.SysManager.SessionItem> sessions)
+        {
+            this.sessionsListView.Items.Clear();
+            this.sessionsListView.Items.AddRange(sessions
+                .Select(c => new SessionViewItem(c.UserName, c.SessionId, c.SessionState, c.WindowStationName, c.HasUserProcess))
+                .ToArray());
         }
 
         private void OnOccupyHandlerEvent(SystemAdapterHandler adapterHandler, string cpuOccupy, string memroyOccupy)
@@ -133,6 +143,10 @@ namespace SiMay.RemoteMonitor.Application
         {
             this.refreshTimer.Stop();
             this.refreshTimer.Dispose();
+            this.SystemAdapterHandler.OnProcessListHandlerEvent -= OnProcessListHandlerEvent;
+            this.SystemAdapterHandler.OnSystemInfoHandlerEvent -= OnSystemInfoHandlerEvent;
+            this.SystemAdapterHandler.OnOccupyHandlerEvent -= OnOccupyHandlerEvent;
+            this.SystemAdapterHandler.OnSessionsEventHandler -= OnSessionsEventHandler;
             this.SystemAdapterHandler.CloseHandler();
         }
 
@@ -243,6 +257,39 @@ namespace SiMay.RemoteMonitor.Application
         private void 关闭窗口ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            ListView.SelectedListViewItemCollection SelectItem = this.sessionsListView.SelectedItems;
+            for (int i = 0; i < SelectItem.Count; i++)
+                this.sessionsListView.Items[SelectItem[i].Index].Checked = true;
+
+            var ids = new List<int>();
+            foreach (SessionViewItem item in this.sessionsListView.Items)
+            {
+                if (item.Checked)
+                {
+                    if (item.HasUserProcess)
+                    {
+                        MessageBoxHelper.ShowBoxExclamation("不能重复创建用户进程!");
+                        return;
+                    }
+                    ids.Add(item.SessionId);
+                }
+
+                item.Checked = false;
+            }
+
+            if (MessageBox.Show("确认要在选中的会话中创建被控用户进程吗?", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) != DialogResult.OK)
+                return;
+
+            foreach (var sessionId in ids)
+            {
+                this.SystemAdapterHandler.CreateProcessAsUser(sessionId);
+            }
+
+            this.SystemAdapterHandler.EnumSession();
         }
     }
 }

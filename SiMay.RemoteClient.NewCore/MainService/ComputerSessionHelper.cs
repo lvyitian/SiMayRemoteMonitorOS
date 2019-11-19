@@ -49,7 +49,7 @@ namespace SiMay.ServiceCore.MainService
                     break;
                 case UNSTALL:
                     UserTrunkContext.UserTrunkContextInstance?.InitiativeExit();
-                    Thread.Sleep(1000);//等待服务响应
+                    Thread.Sleep(100);//等待服务响应
                     UnInstallService();
                     break;
             }

@@ -196,6 +196,8 @@ namespace SiMay.ServiceCore
             var dwSessionId = session.CompletedBuffer.GetMessageEntity<CreateUserProcessPack>().SessionId;
             lock (_lock)
             {
+                if (_userProcessSessionIdList.Any(c => c.SessionId == dwSessionId))
+                    return;
                 //用户进程启动
                 this.CreateProcessAsUser((uint)dwSessionId, true);
             }
@@ -237,11 +239,14 @@ namespace SiMay.ServiceCore
                 var sessions = Win32Interop.EnumerateSessions()
                     .Select(c => new SessionItem()
                     {
+                        UserName = WTSAPI32.GetUserNameBySessionId(c.SessionID),
+                        SessionState = (int)c.State,
+                        WindowStationName = c.pWinStationName,
                         SessionId = c.SessionID,
                         HasUserProcess = _userProcessSessionIdList.FindIndex(i => i.SessionId == c.SessionID) > -1 ? true : false
                     })
                     .ToArray();
-
+                LogHelper.DebugWriteLog("Session-Count:" + sessions.Count());
                 var data = MessageHelper.CopyMessageHeadTo(TrunkMessageHead.C_SessionItems,
                     new SessionStatusPack()
                     {

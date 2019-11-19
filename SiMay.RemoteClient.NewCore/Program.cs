@@ -68,7 +68,7 @@ namespace SiMay.ServiceCore
             {
                 var startParameter = new StartParameterEx()
                 {
-                    Host = "192.168.1.104",
+                    Host = "192.168.1.105",
                     Port = 5200,
                     //Port = 522,
                     GroupName = "默认分组",
@@ -84,7 +84,7 @@ namespace SiMay.ServiceCore
                     UniqueId = "AAAAAAAAAAAAAAA11111111",
                     ServiceName = "SiMayService",
                     ServiceDisplayName = "SiMay远程被控服务",
-                    InstallService = false
+                    InstallService = true
                 };
                 try
                 {

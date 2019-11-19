@@ -18,6 +18,8 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
         public event Action<SystemAdapterHandler, IEnumerable<SystemInfoItem>> OnSystemInfoHandlerEvent;
 
+        public event Action<SystemAdapterHandler, IEnumerable<SessionItem>> OnSessionsEventHandler;
+
         public event Action<SystemAdapterHandler, string, string> OnOccupyHandlerEvent;
 
         private PacketModelBinder<SessionHandler, MessageHead> _handlerBinder = new PacketModelBinder<SessionHandler, MessageHead>();
@@ -49,6 +51,12 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             var processLst = session.CompletedBuffer.GetMessageEntity<ProcessListPack>().ProcessList;
             OnProcessListHandlerEvent?.Invoke(this, processLst);
         }
+        [PacketHandler(MessageHead.C_SYSTEM_SESSIONS)]
+        private void SessionsItemHandler(SessionHandler session)
+        {
+            var sessionLst = session.CompletedBuffer.GetMessageEntity<SessionsPack>().Sessions;
+            this.OnSessionsEventHandler?.Invoke(this, sessionLst);
+        }
 
         public void GetSystemInfoItems()
         {
@@ -73,6 +81,20 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         public void SetProcessWindowMize(IEnumerable<int> pids)
         {
             SetProcessWindowState(0, pids);
+        }
+
+        public void EnumSession()
+        {
+            SendAsyncMessage(MessageHead.S_SYSTEM_ENUMSESSIONS);
+        }
+
+        public void CreateProcessAsUser(int sessionId)
+        {
+            SendAsyncMessage(MessageHead.S_SYSTEM_CREATE_USER_PROCESS,
+                new CreateProcessAsUserPack()
+                {
+                    SessionId = sessionId
+                });
         }
 
         public void KillProcess(IEnumerable<int> pids)

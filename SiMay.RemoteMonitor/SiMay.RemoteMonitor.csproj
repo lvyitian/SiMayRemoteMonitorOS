@@ -91,6 +91,12 @@
       <DependentUpon>FileApplication.cs</DependentUpon>
     </Compile>
     <Compile Include="Application\FileCommon\WindowsForFileStream.cs" />
+    <Compile Include="Application\ScreenMonitorChangeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Application\ScreenMonitorChangeForm.Designer.cs">
+      <DependentUpon>ScreenMonitorChangeForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Attributes\ApplicationName.cs" />
     <Compile Include="Attributes\OnTools.cs" />
     <Compile Include="Attributes\ResourceName.cs" />
@@ -343,6 +349,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Application\RegValueEditWordForm.resx">
       <DependentUpon>RegValueEditWordForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Application\ScreenMonitorChangeForm.resx">
+      <DependentUpon>ScreenMonitorChangeForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Application\StartupItemAdd.resx">
       <DependentUpon>StartupItemAdd.cs</DependentUpon>
