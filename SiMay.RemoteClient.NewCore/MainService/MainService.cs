@@ -118,6 +118,13 @@ namespace SiMay.ServiceCore.MainService
         }
 
 
+        /// <summary>
+        /// Loader专用构造函数
+        /// </summary>
+        /// <param name="startParameter"></param>
+        /// <param name="clientAgent"></param>
+        /// <param name="session"></param>
+        /// <param name="serviceIPEndPoint"></param>
         public MainService(
             StartParameter startParameter,
             TcpSocketSaeaClientAgent clientAgent,

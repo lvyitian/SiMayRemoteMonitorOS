@@ -138,7 +138,7 @@ namespace SiMay.RemoteMonitor.Application
             g.Clear(Color.Black);
             g.DrawString("桌面加载中...", new Font("微软雅黑", 15, FontStyle.Regular), new SolidBrush(Color.Red), new Point((height / 2) - 40, width / 2));
             g.Dispose();
-            adapterHandler.GetNextScreen(this._image.Height, this._image.Width, Math.Abs(this.imgDesktop.Left), Math.Abs(this.imgDesktop.Top), this._screenDisplayMode);
+            this.GetNextScreen();
         }
 
         private void OnScreenFragmentEventHandler(RemoteScreenAdapterHandler adapterHandler, Core.ScreenSpy.Entitys.Fragment[] fragments, ScreenReceivedType type)
@@ -155,8 +155,7 @@ namespace SiMay.RemoteMonitor.Application
                         }
                     }
                     _recvImgCount++;
-                    //adapterHandler.GetNextScreen(this.ClientSize.Height, this.ClientSize.Width, Math.Abs(this.imgDesktop.Left), Math.Abs(this.imgDesktop.Top), this._screenDisplayMode);
-                    adapterHandler.GetNextScreen(this._image.Height, this._image.Width, Math.Abs(this.imgDesktop.Left), Math.Abs(this.imgDesktop.Top), this._screenDisplayMode);
+                    this.GetNextScreen();
                     break;
                 case ScreenReceivedType.Difference:
 
@@ -171,12 +170,19 @@ namespace SiMay.RemoteMonitor.Application
                     break;
                 case ScreenReceivedType.DifferenceEnd:
                     _recvImgCount++;
-                    //adapterHandler.GetNextScreen(this.ClientSize.Height, this.ClientSize.Width, Math.Abs(this.imgDesktop.Left), Math.Abs(this.imgDesktop.Top), this._screenDisplayMode);
-                    adapterHandler.GetNextScreen(this._image.Height, this._image.Width, Math.Abs(this.imgDesktop.Left), Math.Abs(this.imgDesktop.Top), this._screenDisplayMode);
+                    this.GetNextScreen();
                     break;
                 default:
                     break;
             }
+        }
+
+        private void GetNextScreen()
+        {
+            if (_screenDisplayMode == ScreenDisplayMode.Fullscreen)
+                this.RemoteScreenAdapterHandler.GetNextScreen(this._image.Height, this._image.Width, Math.Abs(this.imgDesktop.Left), Math.Abs(this.imgDesktop.Top), this._screenDisplayMode);
+            else
+                this.RemoteScreenAdapterHandler.GetNextScreen(this.ClientSize.Height, this.ClientSize.Width, Math.Abs(this.imgDesktop.Left), Math.Abs(this.imgDesktop.Top), this._screenDisplayMode);
         }
 
         private void OnClipoardReceivedEventHandler(RemoteScreenAdapterHandler adapterHandler, string text)
@@ -214,10 +220,6 @@ namespace SiMay.RemoteMonitor.Application
                         this.imgDesktop.Dock = DockStyle.None;
                         this.imgDesktop.SizeMode = PictureBoxSizeMode.AutoSize;
 
-                        //this._currentImageHeight = this._srcImageHeight;
-                        //this._currentImageWidth = this._srcImageWidth;
-
-                        //this._image = new Bitmap(this._currentImageWidth, this._currentImageHeight);
                         _screenDisplayMode = ScreenDisplayMode.Original;
                         break;
                     case IDM_FULL_SCREEN:
@@ -232,11 +234,6 @@ namespace SiMay.RemoteMonitor.Application
 
                         this.imgDesktop.Dock = DockStyle.Fill;
                         this.imgDesktop.SizeMode = PictureBoxSizeMode.StretchImage;
-                        //_currentImageWidth = this.imgDesktop.Width > _srcImageWidth ? _srcImageWidth : this.imgDesktop.Width;
-                        //_currentImageHeight = this.imgDesktop.Height > _srcImageHeight ? _srcImageHeight : this.imgDesktop.Height;
-                        //this._currentImageHeight = this.imgDesktop.Height;
-                        //this._currentImageWidth = this.imgDesktop.Width;
-                        //this._image = new Bitmap(this._currentImageWidth, this._currentImageHeight);
                         _screenDisplayMode = ScreenDisplayMode.Fullscreen;
                         break;
                     case IDM_KEYMOUSE_CTRL:
@@ -344,26 +341,6 @@ namespace SiMay.RemoteMonitor.Application
                         break;
                 }
             }
-
-            //适应屏幕
-            //if (_screenDisplayMode == 0)
-            //{
-            //    if (_currentImageWidth != this.imgDesktop.Width || _currentImageHeight != this.imgDesktop.Height)
-            //    {
-            //        //最小化窗体时，控件大小==0
-            //        if (this.imgDesktop.Width == 0 && this.imgDesktop.Height == 0)
-            //        {
-            //            base.WndProc(ref m);
-            //            return;
-            //        }
-
-            //        _currentImageWidth = this.imgDesktop.Width > _srcImageWidth ? _srcImageWidth : this.imgDesktop.Width;
-            //        _currentImageHeight = this.imgDesktop.Height > _srcImageHeight ? _srcImageHeight : this.imgDesktop.Height;
-
-            //        _image = new Bitmap(_currentImageWidth, _currentImageHeight);
-            //    }
-            //}
-
             base.WndProc(ref m);
         }
 

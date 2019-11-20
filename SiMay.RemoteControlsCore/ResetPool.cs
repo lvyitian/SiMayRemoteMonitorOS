@@ -61,7 +61,7 @@ namespace SiMay.RemoteControlsCore
 
                     //}
                 }
-                Thread.Sleep(20000);
+                Thread.Sleep(5000);
             }
         }
         public void Put(SuspendTaskContext context)

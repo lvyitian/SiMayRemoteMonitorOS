@@ -1,7 +1,7 @@
 ﻿using SiMay.Basic;
 using SiMay.ServiceCore.ApplicationService;
 using SiMay.ServiceCore.Extensions;
-
+using SiMay.ServiceCore.MainService;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,7 +54,7 @@ namespace SiMay.ServiceCore
             exitMenu.MouseDown += (s, e) =>
             {
                 if (MessageBox.Show("确认退出服务吗?", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) == DialogResult.OK)
-                    Application.Exit();
+                    ComputerSessionHelper.SessionManager(ComputerSessionHelper.UNSTALL);//退出
             };
             var aboutMenu = new ToolStripMenuItem("关于服务");
             aboutMenu.MouseDown += (s, e) =>

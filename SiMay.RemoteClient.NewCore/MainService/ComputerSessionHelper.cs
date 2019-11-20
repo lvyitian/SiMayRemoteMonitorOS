@@ -15,13 +15,41 @@ namespace SiMay.ServiceCore.MainService
 {
     public class ComputerSessionHelper
     {
-        const int SHUTDOWN = 0;
-        const int REBOOT = 1;
-        const int REG_ACTION = 2;
-        const int REG_CANCEL_Action = 3;
-        const int ATTRIB_HIDE = 4;
-        const int ATTRIB_SHOW = 5;
-        const int UNSTALL = 6;
+        /// <summary>
+        /// 关机
+        /// </summary>
+        public const int SHUTDOWN = 0;
+
+        /// <summary>
+        /// 重启
+        /// </summary>
+        public const int REBOOT = 1;
+
+        /// <summary>
+        /// 自启动
+        /// </summary>
+        public const int REG_ACTION = 2;
+
+        /// <summary>
+        /// 取消自启动
+        /// </summary>
+        public const int REG_CANCEL_Action = 3;
+
+        /// <summary>
+        /// 隐藏文件
+        /// </summary>
+        public const int ATTRIB_HIDE = 4;
+
+        /// <summary>
+        /// 显示文件
+        /// </summary>
+        public const int ATTRIB_SHOW = 5;
+
+        /// <summary>
+        /// 卸载程序
+        /// </summary>
+        public const int UNSTALL = 6;
+
         public static void SessionManager(int status)
         {
             switch (status)

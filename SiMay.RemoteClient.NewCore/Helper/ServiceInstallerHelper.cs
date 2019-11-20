@@ -64,11 +64,11 @@ namespace SiMay.ServiceCore
             {
                 // 获得服务控制管理器句柄  
                 IntPtr sc_handle = OpenSCManager(null, null, SC_MANAGER_CREATE_SERVICE);
-                if (sc_handle.ToInt32() != 0)
+                if (sc_handle.ToInt64() != 0)
                 {
                     //获得服务句柄  
                     IntPtr sv_handle = CreateService(sc_handle, svcName, svcDispName, SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS, SERVICE_AUTO_START, SERVICE_ERROR_NORMAL, svcPath, null, 0, null, null, null);
-                    if (sv_handle.ToInt32() == 0)
+                    if (sv_handle.ToInt64() == 0)
                     {
                         CloseServiceHandle(sc_handle);
                         return false;

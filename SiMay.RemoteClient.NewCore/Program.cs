@@ -118,7 +118,7 @@ namespace SiMay.ServiceCore
                 {
                     //进程互斥体
                     bool bExist;
-                    Mutex MyMutex = new Mutex(true, "SiMayService", out bExist);
+                    Mutex mutex = new Mutex(true, startParameter.UniqueId + "_SiMayService", out bExist);
                     if (!bExist)
                         Environment.Exit(0);
                 }
@@ -144,6 +144,10 @@ namespace SiMay.ServiceCore
                     {
                         //服务安装完成启动成功
                         Environment.Exit(0);
+                    }
+                    else
+                    {
+                        LogHelper.DebugWriteLog("Service Install Not Completed!!");
                     }
                 }
 

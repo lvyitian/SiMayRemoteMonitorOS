@@ -37,7 +37,7 @@ namespace SiMay.RemoteMonitor.MainApplication
             Socket testSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
-                testSock.Connect(GetHostByName(mls_address.Text), int.Parse(mls_port.Text));
+                testSock.Connect(IPHelper.GetHostByName(mls_address.Text), int.Parse(mls_port.Text));
                 testSock.Close();
                 MessageBoxHelper.ShowBoxExclamation("连接: " + mls_address.Text + ":" + mls_port.Text + " 成功!", "连接成功");
             }
@@ -46,21 +46,6 @@ namespace SiMay.RemoteMonitor.MainApplication
                 MessageBoxHelper.ShowBoxError("连接: " + mls_address.Text + ":" + mls_port.Text + " 失败!", "连接失败");
             }
         }
-
-        private string GetHostByName(string ip)
-        {
-            string _return = null;
-            try
-            {
-                IPHostEntry hostinfo = Dns.GetHostByName(ip);
-                IPAddress[] aryIP = hostinfo.AddressList;
-                _return = aryIP[0].ToString();
-            }
-            catch { }
-
-            return _return;
-        }
-
         private void button3_Click(object sender, EventArgs e)
         {
 
@@ -88,12 +73,12 @@ namespace SiMay.RemoteMonitor.MainApplication
                 Remark = txtInitName.Text,
                 AccessKey = int.Parse(txtAccesskey.Text),
                 IsHide = ishide.Checked,
-                IsAutoRun = sutoRun.Checked,
+                IsAutoRun = autoRun.Checked,
                 IsMutex = mutex.Checked,
                 InstallService = svcInstallCheckBox.Checked,
                 ServiceName = "SiMayService",
                 ServiceDisplayName = "SiMay远程被控服务",
-                SessionMode = int.Parse(AppConfiguration.SessionMode),
+                SessionMode = sessionModeList.SelectedIndex,
                 GroupName = groupNameBox.Text
             };
             string name = "SiMayService.exe";
@@ -212,6 +197,9 @@ namespace SiMay.RemoteMonitor.MainApplication
         {
             txtAccesskey.Text = AppConfiguration.ConnectPassWord;
             string strHosts = AppConfiguration.LHostString;
+
+            int index = int.Parse(AppConfiguration.SessionMode);
+            sessionModeList.SelectedIndex = index;
 
             string[] strarrays = strHosts.Split(',');
 
