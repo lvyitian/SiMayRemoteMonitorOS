@@ -96,6 +96,8 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
                 Width = width,
                 CtrlMode = mode.ConvertTo<int>()
             });
+
+            _frameCount = 0;
             //第一帧不计入连续帧
             for (int i = 0; i < 3; i++)
                 SendAsyncMessage(MessageHead.S_SCREEN_NEXT_SCREENBITMP, rect);

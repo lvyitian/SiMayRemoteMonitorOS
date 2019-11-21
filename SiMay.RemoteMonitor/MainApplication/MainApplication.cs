@@ -104,7 +104,7 @@ namespace SiMay.RemoteMonitor.MainApplication
             if (AppConfiguration.SessionMode == "1")
             {
                 this.stripHost.Text = AppConfiguration.ServiceIPAddress;
-                this.stripHost.Text = AppConfiguration.ServicePort;
+                this.stripPort.Text = AppConfiguration.ServicePort;
             }
             else
             {
@@ -879,6 +879,26 @@ namespace SiMay.RemoteMonitor.MainApplication
                     this._appMainAdapterHandler.RemoteServiceReload(c.SessionSyncContext);
                 });
             }
+        }
+
+        private void installServiceMenuItem_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("确定以系统服务方式启动吗?", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) != DialogResult.OK)
+                return;
+            this.GetSelectedListItem().ForEach(c =>
+            {
+                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionType.InstallService);
+            });
+        }
+
+        private void unInstallServiceMenuItem_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("确定卸载系统服务启动吗?", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) != DialogResult.OK)
+                return;
+            this.GetSelectedListItem().ForEach(c =>
+            {
+                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionType.UnInstallService);
+            });
         }
     }
 }

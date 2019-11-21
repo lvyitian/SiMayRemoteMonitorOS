@@ -56,6 +56,10 @@ namespace SiMay.ServiceCore
         public static string HostAddress { get; set; }
         public static int HostPort { get; set; }
 
+        public static string ServiceName { get; set; }
+
+        public static string ServiceDisplayName { get; set; }
+
         public static string GroupName
         {
             get

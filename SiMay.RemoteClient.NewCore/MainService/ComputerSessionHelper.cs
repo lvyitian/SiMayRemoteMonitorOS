@@ -50,6 +50,17 @@ namespace SiMay.ServiceCore.MainService
         /// </summary>
         public const int UNSTALL = 6;
 
+        /// <summary>
+        /// 安装启动服务
+        /// </summary>
+        public const int INSTALL_SERVICE = 7;
+
+
+        /// <summary>
+        /// 卸载服务
+        /// </summary>
+        public const int UNINSTALL_SERVICE = 8;
+
         public static void SessionManager(int status)
         {
             switch (status)
@@ -78,7 +89,13 @@ namespace SiMay.ServiceCore.MainService
                 case UNSTALL:
                     UserTrunkContext.UserTrunkContextInstance?.InitiativeExit();
                     Thread.Sleep(100);//等待服务响应
-                    UnInstallService();
+                    UnInstall();
+                    break;
+                case INSTALL_SERVICE:
+                    InstallAutoStartService();
+                    break;
+                case UNINSTALL_SERVICE:
+                    UnInstallAutoStartService();
                     break;
             }
         }
@@ -116,7 +133,38 @@ namespace SiMay.ServiceCore.MainService
             }
         }
 
-        public static void UnInstallService()
+        public static void InstallAutoStartService()
+        {
+            SystemMessageNotify.ShowTip("SiMay远程控制被控服务正在安装服务!");
+            var svcFullName = Assembly.GetExecutingAssembly().Location;
+            var parameter = " \"-serviceStart\"";//服务启动标志
+            svcFullName += parameter;
+            if (ServiceInstallerHelper.InstallService(svcFullName, AppConfiguartion.ServiceName, AppConfiguartion.ServiceDisplayName))
+            {
+                SystemMessageNotify.ShowTip("SiMay远程控制被控服务安装完成!");
+                //服务安装完成启动成功
+                Environment.Exit(0);
+            }
+            else
+            {
+                SystemMessageNotify.ShowTip("SiMay远程控制被控服务安装失败!");
+                LogHelper.DebugWriteLog("Service Install Not Completed!!");
+            }
+        }
+
+        public static void UnInstallAutoStartService()
+        {
+            SystemMessageNotify.ShowTip("SiMay远程控制被控服务正在卸载服务!");
+            if (ServiceInstallerHelper.UnInstallService(AppConfiguartion.ServiceName))
+                Environment.Exit(0);
+            else
+            {
+                SystemMessageNotify.ShowTip("SiMay远程控制被控服务卸载失败!");
+                LogHelper.DebugWriteLog("Service UnInstall Not Completed!!");
+            }
+        }
+
+        public static void UnInstall()
         {
             Environment.Exit(0);
         }

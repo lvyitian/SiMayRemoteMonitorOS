@@ -29,9 +29,7 @@
         private void InitializeComponent()
         {
             this.label7 = new System.Windows.Forms.Label();
-            this.svcInstallCheckBox = new System.Windows.Forms.RadioButton();
             this.mutex = new System.Windows.Forms.CheckBox();
-            this.autoRun = new System.Windows.Forms.RadioButton();
             this.ishide = new System.Windows.Forms.CheckBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.label5 = new System.Windows.Forms.Label();
@@ -54,11 +52,11 @@
             this.sessionModeList = new System.Windows.Forms.ComboBox();
             this.label8 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.panel1 = new System.Windows.Forms.Panel();
+            this.installMode = new System.Windows.Forms.ComboBox();
+            this.label9 = new System.Windows.Forms.Label();
             this.groupBox3.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
-            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // label7
@@ -72,21 +70,10 @@
             this.label7.TabIndex = 29;
             this.label7.Text = "-本程序严禁使用于非法目的，否则一切后果自负。";
             // 
-            // svcInstallCheckBox
-            // 
-            this.svcInstallCheckBox.AutoSize = true;
-            this.svcInstallCheckBox.Location = new System.Drawing.Point(130, 9);
-            this.svcInstallCheckBox.Margin = new System.Windows.Forms.Padding(4);
-            this.svcInstallCheckBox.Name = "svcInstallCheckBox";
-            this.svcInstallCheckBox.Size = new System.Drawing.Size(88, 19);
-            this.svcInstallCheckBox.TabIndex = 12;
-            this.svcInstallCheckBox.Text = "服务安装";
-            this.svcInstallCheckBox.UseVisualStyleBackColor = true;
-            // 
             // mutex
             // 
             this.mutex.AutoSize = true;
-            this.mutex.Location = new System.Drawing.Point(391, 26);
+            this.mutex.Location = new System.Drawing.Point(132, 26);
             this.mutex.Margin = new System.Windows.Forms.Padding(4);
             this.mutex.Name = "mutex";
             this.mutex.Size = new System.Drawing.Size(89, 19);
@@ -94,21 +81,10 @@
             this.mutex.Text = "进程互斥";
             this.mutex.UseVisualStyleBackColor = true;
             // 
-            // autoRun
-            // 
-            this.autoRun.AutoSize = true;
-            this.autoRun.Location = new System.Drawing.Point(12, 9);
-            this.autoRun.Margin = new System.Windows.Forms.Padding(4);
-            this.autoRun.Name = "autoRun";
-            this.autoRun.Size = new System.Drawing.Size(88, 19);
-            this.autoRun.TabIndex = 5;
-            this.autoRun.Text = "注册启动";
-            this.autoRun.UseVisualStyleBackColor = true;
-            // 
             // ishide
             // 
             this.ishide.AutoSize = true;
-            this.ishide.Location = new System.Drawing.Point(275, 26);
+            this.ishide.Location = new System.Drawing.Point(16, 26);
             this.ishide.Margin = new System.Windows.Forms.Padding(4);
             this.ishide.Name = "ishide";
             this.ishide.Size = new System.Drawing.Size(89, 19);
@@ -344,7 +320,6 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.panel1);
             this.groupBox1.Controls.Add(this.mutex);
             this.groupBox1.Controls.Add(this.ishide);
             this.groupBox1.Location = new System.Drawing.Point(15, 414);
@@ -356,14 +331,30 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "功能选项";
             // 
-            // panel1
+            // installMode
             // 
-            this.panel1.Controls.Add(this.svcInstallCheckBox);
-            this.panel1.Controls.Add(this.autoRun);
-            this.panel1.Location = new System.Drawing.Point(16, 17);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(240, 41);
-            this.panel1.TabIndex = 33;
+            this.installMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.installMode.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.installMode.FormattingEnabled = true;
+            this.installMode.Items.AddRange(new object[] {
+            "仅执行",
+            "注册启动",
+            "服务安装"});
+            this.installMode.Location = new System.Drawing.Point(100, 512);
+            this.installMode.Margin = new System.Windows.Forms.Padding(4);
+            this.installMode.Name = "installMode";
+            this.installMode.Size = new System.Drawing.Size(137, 23);
+            this.installMode.TabIndex = 34;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(17, 515);
+            this.label9.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(75, 15);
+            this.label9.TabIndex = 33;
+            this.label9.Text = "安装方式:";
             // 
             // BuilderServiceForm
             // 
@@ -371,8 +362,10 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(567, 611);
             this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.installMode);
             this.Controls.Add(this.sessionModeList);
             this.Controls.Add(this.label8);
+            this.Controls.Add(this.label9);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
@@ -389,8 +382,6 @@
             this.groupBox2.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -399,7 +390,6 @@
         #endregion
 
         private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.RadioButton autoRun;
         private System.Windows.Forms.CheckBox ishide;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.Label label6;
@@ -420,10 +410,10 @@
         private System.Windows.Forms.CheckBox mutex;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox groupNameBox;
-        private System.Windows.Forms.RadioButton svcInstallCheckBox;
         private System.Windows.Forms.ComboBox sessionModeList;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.ComboBox installMode;
+        private System.Windows.Forms.Label label9;
     }
 }

@@ -65,6 +65,14 @@ namespace SiMay.RemoteMonitor.MainApplication
 
             logList.Items.Add("配置信息初始化..");
 
+            var autoRun = false;
+            var svcInstall = false;
+
+            if (installMode.SelectedIndex == 1)
+                autoRun = true;
+            else if (installMode.SelectedIndex == 2)
+                svcInstall = true;
+
             var options = new ServiceOptions()
             {
                 Id = Guid.NewGuid().ToString(),
@@ -73,9 +81,9 @@ namespace SiMay.RemoteMonitor.MainApplication
                 Remark = txtInitName.Text,
                 AccessKey = int.Parse(txtAccesskey.Text),
                 IsHide = ishide.Checked,
-                IsAutoRun = autoRun.Checked,
+                IsAutoRun = autoRun,
                 IsMutex = mutex.Checked,
-                InstallService = svcInstallCheckBox.Checked,
+                InstallService = svcInstall,
                 ServiceName = "SiMayService",
                 ServiceDisplayName = "SiMay远程被控服务",
                 SessionMode = sessionModeList.SelectedIndex,
@@ -200,6 +208,8 @@ namespace SiMay.RemoteMonitor.MainApplication
 
             int index = int.Parse(AppConfiguration.SessionMode);
             sessionModeList.SelectedIndex = index;
+
+            installMode.Text = installMode.Items[0].ToString();
 
             string[] strarrays = strHosts.Split(',');
 

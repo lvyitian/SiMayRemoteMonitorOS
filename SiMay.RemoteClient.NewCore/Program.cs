@@ -18,6 +18,7 @@ using SiMay.Basic;
 using System.Linq;
 using System.Reflection;
 using System.ServiceProcess;
+using SiMay.ServiceCore.MainService;
 
 namespace SiMay.ServiceCore
 {
@@ -126,6 +127,8 @@ namespace SiMay.ServiceCore
                 AppConfiguartion.HasSystemAuthority = args.Any(c => c.Equals(SERVICE_USER_START, StringComparison.OrdinalIgnoreCase)) ?
                     "true" :
                     "false";
+                AppConfiguartion.ServiceName = startParameter.ServiceName.IsNullOrEmpty() ? "SiMayService" : startParameter.ServiceName;
+                AppConfiguartion.ServiceDisplayName = startParameter.ServiceDisplayName.IsNullOrEmpty() ? "SiMay远程被控服务" : startParameter.ServiceDisplayName;
 
                 //初始化连接服务
                 if (args.Any(c => c.Equals(SERVICE_USER_START, StringComparison.OrdinalIgnoreCase)))
@@ -136,20 +139,7 @@ namespace SiMay.ServiceCore
 
                 //非SYSTEM用户进程启动则进入安装服务
                 if (startParameter.InstallService && !args.Any(c => c.Equals(SERVICE_USER_START, StringComparison.OrdinalIgnoreCase)))
-                {
-                    var svcFullName = Assembly.GetExecutingAssembly().Location;
-                    var parameter = " \"-serviceStart\"";//服务启动标志
-                    svcFullName += parameter;
-                    if (ServiceInstallerHelper.InstallService(svcFullName, startParameter.ServiceName, startParameter.ServiceDisplayName))
-                    {
-                        //服务安装完成启动成功
-                        Environment.Exit(0);
-                    }
-                    else
-                    {
-                        LogHelper.DebugWriteLog("Service Install Not Completed!!");
-                    }
-                }
+                    ComputerSessionHelper.InstallAutoStartService();
 
                 Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;

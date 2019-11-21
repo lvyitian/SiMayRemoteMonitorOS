@@ -257,6 +257,18 @@ namespace SiMay.ServiceCore
         }
         protected override void OnStop()
         {
+            try
+            {
+                Process[] process = Process.GetProcesses();
+                foreach (Process pro in process)
+                {
+                    if (pro.ProcessName.Equals(Process.GetCurrentProcess().ProcessName, StringComparison.OrdinalIgnoreCase) && pro.Id != Process.GetCurrentProcess().Id)
+                    {
+                        pro.Kill();
+                    }
+                }
+            }
+            catch { }
         }
     }
 }

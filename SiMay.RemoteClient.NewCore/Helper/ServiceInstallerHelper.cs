@@ -95,5 +95,32 @@ namespace SiMay.ServiceCore
                 return false;
             }
         }
+
+        public static bool UnInstallService(string svcName)
+        {
+            bool returnValue = false;
+            try
+            {
+                IntPtr sc_handle = OpenSCManager(null, null, GENERIC_WRITE);
+                if (sc_handle.ToInt64() != 0)
+                {
+                    IntPtr sv_handle = OpenService(sc_handle, svcName, DELETE);
+                    if (sv_handle.ToInt64() != 0)
+                    {
+                        if (DeleteService(sv_handle) != 0)
+                        {
+                            CloseServiceHandle(sv_handle);
+                            returnValue = true;
+                        }
+                        else
+                        {
+                            CloseServiceHandle(sv_handle);
+                        }
+                    }
+                }
+            }
+            catch { }
+            return returnValue;
+        }
     }
 }

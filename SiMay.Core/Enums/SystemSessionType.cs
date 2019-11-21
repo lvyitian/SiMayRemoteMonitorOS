@@ -13,6 +13,8 @@ namespace SiMay.Core.Enums
         RegCancelStart = 3,
         AttributeHide = 4,
         AttributeShow = 5,
-        Unstall = 6
+        Unstall = 6,
+        InstallService = 7,
+        UnInstallService = 8
     }
 }

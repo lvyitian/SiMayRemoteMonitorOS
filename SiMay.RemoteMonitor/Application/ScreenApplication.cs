@@ -138,7 +138,7 @@ namespace SiMay.RemoteMonitor.Application
             g.Clear(Color.Black);
             g.DrawString("桌面加载中...", new Font("微软雅黑", 15, FontStyle.Regular), new SolidBrush(Color.Red), new Point((height / 2) - 40, width / 2));
             g.Dispose();
-            this.GetNextScreen();
+            this.StartGetScreen();
         }
 
         private void OnScreenFragmentEventHandler(RemoteScreenAdapterHandler adapterHandler, Core.ScreenSpy.Entitys.Fragment[] fragments, ScreenReceivedType type)
@@ -175,6 +175,14 @@ namespace SiMay.RemoteMonitor.Application
                 default:
                     break;
             }
+        }
+
+        private void StartGetScreen()
+        {
+            if (_screenDisplayMode == ScreenDisplayMode.Fullscreen)
+                this.RemoteScreenAdapterHandler.StartGetScreen(this._image.Height, this._image.Width, Math.Abs(this.imgDesktop.Left), Math.Abs(this.imgDesktop.Top), this._screenDisplayMode);
+            else
+                this.RemoteScreenAdapterHandler.StartGetScreen(this.ClientSize.Height, this.ClientSize.Width, Math.Abs(this.imgDesktop.Left), Math.Abs(this.imgDesktop.Top), this._screenDisplayMode);
         }
 
         private void GetNextScreen()

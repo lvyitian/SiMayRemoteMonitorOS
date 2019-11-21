@@ -81,6 +81,9 @@ namespace SiMay.ServiceCore.ApplicationService
         [PacketHandler(MessageHead.S_SCREEN_DELETE_WALLPAPER)]
         public void DeleteWallPaper(TcpSocketSaeaSession session)
         {
+            if (_cleanWallPaper)
+                return;
+
             _cleanWallPaper = true;
             wallpaper = new string('\0', 260);
             User32.SystemParametersInfo(0x73, 260, wallpaper, 0);
@@ -143,8 +146,6 @@ namespace SiMay.ServiceCore.ApplicationService
         {
             var currenMonitor = session.CompletedBuffer.GetMessageEntity<MonitorChangePack>().MonitorIndex;
             _spy.Capturer.SelectedScreen = currenMonitor;
-
-            SendDesktopInitInfo();
         }
 
         private void ScreenDifferences_OnDifferencesNotice(Fragment[] fragments, DifferStatus nCode)

@@ -595,6 +595,25 @@ namespace SiMay.RemoteControlsCore
         }
 
         /// <summary>
+        /// 安装服务
+        /// </summary>
+        /// <param name="syncContext"></param>
+        public void InstallAutoStartService(SessionSyncContext syncContext)
+        {
+            byte[] data = MessageHelper.CopyMessageHeadTo(MessageHead.S_MAIN_INSTANLL_SERVICE);
+            syncContext.Session.SendMessageDoHasCOM(data);
+        }
+
+        /// <summary>
+        /// 卸载自动启动服务
+        /// </summary>
+        /// <param name="syncContext"></param>
+        public void UnInStallAutoStartService(SessionSyncContext syncContext)
+        {
+            byte[] data = MessageHelper.CopyMessageHeadTo(MessageHead.S_MAIN_UNINSTANLL_SERVICE);
+            syncContext.Session.SendMessageDoHasCOM(data);
+        }
+        /// <summary>
         /// 远程服务文件更新
         /// </summary>
         /// <param name="syncContext"></param>
@@ -670,7 +689,7 @@ namespace SiMay.RemoteControlsCore
         /// <param name="sessionType"></param>
         public void RemoteSetSessionState(SessionSyncContext syncContext, SystemSessionType sessionType)
         {
-            byte[] data = MessageHelper.CopyMessageHeadTo(MessageHead.S_MAIN_SESSION, new byte[] { sessionType.ConvertTo<byte>() });
+            byte[] data = MessageHelper.CopyMessageHeadTo(MessageHead.S_MAIN_SESSION, new byte[] { (byte)sessionType });
             syncContext.Session.SendMessageDoHasCOM(data);
         }
 
