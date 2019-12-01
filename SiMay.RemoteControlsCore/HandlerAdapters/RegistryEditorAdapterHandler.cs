@@ -27,15 +27,6 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         public event ValueRenamedEventHandler OnValueRenamedEventHandler;
         public event ValueChangedEventHandler OnValueChangedEventHandler;
 
-        private PacketModelBinder<SessionHandler, MessageHead> _handlerBinder = new PacketModelBinder<SessionHandler, MessageHead>();
-        internal override void MessageReceived(SessionHandler session)
-        {
-            if (this.IsClose)
-                return;
-
-            _handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);
-        }
-
         [PacketHandler(MessageHead.C_NREG_LOAD_REGKEYS)]
         private void AddKeyedHandler(SessionHandler session)
         {
@@ -220,12 +211,6 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
                                         KeyPath = keyPath,
                                         Value = value
                                     });
-        }
-
-        public override void CloseHandler()
-        {
-            this._handlerBinder.Dispose();
-            base.CloseHandler();
         }
     }
 }

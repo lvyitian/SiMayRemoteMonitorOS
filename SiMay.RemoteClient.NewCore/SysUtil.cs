@@ -16,7 +16,7 @@ namespace SiMay.ServiceCore
         public class ServiceTypeContext
         {
             public string ServiceKey { get; set; }
-            public Type CtrlType { get; set; }
+            public Type AppServiceType { get; set; }
         }
         public static List<ServiceTypeContext> ControlTypes { get; set; }
         static SysUtil()
@@ -25,15 +25,12 @@ namespace SiMay.ServiceCore
             var types = Assembly.GetExecutingAssembly().GetTypes();
             foreach (var type in types)
             {
-                if (typeof(IApplicationService).IsAssignableFrom(type) && type.IsClass)
+                if (typeof(ServiceManagerBase).IsAssignableFrom(type) && type.IsSubclassOf(typeof(ServiceManagerBase)) && type.IsClass)
                 {
-                    if (typeof(ServiceManager).IsSubclassOf(type))
-                        throw new Exception(type.FullName + " type must inherit ServiceManager base class!");
-
                     var context = new ServiceTypeContext()
                     {
                         ServiceKey = type.GetServiceKey() ?? throw new Exception(type.Name + ":The serviceKey cannot be empty!"),
-                        CtrlType = type
+                        AppServiceType = type
                     };
                     controlTypes.Add(context);
                 }

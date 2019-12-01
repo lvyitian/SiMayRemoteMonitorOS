@@ -35,7 +35,7 @@ namespace SiMay.Core.PacketModelBinding
 
             void Init()
             {
-                var methods = source.GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                var methods = source.GetType().GetMethods(BindingFlags.Instance | BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Public);
                 foreach (var method in methods)
                 {
                     var attr = method.GetCustomAttributes(typeof(PacketHandler), true).FirstOrDefault();

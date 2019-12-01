@@ -20,49 +20,8 @@ namespace SiMay.ServiceCore.ApplicationService
 {
     [ServiceName("Tcp连接管理")]
     [ServiceKey("TcpConnectionManagerJob")]
-    public class TcpConnectionService : ServiceManager, IApplicationService
+    public class TcpConnectionService : ServiceManagerBase
     {
-        private PacketModelBinder<TcpSocketSaeaSession, MessageHead> _handlerBinder = new PacketModelBinder<TcpSocketSaeaSession, MessageHead>();
-
-        /// <summary>
-        /// 通知远程一切就绪
-        /// </summary>
-        [PacketHandler(MessageHead.S_GLOBAL_OK)]
-        public void InitializeComplete(TcpSocketSaeaSession session)
-        {
-            SendAsyncToServer(MessageHead.C_MAIN_ACTIVE_APP,
-                new ActiveAppPack()
-                {
-                    IdentifyId = AppConfiguartion.IdentifyId,
-                    ServiceKey = this.GetType().GetServiceKey(),
-                    OriginName = Environment.MachineName + "@" + (AppConfiguartion.RemarkInfomation ?? AppConfiguartion.DefaultRemarkInfo)
-                });
-        }
-
-        [PacketHandler(MessageHead.S_GLOBAL_ONCLOSE)]
-        public void CloseSession(TcpSocketSaeaSession session)
-        {
-            CloseSession();
-        }
-
-        public override void OnNotifyProc(TcpSocketCompletionNotify notify, TcpSocketSaeaSession session)
-        {
-            switch (notify)
-            {
-                case TcpSocketCompletionNotify.OnConnected:
-                    break;
-                case TcpSocketCompletionNotify.OnSend:
-                    break;
-                case TcpSocketCompletionNotify.OnDataReceiveing:
-                    break;
-                case TcpSocketCompletionNotify.OnDataReceived:
-                    this._handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);
-                    break;
-                case TcpSocketCompletionNotify.OnClosed:
-                    this._handlerBinder.Dispose();
-                    break;
-            }
-        }
         [PacketHandler(MessageHead.S_TCP_GET_LIST)]
         public void GetTcpConnectionList(TcpSocketSaeaSession session)
         {

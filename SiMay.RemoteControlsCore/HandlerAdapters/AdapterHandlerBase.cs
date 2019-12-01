@@ -1,4 +1,5 @@
 ﻿using SiMay.Core;
+using SiMay.Core.PacketModelBinding;
 using SiMay.Net.SessionProvider.SessionBased;
 using System;
 using System.Collections.Generic;
@@ -44,6 +45,13 @@ namespace SiMay.RemoteControlsCore
         /// </summary>
         public SessionHandler Session { get; set; }
 
+        internal PacketModelBinder<SessionHandler, MessageHead> HandlerBinder { get; set; }
+
+        public AdapterHandlerBase()
+        {
+            HandlerBinder = new PacketModelBinder<SessionHandler, MessageHead>();
+        }
+
         /// <summary>
         /// 当会话重连后触发
         /// </summary>
@@ -59,18 +67,12 @@ namespace SiMay.RemoteControlsCore
             => App.SessionClose(this);
 
         /// <summary>
-        /// 数据接收时触发(底层接收数据,未解压)
+        /// 数据接收时触发(底层接收数据,未解压),未启用
         /// </summary>
         /// <param name="session"></param>
+        [Obsolete]
         internal virtual void MessageReceive(SessionHandler session)
         { }
-
-        /// <summary>
-        /// 数据接收完成
-        /// </summary>
-        /// <param name="session"></param>
-        internal abstract void MessageReceived(SessionHandler session);
-
 
         /// <summary>
         /// 使用当前会话发送实体对象
@@ -112,6 +114,7 @@ namespace SiMay.RemoteControlsCore
         public virtual void CloseHandler()
         {
             this.IsClose = true;
+            this.HandlerBinder.Dispose();
             SendAsyncMessage(MessageHead.S_GLOBAL_ONCLOSE);
         }
 

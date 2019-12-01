@@ -79,16 +79,6 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         private ManualResetEvent _sessionOfLinesEvent = new ManualResetEvent(true);
         private ManualResetEvent _filesTriggerEvent = new ManualResetEvent(false);
         private Queue<DirectoryFileItem> _filesQueue = new Queue<DirectoryFileItem>();
-
-        private PacketModelBinder<SessionHandler, MessageHead> _handlerBinder = new PacketModelBinder<SessionHandler, MessageHead>();
-        internal override void MessageReceived(SessionHandler session)
-        {
-            if (this.IsClose)
-                return;
-
-            _handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);
-        }
-
         /// <summary>
         /// 获取所有驱动器
         /// </summary>
@@ -776,12 +766,6 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             this._sessionOfLinesEvent.Set();
 
             base.ContinueTask(session);
-        }
-
-        public override void CloseHandler()
-        {
-            this._handlerBinder.Dispose();
-            base.CloseHandler();
         }
     }
 }

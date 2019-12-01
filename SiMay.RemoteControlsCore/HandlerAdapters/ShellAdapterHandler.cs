@@ -18,15 +18,6 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// </summary>
         public event Action<ShellAdapterHandler, string> OnOutputCommandEventHandler;
 
-        private PacketModelBinder<SessionHandler, MessageHead> _handlerBinder = new PacketModelBinder<SessionHandler, MessageHead>();
-        internal override void MessageReceived(SessionHandler session)
-        {
-            if (this.IsClose)
-                return;
-
-            _handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);
-        }
-
         [PacketHandler(MessageHead.C_SHELL_RESULT)]
         private void OutputCommandHandler(SessionHandler session)
         {
@@ -37,12 +28,6 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         public void InputCommand(string command)
         {
             SendAsyncMessage(MessageHead.S_SHELL_INPUT, command);
-        }
-
-        public override void CloseHandler()
-        {
-            this._handlerBinder.Dispose();
-            base.CloseHandler();
         }
     }
 }

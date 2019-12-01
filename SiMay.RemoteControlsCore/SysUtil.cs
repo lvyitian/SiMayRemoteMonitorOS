@@ -13,7 +13,7 @@ namespace SiMay.RemoteControlsCore
         public class ApplicationItem
         {
             public int Rank { get; set; }
-            public string AppKey { get; set; }
+            public string ApplicationKey { get; set; }
             public Type Type { get; set; }
         }
         public static IReadOnlyList<ApplicationItem> ApplicationTypes { get; private set; }
@@ -27,7 +27,7 @@ namespace SiMay.RemoteControlsCore
                 .Select(t => new ApplicationItem()
                 {
                     Rank = t.GetRank(),
-                    AppKey = t.GetAppKey() ?? throw new Exception(t.Name + ":The AppKey cannot be empty!"),
+                    ApplicationKey = t.GetAppKey() ?? throw new Exception(t.Name + ":The AppKey cannot be empty!"),
                     Type = t
                 })
                 .ToList();

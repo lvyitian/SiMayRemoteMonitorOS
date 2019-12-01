@@ -221,7 +221,10 @@ namespace SiMay.ServiceCore.MainService
                         if (workType == ConnectionWorkType.MAINCON)
                             this._handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);
                         else if (workType == ConnectionWorkType.WORKCON)
-                            ((ServiceManager)session.AppTokens[1]).OnNotifyProc(notify, session);//工作连接处理函数
+                        {
+                            var appService = ((ServiceManagerBase)session.AppTokens[1]);
+                            appService.HandlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), appService);
+                        }
                         break;
                     case TcpSocketCompletionNotify.OnClosed:
                         this.CloseHandler(session, notify);
@@ -266,7 +269,7 @@ namespace SiMay.ServiceCore.MainService
                 this.SendAckPack(session, ConnectionWorkType.WORKCON);
 
                 //消费工作实例
-                ServiceManager manager = _taskQueue.Dequeue();
+                ServiceManagerBase manager = _taskQueue.Dequeue();
                 if (manager == null)
                 {
                     //无工作实例。。连接分配不到工作
@@ -279,7 +282,6 @@ namespace SiMay.ServiceCore.MainService
                     manager
                 };
                 manager.SetSession(session);
-                manager.OnNotifyProc(notify, session);
             }
 
         }
@@ -321,9 +323,15 @@ namespace SiMay.ServiceCore.MainService
                 timer.Start();
             }
             else if (workType == ConnectionWorkType.WORKCON)
-                ((ServiceManager)session.AppTokens[1]).OnNotifyProc(notify, session);
+            {
+                var appService = ((ServiceManagerBase)session.AppTokens[1]);
+                if (appService.Closed)
+                    return;
+                appService.Closed = true;
+                appService.SessionClosed();
+            }
         }
-        private void PostTaskToQueue(ServiceManager manager)
+        private void PostTaskToQueue(ServiceManagerBase manager)
         {
             this._taskQueue.Enqueue(manager);
             this.ConnectToServer();
@@ -336,10 +344,11 @@ namespace SiMay.ServiceCore.MainService
             var context = SysUtil.ControlTypes.FirstOrDefault(x => x.ServiceKey.Equals(key));
             if (context != null)
             {
-                var serviceName = context.CtrlType.GetCustomAttribute<ServiceNameAttribute>(true).Name;
+                var serviceName = context.AppServiceType.GetCustomAttribute<ServiceNameAttribute>(true).Name;
                 SystemMessageNotify.ShowTip($"正在进行远程操作:{serviceName ?? context.ServiceKey}");
-                var service = Activator.CreateInstance(context.CtrlType, null) as ServiceManager;
-                this.PostTaskToQueue(service);
+                var appService = Activator.CreateInstance(context.AppServiceType, null) as ServiceManagerBase;
+                appService.AppServiceKey = context.ServiceKey;
+                this.PostTaskToQueue(appService);
             }
         }
 

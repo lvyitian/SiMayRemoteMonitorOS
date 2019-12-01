@@ -14,48 +14,17 @@ namespace SiMay.ServiceCore.ApplicationService
 {
     [ServiceName("远程语音")]
     [ServiceKey("RemoteAudioJob")]
-    public class AudioService : ServiceManager, IApplicationService
+    public class AudioService : ServiceManagerBase
     {
         private bool _isRun = true;
         private bool _isPlaying = false;
         private WinSoundRecord _Recorder = null;
         private WinSoundPlayer _Player = null;
-        private PacketModelBinder<TcpSocketSaeaSession, MessageHead> _handlerBinder = new PacketModelBinder<TcpSocketSaeaSession, MessageHead>();
-        public override void OnNotifyProc(TcpSocketCompletionNotify notify, TcpSocketSaeaSession session)
-        {
-            switch (notify)
-            {
-                case TcpSocketCompletionNotify.OnConnected:
-                    break;
-                case TcpSocketCompletionNotify.OnSend:
-                    break;
-                case TcpSocketCompletionNotify.OnDataReceiveing:
-                    break;
-                case TcpSocketCompletionNotify.OnDataReceived:
-                    this._handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);
-                    break;
-                case TcpSocketCompletionNotify.OnClosed:
-                    this._handlerBinder.Dispose();
-                    this.Dispose();
-                    break;
-            }
-        }
-        [PacketHandler(MessageHead.S_GLOBAL_OK)]
-        public void InitializeComplete(TcpSocketSaeaSession session)
-        {
-            SendAsyncToServer(MessageHead.C_MAIN_ACTIVE_APP,
-                new ActiveAppPack()
-                {
-                    IdentifyId = AppConfiguartion.IdentifyId,
-                    ServiceKey = this.GetType().GetServiceKey(),
-                    OriginName = Environment.MachineName + "@" + (AppConfiguartion.RemarkInfomation ?? AppConfiguartion.DefaultRemarkInfo)
-                });
-        }
-        [PacketHandler(MessageHead.S_GLOBAL_ONCLOSE)]
-        public void CloseSession(TcpSocketSaeaSession session)
+
+        public override void SessionClosed()
         {
             _isRun = false;
-            this.CloseSession();
+            this.Dispose();
         }
         private void OpenAudio(int samplesPerSecond, int bitsPerSample, int channels)
         {

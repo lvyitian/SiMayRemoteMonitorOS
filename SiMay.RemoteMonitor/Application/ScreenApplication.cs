@@ -340,6 +340,9 @@ namespace SiMay.RemoteMonitor.Application
                         dialog.SetMonitors(_monitorItems, _currenMonitorIndex);
                         if (dialog.ShowDialog() == DialogResult.OK)
                         {
+                            if (_currenMonitorIndex == dialog.CurrentMonitorIndex)
+                                break;
+
                             _currenMonitorIndex = dialog.CurrentMonitorIndex;
                             this.RemoteScreenAdapterHandler.MonitorChange(dialog.CurrentMonitorIndex);
                         }

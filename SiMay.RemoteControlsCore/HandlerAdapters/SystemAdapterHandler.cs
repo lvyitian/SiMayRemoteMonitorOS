@@ -22,15 +22,6 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
         public event Action<SystemAdapterHandler, string, string> OnOccupyHandlerEvent;
 
-        private PacketModelBinder<SessionHandler, MessageHead> _handlerBinder = new PacketModelBinder<SessionHandler, MessageHead>();
-        internal override void MessageReceived(SessionHandler session)
-        {
-            if (this.IsClose)
-                return;
-
-            _handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);
-        }
-
         [PacketHandler(MessageHead.C_SYSTEM_SYSTEMINFO)]
         private void HandlerProcessList(SessionHandler session)
         {
@@ -116,10 +107,5 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
                 });
         }
 
-        public override void CloseHandler()
-        {
-            this._handlerBinder.Dispose();
-            base.CloseHandler();
-        }
     }
 }

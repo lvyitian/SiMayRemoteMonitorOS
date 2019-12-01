@@ -38,16 +38,6 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
         //已接收帧数
         private int _frameCount = 0;
-
-        private PacketModelBinder<SessionHandler, MessageHead> _handlerBinder = new PacketModelBinder<SessionHandler, MessageHead>();
-        internal override void MessageReceived(SessionHandler session)
-        {
-            if (this.IsClose)
-                return;
-
-            _handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);
-        }
-
         public void RemoteMouseKeyEvent(MOUSEKEY_ENUM @event, int point1, int point2)
         {
             SendAsyncMessage(MessageHead.S_SCREEN_MOUSEKEYEVENT,
@@ -60,28 +50,28 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         }
 
         [PacketHandler(MessageHead.C_SCREEN_BITINFO)]
-        public void SetBitmapHandler(SessionHandler session)
+        private void SetBitmapHandler(SessionHandler session)
         {
             var bitinfo = session.CompletedBuffer.GetMessageEntity<ScreenInitBitPack>();
             this.OnServcieInitEventHandler?.Invoke(this, bitinfo.Height, bitinfo.Width, bitinfo.PrimaryScreenIndex, bitinfo.Monitors);
         }
 
         [PacketHandler(MessageHead.C_SCREEN_DIFFBITMAP)]
-        public void FullFragmentHandler(SessionHandler session)
+        private void FullFragmentHandler(SessionHandler session)
         {
             var fragments = session.CompletedBuffer.GetMessageEntity<ScreenFragmentPack>();
             this.OnScreenFragmentEventHandler?.Invoke(this, fragments.Fragments, ScreenReceivedType.Noninterlaced);
         }
 
         [PacketHandler(MessageHead.C_SCREEN_BITMP)]
-        public void SigleFragmentHandler(SessionHandler session)
+        private void SigleFragmentHandler(SessionHandler session)
         {
             int dataSize = session.CompletedBuffer.Length;
             var fragments = session.CompletedBuffer.GetMessageEntity<ScreenFragmentPack>();
             this.OnScreenFragmentEventHandler?.Invoke(this, fragments.Fragments, ScreenReceivedType.Difference);
         }
         [PacketHandler(MessageHead.C_SCREEN_SCANCOMPLETE)]
-        public void ScanFinishHandler(SessionHandler session)
+        private void ScanFinishHandler(SessionHandler session)
         {
             this.OnScreenFragmentEventHandler?.Invoke(this, new Fragment[0], ScreenReceivedType.DifferenceEnd);
         }
@@ -197,11 +187,6 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         {
             var response = session.CompletedBuffer.GetMessageEntity<ScreenClipoardValuePack>();
             this.OnClipoardReceivedEventHandler?.Invoke(this, response.Value);
-        }
-        public override void CloseHandler()
-        {
-            this._handlerBinder.Dispose();
-            base.CloseHandler();
         }
     }
 }

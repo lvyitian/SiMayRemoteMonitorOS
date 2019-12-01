@@ -14,10 +14,12 @@ namespace SiMay.RemoteControlsCore
         /// 开始工作
         /// </summary>
         void Start();
+
         /// <summary>
         /// 当会话断开时
         /// </summary>
         void SessionClose(AdapterHandlerBase handler);
+
         /// <summary>
         /// 当会话恢复时
         /// </summary>

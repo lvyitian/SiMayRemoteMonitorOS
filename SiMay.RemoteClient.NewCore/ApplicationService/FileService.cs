@@ -24,7 +24,7 @@ namespace SiMay.ServiceCore.ApplicationService
 {
     [ServiceName("文件管理")]
     [ServiceKey("FileManagerJob")]
-    public class FileService : ServiceManager, IApplicationService
+    public class FileService : ServiceManagerBase
     {
         private const int FILE_BUFFER_SIZE = 1024 * 512;
 
@@ -33,44 +33,12 @@ namespace SiMay.ServiceCore.ApplicationService
         private bool _isStopTask = false;
         private System.IO.FileStream _fileStream;
         private ManualResetEvent _event = new ManualResetEvent(true);
-        private PacketModelBinder<TcpSocketSaeaSession, MessageHead> _handlerBinder = new PacketModelBinder<TcpSocketSaeaSession, MessageHead>();
-        public override void OnNotifyProc(TcpSocketCompletionNotify notify, TcpSocketSaeaSession session)
+        public override void SessionClosed()
         {
-            switch (notify)
-            {
-                case TcpSocketCompletionNotify.OnConnected:
-                    break;
-                case TcpSocketCompletionNotify.OnSend:
-                    break;
-                case TcpSocketCompletionNotify.OnDataReceiveing:
-                    break;
-                case TcpSocketCompletionNotify.OnDataReceived:
-                    _handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);
-                    break;
-                case TcpSocketCompletionNotify.OnClosed:
-                    this._isSessionClose = true;
-                    this._handlerBinder.Dispose();
-                    this.CloseFileStream();
-                    this._event.Close();
-                    break;
-            }
+            this._isSessionClose = true;
+            this.CloseFileStream();
+            this._event.Close();
         }
-
-
-        [PacketHandler(MessageHead.S_GLOBAL_OK)]
-        public void InitializeComplete(TcpSocketSaeaSession session)
-        {
-            SendAsyncToServer(MessageHead.C_MAIN_ACTIVE_APP,
-                new ActiveAppPack()
-                {
-                    IdentifyId = AppConfiguartion.IdentifyId,
-                    ServiceKey = this.GetType().GetServiceKey(),
-                    OriginName = Environment.MachineName + "@" + (AppConfiguartion.RemarkInfomation ?? AppConfiguartion.DefaultRemarkInfo)
-                });
-        }
-        [PacketHandler(MessageHead.S_GLOBAL_ONCLOSE)]
-        public void CloseSesion(TcpSocketSaeaSession session)
-            => this.CloseSession();
 
         [PacketHandler(MessageHead.S_FILE_UPLOAD)]
         public void TryFixedDownloadFile(TcpSocketSaeaSession session)

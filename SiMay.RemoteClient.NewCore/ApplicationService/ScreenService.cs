@@ -27,55 +27,25 @@ namespace SiMay.ServiceCore.ApplicationService
 {
     [ServiceName("远程桌面")]
     [ServiceKey("RemoteDesktopJob")]
-    public class ScreenService : ServiceManager, IApplicationService
+    public class ScreenService : ServiceManagerBase
     {
         private int _bscanmode = 1; //0差异 1逐行
         private bool _cleanWallPaper = false;
         private static string wallpaper = string.Empty;
         private bool _hasSystemAuthor = AppConfiguartion.HasSystemAuthority.Equals("true", StringComparison.OrdinalIgnoreCase);
         private ScreenSpy _spy;
-        private PacketModelBinder<TcpSocketSaeaSession, MessageHead> _handlerBinder = new PacketModelBinder<TcpSocketSaeaSession, MessageHead>();
-        public override void OnNotifyProc(TcpSocketCompletionNotify notify, TcpSocketSaeaSession session)
-        {
-            switch (notify)
-            {
-                case TcpSocketCompletionNotify.OnConnected:
-                    break;
-                case TcpSocketCompletionNotify.OnSend:
-                    break;
-                case TcpSocketCompletionNotify.OnDataReceiveing:
-                    break;
-                case TcpSocketCompletionNotify.OnDataReceived:
-                    this._handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);
-                    break;
-                case TcpSocketCompletionNotify.OnClosed:
-                    if (_cleanWallPaper)
-                        User32.SystemParametersInfo(User32.SPI_SETDESKWALLPAPER, 0, wallpaper, User32.SPIF_UPDATEINIFILE | User32.SPIF_SENDWININICHANGE);
-                    this._handlerBinder.Dispose();
-                    break;
-            }
-        }
 
-        [PacketHandler(MessageHead.S_GLOBAL_OK)]
-        public void InitializeComplete(TcpSocketSaeaSession session)
+        public override void SessionInitialized(TcpSocketSaeaSession session)
         {
-            _session.Socket.NoDelay = false;
-            SendAsyncToServer(MessageHead.C_MAIN_ACTIVE_APP,
-                new ActiveAppPack()
-                {
-                    IdentifyId = AppConfiguartion.IdentifyId,
-                    ServiceKey = this.GetType().GetServiceKey(),
-                    OriginName = Environment.MachineName + "@" + (AppConfiguartion.RemarkInfomation ?? AppConfiguartion.DefaultRemarkInfo)
-                });
-
+            session.Socket.NoDelay = false;
             _spy = new ScreenSpy(new BitBltCapture(true));
             _spy.OnDifferencesNotice += ScreenDifferences_OnDifferencesNotice;
         }
 
-        [PacketHandler(MessageHead.S_GLOBAL_ONCLOSE)]
-        public void CloseSession(TcpSocketSaeaSession session)
+        public override void SessionClosed()
         {
-            this.CloseSession();
+            if (_cleanWallPaper)
+                User32.SystemParametersInfo(User32.SPI_SETDESKWALLPAPER, 0, wallpaper, User32.SPIF_UPDATEINIFILE | User32.SPIF_SENDWININICHANGE);
         }
 
         [PacketHandler(MessageHead.S_SCREEN_DELETE_WALLPAPER)]
@@ -91,6 +61,7 @@ namespace SiMay.ServiceCore.ApplicationService
             User32.SystemParametersInfo(User32.SPI_SETDESKWALLPAPER, 0, "", 0);
         }
 
+
         [PacketHandler(MessageHead.S_SCREEN_SET_CLIPBOARD_TEXT)]
         public void SetClipoardHandler(TcpSocketSaeaSession session)
         {
@@ -103,6 +74,7 @@ namespace SiMay.ServiceCore.ApplicationService
             thread.SetApartmentState(ApartmentState.STA);//线程STA模式
             thread.Start();
         }
+
 
         [PacketHandler(MessageHead.S_SCREEN_GET_CLIPOARD_TEXT)]
         public void GetClipoardHandler(TcpSocketSaeaSession session)

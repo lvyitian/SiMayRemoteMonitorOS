@@ -42,7 +42,7 @@ namespace SiMay.RemoteMonitor.MainApplication
             else
                 stopbtn.Enabled = false;
         }
-
+        [Obsolete]
         private void startbtn_Click(object sender, EventArgs e)
         {
             int screenHeight = -1;

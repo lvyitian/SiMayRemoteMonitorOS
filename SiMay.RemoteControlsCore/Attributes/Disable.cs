@@ -9,7 +9,7 @@ namespace SiMay.RemoteControlsCore
     public class DisableAttribute : Attribute
     {
         /// <summary>
-        /// 不启用
+        /// 停用应用
         /// </summary>
         public DisableAttribute()
         {

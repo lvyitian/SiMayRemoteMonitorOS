@@ -222,7 +222,10 @@ namespace SiMay.RemoteControlsCore
             if (sessionWorkType == ConnectionWorkType.WORKCON)
             {
                 //消息传给消息处理器,由消息处理器所在App进行处理
-                appTokens[SysConstants.INDEX_WORKER].ConvertTo<AdapterHandlerBase>().MessageReceived(session);
+                var app = appTokens[SysConstants.INDEX_WORKER].ConvertTo<AdapterHandlerBase>();
+                if (app.IsClose)
+                    return;
+                app.HandlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), app);
             }
             else if (sessionWorkType == ConnectionWorkType.MAINCON)
                 _handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);
@@ -300,32 +303,32 @@ namespace SiMay.RemoteControlsCore
             }
             else
             {
-                var context = SysUtil.ApplicationTypes.FirstOrDefault(x => x.AppKey.Equals(appKey));
+                var context = SysUtil.ApplicationTypes.FirstOrDefault(x => x.ApplicationKey.Equals(appKey));
                 if (context != null)
                 {
 
-                    var handlerType = context.Type.GetAppAdapterHandlerType();
-                    AdapterHandlerBase handlerBase = Activator.CreateInstance(handlerType).ConvertTo<AdapterHandlerBase>();
+                    var appHandlerType = context.Type.GetAppAdapterHandlerType();
+                    AdapterHandlerBase appHandlerBase = Activator.CreateInstance(appHandlerType).ConvertTo<AdapterHandlerBase>();
                     IApplication app = Activator.CreateInstance(context.Type).ConvertTo<IApplication>();
 
-                    handlerBase.App = app;
-                    handlerBase.Session = session;
-                    handlerBase.IdentifyId = identifyId;
-                    handlerBase.OriginName = originName;
-                    handlerBase.ResetApplicationKey = context.Type.GetAppKey();
+                    appHandlerBase.App = app;
+                    appHandlerBase.Session = session;
+                    appHandlerBase.IdentifyId = identifyId;
+                    appHandlerBase.OriginName = originName;
+                    appHandlerBase.ResetApplicationKey = context.Type.GetAppKey();
 
                     //每个应用至少标记一个应用处理器属性
                     var handlerFieder = context
                         .Type
                         .GetProperties()
                         .Single(c => c.GetCustomAttribute<ApplicationAdapterHandlerAttribute>(true) != null);
-                    handlerFieder.SetValue(app, handlerBase);
+                    handlerFieder.SetValue(app, appHandlerBase);
 
                     //app.HandlerAdapter = handlerBase;
                     app.Start();
 
                     session.AppTokens[SysConstants.INDEX_WORKTYPE] = ConnectionWorkType.WORKCON;
-                    session.AppTokens[SysConstants.INDEX_WORKER] = handlerBase;
+                    session.AppTokens[SysConstants.INDEX_WORKER] = appHandlerBase;
                 }
                 else
                 {

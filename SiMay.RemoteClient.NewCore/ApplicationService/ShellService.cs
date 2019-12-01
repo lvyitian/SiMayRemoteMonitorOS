@@ -15,41 +15,19 @@ namespace SiMay.ServiceCore.ApplicationService
 {
     [ServiceName("Shell管理")]
     [ServiceKey("RemoteShellJob")]
-    public class ShellService : ServiceManager, IApplicationService
+    public class ShellService : ServiceManagerBase
     {
         private Process _pipe;
-        private PacketModelBinder<TcpSocketSaeaSession, MessageHead> _handlerBinder = new PacketModelBinder<TcpSocketSaeaSession, MessageHead>();
-        public override void OnNotifyProc(TcpSocketCompletionNotify notify, TcpSocketSaeaSession session)
-        {
-            switch (notify)
-            {
-                case TcpSocketCompletionNotify.OnConnected:
-                    break;
-                case TcpSocketCompletionNotify.OnSend:
-                    break;
-                case TcpSocketCompletionNotify.OnDataReceiveing:
-                    break;
-                case TcpSocketCompletionNotify.OnDataReceived:
-                    this._handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);
-                    break;
-                case TcpSocketCompletionNotify.OnClosed:
-                    this._handlerBinder.Dispose();
-                    _pipe.Kill();
-                    break;
-            }
-        }
-        [PacketHandler(MessageHead.S_GLOBAL_OK)]
-        public void InitializeComplete(TcpSocketSaeaSession session)
+        public override void SessionInitialized(TcpSocketSaeaSession session)
         {
             this.Init();
-            SendAsyncToServer(MessageHead.C_MAIN_ACTIVE_APP,
-                new ActiveAppPack()
-                {
-                    IdentifyId = AppConfiguartion.IdentifyId,
-                    ServiceKey = this.GetType().GetServiceKey(),
-                    OriginName = Environment.MachineName + "@" + (AppConfiguartion.RemarkInfomation ?? AppConfiguartion.DefaultRemarkInfo)
-                });
         }
+
+        public override void SessionClosed()
+        {
+            _pipe.Kill();
+        }
+
         [PacketHandler(MessageHead.S_GLOBAL_ONCLOSE)]
         public void CloseSession(TcpSocketSaeaSession session)
             => this.CloseSession();

@@ -25,45 +25,15 @@ namespace SiMay.ServiceCore.ApplicationService
 {
     [ServiceName("系统管理")]
     [ServiceKey("SystemManagerJob")]
-    public class SystemService : ServiceManager, IApplicationService
+    public class SystemService : ServiceManagerBase
     {
         private ComputerInfo _memoryInfo = new ComputerInfo();
         private PerformanceCounter _cpuInfo = new PerformanceCounter("Processor", "% Processor Time", "_Total");
-        private PacketModelBinder<TcpSocketSaeaSession, MessageHead> _handlerBinder = new PacketModelBinder<TcpSocketSaeaSession, MessageHead>();
-        public override void OnNotifyProc(TcpSocketCompletionNotify notify, TcpSocketSaeaSession session)
-        {
-            switch (notify)
-            {
-                case TcpSocketCompletionNotify.OnConnected:
-                    break;
-                case TcpSocketCompletionNotify.OnSend:
-                    break;
-                case TcpSocketCompletionNotify.OnDataReceiveing:
-                    break;
-                case TcpSocketCompletionNotify.OnDataReceived:
-                    this._handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);
-                    break;
-                case TcpSocketCompletionNotify.OnClosed:
-                    this._handlerBinder.Dispose();
-                    this._cpuInfo.Dispose();
-                    break;
-            }
-        }
-        [PacketHandler(MessageHead.S_GLOBAL_OK)]
-        public void InitializeComplete(TcpSocketSaeaSession session)
-        {
-            SendAsyncToServer(MessageHead.C_MAIN_ACTIVE_APP,
-                new ActiveAppPack()
-                {
-                    IdentifyId = AppConfiguartion.IdentifyId,
-                    ServiceKey = this.GetType().GetServiceKey(),
-                    OriginName = Environment.MachineName + "@" + (AppConfiguartion.RemarkInfomation ?? AppConfiguartion.DefaultRemarkInfo)
-                });
-        }
 
-        [PacketHandler(MessageHead.S_GLOBAL_ONCLOSE)]
-        public void CloseSession(TcpSocketSaeaSession session)
-            => this.CloseSession();
+        public override void SessionClosed()
+        {
+            this._cpuInfo.Dispose();
+        }
 
         [PacketHandler(MessageHead.S_SYSTEM_KILL)]
         public void TryKillProcess(TcpSocketSaeaSession session)

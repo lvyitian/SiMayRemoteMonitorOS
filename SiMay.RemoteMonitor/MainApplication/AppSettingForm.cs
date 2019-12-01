@@ -53,9 +53,9 @@ namespace SiMay.RemoteMonitor.MainApplication
                 funComboBox.Items.Add(new KeyValueItem()
                 {
                     Key = type.GetApplicationName(),
-                    Value = c.AppKey
+                    Value = c.ApplicationKey
                 });
-                if (c.AppKey == AppConfiguration.DbClickViewExc)
+                if (c.ApplicationKey == AppConfiguration.DbClickViewExc)
                     funComboBox.Text = type.GetApplicationName();
             });
 

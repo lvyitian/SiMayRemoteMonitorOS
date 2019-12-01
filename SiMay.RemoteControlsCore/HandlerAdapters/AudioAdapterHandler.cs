@@ -17,14 +17,6 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
         public event Action<AudioAdapterHandler, byte[]> OnPlayerEventHandler;
 
-        private PacketModelBinder<SessionHandler, MessageHead> _handlerBinder = new PacketModelBinder<SessionHandler, MessageHead>();
-        internal override void MessageReceived(SessionHandler session)
-        {
-            if (this.IsClose)
-                return;
-            _handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);
-        }
-
         [PacketHandler(MessageHead.C_AUDIO_DEVICE_OPENSTATE)]
         private void RemoteDeveiceStatusHandler(SessionHandler session)
         {
@@ -66,12 +58,6 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         public void SetRemotePlayerStreamEnabled(bool enabled)
         {
             SendAsyncMessage(MessageHead.S_AUDIO_DEIVCE_ONOFF, enabled ? "1" : "0");
-        }
-
-        public override void CloseHandler()
-        {
-            this._handlerBinder.Dispose();
-            base.CloseHandler();
         }
     }
 }

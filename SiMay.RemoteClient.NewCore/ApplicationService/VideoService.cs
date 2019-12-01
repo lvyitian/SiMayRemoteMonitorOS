@@ -17,58 +17,24 @@ namespace SiMay.ServiceCore.ApplicationService
 {
     [ServiceName("远程监控摄像头")]
     [ServiceKey("RemoteViedoJob")]
-    public class VideoService : ServiceManager, IApplicationService
+    public class VideoService : ServiceManagerBase
     {
         private int qty = 30;
         private bool isOpen = false;
         private AForgeViedo av;
-        private PacketModelBinder<TcpSocketSaeaSession, MessageHead> _handlerBinder = new PacketModelBinder<TcpSocketSaeaSession, MessageHead>();
-        public override void OnNotifyProc(TcpSocketCompletionNotify notify, TcpSocketSaeaSession session)
-        {
-            switch (notify)
-            {
-                case TcpSocketCompletionNotify.OnConnected:
-                    break;
-                case TcpSocketCompletionNotify.OnSend:
-                    break;
-                case TcpSocketCompletionNotify.OnDataReceiveing:
-                    break;
-                case TcpSocketCompletionNotify.OnDataReceived:
-                    this._handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);
-                    break;
-                case TcpSocketCompletionNotify.OnClosed:
-                    if (isOpen)
-                    {
-                        isOpen = false;
-                        this.Closecamera();
-                    }
-                    this._handlerBinder.Dispose();
-                    break;
-            }
-        }
 
-        [PacketHandler(MessageHead.S_GLOBAL_OK)]
-        public void InitializeComplete(TcpSocketSaeaSession session)
+        public override void SessionInitialized(TcpSocketSaeaSession session)
         {
-            SendAsyncToServer(MessageHead.C_MAIN_ACTIVE_APP,
-                new ActiveAppPack()
-                {
-                    IdentifyId = AppConfiguartion.IdentifyId,
-                    ServiceKey = this.GetType().GetServiceKey(),
-                    OriginName = Environment.MachineName + "@" + (AppConfiguartion.RemarkInfomation ?? AppConfiguartion.DefaultRemarkInfo)
-                });
             this.Init();
         }
-        [PacketHandler(MessageHead.S_GLOBAL_ONCLOSE)]
-        public void CloseSession(TcpSocketSaeaSession session)
+
+        public override void SessionClosed()
         {
             if (isOpen)
             {
                 isOpen = false;
                 Closecamera();
             }
-
-            CloseSession();
         }
         private void Init()
         {

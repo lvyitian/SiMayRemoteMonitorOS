@@ -138,7 +138,7 @@
     <Compile Include="ApplicationService\ShellService.cs" />
     <Compile Include="ApplicationService\FileService.cs" />
     <Compile Include="MainService\DownloadHelper.cs" />
-    <Compile Include="ApplicationService\ServiceManager.cs" />
+    <Compile Include="ApplicationService\ServiceManagerBase.cs" />
     <Compile Include="ApplicationService\ScreenService.cs" />
     <Compile Include="Helper\SystemInfoHelper.cs" />
     <Compile Include="ApplicationService\SystemService.cs" />

@@ -17,24 +17,15 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
         public event Action<KeyboardAdapterHandler, string> OnOffLineKeyboradEventHandler;
 
-        private PacketModelBinder<SessionHandler, MessageHead> _handlerBinder = new PacketModelBinder<SessionHandler, MessageHead>();
-        internal override void MessageReceived(SessionHandler session)
-        {
-            if (this.IsClose)
-                return;
-
-            _handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);
-        }
-
         [PacketHandler(MessageHead.C_KEYBOARD_DATA)]
-        public void KeyBoardDataHandler(SessionHandler session)
+        private void KeyBoardDataHandler(SessionHandler session)
         {
             var text = session.CompletedBuffer.GetMessagePayload().ToUnicodeString();
             this.OnKeyboardDataEventHandler?.Invoke(this, text);
         }
 
         [PacketHandler(MessageHead.C_KEYBOARD_OFFLINEFILE)]
-        public void OffLinesDataHandler(SessionHandler session)
+        private void OffLinesDataHandler(SessionHandler session)
         {
             var text = session.CompletedBuffer.GetMessagePayload().ToUnicodeString();
             this.OnOffLineKeyboradEventHandler?.Invoke(this, text);
@@ -53,11 +44,6 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         public void GetOffLineKeyboardData()
         {
             SendAsyncMessage(MessageHead.S_KEYBOARD_GET_OFFLINEFILE);
-        }
-        public override void CloseHandler()
-        {
-            this._handlerBinder.Dispose();
-            base.CloseHandler();
         }
     }
 }

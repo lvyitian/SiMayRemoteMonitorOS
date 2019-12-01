@@ -18,14 +18,6 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// </summary>
         public event Action<TcpConnectionAdapterHandler, IEnumerable<TcpConnectionItem>> OnTcpListHandlerEvent;
 
-        private PacketModelBinder<SessionHandler, MessageHead> _handlerBinder = new PacketModelBinder<SessionHandler, MessageHead>();
-        internal override void MessageReceived(SessionHandler session)
-        {
-            if (this.IsClose)
-                return;
-            _handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);
-        }
-
         [PacketHandler(MessageHead.C_TCP_LIST)]
         private void TcpListHandler(SessionHandler session)
         {
@@ -51,12 +43,6 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             {
                 Kills = killTcps.ToArray()
             });
-        }
-
-        public override void CloseHandler()
-        {
-            this._handlerBinder.Dispose();
-            base.CloseHandler();
         }
     }
 }

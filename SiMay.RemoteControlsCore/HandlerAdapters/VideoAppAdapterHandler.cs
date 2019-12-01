@@ -25,15 +25,6 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// </summary>
         public event Action<VideoAppAdapterHandler, int> OnCameraNotStartupHandlerEvent;
 
-        private PacketModelBinder<SessionHandler, MessageHead> _handlerBinder = new PacketModelBinder<SessionHandler, MessageHead>();
-        internal override void MessageReceived(SessionHandler session)
-        {
-            if (this.IsClose)
-                return;
-
-            _handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);
-        }
-
         [PacketHandler(MessageHead.C_VIEDO_DATA)]
         private void PlayerHandler(SessionHandler session)
         {
@@ -58,12 +49,6 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         public void RemoteSetFrameQuantity(int level)
         {
             SendAsyncMessage(MessageHead.S_VIEDO_RESET, new byte[] { level.ConvertTo<byte>() });
-        }
-
-        public override void CloseHandler()
-        {
-            this._handlerBinder.Dispose();
-            base.CloseHandler();
         }
     }
 }

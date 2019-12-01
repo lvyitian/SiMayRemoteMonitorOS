@@ -18,7 +18,6 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
         public event Action<StartupAdapterHandler, IEnumerable<StartupItemPack>> OnStartupItemHandlerEvent;
 
-        private PacketModelBinder<SessionHandler, MessageHead> _handlerBinder = new PacketModelBinder<SessionHandler, MessageHead>();
         public StartupAdapterHandler()
         {
             var starupItems = new List<GroupItem>();
@@ -61,13 +60,6 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
             StartupGroupItems = starupItems;
         }
-        internal override void MessageReceived(SessionHandler session)
-        {
-            if (this.IsClose)
-                return;
-
-            _handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<MessageHead>(), this);
-        }
 
         [PacketHandler(MessageHead.C_STARTUP_LIST)]
         private void HandlerStartupItems(SessionHandler session)
@@ -98,13 +90,6 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
                 StartupItems = startupItems.ToArray()
             });
         }
-
-        public override void CloseHandler()
-        {
-            this._handlerBinder.Dispose();
-            base.CloseHandler();
-        }
-
         public class GroupItem
         {
             public StartupType StartupType { get; set; }

@@ -17,7 +17,7 @@ namespace SiMay.ServiceCore
 {
     public class UserTrunkContext
     {
-        public static UserTrunkContext UserTrunkContextInstance;
+        public static UserTrunkContext UserTrunkContextInstance { get; set; }
 
         public int CurrentSessionId
         {
