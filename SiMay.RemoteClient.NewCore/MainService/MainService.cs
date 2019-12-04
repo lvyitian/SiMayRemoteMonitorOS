@@ -509,8 +509,11 @@ namespace SiMay.ServiceCore.MainService
 
                 Thread.Sleep(getframe.TimeSpan);
 
-                byte[] data = MessageHelper.CopyMessageHeadTo(MessageHead.C_MAIN_SCREENWALL_IMG,
-                    ImageExtensionHelper.CaptureNoCursorToBytes(new Size(getframe.Width, getframe.Height)));
+                byte[] data = MessageHelper.CopyMessageHeadTo(MessageHead.C_MAIN_SCREENWALL_IMG, new DesktopViewFramePack()
+                {
+                    InVisbleArea = getframe.InVisbleArea,
+                    ViewData = getframe.InVisbleArea ? ImageExtensionHelper.CaptureNoCursorToBytes(new Size(getframe.Width, getframe.Height)) : new byte[0]
+                });
 
                 SendMessageToServer(data);
             });

@@ -40,6 +40,8 @@ namespace SiMay.RemoteMonitor.MainApplication
         private const string GROUP_ALL = "全部";
 
         private System.Timers.Timer _timer;
+        private System.Timers.Timer _viewCarouselTimer;
+        private ViewCarouselContext _viewCarouselContext = new ViewCarouselContext();
         private Color _closeScreenColor = Color.FromArgb(127, 175, 219);
         private ImageList _imgList;
 
@@ -168,7 +170,72 @@ namespace SiMay.RemoteMonitor.MainApplication
                 if (isLock) //锁住主控界面
                     LockWindow();
             }
+
+            _viewCarouselTimer = new System.Timers.Timer(AppConfiguration.CarouselInterval);
+            _viewCarouselTimer.Elapsed += ViewCarouselFunc;
+
+            //if (AppConfiguration.EnabledCarousel)
+            _viewCarouselTimer.Start();
+
+            _viewCarouselContext.ViewRow = 3;
+            _viewCarouselContext.ViewColum = 3;
         }
+        private void desktopViewLayout_Resize(object sender, EventArgs e)
+        {
+            ViewOnResize();
+        }
+        private void ViewOnResize()
+        {
+            if (this.desktopViewLayout.Controls.Count <= 0)
+                return;
+
+            var viewCount = _viewCarouselContext.ViewColum * _viewCarouselContext.ViewRow;
+
+            var marginalRight = 25 / this._viewCarouselContext.ViewColum;
+            var width = (this.desktopViewLayout.ClientRectangle.Width / _viewCarouselContext.ViewColum) - marginalRight;
+            var height = (this.desktopViewLayout.ClientRectangle.Height / _viewCarouselContext.ViewRow) - marginalRight;
+
+            int index = 0;
+            foreach (IDesktopView view in this.desktopViewLayout.Controls)
+            {
+                var containerRectangle = this.desktopViewLayout.ClientRectangle;
+
+                if (view is Control control)
+                {
+                    var controlRectangle = control.DisplayRectangle;
+                    if (containerRectangle)
+                    {
+
+                    }
+                }
+                if (view.Width == width && view.Height == height && index++ == viewCount)
+                    continue;
+
+                this.InvokeUI(() =>
+                {
+                    view.Height = height;
+                    view.Width = width;
+                });
+            }
+        }
+        private void ViewCarouselFunc(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            var viewCount = _viewCarouselContext.ViewColum * _viewCarouselContext.ViewRow;
+            if (this.desktopViewLayout.Controls.Count > viewCount)
+            {
+                this.InvokeUI(() =>
+                {
+                    var view = this.desktopViewLayout.Controls[this.desktopViewLayout.Controls.Count - 1].ConvertTo<IDesktopView>();
+                    if (!_viewCarouselContext.AlwaysViews.Contains(view))
+                        this.desktopViewLayout.Controls.SetChildIndex(view as Control, _viewCarouselContext.AlwaysViews.Count);
+                });
+            }
+
+            this.ViewOnResize();
+        }
+
+        private void InvokeUI(Action action) => this.Invoke(new Action(action));
+
         /// <summary>
         /// 初始化通信库
         /// </summary>
@@ -363,7 +430,7 @@ namespace SiMay.RemoteMonitor.MainApplication
         private void StripMenu_Click(object sender, EventArgs e)
         {
             var ustripbtn = sender as UToolStripMenuItem;
-            string appkey = ustripbtn.CtrlType.GetAppKey();
+            string appkey = ustripbtn.ApplicationType.GetAppKey();
             this.GetSelectedListItem().ForEach(c =>
             {
                 this._appMainAdapterHandler.RemoteActiveService(c.SessionSyncContext, appkey);
@@ -900,5 +967,7 @@ namespace SiMay.RemoteMonitor.MainApplication
                 this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionType.UnInstallService);
             });
         }
+
+
     }
 }

@@ -158,12 +158,13 @@
     <Compile Include="Helper\ListViewSortHelper.cs" />
     <Compile Include="Enums\FileItemType.cs" />
     <Compile Include="Extensions\ListViewExtensions.cs" />
-    <Compile Include="MainApplication\DesktopView\DesktopViewWallSettingForm.cs">
+    <Compile Include="MainApplication\DesktopViewCarousel\DesktopViewWallSettingForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MainApplication\DesktopView\DesktopViewWallSettingForm.Designer.cs">
+    <Compile Include="MainApplication\DesktopViewCarousel\DesktopViewWallSettingForm.Designer.cs">
       <DependentUpon>DesktopViewWallSettingForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="MainApplication\DesktopViewCarousel\ViewCarouselContext.cs" />
     <Compile Include="MainApplication\RemoteUpdateServiceForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -383,7 +384,7 @@
     <EmbeddedResource Include="MainApplication\DesktopRecordViewerForm.resx">
       <DependentUpon>DesktopRecordViewerForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MainApplication\DesktopView\DesktopViewWallSettingForm.resx">
+    <EmbeddedResource Include="MainApplication\DesktopViewCarousel\DesktopViewWallSettingForm.resx">
       <DependentUpon>DesktopViewWallSettingForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainApplication\EnterForm.resx">

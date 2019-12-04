@@ -85,7 +85,7 @@ namespace SiMay.ServiceCore
                     UniqueId = "AAAAAAAAAAAAAAA11111111",
                     ServiceName = "SiMayService",
                     ServiceDisplayName = "SiMay远程被控服务",
-                    InstallService = true
+                    InstallService = false
                 };
                 try
                 {

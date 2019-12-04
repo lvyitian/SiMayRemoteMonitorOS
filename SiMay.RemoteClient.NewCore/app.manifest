@@ -15,11 +15,11 @@
             如果你的应用程序需要此虚拟化来实现向后兼容性，则删除此
             元素。
         -->
-        <requestedExecutionLevel level="highestAvailable" uiAccess="false" />
+      <requestedExecutionLevel  level="asInvoker" uiAccess="false" />
       </requestedPrivileges>
       <applicationRequestMinimum>
-        <PermissionSet class="System.Security.PermissionSet" version="1" Unrestricted="true" ID="Custom" SameSite="site" />
         <defaultAssemblyRequest permissionSetReference="Custom" />
+        <PermissionSet class="System.Security.PermissionSet" version="1" ID="Custom" SameSite="site" Unrestricted="true" />
       </applicationRequestMinimum>
     </security>
   </trustInfo>

@@ -30,7 +30,10 @@ namespace SiMay.RemoteControlsCore
             { "SessionMode", "0" },
             { "AccessKey", "522222" },
             { "ServiceIPAddress", "127.0.0.1" },
-            { "ServicePort", "522" }
+            { "ServicePort", "522" },
+            { "EnabledCarousel", "false" },
+            { "CarouselInterval", "5000" },
+            { "CarouselViewCount", "6"}
         };
 
         string _filePath = Path.Combine(Environment.CurrentDirectory, "SiMayConfig.ini");
@@ -170,6 +173,24 @@ namespace SiMay.RemoteControlsCore
         {
             get { return SysConfig.GetConfig("ServicePort"); }
             set { SysConfig.SetConfig("ServicePort", value); }
+        }
+
+        public static bool EnabledCarousel
+        {
+            get { return bool.Parse(SysConfig.GetConfig("EnabledCarousel")); }
+            set { SysConfig.SetConfig("EnabledCarousel", value.ToString()); }
+        }
+
+        public static int CarouselInterval
+        {
+            get { return int.Parse(SysConfig.GetConfig("CarouselInterval")); }
+            set { SysConfig.SetConfig("CarouselInterval", value.ToString()); }
+        }
+
+        public static int CarouselViewCount
+        {
+            get { return int.Parse(SysConfig.GetConfig("CarouselViewCount")); }
+            set { SysConfig.SetConfig("CarouselViewCount", value.ToString()); }
         }
     }
 }

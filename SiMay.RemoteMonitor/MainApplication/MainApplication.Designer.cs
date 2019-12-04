@@ -65,6 +65,7 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.desktopViewLayout = new System.Windows.Forms.FlowLayoutPanel();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.linkLabel2 = new System.Windows.Forms.LinkLabel();
             this.label3 = new System.Windows.Forms.Label();
             this.groupBox = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
@@ -81,10 +82,8 @@
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.tabControl2 = new System.Windows.Forms.TabControl();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.logList = new SiMay.RemoteMonitor.UserControls.UListView();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.onlineList = new SiMay.RemoteMonitor.UserControls.UListView();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.stripHost = new System.Windows.Forms.ToolStripStatusLabel();
@@ -118,7 +117,8 @@
             this.桌面记录查看ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.锁定ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
-            this.linkLabel2 = new System.Windows.Forms.LinkLabel();
+            this.logList = new SiMay.RemoteMonitor.UserControls.UListView();
+            this.onlineList = new SiMay.RemoteMonitor.UserControls.UListView();
             this.CmdContext.SuspendLayout();
             this.logsContext.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -422,10 +422,11 @@
             this.desktopViewLayout.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.desktopViewLayout.Dock = System.Windows.Forms.DockStyle.Fill;
             this.desktopViewLayout.Location = new System.Drawing.Point(0, 0);
-            this.desktopViewLayout.Margin = new System.Windows.Forms.Padding(4);
+            this.desktopViewLayout.Margin = new System.Windows.Forms.Padding(0);
             this.desktopViewLayout.Name = "desktopViewLayout";
             this.desktopViewLayout.Size = new System.Drawing.Size(1476, 567);
             this.desktopViewLayout.TabIndex = 3;
+            this.desktopViewLayout.Resize += new System.EventHandler(this.desktopViewLayout_Resize);
             // 
             // panel1
             // 
@@ -449,6 +450,18 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(1476, 30);
             this.panel1.TabIndex = 4;
+            // 
+            // linkLabel2
+            // 
+            this.linkLabel2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.linkLabel2.AutoSize = true;
+            this.linkLabel2.Location = new System.Drawing.Point(1396, 8);
+            this.linkLabel2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.linkLabel2.Name = "linkLabel2";
+            this.linkLabel2.Size = new System.Drawing.Size(67, 15);
+            this.linkLabel2.TabIndex = 13;
+            this.linkLabel2.TabStop = true;
+            this.linkLabel2.Text = "视图设置";
             // 
             // label3
             // 
@@ -671,23 +684,6 @@
             this.tabPage2.Text = "运行日志";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
-            // logList
-            // 
-            this.logList.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.logList.ContextMenuStrip = this.logsContext;
-            this.logList.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.logList.FullRowSelect = true;
-            this.logList.HideSelection = false;
-            this.logList.Location = new System.Drawing.Point(4, 4);
-            this.logList.Margin = new System.Windows.Forms.Padding(4);
-            this.logList.Name = "logList";
-            this.logList.Size = new System.Drawing.Size(352, 190);
-            this.logList.TabIndex = 0;
-            this.logList.UseCompatibleStateImageBehavior = false;
-            this.logList.UseWindowsThemStyle = true;
-            this.logList.View = System.Windows.Forms.View.Details;
-            this.logList.MouseEnter += new System.EventHandler(this.logList_MouseEnter);
-            // 
             // tabControl1
             // 
             this.tabControl1.Alignment = System.Windows.Forms.TabAlignment.Bottom;
@@ -712,24 +708,6 @@
             this.tabPage1.TabIndex = 2;
             this.tabPage1.Text = "在线列表";
             this.tabPage1.UseVisualStyleBackColor = true;
-            // 
-            // onlineList
-            // 
-            this.onlineList.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.onlineList.CheckBoxes = true;
-            this.onlineList.ContextMenuStrip = this.CmdContext;
-            this.onlineList.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.onlineList.FullRowSelect = true;
-            this.onlineList.HideSelection = false;
-            this.onlineList.Location = new System.Drawing.Point(4, 4);
-            this.onlineList.Margin = new System.Windows.Forms.Padding(4);
-            this.onlineList.Name = "onlineList";
-            this.onlineList.Size = new System.Drawing.Size(1091, 190);
-            this.onlineList.TabIndex = 0;
-            this.onlineList.UseCompatibleStateImageBehavior = false;
-            this.onlineList.UseWindowsThemStyle = false;
-            this.onlineList.View = System.Windows.Forms.View.Details;
-            this.onlineList.MouseEnter += new System.EventHandler(this.onlineList_MouseEnter);
             // 
             // statusStrip1
             // 
@@ -1032,17 +1010,40 @@
             this.toolStripMenuItem3.Text = "关于程序(&H)";
             this.toolStripMenuItem3.Click += new System.EventHandler(this.About);
             // 
-            // linkLabel2
+            // logList
             // 
-            this.linkLabel2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.linkLabel2.AutoSize = true;
-            this.linkLabel2.Location = new System.Drawing.Point(1396, 8);
-            this.linkLabel2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.linkLabel2.Name = "linkLabel2";
-            this.linkLabel2.Size = new System.Drawing.Size(67, 15);
-            this.linkLabel2.TabIndex = 13;
-            this.linkLabel2.TabStop = true;
-            this.linkLabel2.Text = "视图设置";
+            this.logList.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.logList.ContextMenuStrip = this.logsContext;
+            this.logList.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.logList.FullRowSelect = true;
+            this.logList.HideSelection = false;
+            this.logList.Location = new System.Drawing.Point(4, 4);
+            this.logList.Margin = new System.Windows.Forms.Padding(4);
+            this.logList.Name = "logList";
+            this.logList.Size = new System.Drawing.Size(352, 190);
+            this.logList.TabIndex = 0;
+            this.logList.UseCompatibleStateImageBehavior = false;
+            this.logList.UseWindowsThemStyle = true;
+            this.logList.View = System.Windows.Forms.View.Details;
+            this.logList.MouseEnter += new System.EventHandler(this.logList_MouseEnter);
+            // 
+            // onlineList
+            // 
+            this.onlineList.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.onlineList.CheckBoxes = true;
+            this.onlineList.ContextMenuStrip = this.CmdContext;
+            this.onlineList.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.onlineList.FullRowSelect = true;
+            this.onlineList.HideSelection = false;
+            this.onlineList.Location = new System.Drawing.Point(4, 4);
+            this.onlineList.Margin = new System.Windows.Forms.Padding(4);
+            this.onlineList.Name = "onlineList";
+            this.onlineList.Size = new System.Drawing.Size(1091, 190);
+            this.onlineList.TabIndex = 0;
+            this.onlineList.UseCompatibleStateImageBehavior = false;
+            this.onlineList.UseWindowsThemStyle = false;
+            this.onlineList.View = System.Windows.Forms.View.Details;
+            this.onlineList.MouseEnter += new System.EventHandler(this.onlineList_MouseEnter);
             // 
             // MainApplication
             // 

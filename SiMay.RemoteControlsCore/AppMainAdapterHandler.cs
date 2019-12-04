@@ -399,15 +399,7 @@ namespace SiMay.RemoteControlsCore
                 return;
             view.Caption = describePack.MachineName + "-(" + describePack.RemarkInformation + ")";
             syncContext.KeyDictions[SysConstants.DesktopView] = view;
-
-            byte[] data = MessageHelper.CopyMessageHeadTo(
-                MessageHead.S_MAIN_SCREENWALL_GETIMG, new DesktopViewGetFramePack()
-                {
-                    Height = view.Height,
-                    Width = view.Width,
-                    TimeSpan = this.ViewRefreshInterval
-                });
-            session.SendAsync(data);
+            this.GetViewFrame(session, view);
         }
 
 
@@ -423,17 +415,25 @@ namespace SiMay.RemoteControlsCore
                 syncContext.KeyDictions[SysConstants.DesktopView] == null)
                 return;
 
+            var frameData = session.CompletedBuffer.GetMessageEntity<DesktopViewFramePack>();
             var view = syncContext.KeyDictions[SysConstants.DesktopView].ConvertTo<IDesktopView>();
+            if (frameData.InVisbleArea)
+            {
+                using (var ms = new MemoryStream(frameData.ViewData))
+                    view.PlayerDekstopView(Image.FromStream(ms));
+            }
+            this.GetViewFrame(session, view);
+        }
 
-            using (var ms = new MemoryStream(session.CompletedBuffer.GetMessagePayload()))
-                view.PlayerDekstopView(Image.FromStream(ms));
-
+        private void GetViewFrame(SessionHandler session, IDesktopView view)
+        {
             byte[] data = MessageHelper.CopyMessageHeadTo(
                 MessageHead.S_MAIN_SCREENWALL_GETIMG, new DesktopViewGetFramePack()
                 {
                     Height = view.Height,
                     Width = view.Width,
-                    TimeSpan = this.ViewRefreshInterval
+                    TimeSpan = this.ViewRefreshInterval,
+                    InVisbleArea = view.InVisbleArea
                 });
 
             session.SendAsync(data);
