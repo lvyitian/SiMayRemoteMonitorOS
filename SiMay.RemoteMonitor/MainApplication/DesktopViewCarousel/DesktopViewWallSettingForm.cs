@@ -49,7 +49,7 @@ namespace SiMay.RemoteMonitor.MainApplication
 
         private void DesktopViewWallSettingForm_Load(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.Cancel;
+            //this.DialogResult = DialogResult.Cancel;
             this.deskrefreshTimeInterval.Value = this._settingContext.ViewFreshInterval;
             this.carouselInterval.Value = this._settingContext.ViewCarouselInterval;
             this.enabled.Checked = this._settingContext.CarouselEnabled;
