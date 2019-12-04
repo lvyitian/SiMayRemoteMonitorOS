@@ -68,22 +68,22 @@
             this.linkLabel2 = new System.Windows.Forms.LinkLabel();
             this.label3 = new System.Windows.Forms.Label();
             this.groupBox = new System.Windows.Forms.ComboBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.deskrefreshTimeSpan = new System.Windows.Forms.NumericUpDown();
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.column = new System.Windows.Forms.Label();
             this.fsd = new System.Windows.Forms.Label();
             this.row = new System.Windows.Forms.Label();
-            this.rowtrackBar = new System.Windows.Forms.TrackBar();
+            this.columntrackBar = new System.Windows.Forms.TrackBar();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             this.label1 = new System.Windows.Forms.Label();
-            this.columntrackBar = new System.Windows.Forms.TrackBar();
+            this.rowtrackBar = new System.Windows.Forms.TrackBar();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.tabControl2 = new System.Windows.Forms.TabControl();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.logList = new SiMay.RemoteMonitor.UserControls.UListView();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.onlineList = new SiMay.RemoteMonitor.UserControls.UListView();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.stripHost = new System.Windows.Forms.ToolStripStatusLabel();
@@ -117,8 +117,6 @@
             this.桌面记录查看ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.锁定ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
-            this.logList = new SiMay.RemoteMonitor.UserControls.UListView();
-            this.onlineList = new SiMay.RemoteMonitor.UserControls.UListView();
             this.CmdContext.SuspendLayout();
             this.logsContext.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -126,9 +124,8 @@
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             this.panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.deskrefreshTimeSpan)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.rowtrackBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.columntrackBar)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.rowtrackBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
@@ -433,17 +430,15 @@
             this.panel1.Controls.Add(this.linkLabel2);
             this.panel1.Controls.Add(this.label3);
             this.panel1.Controls.Add(this.groupBox);
-            this.panel1.Controls.Add(this.label2);
-            this.panel1.Controls.Add(this.deskrefreshTimeSpan);
             this.panel1.Controls.Add(this.button2);
             this.panel1.Controls.Add(this.button1);
             this.panel1.Controls.Add(this.column);
             this.panel1.Controls.Add(this.fsd);
             this.panel1.Controls.Add(this.row);
-            this.panel1.Controls.Add(this.rowtrackBar);
+            this.panel1.Controls.Add(this.columntrackBar);
             this.panel1.Controls.Add(this.linkLabel1);
             this.panel1.Controls.Add(this.label1);
-            this.panel1.Controls.Add(this.columntrackBar);
+            this.panel1.Controls.Add(this.rowtrackBar);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.panel1.Location = new System.Drawing.Point(0, 567);
             this.panel1.Margin = new System.Windows.Forms.Padding(4);
@@ -462,12 +457,13 @@
             this.linkLabel2.TabIndex = 13;
             this.linkLabel2.TabStop = true;
             this.linkLabel2.Text = "视图设置";
+            this.linkLabel2.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel2_LinkClicked);
             // 
             // label3
             // 
             this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(553, 6);
+            this.label3.Location = new System.Drawing.Point(721, 8);
             this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(45, 15);
@@ -482,54 +478,12 @@
             this.groupBox.FormattingEnabled = true;
             this.groupBox.Items.AddRange(new object[] {
             "全部"});
-            this.groupBox.Location = new System.Drawing.Point(601, 2);
+            this.groupBox.Location = new System.Drawing.Point(769, 4);
             this.groupBox.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox.Name = "groupBox";
             this.groupBox.Size = new System.Drawing.Size(152, 23);
             this.groupBox.TabIndex = 11;
             this.groupBox.SelectedIndexChanged += new System.EventHandler(this.GroupBox_SelectedIndexChanged);
-            // 
-            // label2
-            // 
-            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(763, 8);
-            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(75, 15);
-            this.label2.TabIndex = 10;
-            this.label2.Text = "刷新间隔:";
-            // 
-            // deskrefreshTimeSpan
-            // 
-            this.deskrefreshTimeSpan.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.deskrefreshTimeSpan.Increment = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
-            this.deskrefreshTimeSpan.Location = new System.Drawing.Point(843, 2);
-            this.deskrefreshTimeSpan.Margin = new System.Windows.Forms.Padding(4);
-            this.deskrefreshTimeSpan.Maximum = new decimal(new int[] {
-            10000,
-            0,
-            0,
-            0});
-            this.deskrefreshTimeSpan.Minimum = new decimal(new int[] {
-            300,
-            0,
-            0,
-            0});
-            this.deskrefreshTimeSpan.Name = "deskrefreshTimeSpan";
-            this.deskrefreshTimeSpan.ReadOnly = true;
-            this.deskrefreshTimeSpan.Size = new System.Drawing.Size(63, 25);
-            this.deskrefreshTimeSpan.TabIndex = 9;
-            this.deskrefreshTimeSpan.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.deskrefreshTimeSpan.Value = new decimal(new int[] {
-            300,
-            0,
-            0,
-            0});
             // 
             // button2
             // 
@@ -557,49 +511,49 @@
             // 
             this.column.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.column.AutoSize = true;
-            this.column.Location = new System.Drawing.Point(1267, 8);
+            this.column.Location = new System.Drawing.Point(1283, 8);
             this.column.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.column.Name = "column";
-            this.column.Size = new System.Drawing.Size(31, 15);
+            this.column.Size = new System.Drawing.Size(15, 15);
             this.column.TabIndex = 6;
-            this.column.Text = "150";
+            this.column.Text = "3";
             // 
             // fsd
             // 
             this.fsd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.fsd.AutoSize = true;
-            this.fsd.Location = new System.Drawing.Point(913, 8);
+            this.fsd.Location = new System.Drawing.Point(929, 8);
             this.fsd.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.fsd.Name = "fsd";
-            this.fsd.Size = new System.Drawing.Size(45, 15);
+            this.fsd.Size = new System.Drawing.Size(60, 15);
             this.fsd.TabIndex = 5;
-            this.fsd.Text = "宽度:";
+            this.fsd.Text = "视图列:";
             // 
             // row
             // 
             this.row.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.row.AutoSize = true;
-            this.row.Location = new System.Drawing.Point(1071, 8);
+            this.row.Location = new System.Drawing.Point(1087, 8);
             this.row.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.row.Name = "row";
-            this.row.Size = new System.Drawing.Size(31, 15);
+            this.row.Size = new System.Drawing.Size(15, 15);
             this.row.TabIndex = 4;
-            this.row.Text = "150";
+            this.row.Text = "4";
             // 
-            // rowtrackBar
+            // columntrackBar
             // 
-            this.rowtrackBar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.rowtrackBar.AutoSize = false;
-            this.rowtrackBar.Location = new System.Drawing.Point(956, 6);
-            this.rowtrackBar.Margin = new System.Windows.Forms.Padding(4);
-            this.rowtrackBar.Maximum = 1000;
-            this.rowtrackBar.Minimum = 1;
-            this.rowtrackBar.Name = "rowtrackBar";
-            this.rowtrackBar.Size = new System.Drawing.Size(120, 21);
-            this.rowtrackBar.TabIndex = 3;
-            this.rowtrackBar.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.rowtrackBar.Value = 170;
-            this.rowtrackBar.Scroll += new System.EventHandler(this.RowtrackBar_Scroll);
+            this.columntrackBar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.columntrackBar.AutoSize = false;
+            this.columntrackBar.Location = new System.Drawing.Point(1000, 6);
+            this.columntrackBar.Margin = new System.Windows.Forms.Padding(4);
+            this.columntrackBar.Maximum = 50;
+            this.columntrackBar.Minimum = 1;
+            this.columntrackBar.Name = "columntrackBar";
+            this.columntrackBar.Size = new System.Drawing.Size(95, 21);
+            this.columntrackBar.TabIndex = 3;
+            this.columntrackBar.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.columntrackBar.Value = 4;
+            this.columntrackBar.Scroll += new System.EventHandler(this.RowtrackBar_Scroll);
             // 
             // linkLabel1
             // 
@@ -618,27 +572,27 @@
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(1113, 8);
+            this.label1.Location = new System.Drawing.Point(1118, 8);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(45, 15);
+            this.label1.Size = new System.Drawing.Size(60, 15);
             this.label1.TabIndex = 1;
-            this.label1.Text = "高度:";
+            this.label1.Text = "视图行:";
             // 
-            // columntrackBar
+            // rowtrackBar
             // 
-            this.columntrackBar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.columntrackBar.AutoSize = false;
-            this.columntrackBar.Location = new System.Drawing.Point(1152, 6);
-            this.columntrackBar.Margin = new System.Windows.Forms.Padding(4);
-            this.columntrackBar.Maximum = 1000;
-            this.columntrackBar.Minimum = 1;
-            this.columntrackBar.Name = "columntrackBar";
-            this.columntrackBar.Size = new System.Drawing.Size(120, 21);
-            this.columntrackBar.TabIndex = 0;
-            this.columntrackBar.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.columntrackBar.Value = 150;
-            this.columntrackBar.Scroll += new System.EventHandler(this.ColumntrackBar_Scroll);
+            this.rowtrackBar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.rowtrackBar.AutoSize = false;
+            this.rowtrackBar.Location = new System.Drawing.Point(1185, 6);
+            this.rowtrackBar.Margin = new System.Windows.Forms.Padding(4);
+            this.rowtrackBar.Maximum = 50;
+            this.rowtrackBar.Minimum = 1;
+            this.rowtrackBar.Name = "rowtrackBar";
+            this.rowtrackBar.Size = new System.Drawing.Size(102, 21);
+            this.rowtrackBar.TabIndex = 0;
+            this.rowtrackBar.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.rowtrackBar.Value = 3;
+            this.rowtrackBar.Scroll += new System.EventHandler(this.ColumntrackBar_Scroll);
             // 
             // splitContainer2
             // 
@@ -684,6 +638,23 @@
             this.tabPage2.Text = "运行日志";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
+            // logList
+            // 
+            this.logList.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.logList.ContextMenuStrip = this.logsContext;
+            this.logList.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.logList.FullRowSelect = true;
+            this.logList.HideSelection = false;
+            this.logList.Location = new System.Drawing.Point(4, 4);
+            this.logList.Margin = new System.Windows.Forms.Padding(4);
+            this.logList.Name = "logList";
+            this.logList.Size = new System.Drawing.Size(352, 190);
+            this.logList.TabIndex = 0;
+            this.logList.UseCompatibleStateImageBehavior = false;
+            this.logList.UseWindowsThemStyle = true;
+            this.logList.View = System.Windows.Forms.View.Details;
+            this.logList.MouseEnter += new System.EventHandler(this.logList_MouseEnter);
+            // 
             // tabControl1
             // 
             this.tabControl1.Alignment = System.Windows.Forms.TabAlignment.Bottom;
@@ -708,6 +679,24 @@
             this.tabPage1.TabIndex = 2;
             this.tabPage1.Text = "在线列表";
             this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // onlineList
+            // 
+            this.onlineList.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.onlineList.CheckBoxes = true;
+            this.onlineList.ContextMenuStrip = this.CmdContext;
+            this.onlineList.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.onlineList.FullRowSelect = true;
+            this.onlineList.HideSelection = false;
+            this.onlineList.Location = new System.Drawing.Point(4, 4);
+            this.onlineList.Margin = new System.Windows.Forms.Padding(4);
+            this.onlineList.Name = "onlineList";
+            this.onlineList.Size = new System.Drawing.Size(1091, 190);
+            this.onlineList.TabIndex = 0;
+            this.onlineList.UseCompatibleStateImageBehavior = false;
+            this.onlineList.UseWindowsThemStyle = false;
+            this.onlineList.View = System.Windows.Forms.View.Details;
+            this.onlineList.MouseEnter += new System.EventHandler(this.onlineList_MouseEnter);
             // 
             // statusStrip1
             // 
@@ -1010,41 +999,6 @@
             this.toolStripMenuItem3.Text = "关于程序(&H)";
             this.toolStripMenuItem3.Click += new System.EventHandler(this.About);
             // 
-            // logList
-            // 
-            this.logList.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.logList.ContextMenuStrip = this.logsContext;
-            this.logList.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.logList.FullRowSelect = true;
-            this.logList.HideSelection = false;
-            this.logList.Location = new System.Drawing.Point(4, 4);
-            this.logList.Margin = new System.Windows.Forms.Padding(4);
-            this.logList.Name = "logList";
-            this.logList.Size = new System.Drawing.Size(352, 190);
-            this.logList.TabIndex = 0;
-            this.logList.UseCompatibleStateImageBehavior = false;
-            this.logList.UseWindowsThemStyle = true;
-            this.logList.View = System.Windows.Forms.View.Details;
-            this.logList.MouseEnter += new System.EventHandler(this.logList_MouseEnter);
-            // 
-            // onlineList
-            // 
-            this.onlineList.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.onlineList.CheckBoxes = true;
-            this.onlineList.ContextMenuStrip = this.CmdContext;
-            this.onlineList.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.onlineList.FullRowSelect = true;
-            this.onlineList.HideSelection = false;
-            this.onlineList.Location = new System.Drawing.Point(4, 4);
-            this.onlineList.Margin = new System.Windows.Forms.Padding(4);
-            this.onlineList.Name = "onlineList";
-            this.onlineList.Size = new System.Drawing.Size(1091, 190);
-            this.onlineList.TabIndex = 0;
-            this.onlineList.UseCompatibleStateImageBehavior = false;
-            this.onlineList.UseWindowsThemStyle = false;
-            this.onlineList.View = System.Windows.Forms.View.Details;
-            this.onlineList.MouseEnter += new System.EventHandler(this.onlineList_MouseEnter);
-            // 
             // MainApplication
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
@@ -1068,9 +1022,8 @@
             this.splitContainer1.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.deskrefreshTimeSpan)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.rowtrackBar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.columntrackBar)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.rowtrackBar)).EndInit();
             this.splitContainer2.Panel1.ResumeLayout(false);
             this.splitContainer2.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
@@ -1133,13 +1086,13 @@
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem4;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem5;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-        private System.Windows.Forms.TrackBar columntrackBar;
+        private System.Windows.Forms.TrackBar rowtrackBar;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.LinkLabel linkLabel1;
         private System.Windows.Forms.Label fsd;
         private System.Windows.Forms.Label row;
-        private System.Windows.Forms.TrackBar rowtrackBar;
+        private System.Windows.Forms.TrackBar columntrackBar;
         private System.Windows.Forms.Label column;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button1;
@@ -1164,8 +1117,6 @@
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem11;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
         private System.Windows.Forms.ToolStripMenuItem 桌面记录查看ToolStripMenuItem;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.NumericUpDown deskrefreshTimeSpan;
         private System.Windows.Forms.SplitContainer splitContainer2;
         private System.Windows.Forms.TabControl tabControl2;
         private System.Windows.Forms.TabPage tabPage2;

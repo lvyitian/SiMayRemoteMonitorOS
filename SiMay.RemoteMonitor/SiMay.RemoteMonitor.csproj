@@ -164,7 +164,7 @@
     <Compile Include="MainApplication\DesktopViewCarousel\DesktopViewWallSettingForm.Designer.cs">
       <DependentUpon>DesktopViewWallSettingForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MainApplication\DesktopViewCarousel\ViewCarouselContext.cs" />
+    <Compile Include="MainApplication\DesktopViewCarousel\DesktopViewSettingContext.cs" />
     <Compile Include="MainApplication\RemoteUpdateServiceForm.cs">
       <SubType>Form</SubType>
     </Compile>

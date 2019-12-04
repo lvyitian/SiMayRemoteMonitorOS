@@ -32,16 +32,16 @@ namespace SiMay.RemoteMonitor.MainApplication
 
         private bool _isRun = true;
         private int _connect_count = 0;
-        private int _desktopViewHeight = 150;
-        private int _desktopViewWidth = 250;
-        private int _deskrefreshTimeSpan = 1500;
+        //private int _desktopViewHeight = 150;
+        //private int _desktopViewWidth = 250;
+        //private int _deskrefreshTimeSpan = 1500;
         private long _sendTransferredBytes = 0;
         private long _receiveTransferredBytes = 0;
         private const string GROUP_ALL = "全部";
 
         private System.Timers.Timer _timer;
         private System.Timers.Timer _viewCarouselTimer;
-        private ViewCarouselContext _viewCarouselContext = new ViewCarouselContext();
+        private DesktopViewSettingContext _viewCarouselContext = new DesktopViewSettingContext();
         private Color _closeScreenColor = Color.FromArgb(127, 175, 219);
         private ImageList _imgList;
 
@@ -93,16 +93,6 @@ namespace SiMay.RemoteMonitor.MainApplication
 
             };
             this._timer.Start();
-
-            if (!int.TryParse(AppConfiguration.DesktopViewHeight, out this._desktopViewHeight))
-                this._desktopViewHeight = 220;
-
-            if (!int.TryParse(AppConfiguration.DesktopViewWidth, out this._desktopViewWidth))
-                this._desktopViewHeight = 280;
-
-            if (!int.TryParse(AppConfiguration.DesktopRefreshTimeSpan, out this._deskrefreshTimeSpan))
-                this._deskrefreshTimeSpan = 1500;
-
             if (AppConfiguration.SessionMode == "1")
             {
                 this.stripHost.Text = AppConfiguration.ServiceIPAddress;
@@ -114,11 +104,10 @@ namespace SiMay.RemoteMonitor.MainApplication
                 this.stripPort.Text = AppConfiguration.Port;
             }
 
-            this.columntrackBar.Value = this._desktopViewHeight;
-            this.rowtrackBar.Value = this._desktopViewWidth;
-            this.row.Text = rowtrackBar.Value.ToString();
-            this.column.Text = columntrackBar.Value.ToString();
-            this.deskrefreshTimeSpan.Value = _deskrefreshTimeSpan;
+            this.rowtrackBar.Value = this._viewCarouselContext.ViewRow;
+            this.columntrackBar.Value = this._viewCarouselContext.ViewColum;
+            this.row.Text = columntrackBar.Value.ToString();
+            this.column.Text = rowtrackBar.Value.ToString();
             this.splitContainer2.SplitterDistance = (splitContainer2.Width / 4);
 
             this.logList.SmallImageList = _imgList;
@@ -171,14 +160,12 @@ namespace SiMay.RemoteMonitor.MainApplication
                     LockWindow();
             }
 
-            _viewCarouselTimer = new System.Timers.Timer(AppConfiguration.CarouselInterval);
+            _viewCarouselTimer = new System.Timers.Timer(_viewCarouselContext.ViewCarouselInterval);
             _viewCarouselTimer.Elapsed += ViewCarouselFunc;
 
-            //if (AppConfiguration.EnabledCarousel)
-            _viewCarouselTimer.Start();
+            if (_viewCarouselContext.CarouselEnabled)
+                _viewCarouselTimer.Start();
 
-            _viewCarouselContext.ViewRow = 3;
-            _viewCarouselContext.ViewColum = 3;
         }
         private void desktopViewLayout_Resize(object sender, EventArgs e)
         {
@@ -191,7 +178,7 @@ namespace SiMay.RemoteMonitor.MainApplication
 
             var viewCount = _viewCarouselContext.ViewColum * _viewCarouselContext.ViewRow;
 
-            var marginalRight = 25 / this._viewCarouselContext.ViewColum;
+            var marginalRight = (_viewCarouselContext.ViewColum * 9) / this._viewCarouselContext.ViewColum;
             var width = (this.desktopViewLayout.ClientRectangle.Width / _viewCarouselContext.ViewColum) - marginalRight;
             var height = (this.desktopViewLayout.ClientRectangle.Height / _viewCarouselContext.ViewRow) - marginalRight;
 
@@ -202,11 +189,9 @@ namespace SiMay.RemoteMonitor.MainApplication
 
                 if (view is Control control)
                 {
-                    var controlRectangle = control.DisplayRectangle;
-                    if (containerRectangle)
-                    {
-
-                    }
+                    var controlRectangle = new Rectangle(control.Left, control.Top, control.Width, control.Height);
+                    view.InVisbleArea = this.WhetherContainsInClientRectangle(containerRectangle, controlRectangle);
+                    Console.WriteLine(view.InVisbleArea + " " + index);
                 }
                 if (view.Width == width && view.Height == height && index++ == viewCount)
                     continue;
@@ -218,6 +203,12 @@ namespace SiMay.RemoteMonitor.MainApplication
                 });
             }
         }
+
+        public bool WhetherContainsInClientRectangle(Rectangle containerRect, Rectangle childrect)
+        {
+            return childrect.Y + childrect.Height >= containerRect.Y && childrect.Y <= containerRect.Bottom;
+        }
+
         private void ViewCarouselFunc(object sender, System.Timers.ElapsedEventArgs e)
         {
             var viewCount = _viewCarouselContext.ViewColum * _viewCarouselContext.ViewRow;
@@ -241,7 +232,7 @@ namespace SiMay.RemoteMonitor.MainApplication
         /// </summary>
         private void RegisterMessageHandler()
         {
-            this._appMainAdapterHandler.ViewRefreshInterval = _deskrefreshTimeSpan;
+            this._appMainAdapterHandler.ViewRefreshInterval = _viewCarouselContext.ViewFreshInterval;
             this._appMainAdapterHandler.SynchronizationContext = SynchronizationContext.Current;
             this._appMainAdapterHandler.OnProxyNotifyHandlerEvent += OnProxyNotify;
             this._appMainAdapterHandler.OnReceiveHandlerEvent += OnReceiveHandlerEvent;
@@ -316,11 +307,7 @@ namespace SiMay.RemoteMonitor.MainApplication
 
         private IDesktopView OnCreateDesktopViewHandlerEvent(SessionSyncContext syncContext)
         {
-            var view = new UDesktopView(syncContext)
-            {
-                Width = _desktopViewWidth,
-                Height = _desktopViewHeight,
-            };
+            var view = new UDesktopView(syncContext);
             view.OnDoubleClickEvent += DesktopViewDbClick;
             this.desktopViewLayout.Controls.Add(view);
 
@@ -709,40 +696,22 @@ namespace SiMay.RemoteMonitor.MainApplication
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            if (deskrefreshTimeSpan.Value < 300)
-            {
-                this.WriteRuninglog("设置未保存,刷新间隔不能小于300!", "error");
-                return;
-            }
+            this._viewCarouselContext.ViewRow = rowtrackBar.Value;
+            this._viewCarouselContext.ViewColum = columntrackBar.Value;
 
-            this._desktopViewHeight = columntrackBar.Value;
-            this._desktopViewWidth = rowtrackBar.Value;
-
-            AppConfiguration.DesktopViewHeight = _desktopViewHeight.ToString();
-            AppConfiguration.DesktopViewWidth = _desktopViewWidth.ToString();
-            AppConfiguration.DesktopRefreshTimeSpan = deskrefreshTimeSpan.Value.ToString();
-
-            this._deskrefreshTimeSpan = (int)deskrefreshTimeSpan.Value;
-
-            this._appMainAdapterHandler.ViewRefreshInterval = _deskrefreshTimeSpan;
-
-            foreach (UDesktopView item in desktopViewLayout.Controls)
-            {
-                item.Width = _desktopViewWidth;
-                item.Height = _desktopViewHeight;
-            }
+            this.ViewOnResize();
 
             this.WriteRuninglog("设置已保存!", "ok");
         }
 
         private void RowtrackBar_Scroll(object sender, EventArgs e)
         {
-            this.row.Text = rowtrackBar.Value.ToString();
+            this.row.Text = columntrackBar.Value.ToString();
         }
 
         private void ColumntrackBar_Scroll(object sender, EventArgs e)
         {
-            this.column.Text = columntrackBar.Value.ToString();
+            this.column.Text = rowtrackBar.Value.ToString();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -968,6 +937,22 @@ namespace SiMay.RemoteMonitor.MainApplication
             });
         }
 
+        private void linkLabel2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            var dialog = new DesktopViewWallSettingForm(_viewCarouselContext);
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                _appMainAdapterHandler.ViewRefreshInterval = _viewCarouselContext.ViewFreshInterval;
 
+                if (!_viewCarouselContext.CarouselEnabled)
+                    this._viewCarouselTimer.Stop();
+                else
+                {
+                    this._viewCarouselTimer.Interval = _viewCarouselContext.ViewCarouselInterval;
+                    this._viewCarouselTimer.Start();
+                }
+                this.ViewOnResize();
+            }
+        }
     }
 }

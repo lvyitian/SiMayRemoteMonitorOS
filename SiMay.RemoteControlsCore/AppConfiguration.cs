@@ -17,13 +17,11 @@ namespace SiMay.RemoteControlsCore
             { "ConnectPassWord", "5200" },
             { "MaxConnectCount", "100000" },
             { "Maximize", "false" },
-            { "DesktopViewHeight", "220" },
-            { "DesktopViewWidth", "280" },
             { "lHosts", "127.0.0.1:5200" },
             { "DbClickViewExc", "" },
             { "LockPassWord", "5200" },
             { "WindowsIsLock", "false" },
-            { "DesktopRefreshTimeSpan", "1500" },
+            { "DesktopRefreshInterval", "1500" },
             { "AudioSamplesPerSecond", "8000" },
             { "AudioBitsPerSample", "16" },
             { "AudioChannels", "1" },
@@ -31,9 +29,10 @@ namespace SiMay.RemoteControlsCore
             { "AccessKey", "522222" },
             { "ServiceIPAddress", "127.0.0.1" },
             { "ServicePort", "522" },
-            { "EnabledCarousel", "false" },
+            { "EnabledCarousel", "true" },
             { "CarouselInterval", "5000" },
-            { "CarouselViewCount", "6"}
+            { "ViewColumn", "4" },
+            { "ViewRow", "3" },
         };
 
         string _filePath = Path.Combine(Environment.CurrentDirectory, "SiMayConfig.ini");
@@ -91,19 +90,6 @@ namespace SiMay.RemoteControlsCore
             get { return SysConfig.GetConfig("Maximize"); }
             set { SysConfig.SetConfig("Maximize", value); }
         }
-
-        public static string DesktopViewHeight
-        {
-            get { return SysConfig.GetConfig("DesktopViewHeight"); }
-            set { SysConfig.SetConfig("DesktopViewHeight", value); }
-        }
-
-        public static string DesktopViewWidth
-        {
-            get { return SysConfig.GetConfig("DesktopViewWidth"); }
-            set { SysConfig.SetConfig("DesktopViewWidth", value); }
-        }
-
         public static string LHostString
         {
             get { return SysConfig.GetConfig("lHosts"); }
@@ -128,10 +114,10 @@ namespace SiMay.RemoteControlsCore
             set { SysConfig.SetConfig("WindowsIsLock", value); }
         }
 
-        public static string DesktopRefreshTimeSpan
+        public static int DesktopRefreshInterval
         {
-            get { return SysConfig.GetConfig("DesktopRefreshTimeSpan"); }
-            set { SysConfig.SetConfig("DesktopRefreshTimeSpan", value); }
+            get { return int.Parse(SysConfig.GetConfig("DesktopRefreshInterval")); }
+            set { SysConfig.SetConfig("DesktopRefreshInterval", value.ToString()); }
         }
 
         public static string AudioSamplesPerSecond
@@ -175,7 +161,7 @@ namespace SiMay.RemoteControlsCore
             set { SysConfig.SetConfig("ServicePort", value); }
         }
 
-        public static bool EnabledCarousel
+        public static bool CarouselEnabled
         {
             get { return bool.Parse(SysConfig.GetConfig("EnabledCarousel")); }
             set { SysConfig.SetConfig("EnabledCarousel", value.ToString()); }
@@ -187,10 +173,16 @@ namespace SiMay.RemoteControlsCore
             set { SysConfig.SetConfig("CarouselInterval", value.ToString()); }
         }
 
-        public static int CarouselViewCount
+        public static int ViewColumn
         {
-            get { return int.Parse(SysConfig.GetConfig("CarouselViewCount")); }
-            set { SysConfig.SetConfig("CarouselViewCount", value.ToString()); }
+            get { return int.Parse(SysConfig.GetConfig("ViewColumn")); }
+            set { SysConfig.SetConfig("ViewColumn", value.ToString()); }
+        }
+
+        public static int ViewRow
+        {
+            get { return int.Parse(SysConfig.GetConfig("ViewRow")); }
+            set { SysConfig.SetConfig("ViewRow", value.ToString()); }
         }
     }
 }
