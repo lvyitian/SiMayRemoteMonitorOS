@@ -1,4 +1,5 @@
 ﻿using SiMay.Basic;
+using SiMay.Core;
 using SiMay.RemoteControlsCore;
 using SiMay.RemoteControlsCore.HandlerAdapters;
 using SiMay.RemoteMonitor.Attributes;
@@ -16,7 +17,7 @@ namespace SiMay.RemoteMonitor.Application
     [OnTools]
     [ApplicationName("视频监控")]
     [AppResourceName("ViedoManager")]
-    [Application(typeof(VideoAppAdapterHandler), "RemoteViedoJob", 30)]
+    [Application(typeof(VideoAppAdapterHandler), AppJobConstant.REMOTE_VIDEO, 30)]
     public partial class VideoApplication : Form, IApplication
     {
         private string _title = "//视频监控 #Name#";

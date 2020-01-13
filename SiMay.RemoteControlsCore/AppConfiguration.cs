@@ -67,10 +67,10 @@ namespace SiMay.RemoteControlsCore
             set { SysConfig.SetConfig("IPAddress", value); }
         }
 
-        public static string Port
+        public static int Port
         {
-            get { return SysConfig.GetConfig("Port"); }
-            set { SysConfig.SetConfig("Port", value); }
+            get { return int.Parse(SysConfig.GetConfig("Port")); }
+            set { SysConfig.SetConfig("Port", value.ToString()); }
         }
 
         public static string ConnectPassWord
@@ -79,10 +79,10 @@ namespace SiMay.RemoteControlsCore
             set { SysConfig.SetConfig("ConnectPassWord", value); }
         }
 
-        public static string MaxConnectCount
+        public static int MaxConnectCount
         {
-            get { return SysConfig.GetConfig("MaxConnectCount"); }
-            set { SysConfig.SetConfig("MaxConnectCount", value); }
+            get { return int.Parse(SysConfig.GetConfig("MaxConnectCount")); }
+            set { SysConfig.SetConfig("MaxConnectCount", value.ToString()); }
         }
 
         public static string WindowMaximize
@@ -155,10 +155,10 @@ namespace SiMay.RemoteControlsCore
             set { SysConfig.SetConfig("ServiceIPAddress", value); }
         }
 
-        public static string ServicePort
+        public static int ServicePort
         {
-            get { return SysConfig.GetConfig("ServicePort"); }
-            set { SysConfig.SetConfig("ServicePort", value); }
+            get { return int.Parse(SysConfig.GetConfig("ServicePort")); }
+            set { SysConfig.SetConfig("ServicePort", value.ToString()); }
         }
 
         public static bool CarouselEnabled

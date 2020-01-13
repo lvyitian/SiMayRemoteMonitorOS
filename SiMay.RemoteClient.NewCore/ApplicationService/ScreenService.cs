@@ -26,7 +26,7 @@ using System.Linq;
 namespace SiMay.ServiceCore.ApplicationService
 {
     [ServiceName("远程桌面")]
-    [ServiceKey("RemoteDesktopJob")]
+    [ServiceKey(AppJobConstant.REMOTE_DESKTOP)]
     public class ScreenService : ServiceManagerBase
     {
         private int _bscanmode = 1; //0差异 1逐行

@@ -57,6 +57,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PropertyExtension.cs" />
     <Compile Include="ImageHelper.cs" />
+    <Compile Include="RectangleHelper.cs" />
     <Compile Include="StringExtension.cs" />
     <Compile Include="ThreadHelper.cs" />
     <Compile Include="TypeExtension.cs" />

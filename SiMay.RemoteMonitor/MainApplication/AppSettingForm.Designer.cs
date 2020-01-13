@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.save = new System.Windows.Forms.Button();
-            this.connectNum = new System.Windows.Forms.TextBox();
+            this.connectLimitCount = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.port = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
@@ -76,10 +76,10 @@
             // 
             // connectNum
             // 
-            this.connectNum.Location = new System.Drawing.Point(185, 135);
-            this.connectNum.Name = "connectNum";
-            this.connectNum.Size = new System.Drawing.Size(115, 21);
-            this.connectNum.TabIndex = 13;
+            this.connectLimitCount.Location = new System.Drawing.Point(185, 135);
+            this.connectLimitCount.Name = "connectNum";
+            this.connectLimitCount.Size = new System.Drawing.Size(115, 21);
+            this.connectLimitCount.TabIndex = 13;
             // 
             // label3
             // 
@@ -202,7 +202,7 @@
             this.panel2.Controls.Add(this.conPwd);
             this.panel2.Controls.Add(this.label1);
             this.panel2.Controls.Add(this.label4);
-            this.panel2.Controls.Add(this.connectNum);
+            this.panel2.Controls.Add(this.connectLimitCount);
             this.panel2.Controls.Add(this.label2);
             this.panel2.Controls.Add(this.label5);
             this.panel2.Location = new System.Drawing.Point(32, 2);
@@ -390,7 +390,7 @@
         #endregion
 
         private System.Windows.Forms.Button save;
-        private System.Windows.Forms.TextBox connectNum;
+        private System.Windows.Forms.TextBox connectLimitCount;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox port;
         private System.Windows.Forms.Label label2;

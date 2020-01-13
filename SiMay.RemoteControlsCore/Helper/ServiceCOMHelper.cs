@@ -1,4 +1,5 @@
-﻿using SiMay.Core;
+﻿using SiMay.Basic;
+using SiMay.Core;
 using SiMay.Core.Packets;
 using SiMay.Net.SessionProvider.SessionBased;
 using System;
@@ -14,27 +15,27 @@ namespace SiMay.RemoteControlsCore
     {
         private static Dictionary<string, byte[]> ServiceCOMPlugins = new Dictionary<string, byte[]>();
 
-        static ServiceCOMLoader()
-        {
-            //string[] pluginFileNames = new string[]
-            //{
-            //    "SiMayServiceCore.dll",
-            //    "SiMay.Core.dll",
-            //    "SiMay.Serialize.dll",
-            //    "SiMay.Basic.dll",
-            //    "AForge.Video.dll",
-            //    "AForge.Video.DirectShow.dll"
-            //};
+        //static ServiceCOMLoader()
+        //{
+        //    string[] pluginFileNames = new string[]
+        //    {
+        //        "SiMayServiceCore.dll",
+        //        "SiMay.Core.dll",
+        //        "SiMay.Serialize.dll",
+        //        "SiMay.Basic.dll",
+        //        "AForge.Video.dll",
+        //        "AForge.Video.DirectShow.dll"
+        //    };
 
-            //foreach (var fileName in pluginFileNames)
-            //{
-            //    var path = Path.Combine(Environment.CurrentDirectory, "plugins", fileName);
-            //    if (File.Exists(path))
-            //        ServiceCOMPlugins.Add(fileName, File.ReadAllBytes(path));
-            //    else
-            //        throw new FileNotFoundException("服务插件缺失:" + fileName);
-            //}
-        }
+        //    foreach (var fileName in pluginFileNames)
+        //    {
+        //        var path = Path.Combine(Environment.CurrentDirectory, "plugins", fileName);
+        //        if (File.Exists(path))
+        //            ServiceCOMPlugins.Add(fileName, File.ReadAllBytes(path));
+        //        else
+        //            throw new FileNotFoundException("服务插件缺失:" + fileName);
+        //    }
+        //}
 
         /// <summary>
         /// 主连接数据发送函数，使未加载服务插件的被控端加载插件,注意!!非主连接勿用
@@ -44,7 +45,7 @@ namespace SiMay.RemoteControlsCore
         internal static void SendMessageDoHasCOM(this SessionHandler session, byte[] data)
         {
             //var syncContext = session.AppTokens[SysConstants.INDEX_WORKER] as SessionSyncContext;
-            //if (!syncContext.HasLoadServiceCOM)
+            //if (!syncContext[SysConstants.HasLoadServiceCOM].ConvertTo<bool>())
             //    SendServicePlugins(session);
             session.SendAsync(data);
         }

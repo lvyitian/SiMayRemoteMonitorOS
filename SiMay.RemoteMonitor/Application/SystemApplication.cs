@@ -1,4 +1,5 @@
 ﻿using SiMay.Basic;
+using SiMay.Core;
 using SiMay.Core.Packets;
 using SiMay.RemoteControlsCore;
 using SiMay.RemoteControlsCore.HandlerAdapters;
@@ -17,7 +18,7 @@ namespace SiMay.RemoteMonitor.Application
     [OnTools]
     [ApplicationName("系统管理")]
     [AppResourceName("SystemManager")]
-    [Application(typeof(SystemAdapterHandler), "SystemManagerJob", 70)]
+    [Application(typeof(SystemAdapterHandler), AppJobConstant.REMOTE_SYSMANAGER, 70)]
     public partial class SystemApplication : Form, IApplication
     {
         private string _title = "//系统管理 #Name#";

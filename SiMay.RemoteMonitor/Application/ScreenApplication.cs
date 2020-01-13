@@ -20,7 +20,7 @@ namespace SiMay.RemoteMonitor.Application
     [OnTools]
     [ApplicationName("远程桌面")]
     [AppResourceName("ScreenManager")]
-    [Application(typeof(RemoteScreenAdapterHandler), "RemoteDesktopJob", 0)]
+    [Application(typeof(RemoteScreenAdapterHandler), AppJobConstant.REMOTE_DESKTOP, 0)]
     public partial class ScreenApplication : Form, IApplication
     {
         private const Int32 IDM_SCREENMON = 1000;

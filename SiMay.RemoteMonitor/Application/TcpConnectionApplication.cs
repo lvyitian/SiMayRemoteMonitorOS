@@ -1,4 +1,5 @@
-﻿using SiMay.Core.Packets.TcpConnection;
+﻿using SiMay.Core;
+using SiMay.Core.Packets.TcpConnection;
 using SiMay.RemoteControlsCore;
 using SiMay.RemoteControlsCore.HandlerAdapters;
 using SiMay.RemoteMonitor.Attributes;
@@ -9,7 +10,7 @@ using System.Windows.Forms;
 namespace SiMay.RemoteMonitor.Application
 {
     [ApplicationName("Tcp连接管理")]
-    [Application(typeof(TcpConnectionAdapterHandler), "TcpConnectionManagerJob", 90)]
+    [Application(typeof(TcpConnectionAdapterHandler), AppJobConstant.REMOTE_TCP, 90)]
     public partial class TcpConnectionApplication : Form, IApplication
     {
         [ApplicationAdapterHandler]

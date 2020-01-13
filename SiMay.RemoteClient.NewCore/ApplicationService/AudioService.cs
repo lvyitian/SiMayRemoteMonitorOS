@@ -13,7 +13,7 @@ using WindSound;
 namespace SiMay.ServiceCore.ApplicationService
 {
     [ServiceName("远程语音")]
-    [ServiceKey("RemoteAudioJob")]
+    [ServiceKey(AppJobConstant.REMOTE_AUDIO)]
     public class AudioService : ServiceManagerBase
     {
         private bool _isRun = true;

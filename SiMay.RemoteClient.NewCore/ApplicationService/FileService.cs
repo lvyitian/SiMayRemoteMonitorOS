@@ -23,7 +23,7 @@ using static SiMay.ServiceCore.CommonWin32Api;
 namespace SiMay.ServiceCore.ApplicationService
 {
     [ServiceName("文件管理")]
-    [ServiceKey("FileManagerJob")]
+    [ServiceKey(AppJobConstant.REMOTE_FILE)]
     public class FileService : ServiceManagerBase
     {
         private const int FILE_BUFFER_SIZE = 1024 * 512;

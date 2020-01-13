@@ -14,7 +14,7 @@ using System.IO;
 namespace SiMay.ServiceCore.ApplicationService
 {
     [ServiceName("Shell管理")]
-    [ServiceKey("RemoteShellJob")]
+    [ServiceKey(AppJobConstant.REMOTE_SHELL)]
     public class ShellService : ServiceManagerBase
     {
         private Process _pipe;
@@ -27,11 +27,6 @@ namespace SiMay.ServiceCore.ApplicationService
         {
             _pipe.Kill();
         }
-
-        [PacketHandler(MessageHead.S_GLOBAL_ONCLOSE)]
-        public void CloseSession(TcpSocketSaeaSession session)
-            => this.CloseSession();
-
         private void Init()
         {
             _pipe = new Process

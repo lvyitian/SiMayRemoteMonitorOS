@@ -16,7 +16,7 @@ using System.Threading;
 namespace SiMay.ServiceCore.ApplicationService
 {
     [ServiceName("远程监控摄像头")]
-    [ServiceKey("RemoteViedoJob")]
+    [ServiceKey(AppJobConstant.REMOTE_VIDEO)]
     public class VideoService : ServiceManagerBase
     {
         private int qty = 30;

@@ -75,6 +75,16 @@ namespace SiMay.RemoteMonitor.MainApplication
         public IList<IDesktopView> AlwaysViews { get; set; }
 
         /// <summary>
+        /// 视图高
+        /// </summary>
+        public int ViewHeight { get; set; }
+
+        /// <summary>
+        /// 视图宽
+        /// </summary>
+        public int ViewWidth { get; set; }
+
+        /// <summary>
         /// 是否启用轮播
         /// </summary>
         public bool CarouselEnabled

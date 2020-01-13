@@ -24,7 +24,7 @@ using SiMay.ServiceCore.Win32;
 namespace SiMay.ServiceCore.ApplicationService
 {
     [ServiceName("系统管理")]
-    [ServiceKey("SystemManagerJob")]
+    [ServiceKey(AppJobConstant.REMOTE_SYSMANAGER)]
     public class SystemService : ServiceManagerBase
     {
         private ComputerInfo _memoryInfo = new ComputerInfo();

@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppConfig\AbstractConfigBase.cs" />
+    <Compile Include="AppJobConstant.cs" />
     <Compile Include="ByteConverter.cs" />
     <Compile Include="Common\FileHelper.cs" />
     <Compile Include="Common\GeoLocationHelper.cs" />

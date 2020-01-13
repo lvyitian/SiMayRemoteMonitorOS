@@ -100,12 +100,9 @@ namespace SiMay.RemoteControlsCore
                 ? AppConfiguration.IPAddress
                 : AppConfiguration.ServiceIPAddress;
 
-            int port = int.Parse(sessionMode == 0
-                ? AppConfiguration.Port
-                : AppConfiguration.ServicePort);
+            int port = sessionMode == 0 ? AppConfiguration.Port : AppConfiguration.ServicePort;
 
-            if (!int.TryParse(AppConfiguration.MaxConnectCount, out var maxconnectCount))
-                maxconnectCount = 0;
+            int maxconnectCount = AppConfiguration.MaxConnectCount;
 
             var options = new SessionProviderOptions
             {

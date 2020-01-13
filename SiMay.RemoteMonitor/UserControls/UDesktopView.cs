@@ -17,6 +17,7 @@ namespace SiMay.RemoteMonitor.UserControls
         public UDesktopView(SessionSyncContext syncContext)
         {
             SessionSyncContext = syncContext;
+            
             InitializeComponent();
         }
 

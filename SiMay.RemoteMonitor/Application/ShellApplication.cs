@@ -1,4 +1,5 @@
-﻿using SiMay.RemoteControlsCore;
+﻿using SiMay.Core;
+using SiMay.RemoteControlsCore;
 using SiMay.RemoteControlsCore.HandlerAdapters;
 using SiMay.RemoteMonitor.Attributes;
 using System;
@@ -10,7 +11,7 @@ namespace SiMay.RemoteMonitor.Application
     [OnTools]
     [ApplicationName("远程终端")]
     [AppResourceName("ShellManager")]
-    [Application(typeof(ShellAdapterHandler), "RemoteShellJob", 60)]
+    [Application(typeof(ShellAdapterHandler), AppJobConstant.REMOTE_SHELL, 60)]
     public partial class ShellApplication : Form, IApplication
     {
 

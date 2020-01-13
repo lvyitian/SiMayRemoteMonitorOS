@@ -36,6 +36,9 @@ namespace SiMay.Core
         [DllImport("User32.dll", EntryPoint = "DestroyIcon")]
         public static extern int DestroyIcon(IntPtr hIcon);
 
+        [DllImport("ole32.dll")]
+        public static extern int CoInitialize(IntPtr pvReserved);
+
         //定义文件属性标识
         public enum FileAttributeFlags : int
         {
@@ -97,6 +100,7 @@ namespace SiMay.Core
         {
             FileInfomation shfi = new FileInfomation();
             IntPtr hI;
+            CoInitialize(IntPtr.Zero);
             if (isLargeIcon)
             {
                 hI = SHGetFileInfo(fileExt, 0, ref shfi, (uint)Marshal.SizeOf(shfi), (uint)FileInfoFlags.SHGFI_ICON | (uint)FileInfoFlags.SHGFI_USEFILEATTRIBUTES | (uint)FileInfoFlags.SHGFI_LARGEICON);

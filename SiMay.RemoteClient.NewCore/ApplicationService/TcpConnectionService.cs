@@ -19,7 +19,7 @@ using System.Text;
 namespace SiMay.ServiceCore.ApplicationService
 {
     [ServiceName("Tcp连接管理")]
-    [ServiceKey("TcpConnectionManagerJob")]
+    [ServiceKey(AppJobConstant.REMOTE_TCP)]
     public class TcpConnectionService : ServiceManagerBase
     {
         [PacketHandler(MessageHead.S_TCP_GET_LIST)]

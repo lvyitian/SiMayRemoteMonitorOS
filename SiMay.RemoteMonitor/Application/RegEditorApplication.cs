@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using Microsoft.Win32;
+using SiMay.Core;
 using SiMay.Core.Common;
 using SiMay.Core.Extensions;
 using SiMay.Core.Packets.RegEdit;
@@ -17,7 +18,7 @@ namespace SiMay.RemoteMonitor.Application
     [OnTools]
     [ApplicationName("注册表管理")]
     [AppResourceName("RegEditManager")]
-    [Application(typeof(RegistryEditorAdapterHandler), "RemoteRegistryEditorJob", 50)]
+    [Application(typeof(RegistryEditorAdapterHandler), AppJobConstant.REMOTE_REGEDIT, 50)]
     public partial class RegEditorApplication : Form, IApplication
     {
         protected override CreateParams CreateParams

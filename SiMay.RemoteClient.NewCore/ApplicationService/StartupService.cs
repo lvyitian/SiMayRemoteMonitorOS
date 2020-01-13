@@ -22,7 +22,7 @@ using System.Windows.Forms;
 namespace SiMay.ServiceCore.ApplicationService
 {
     [ServiceName("启动项管理")]
-    [ServiceKey("StartupManagerJob")]
+    [ServiceKey(AppJobConstant.REMOTE_STARTUP)]
     public class StartupService : ServiceManagerBase
     {
         [PacketHandler(MessageHead.S_STARTUP_GET_LIST)]

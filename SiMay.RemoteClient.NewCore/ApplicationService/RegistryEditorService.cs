@@ -18,7 +18,7 @@ using System.Text;
 namespace SiMay.ServiceCore.ApplicationService
 {
     [ServiceName("远程注册表")]
-    [ServiceKey("RemoteRegistryEditorJob")]
+    [ServiceKey(AppJobConstant.REMOTE_REGEDIT)]
     public class RegistryEditorService : ServiceManagerBase
     {
         [PacketHandler(MessageHead.S_NREG_LOAD_REGKEYS)]

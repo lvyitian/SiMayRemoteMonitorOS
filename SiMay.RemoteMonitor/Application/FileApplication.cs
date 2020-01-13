@@ -28,7 +28,7 @@ namespace SiMay.RemoteMonitor.Application
     [OnTools]
     [ApplicationName("文件管理")]
     [AppResourceName("FileManager")]
-    [Application(typeof(RemoteFileAdapterHandler), "FileManagerJob", 10)]
+    [Application(typeof(RemoteFileAdapterHandler), AppJobConstant.REMOTE_FILE, 10)]
     public partial class FileApplication : Form, IApplication
     {
         private const Int32 IDM_DIR_DESKTOP = 1000;
