@@ -5,7 +5,7 @@ using SiMay.Core.Common;
 using SiMay.Core.Extensions;
 using SiMay.Core.Packets.RegEdit;
 
-namespace SiMay.ServiceCore.ApplicationService.Registry
+namespace SiMay.ServiceCore
 {
     public class RegistrySeeker
     {

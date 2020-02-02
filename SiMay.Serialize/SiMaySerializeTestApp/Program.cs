@@ -1,4 +1,5 @@
-﻿using SiMay.Serialize;
+﻿using SiMay.ReflectCache;
+using SiMay.Serialize;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,14 +10,14 @@ namespace SiMaySerializeTestApp
 {
     class Program
     {
-        public class TestB
+        public class TestB : PacketBase
         {
             public bool[] isArray { get; set; }
             public bool isSuccess { get; set; }
             public byte[] Data { get; set; }
             public int Id { get; set; }
         }
-        public class TestA
+        public class TestA : PacketBase
         {
             public int Id { get; set; }
             public int[] Ids { get; set; }
@@ -34,6 +35,7 @@ namespace SiMaySerializeTestApp
         }
         static void Main(string[] args)
         {
+            DynamicMethodMemberAccessor.FindClassAccessor(typeof(TestA));
             List<TestA> list = new List<TestA>();
             for (int i = 0; i < 5; i++)
             {

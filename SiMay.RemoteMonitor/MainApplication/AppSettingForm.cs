@@ -30,7 +30,7 @@ namespace SiMay.RemoteMonitor.MainApplication
             AppConfiguration.MaxConnectCount = int.Parse(connectLimitCount.Text);
             AppConfiguration.ConnectPassWord = conPwd.Text;
             AppConfiguration.DbClickViewExc = (funComboBox.Items[funComboBox.SelectedIndex] as KeyValueItem).Value;
-            AppConfiguration.WindowMaximize = maximizeCheckBox.Checked.ToString();
+            AppConfiguration.WindowMaximize = maximizeCheckBox.Checked;
             AppConfiguration.LockPassWord = pwdTextBox.Text;
             AppConfiguration.AccessKey = accessKey.Text;
             AppConfiguration.SessionMode = sessionModeList.SelectedIndex.ToString();
@@ -74,7 +74,7 @@ namespace SiMay.RemoteMonitor.MainApplication
             int index = int.Parse(AppConfiguration.SessionMode);
             sessionModeList.SelectedIndex = index;
 
-            if (Boolean.Parse(AppConfiguration.WindowMaximize))
+            if (AppConfiguration.WindowMaximize)
                 maximizeCheckBox.Checked = true;
             else
                 maximizeCheckBox.Checked = false;

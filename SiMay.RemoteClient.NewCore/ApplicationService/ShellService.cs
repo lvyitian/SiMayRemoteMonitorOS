@@ -1,24 +1,20 @@
 ﻿using SiMay.Core;
 using SiMay.Core.Extensions;
 using SiMay.Core.PacketModelBinder.Attributes;
-using SiMay.Core.PacketModelBinding;
-using SiMay.Core.Packets;
 using SiMay.ServiceCore.Attributes;
-using SiMay.ServiceCore.Extensions;
-using SiMay.Sockets.Tcp;
 using SiMay.Sockets.Tcp.Session;
 using System;
 using System.Diagnostics;
 using System.IO;
 
-namespace SiMay.ServiceCore.ApplicationService
+namespace SiMay.ServiceCore
 {
     [ServiceName("Shell管理")]
     [ServiceKey(AppJobConstant.REMOTE_SHELL)]
-    public class ShellService : ServiceManagerBase
+    public class ShellService : ApplicationRemoteService
     {
         private Process _pipe;
-        public override void SessionInitialized(TcpSocketSaeaSession session)
+        public override void SessionInited(TcpSocketSaeaSession session)
         {
             this.Init();
         }
@@ -55,7 +51,7 @@ namespace SiMay.ServiceCore.ApplicationService
         [PacketHandler(MessageHead.S_SHELL_INPUT)]
         public void StartCommand(TcpSocketSaeaSession session)
         {
-            byte[] payload = session.CompletedBuffer.GetMessagePayload();
+            byte[] payload = GetMessage(session);
             string command = payload.ToUnicodeString();
 
             _pipe.StandardInput.WriteLine(command);
@@ -66,14 +62,14 @@ namespace SiMay.ServiceCore.ApplicationService
         {
             if (outLine.Data == null)
                 return;
-            SendAsyncToServer(MessageHead.C_SHELL_RESULT, "\r\n" + outLine.Data + "\r\n");
+            SendTo(CurrentSession, MessageHead.C_SHELL_RESULT, "\r\n" + outLine.Data + "\r\n");
         }
 
         private void OutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
         {
             if (outLine.Data == null)
                 return;
-            SendAsyncToServer(MessageHead.C_SHELL_RESULT, "\r\n" + outLine.Data);
+            SendTo(CurrentSession, MessageHead.C_SHELL_RESULT, "\r\n" + outLine.Data);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SiMay.ReflectCache;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,63 +13,73 @@ namespace SiMay.Serialize
         private int _index = 0;
         private List<byte> _bytesArr = new List<byte>();
         public Encoding Encoding { get; set; } = Encoding.Unicode;
-        internal PacketDeserializeSetup(byte[] data, object @object)
+
+        internal PacketDeserializeSetup(byte[] data, object instance)
         {
+            IMemberAccessor memberAccessor = DynamicMethodMemberAccessor.FindClassAccessor(instance.GetType());
             this._bytesArr.AddRange(data);
-            this.ActionDeserialize(@object);
+            this.StartDeserialize(instance, memberAccessor);
             this._bytesArr.Clear();
         }
-        private void ActionDeserialize(object @object)
+        private void StartDeserialize(object instance, IMemberAccessor memberAccessor)
         {
-            var properties = @object.GetType().GetProperties();
+            var properties = instance.GetType().GetProperties();
             foreach (PropertyInfo property in properties)
             {
                 var type = property.PropertyType;
                 if (type.Equals(typeof(Boolean)))
-                    property.SetValue(@object, this.ReadBoolean(), null);
+                    memberAccessor.SetValue(instance, property.Name, this.ReadBoolean());
                 else if (type.Equals(typeof(Boolean[])))
-                    property.SetValue(@object, this.ReadArray(ReadBoolean), null);
+                    memberAccessor.SetValue(instance, property.Name, this.ReadArray(ReadBoolean));
                 else if (type.Equals(typeof(Byte)))
-                    property.SetValue(@object, this.ReadByte(), null);
+                    memberAccessor.SetValue(instance, property.Name, this.ReadByte());
                 else if (type.Equals(typeof(Byte[])))
-                    property.SetValue(@object, this.ReadBytes(), null);
+                    memberAccessor.SetValue(instance, property.Name, this.ReadBytes());
                 else if (type.Equals(typeof(Int16)))
-                    property.SetValue(@object, this.ReadInt16(), null);
+                    memberAccessor.SetValue(instance, property.Name, this.ReadInt16());
                 else if (type.Equals(typeof(Int16[])))
-                    property.SetValue(@object, this.ReadArray(ReadInt16), null);
+                    memberAccessor.SetValue(instance, property.Name, this.ReadArray(ReadInt16));
                 else if (type.Equals(typeof(Int32)))
-                    property.SetValue(@object, this.ReadInt32(), null);
+                    memberAccessor.SetValue(instance, property.Name, this.ReadInt32());
                 else if (type.Equals(typeof(Int32[])))
-                    property.SetValue(@object, this.ReadArray(ReadInt32), null);
+                    memberAccessor.SetValue(instance, property.Name, this.ReadArray(ReadInt32));
                 else if (type.Equals(typeof(Int64)))
-                    property.SetValue(@object, this.ReadInt64(), null);
+                    memberAccessor.SetValue(instance, property.Name, this.ReadInt64());
                 else if (type.Equals(typeof(Int64[])))
-                    property.SetValue(@object, this.ReadArray(ReadInt64), null);
+                    memberAccessor.SetValue(instance, property.Name, this.ReadArray(ReadInt64));
                 else if (type.Equals(typeof(String)))
-                    property.SetValue(@object, this.ReadString(), null);
+                    memberAccessor.SetValue(instance, property.Name, this.ReadString());
                 else if (type.Equals(typeof(String[])))
-                    property.SetValue(@object, this.ReadArray(ReadString), null);
+                    memberAccessor.SetValue(instance, property.Name, this.ReadArray(ReadString));
                 else if (type.Equals(typeof(Single)))
-                    property.SetValue(@object, this.ReadFloat(), null);
+                    memberAccessor.SetValue(instance, property.Name, this.ReadFloat());
                 else if (type.Equals(typeof(Single[])))
-                    property.SetValue(@object, this.ReadArray(ReadFloat), null);
+                    memberAccessor.SetValue(instance, property.Name, this.ReadArray(ReadFloat));
                 else if (type.Equals(typeof(Double)))
-                    property.SetValue(@object, this.ReadDouble(), null);
+                    memberAccessor.SetValue(instance, property.Name, this.ReadDouble());
                 else if (type.Equals(typeof(Double[])))
-                    property.SetValue(@object, this.ReadArray(ReadDouble), null);
+                    memberAccessor.SetValue(instance, property.Name, this.ReadArray(ReadDouble));
                 else if (type.Equals(typeof(DateTime)))
-                    property.SetValue(@object, this.ReadDateTime(), null);
+                    memberAccessor.SetValue(instance, property.Name, this.ReadDateTime());
                 else if (type.BaseType.Equals(typeof(Enum)))
-                    property.SetValue(@object, this.ReadEnum(property.PropertyType), null);
+                    memberAccessor.SetValue(instance, property.Name, this.ReadEnum(property.PropertyType));
                 else if (type.IsArray)
-                    property.SetValue(@object, this.ReadArray(property.PropertyType), null);
+                {
+                    if (type.GetElementType().IsValueType)
+                        throw new Exception("not supported this value array!");
+
+                    var elementType = type.GetElementType();
+                    var arrayMemberAccessor = memberAccessor.Type.Equals(elementType) ? memberAccessor : DynamicMethodMemberAccessor.FindClassAccessor(elementType);
+                    memberAccessor.SetValue(instance, property.Name, this.ReadArray(property.PropertyType, arrayMemberAccessor));
+                }
                 else
                 {
                     if (this.ReadInt32() == 1)
                     {
-                        var instance = Activator.CreateInstance(property.PropertyType);
-                        this.ActionDeserialize(instance);
-                        property.SetValue(@object, instance, null);
+                        var childerInstanceMemberAccessor = memberAccessor.Type.Equals(property.PropertyType) ? memberAccessor : DynamicMethodMemberAccessor.FindClassAccessor(property.PropertyType);
+                        var childerInstance = Activator.CreateInstance(property.PropertyType);
+                        this.StartDeserialize(childerInstance, childerInstanceMemberAccessor);
+                        childerInstanceMemberAccessor.SetValue(instance, property.Name, childerInstance);
                     }
                 }
             }
@@ -87,7 +98,7 @@ namespace SiMay.Serialize
             }
             return array;
         }
-        private Array ReadArray(Type type)
+        private Array ReadArray(Type type, IMemberAccessor memberAccessor)
         {
             int len = this.ReadInt32();
             if (len == -1)
@@ -96,9 +107,9 @@ namespace SiMay.Serialize
             var array = Array.CreateInstance(elementType, len);
             for (int i = 0; i < len; i++)
             {
-                var @object = Activator.CreateInstance(elementType);
-                this.ActionDeserialize(@object);
-                array.SetValue(@object, i);
+                var instance = Activator.CreateInstance(elementType);
+                this.StartDeserialize(instance, memberAccessor);
+                array.SetValue(instance, i);
             }
             return array;
         }
@@ -143,7 +154,7 @@ namespace SiMay.Serialize
         {
             long fileTime = this.ReadInt64();
             if (fileTime == 0)
-                return new DateTime();
+                return default;
             else
                 return DateTime.FromFileTime(fileTime);
         }

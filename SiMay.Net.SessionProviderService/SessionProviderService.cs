@@ -37,11 +37,11 @@ namespace SiMay.Net.SessionProviderService
 
         ImageList _log_imgList;
 
-        List<TcpChannelContext> _channelContexts = new List<TcpChannelContext>();
+        List<TcpSessionChannelContext> _channelContexts = new List<TcpSessionChannelContext>();
         TcpSocketSaeaServer _server;
 
-        TcpChannelContext _manager_channel;
-        int _managerchannel_login = 0;
+        TcpSessionChannelContext _manager_channel;
+        int _managerChannelLoginSign = 0;
 
         int _connectionCount = 0;
         private void SessionProviderService_Load(object sender, EventArgs e)
@@ -90,8 +90,8 @@ namespace SiMay.Net.SessionProviderService
                         }));
 
                         //创建通道上下文，等待确认通道类型
-                        TcpChannelContext context = new TcpChannelContext(session);
-                        context.OnChannelTypeNotify += Context_TcpAwaitnotifyProc;
+                        TcpSessionChannelContext context = new TcpSessionChannelContext(session);
+                        context.OnChannelTypeCheckEventHandler += Context_TcpAwaitnotifyProc;
 
                         _channelContexts.Add(context);
                         break;
@@ -101,7 +101,7 @@ namespace SiMay.Net.SessionProviderService
                     case TcpSocketCompletionNotify.OnDataReceiveing:
                         this._receiveTransferBytes += session.ReceiveBytesTransferred;
 
-                        ((TcpChannelContext)session.AppTokens[0]).OnMessage(session);
+                        ((TcpSessionChannelContext)session.AppTokens[0]).OnMessage(session);
                         break;
                     case TcpSocketCompletionNotify.OnClosed:
                         _connectionCount--;
@@ -223,9 +223,9 @@ namespace SiMay.Net.SessionProviderService
         }
         private void SessionClosed(TcpSocketSaeaSession session)
         {
-            var context = ((TcpChannelContext)session.AppTokens[0]);
+            var context = ((TcpSessionChannelContext)session.AppTokens[SysContact.INDEX_CHANNELCONTEXT]);
             context.OnClosed();
-            context.OnChannelTypeNotify -= Context_TcpAwaitnotifyProc;
+            context.OnChannelTypeCheckEventHandler -= Context_TcpAwaitnotifyProc;
             context.OnManagerChannelMessage -= Context_OnManagerChannelMessage;
             context.OnMainChannelMessage -= Context_OnMainChannelMessage;
 
@@ -235,8 +235,8 @@ namespace SiMay.Net.SessionProviderService
 
             if (context.ChannelType == TcpChannelContextServiceType.ManagerChannel)
             {
-                if (this._managerchannel_login > 0)
-                    Interlocked.Decrement(ref _managerchannel_login);
+                if (this._managerChannelLoginSign > 0)
+                    Interlocked.Decrement(ref _managerChannelLoginSign);
                 else
                     _manager_channel = null;
 
@@ -245,7 +245,7 @@ namespace SiMay.Net.SessionProviderService
             {
                 byte[] data = BitConverter.GetBytes(context.RemoteId);
 
-                if (this._managerchannel_login > 0)
+                if (this._managerChannelLoginSign > 0)
                     SendMessage(_manager_channel, MessageHelper.CommandCopyTo(MsgCommand.Msg_Close_Session, data));
             }
 
@@ -255,7 +255,7 @@ namespace SiMay.Net.SessionProviderService
             }
         }
 
-        private void RemoveChannelListViewItem(TcpChannelContext context)
+        private void RemoveChannelListViewItem(TcpSessionChannelContext context)
         {
             this.BeginInvoke(new Action(() =>
             {
@@ -271,7 +271,7 @@ namespace SiMay.Net.SessionProviderService
             }));
         }
 
-        private void AddChannelListViewItem(TcpChannelContext context)
+        private void AddChannelListViewItem(TcpSessionChannelContext context)
         {
             this.BeginInvoke(new Action(() =>
             {
@@ -283,7 +283,7 @@ namespace SiMay.Net.SessionProviderService
             }));
         }
 
-        private void Context_TcpAwaitnotifyProc(TcpChannelContext context, TcpChannelContextServiceType type)
+        private void Context_TcpAwaitnotifyProc(TcpSessionChannelContext context, TcpChannelContextServiceType type)
         {
             this.AddChannelListViewItem(context);
 
@@ -297,7 +297,7 @@ namespace SiMay.Net.SessionProviderService
                 case TcpChannelContextServiceType.WorkChannel:
 
                     //通知发起工作连接
-                    if (this._managerchannel_login > 0)
+                    if (this._managerChannelLoginSign > 0)
                         SendMessage(_manager_channel, MessageHelper.CommandCopyTo(MsgCommand.Msg_Connect_Work));
                     else
                     {
@@ -318,9 +318,9 @@ namespace SiMay.Net.SessionProviderService
             }
         }
 
-        private void MainChannelProcess(TcpChannelContext context)
+        private void MainChannelProcess(TcpSessionChannelContext context)
         {
-            if (this._managerchannel_login > 0)
+            if (this._managerChannelLoginSign > 0)
             {
                 //发送新上线会话的ID
                 byte[] data = BitConverter.GetBytes(context.Id);
@@ -330,10 +330,10 @@ namespace SiMay.Net.SessionProviderService
             context.OnMainChannelMessage += Context_OnMainChannelMessage;
         }
 
-        private void ManagerChannelProcess(TcpChannelContext context)
+        private void ManagerChannelProcess(TcpSessionChannelContext context)
         {
             //登出管理连接
-            if (_managerchannel_login > 0)
+            if (_managerChannelLoginSign > 0)
             {
                 //close所有mainContext
                 //while (this._channelContexts.Count < 1)
@@ -351,19 +351,19 @@ namespace SiMay.Net.SessionProviderService
                 LogShowQueueHelper.WriteLog("ManagerChannel LogOut");
             }
 
-            Interlocked.Increment(ref _managerchannel_login);
+            Interlocked.Increment(ref _managerChannelLoginSign);
 
             if (_manager_channel != null)
             {
                 _manager_channel.OnManagerChannelMessage -= Context_OnManagerChannelMessage;
-                _manager_channel.OnChannelTypeNotify -= Context_TcpAwaitnotifyProc;
+                _manager_channel.OnChannelTypeCheckEventHandler -= Context_TcpAwaitnotifyProc;
             }
 
             _manager_channel = context;
             context.OnManagerChannelMessage += Context_OnManagerChannelMessage;
         }
 
-        private void Context_OnManagerChannelMessage(TcpChannelContext context, byte[] data)
+        private void Context_OnManagerChannelMessage(TcpSessionChannelContext context, byte[] data)
         {
 
             MsgCommand msg = (MsgCommand)data[0];
@@ -386,16 +386,16 @@ namespace SiMay.Net.SessionProviderService
             }
         }
 
-        private void Context_OnMainChannelMessage(TcpChannelContext context, byte[] data)
+        private void Context_OnMainChannelMessage(TcpSessionChannelContext context, byte[] data)
         {
-            if (this._managerchannel_login == 0) return;
+            if (this._managerChannelLoginSign == 0) return;
 
             byte[] bytes = new byte[sizeof(Int64) + data.Length];
             BitConverter.GetBytes(context.RemoteId).CopyTo(bytes, 0);
             data.CopyTo(bytes, sizeof(Int64));
 
             //MainChannel的数据封装代理协议发送出去
-            if (this._managerchannel_login > 0)
+            if (this._managerChannelLoginSign > 0)
                 SendMessage(_manager_channel, MessageHelper.CommandCopyTo(MsgCommand.Msg_MessageData, bytes));
         }
 
@@ -409,7 +409,7 @@ namespace SiMay.Net.SessionProviderService
             Console.WriteLine("ProcessSendMessage:" + id);
             GCHandle gc = GCHandle.FromIntPtr(new IntPtr(id));
             Console.WriteLine("ProcessSendMessage OK");
-            TcpChannelContext context = gc.Target as TcpChannelContext;
+            TcpSessionChannelContext context = gc.Target as TcpSessionChannelContext;
 
             if (context == null)
                 return;
@@ -424,7 +424,7 @@ namespace SiMay.Net.SessionProviderService
             Console.WriteLine("CloseSession:" + id);
             GCHandle gc = GCHandle.FromIntPtr(new IntPtr(id));
             Console.WriteLine("CloseSession OK");
-            TcpChannelContext target_context = gc.Target as TcpChannelContext;
+            TcpSessionChannelContext target_context = gc.Target as TcpSessionChannelContext;
 
             if (target_context == null)
                 return;
@@ -433,7 +433,7 @@ namespace SiMay.Net.SessionProviderService
 
         }
 
-        private void SetSessionId(TcpChannelContext context, byte[] data)
+        private void SetSessionId(TcpSessionChannelContext context, byte[] data)
         {
             byte[] body = new byte[data.Length - 1];
             Array.Copy(data, 1, body, 0, body.Length);
@@ -452,7 +452,7 @@ namespace SiMay.Net.SessionProviderService
 
                     LogShowQueueHelper.WriteLog("DEBUG SetSessionId OK");
 
-                    TcpChannelContext target_context = gc.Target as TcpChannelContext;
+                    TcpSessionChannelContext target_context = gc.Target as TcpSessionChannelContext;
                     id = BitConverter.ToInt64(sessionItems, sizeof(Int64));
 
                     LogShowQueueHelper.WriteLog("DEBUG SetSessionId RmoteId:" + id);
@@ -460,18 +460,18 @@ namespace SiMay.Net.SessionProviderService
                     //关联控制端SessionId
                     target_context.RemoteId = id;
 
-                    byte[] ack = target_context.AckPack;
+                    byte[] ack = target_context.AckPacketData;
 
                     byte[] ackPack = new byte[ack.Length + sizeof(Int64)];
                     BitConverter.GetBytes(id).CopyTo(ackPack, 0);
                     ack.CopyTo(ackPack, sizeof(Int64));
 
                     //发送应用层连接确认报(连接密码等信息)
-                    if (this._managerchannel_login > 0)
+                    if (this._managerChannelLoginSign > 0)
                         SendMessage(_manager_channel, MessageHelper.CommandCopyTo(MsgCommand.Msg_MessageData, ackPack));
                 }
 
-                if (this._managerchannel_login > 0)
+                if (this._managerChannelLoginSign > 0)
                     LogShowQueueHelper.WriteLog("Set SessionId SessionCount:" + body.Length / (sizeof(Int64) * 2));
             }
             catch (Exception e)
@@ -481,10 +481,10 @@ namespace SiMay.Net.SessionProviderService
 
 
         }
-        private void ProcessPullMainChannel(TcpChannelContext context)
+        private void ProcessPullMainChannel(TcpSessionChannelContext context)
         {
             //查找所有MainChannel
-            List<TcpChannelContext> contexts = _channelContexts.Where(x => x.ChannelType == TcpChannelContextServiceType.MainChannel).ToList();
+            List<TcpSessionChannelContext> contexts = _channelContexts.Where(x => x.ChannelType == TcpChannelContextServiceType.MainChannel).ToList();
             byte[] data = new byte[contexts.Count * sizeof(Int64)];
             for (int i = 0; i < contexts.Count; i++)
             {
@@ -492,24 +492,24 @@ namespace SiMay.Net.SessionProviderService
                 Console.WriteLine("ProcessPullMainChannel:" + contexts[i].Id);
             }
 
-            if (_managerchannel_login > 0)
+            if (_managerChannelLoginSign > 0)
             {
                 SendMessage(_manager_channel, MessageHelper.CommandCopyTo(MsgCommand.Msg_Set_Session, data));
                 LogShowQueueHelper.WriteLog("Get Session SessionCount:" + contexts.Count);
             }
         }
 
-        private void JoinWorkChannelContext(TcpChannelContext context)
+        private void JoinWorkChannelContext(TcpSessionChannelContext context)
         {
             //查找没有关联过的WorkChannel
-            TcpChannelContext workContext = _channelContexts.Find(x => x.ChannelType == TcpChannelContextServiceType.WorkChannel && !x.IsJoin);
+            TcpSessionChannelContext workContext = _channelContexts.Find(x => x.ChannelType == TcpChannelContextServiceType.WorkChannel && !x.IsJoin);
             if (workContext != null)
             {
                 workContext.WorkChannelJoinContext(context.Session, context.GetBuffer);
 
                 //关联完成，释放资源
-                context.OnChannelTypeNotify -= Context_TcpAwaitnotifyProc;
-                context.DisposeContext();
+                context.OnChannelTypeCheckEventHandler -= Context_TcpAwaitnotifyProc;
+                context.OnClosed();
 
                 this._channelContexts.Remove(context);
                 this.RemoveChannelListViewItem(context);
@@ -521,7 +521,7 @@ namespace SiMay.Net.SessionProviderService
             }
         }
 
-        private void SendMessage(TcpChannelContext context, byte[] data)
+        private void SendMessage(TcpSessionChannelContext context, byte[] data)
         {
             byte[] body = new byte[sizeof(Int32) + data.Length];
             BitConverter.GetBytes(data.Length).CopyTo(body, 0);

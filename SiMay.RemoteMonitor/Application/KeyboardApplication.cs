@@ -37,12 +37,12 @@ namespace SiMay.RemoteMonitor.Application
             this.Show();
         }
 
-        public void SessionClose(AdapterHandlerBase handler)
+        public void SessionClose(ApplicationAdapterHandler handler)
         {
             this.Text = _title + " [" + this.KeyboardAdapterHandler.StateContext.ToString() + "]";
         }
 
-        public void ContinueTask(AdapterHandlerBase handler)
+        public void ContinueTask(ApplicationAdapterHandler handler)
         {
             this.Text = _title;
         }
@@ -116,7 +116,7 @@ namespace SiMay.RemoteMonitor.Application
         {
             this.KeyboardAdapterHandler.OnKeyboardDataEventHandler -= OnKeyboardDataEventHandler;
             this.KeyboardAdapterHandler.OnOffLineKeyboradEventHandler -= OnOffLineKeyboradEventHandler;
-            this.KeyboardAdapterHandler.CloseHandler();
+            this.KeyboardAdapterHandler.CloseSession();
         }
     }
 }

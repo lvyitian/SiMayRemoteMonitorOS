@@ -26,13 +26,13 @@ namespace SiMay.RemoteMonitor.Application
             {
                 this.Text = "Edit DWORD (32-bit) Value";
                 this.valueDataTxtBox.Type = WordType.DWORD;
-                this.valueDataTxtBox.Text = ByteConverter.ToUInt32(value.Data).ToString("x");
+                this.valueDataTxtBox.Text = ByteConverterHelper.ToUInt32(value.Data).ToString("x");
             }
             else 
             {
                 this.Text = "Edit QWORD (64-bit) Value";
                 this.valueDataTxtBox.Type = WordType.QWORD;
-                this.valueDataTxtBox.Text = ByteConverter.ToUInt64(value.Data).ToString("x");
+                this.valueDataTxtBox.Text = ByteConverterHelper.ToUInt64(value.Data).ToString("x");
             }
         }
 
@@ -52,8 +52,8 @@ namespace SiMay.RemoteMonitor.Application
             if (valueDataTxtBox.IsConversionValid() || IsOverridePossible())
             {
                 _value.Data = _value.Kind == RegistryValueKind.DWord
-                    ? ByteConverter.GetBytes(valueDataTxtBox.UIntValue)
-                    : ByteConverter.GetBytes(valueDataTxtBox.ULongValue);
+                    ? ByteConverterHelper.GetBytes(valueDataTxtBox.UIntValue)
+                    : ByteConverterHelper.GetBytes(valueDataTxtBox.ULongValue);
                 this.Tag = _value;
                 this.DialogResult = DialogResult.OK;
             }

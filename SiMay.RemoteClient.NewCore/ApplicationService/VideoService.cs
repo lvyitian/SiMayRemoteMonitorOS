@@ -13,17 +13,17 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Threading;
 
-namespace SiMay.ServiceCore.ApplicationService
+namespace SiMay.ServiceCore
 {
     [ServiceName("远程监控摄像头")]
     [ServiceKey(AppJobConstant.REMOTE_VIDEO)]
-    public class VideoService : ServiceManagerBase
+    public class VideoService : ApplicationRemoteService
     {
         private int qty = 30;
         private bool isOpen = false;
         private AForgeViedo av;
 
-        public override void SessionInitialized(TcpSocketSaeaSession session)
+        public override void SessionInited(TcpSocketSaeaSession session)
         {
             this.Init();
         }
@@ -43,7 +43,7 @@ namespace SiMay.ServiceCore.ApplicationService
                 av = new AForgeViedo();
                 if (!av.Init())
                 {
-                    SendAsyncToServer(MessageHead.C_VIEDO_DEVICE_NOTEXIST);
+                    SendTo(CurrentSession, MessageHead.C_VIEDO_DEVICE_NOTEXIST);
                     return;
                 }
 
@@ -53,7 +53,7 @@ namespace SiMay.ServiceCore.ApplicationService
             }
             catch
             {
-                SendAsyncToServer(MessageHead.C_VIEDO_DEVICE_NOTEXIST);
+                SendTo(CurrentSession, MessageHead.C_VIEDO_DEVICE_NOTEXIST);
             }
         }
 
@@ -71,10 +71,9 @@ namespace SiMay.ServiceCore.ApplicationService
             try
             {
                 int j = 0;
-                while (true) //尝试10次无数据则未成功打开摄像头
+                while ((j++) <= 10) //尝试10次无数据则未成功打开摄像头
                 {
-                    j++;
-                    Bitmap value = av.GetBitmap();
+                    Bitmap value = av.GetFrame();
                     if (value != null)
                     {
                         byte[] data = KiSaveAsJPEG(value, qty); //清晰度 15
@@ -83,10 +82,8 @@ namespace SiMay.ServiceCore.ApplicationService
                             return data;
                     }
                     Thread.Sleep(1000);
-
-                    if (j == 10)
-                        return null;
                 }
+                return null;
             }
             catch
             {
@@ -97,7 +94,7 @@ namespace SiMay.ServiceCore.ApplicationService
         [PacketHandler(MessageHead.S_VIEDO_RESET)]
         public void SetBitQuality(TcpSocketSaeaSession session)
         {
-            switch (session.CompletedBuffer.GetMessagePayload()[0])
+            switch (GetMessage(session)[0])
             {
                 case 3:
                     qty = 90;
@@ -131,7 +128,7 @@ namespace SiMay.ServiceCore.ApplicationService
                 return;
             }
 
-            SendAsyncToServer(MessageHead.C_VIEDO_DATA, data);
+            SendTo(CurrentSession, MessageHead.C_VIEDO_DATA, data);
         }
 
 

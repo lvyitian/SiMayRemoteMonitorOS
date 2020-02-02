@@ -5,7 +5,6 @@ using SiMay.Core.Enums;
 using SiMay.Core.Packets;
 using SiMay.RemoteControlsCore;
 using SiMay.RemoteControlsCore.HandlerAdapters;
-using SiMay.RemoteControlsCore.Interface;
 using SiMay.RemoteMonitor.Application.FileCommon;
 using SiMay.RemoteMonitor.Attributes;
 using SiMay.RemoteMonitor.Enums;
@@ -62,12 +61,12 @@ namespace SiMay.RemoteMonitor.Application
             this.Show();
         }
 
-        public void SessionClose(AdapterHandlerBase handler)
+        public void SessionClose(ApplicationAdapterHandler handler)
         {
             this.Text = this._title + " [" + this.RemoteFileAdapterHandler.StateContext.ToString() + "]";
         }
 
-        public void ContinueTask(AdapterHandlerBase handler)
+        public void ContinueTask(ApplicationAdapterHandler handler)
         {
             this.Text = this._title;
         }
@@ -257,7 +256,7 @@ namespace SiMay.RemoteMonitor.Application
             this.RemoteFileAdapterHandler.OnFileTransferProgressEventHandler -= OnFileTransferProgressEventHandler;
             this.RemoteFileAdapterHandler.OnDirectoryCreateFinishEventHandler -= OnDirectoryCreateFinishEventHandler;
             this.RemoteFileAdapterHandler.OnFileTreeItemsEventHandler -= OnFileTreeItemsEventHandler;
-            this.RemoteFileAdapterHandler.CloseHandler();
+            this.RemoteFileAdapterHandler.CloseSession();
         }
 
         private void 打开ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -582,7 +581,7 @@ namespace SiMay.RemoteMonitor.Application
                 }
                 if (this._transferMode == TransferMode.Cancel ||//选择取消传输
                     this.RemoteFileAdapterHandler.TransferTaskFlage == TransferTaskFlage.Abort ||//终止传输信号
-                    this.RemoteFileAdapterHandler.IsClose)//关闭应用
+                    this.RemoteFileAdapterHandler.WhetherClose)//关闭应用
                     break;
             }
             this.downloadMenuItem.Enabled = true;
@@ -717,7 +716,7 @@ namespace SiMay.RemoteMonitor.Application
 
         private void OnFileTransferProgressEventHandler(RemoteFileAdapterHandler adapterHandler, FileTransferFlag state, string fileName, long position, long fileSize)
         {
-            if (this.RemoteFileAdapterHandler.IsClose)//UI未关闭时才允许操作控件
+            if (this.RemoteFileAdapterHandler.WhetherClose)//UI未关闭时才允许操作控件
                 return;
 
             switch (state)

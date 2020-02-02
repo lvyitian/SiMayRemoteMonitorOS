@@ -44,12 +44,12 @@ namespace SiMay.RemoteMonitor.Application
             this.Show();
         }
 
-        public void SessionClose(AdapterHandlerBase handler)
+        public void SessionClose(ApplicationAdapterHandler handler)
         {
             this.Text = this._title + " [" + this.RegistryEditorAdapterHandler.StateContext.ToString() + "]";
         }
 
-        public void ContinueTask(AdapterHandlerBase handler)
+        public void ContinueTask(ApplicationAdapterHandler handler)
         {
             this.Text = this._title;
         }
@@ -80,7 +80,7 @@ namespace SiMay.RemoteMonitor.Application
             this.RegistryEditorAdapterHandler.OnValueDeletedEventHandler -= OnValueDeletedEventHandler;
             this.RegistryEditorAdapterHandler.OnValueRenamedEventHandler -= OnValueRenamedEventHandler;
             this.RegistryEditorAdapterHandler.OnValueChangedEventHandler -= OnValueChangedEventHandler;
-            this.RegistryEditorAdapterHandler.CloseHandler();
+            this.RegistryEditorAdapterHandler.CloseSession();
         }
 
         private void ShowErrorMessage(object sender, string errorMsg)

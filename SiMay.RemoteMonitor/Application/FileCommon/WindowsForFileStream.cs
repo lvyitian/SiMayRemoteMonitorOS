@@ -1,4 +1,4 @@
-﻿using SiMay.RemoteControlsCore.Interface;
+﻿using SiMay.RemoteControlsCore;
 using System;
 using System.Collections.Generic;
 using System.IO;

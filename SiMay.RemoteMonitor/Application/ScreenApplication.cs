@@ -70,13 +70,13 @@ namespace SiMay.RemoteMonitor.Application
             this.Show();
         }
 
-        public void SessionClose(AdapterHandlerBase handler)
+        public void SessionClose(ApplicationAdapterHandler handler)
         {
             _timer.Stop();
             this.Text = this._title.FormatTo(0, (_traffic / (float)1024).ToString("0.00")) + " [" + this.RemoteScreenAdapterHandler.StateContext.ToString() + "]";
         }
 
-        public void ContinueTask(AdapterHandlerBase handler)
+        public void ContinueTask(ApplicationAdapterHandler handler)
         {
             _continueTask = true;
             _timer.Start();
@@ -120,7 +120,6 @@ namespace SiMay.RemoteMonitor.Application
             _timer.Start();
 
             this.Text = string.Format(this._title = this._title.Replace("#Name#", this.RemoteScreenAdapterHandler.OriginName), "0", "0.0");
-            this.RemoteScreenAdapterHandler.Session.Socket.NoDelay = false;
             this.RemoteScreenAdapterHandler.OnClipoardReceivedEventHandler += OnClipoardReceivedEventHandler;
             this.RemoteScreenAdapterHandler.OnServcieInitEventHandler += OnServcieInitEventHandler;
             this.RemoteScreenAdapterHandler.OnScreenFragmentEventHandler += OnScreenFragmentEventHandler;
@@ -357,7 +356,7 @@ namespace SiMay.RemoteMonitor.Application
 
         private void DisplayScreen(Image bit, Rectangle rect)
         {
-            if (this.RemoteScreenAdapterHandler.IsClose)
+            if (this.RemoteScreenAdapterHandler.WhetherClose)
                 return;
 
             Graphics g = Graphics.FromImage(_image);
@@ -462,7 +461,7 @@ namespace SiMay.RemoteMonitor.Application
             this.RemoteScreenAdapterHandler.OnClipoardReceivedEventHandler -= OnClipoardReceivedEventHandler;
             this.RemoteScreenAdapterHandler.OnServcieInitEventHandler -= OnServcieInitEventHandler;
             this.RemoteScreenAdapterHandler.OnScreenFragmentEventHandler -= OnScreenFragmentEventHandler;
-            this.RemoteScreenAdapterHandler.CloseHandler();
+            this.RemoteScreenAdapterHandler.CloseSession();
         }
 
         private void m_desktop_MouseMove(object sender, MouseEventArgs e)

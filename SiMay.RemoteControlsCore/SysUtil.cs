@@ -27,7 +27,7 @@ namespace SiMay.RemoteControlsCore
                 .Select(t => new ApplicationItem()
                 {
                     Rank = t.GetRank(),
-                    ApplicationKey = t.GetAppKey() ?? throw new Exception(t.Name + ":The AppKey cannot be empty!"),
+                    ApplicationKey = t.GetApplicationKey() ?? throw new Exception(t.Name + ":The AppKey cannot be empty!"),
                     Type = t
                 })
                 .ToList();

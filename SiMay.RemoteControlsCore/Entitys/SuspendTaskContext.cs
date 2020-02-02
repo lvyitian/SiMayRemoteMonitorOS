@@ -8,6 +8,6 @@ namespace SiMay.RemoteControlsCore
     public class SuspendTaskContext
     {
         public DateTime DisconnectTime { get; set; }
-        public AdapterHandlerBase AdapterHandler { get; set; }
+        public ApplicationAdapterHandler AdapterHandler { get; set; }
     }
 }

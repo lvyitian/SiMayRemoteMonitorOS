@@ -31,12 +31,12 @@ namespace SiMay.RemoteMonitor.Application
             this.Show();
         }
 
-        public void SessionClose(AdapterHandlerBase handler)
+        public void SessionClose(ApplicationAdapterHandler handler)
         {
             this.Text = _title + " [" + this.ShellAdapterHandler.StateContext.ToString() + "]";
         }
 
-        public void ContinueTask(AdapterHandlerBase handler)
+        public void ContinueTask(ApplicationAdapterHandler handler)
         {
             this.Text = _title;
         }
@@ -67,7 +67,7 @@ namespace SiMay.RemoteMonitor.Application
         private void ShellForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             this.ShellAdapterHandler.OnOutputCommandEventHandler -= OnOutputCommandEventHandler;
-            this.ShellAdapterHandler.CloseHandler();
+            this.ShellAdapterHandler.CloseSession();
         }
 
         private void textBox1_KeyPress(object sender, KeyPressEventArgs e)

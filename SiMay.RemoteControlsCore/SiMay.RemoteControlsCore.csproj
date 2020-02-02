@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SiMay.RemoteControlsCore</RootNamespace>
     <AssemblyName>SiMay.RemoteControlsCore</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
@@ -46,8 +46,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdapterHandlerBase\MainApplicationAdapterHandler.cs" />
+    <Compile Include="AdapterHandlerBase\ApplicationProtocolAdapterHandler.cs" />
     <Compile Include="AppConfiguration.cs" />
-    <Compile Include="AppMainAdapterHandler.cs" />
+    <Compile Include="MainApplicationAdapterHandler.cs" />
     <Compile Include="Attributes\Application.cs" />
     <Compile Include="Attributes\ApplicationAdapterHandler.cs" />
     <Compile Include="Attributes\Disable.cs" />
@@ -61,25 +63,23 @@
     <Compile Include="Enum\TransferMode.cs" />
     <Compile Include="Enum\TransferTaskFlage.cs" />
     <Compile Include="Extension\AppTypeExtension.cs" />
-    <Compile Include="HandlerAdapters\AdapterHandlerBase.cs" />
-    <Compile Include="HandlerAdapters\AudioAdapterHandler.cs" />
-    <Compile Include="HandlerAdapters\FileCommon\AwaitAutoResetEvent.cs" />
-    <Compile Include="HandlerAdapters\KeyboardAdapterHandler.cs" />
-    <Compile Include="HandlerAdapters\RegistryEditorAdapterHandler.cs" />
-    <Compile Include="HandlerAdapters\RemoteFileAdapterHandler.cs" />
-    <Compile Include="HandlerAdapters\RemoteScreenAdapterHandler.cs" />
-    <Compile Include="HandlerAdapters\ShellAdapterHandler.cs" />
-    <Compile Include="HandlerAdapters\StartupAdapterHandler.cs" />
-    <Compile Include="HandlerAdapters\SystemAdapterHandler.cs" />
-    <Compile Include="HandlerAdapters\TcpConnectionAdapterHandler.cs" />
-    <Compile Include="HandlerAdapters\VideoAppAdapterHandler.cs" />
-    <Compile Include="Helper\ServiceCOMHelper.cs" />
+    <Compile Include="AdapterHandlerBase\ApplicationAdapterHandler.cs" />
+    <Compile Include="ApplicationAdapterHandler\AudioAdapterHandler.cs" />
+    <Compile Include="ApplicationAdapterHandler\FileCommon\AwaitAutoResetEvent.cs" />
+    <Compile Include="ApplicationAdapterHandler\KeyboardAdapterHandler.cs" />
+    <Compile Include="ApplicationAdapterHandler\RegistryEditorAdapterHandler.cs" />
+    <Compile Include="ApplicationAdapterHandler\RemoteFileAdapterHandler.cs" />
+    <Compile Include="ApplicationAdapterHandler\RemoteScreenAdapterHandler.cs" />
+    <Compile Include="ApplicationAdapterHandler\ShellAdapterHandler.cs" />
+    <Compile Include="ApplicationAdapterHandler\StartupAdapterHandler.cs" />
+    <Compile Include="ApplicationAdapterHandler\SystemAdapterHandler.cs" />
+    <Compile Include="ApplicationAdapterHandler\TcpConnectionAdapterHandler.cs" />
+    <Compile Include="ApplicationAdapterHandler\VideoAppAdapterHandler.cs" />
     <Compile Include="Interface\IApplication.cs" />
     <Compile Include="Interface\IDesktopView.cs" />
     <Compile Include="Enum\LogSeverityLevel.cs" />
     <Compile Include="Interface\IFileStream.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ResetPool.cs" />
     <Compile Include="SysConstants.cs" />
     <Compile Include="SysUtil.cs" />
   </ItemGroup>

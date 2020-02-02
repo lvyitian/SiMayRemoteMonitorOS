@@ -44,12 +44,12 @@ namespace SiMay.RemoteMonitor.Application
             this.Show();
         }
 
-        public void SessionClose(AdapterHandlerBase handler)
+        public void SessionClose(ApplicationAdapterHandler handler)
         {
             this.Text = this._title + " [" + this.AudioAdapterHandler.StateContext.ToString() + "]";
         }
 
-        public void ContinueTask(AdapterHandlerBase handler)
+        public void ContinueTask(ApplicationAdapterHandler handler)
         {
             this.Text = this._title;
         }
@@ -115,9 +115,9 @@ namespace SiMay.RemoteMonitor.Application
 
         private void Initialize()
         {
-            int samplesPerSecond = int.Parse(AppConfiguration.AudioSamplesPerSecond);
-            int bitsPerSample = int.Parse(AppConfiguration.AudioBitsPerSample);
-            int channels = int.Parse(AppConfiguration.AudioChannels);
+            int samplesPerSecond = AppConfiguration.AudioSamplesPerSecond;
+            int bitsPerSample = AppConfiguration.AudioBitsPerSample;
+            int channels = AppConfiguration.AudioChannels;
 
             string waveOutDeviceName = WinSound.GetWaveOutDeviceNames().Count > 0 ? WinSound.GetWaveOutDeviceNames()[0] : null;
 
@@ -175,7 +175,7 @@ namespace SiMay.RemoteMonitor.Application
             this._isRun = false;
             this.AudioAdapterHandler.OnOpenDeviceStatusEventHandler -= OnOpenDeviceStatusEventHandler;
             this.AudioAdapterHandler.OnPlayerEventHandler -= OnPlayerEventHandler;
-            this.AudioAdapterHandler.CloseHandler();
+            this.AudioAdapterHandler.CloseSession();
         }
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)

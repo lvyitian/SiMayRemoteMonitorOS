@@ -4,7 +4,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 
-namespace SiMay.ServiceCore.ApplicationService
+namespace SiMay.ServiceCore
 {
 
     public class AForgeViedo
@@ -12,7 +12,7 @@ namespace SiMay.ServiceCore.ApplicationService
         private VideoCaptureDevice videoSource;
         private Bitmap _img;
 
-        public Bitmap GetBitmap()
+        public Bitmap GetFrame()
         {
             return _img;
         }
@@ -43,7 +43,7 @@ namespace SiMay.ServiceCore.ApplicationService
         {
             try
             {
-                _img = (Bitmap)eventArgs.Frame.Clone(new Rectangle(0, 0,eventArgs.Frame.Width, eventArgs.Frame.Height), PixelFormat.Format16bppRgb555);
+                _img = eventArgs.Frame.Clone(new Rectangle(0, 0,eventArgs.Frame.Width, eventArgs.Frame.Height), PixelFormat.Format16bppRgb555);
 
                 GC.Collect();
             }

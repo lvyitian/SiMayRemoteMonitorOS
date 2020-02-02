@@ -131,17 +131,17 @@ namespace SiMay.Core.Common
                         newRegValue.Data = (byte[]) value;
                         break;
                     case RegistryValueKind.MultiString:
-                        newRegValue.Data = ByteConverter.GetBytes((string[]) value);
+                        newRegValue.Data = ByteConverterHelper.GetBytes((string[]) value);
                         break;
                     case RegistryValueKind.DWord:
-                        newRegValue.Data = ByteConverter.GetBytes((uint) (int) value);
+                        newRegValue.Data = ByteConverterHelper.GetBytes((uint) (int) value);
                         break;
                     case RegistryValueKind.QWord:
-                        newRegValue.Data = ByteConverter.GetBytes((ulong) (long) value);
+                        newRegValue.Data = ByteConverterHelper.GetBytes((ulong) (long) value);
                         break;
                     case RegistryValueKind.String:
                     case RegistryValueKind.ExpandString:
-                        newRegValue.Data = ByteConverter.GetBytes((string) value);
+                        newRegValue.Data = ByteConverterHelper.GetBytes((string) value);
                         break;
                 }
             }

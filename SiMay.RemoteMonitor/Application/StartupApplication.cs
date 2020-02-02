@@ -36,12 +36,12 @@ namespace SiMay.RemoteMonitor.Application
             this.Show();
         }
 
-        public void SessionClose(AdapterHandlerBase handler)
+        public void SessionClose(ApplicationAdapterHandler handler)
         {
             this.Text = _title + " [" + this.StartupAdapterHandler.StateContext.ToString() + "]";
         }
 
-        public void ContinueTask(AdapterHandlerBase handler)
+        public void ContinueTask(ApplicationAdapterHandler handler)
         {
             this.Text = _title;
         }
@@ -110,7 +110,7 @@ namespace SiMay.RemoteMonitor.Application
         private void StartupManager_FormClosing(object sender, FormClosingEventArgs e)
         {
             this.StartupAdapterHandler.OnStartupItemHandlerEvent -= OnStartupItemHandlerEvent;
-            this.StartupAdapterHandler.CloseHandler();
+            this.StartupAdapterHandler.CloseSession();
         }
     }
 }

@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiMay.Serialize", "SiMay.Se
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiMaySerializeTestApp", "SiMaySerializeTestApp\SiMaySerializeTestApp.csproj", "{84A4241A-3773-4B84-868F-9573FFF7F161}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiMaySerializeTestApp2", "..\SiMaySerializeTestApp2\SiMaySerializeTestApp2.csproj", "{263A26F1-5235-4EA5-B2D6-ADF219A07CD2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{84A4241A-3773-4B84-868F-9573FFF7F161}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{84A4241A-3773-4B84-868F-9573FFF7F161}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{84A4241A-3773-4B84-868F-9573FFF7F161}.Release|Any CPU.Build.0 = Release|Any CPU
+		{263A26F1-5235-4EA5-B2D6-ADF219A07CD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{263A26F1-5235-4EA5-B2D6-ADF219A07CD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{263A26F1-5235-4EA5-B2D6-ADF219A07CD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{263A26F1-5235-4EA5-B2D6-ADF219A07CD2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -33,11 +33,11 @@ namespace SiMay.RemoteMonitor.Application
             => this.Show();
 
 
-        public void SessionClose(AdapterHandlerBase handler)
+        public void SessionClose(ApplicationAdapterHandler handler)
             => this.Text = _title + " [" + VideoAppAdapterHandler.StateContext.ToString() + "]";
 
 
-        public void ContinueTask(AdapterHandlerBase handler)
+        public void ContinueTask(ApplicationAdapterHandler handler)
         {
             this.Text = _title;
             VideoAppAdapterHandler.StartGetFrame();
@@ -143,7 +143,7 @@ namespace SiMay.RemoteMonitor.Application
         {
             VideoAppAdapterHandler.OnImageFrameHandlerEvent -= OnImageFrameHandlerEvent;
             VideoAppAdapterHandler.OnCameraNotStartupHandlerEvent -= OnCameraNotStartupHandlerEvent;
-            VideoAppAdapterHandler.CloseHandler();
+            VideoAppAdapterHandler.CloseSession();
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using SiMay.Basic;
-using SiMay.ServiceCore.ApplicationService;
 using SiMay.ServiceCore.Extensions;
 using SiMay.ServiceCore.MainService;
 using System;
@@ -13,29 +12,24 @@ namespace SiMay.ServiceCore
 {
     public class SysUtil
     {
-        public class ServiceTypeContext
+        public class ServiceTypeItem
         {
             public string ServiceKey { get; set; }
             public Type AppServiceType { get; set; }
         }
-        public static List<ServiceTypeContext> ControlTypes { get; set; }
+        public static List<ServiceTypeItem> ControlTypes { get; set; }
         static SysUtil()
         {
-            List<ServiceTypeContext> controlTypes = new List<ServiceTypeContext>();
-            var types = Assembly.GetExecutingAssembly().GetTypes();
-            foreach (var type in types)
-            {
-                if (typeof(ServiceManagerBase).IsAssignableFrom(type) && type.IsSubclassOf(typeof(ServiceManagerBase)) && type.IsClass)
+            ControlTypes = AppDomain.CurrentDomain
+                .GetAssemblies()
+                .SelectMany(a => a.GetTypes())
+                .Where(type => typeof(ApplicationRemoteService).IsAssignableFrom(type) && type.IsSubclassOf(typeof(ApplicationRemoteService)) && type.IsClass)
+                .Select(type => new ServiceTypeItem()
                 {
-                    var context = new ServiceTypeContext()
-                    {
-                        ServiceKey = type.GetServiceKey() ?? throw new Exception(type.Name + ":The serviceKey cannot be empty!"),
-                        AppServiceType = type
-                    };
-                    controlTypes.Add(context);
-                }
-            }
-            ControlTypes = controlTypes;
+                    ServiceKey = type.GetServiceKey() ?? throw new Exception(type.Name + ":The serviceKey cannot be empty!"),
+                    AppServiceType = type
+                })
+                .ToList();
         }
     }
 
@@ -51,7 +45,7 @@ namespace SiMay.ServiceCore
             exitMenu.MouseDown += (s, e) =>
             {
                 if (MessageBox.Show("确认退出服务吗?", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) == DialogResult.OK)
-                    ComputerSessionHelper.SessionManager(ComputerSessionHelper.UNSTALL);//退出
+                    SystemSessionHelper.SetSessionStatus(SystemSessionHelper.UNSTALL);//退出
             };
             var aboutMenu = new ToolStripMenuItem("关于服务");
             aboutMenu.MouseDown += (s, e) =>

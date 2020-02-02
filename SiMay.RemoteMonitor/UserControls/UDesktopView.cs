@@ -34,7 +34,7 @@ namespace SiMay.RemoteMonitor.UserControls
         }
 
         public SessionSyncContext SessionSyncContext { get; set; }
-        public bool InVisbleArea { get; set; }
+        public bool InVisbleArea { get; set; } = true;
 
         private void img_DoubleClick(object sender, EventArgs e)
         {

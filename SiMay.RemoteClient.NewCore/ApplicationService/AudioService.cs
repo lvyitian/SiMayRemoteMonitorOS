@@ -2,24 +2,25 @@
 using SiMay.Core;
 using SiMay.Core.Extensions;
 using SiMay.Core.PacketModelBinder.Attributes;
-using SiMay.Core.PacketModelBinding;
 using SiMay.Core.Packets;
 using SiMay.ServiceCore.Attributes;
-using SiMay.ServiceCore.Extensions;
-using SiMay.Sockets.Tcp;
 using SiMay.Sockets.Tcp.Session;
 using WindSound;
 
-namespace SiMay.ServiceCore.ApplicationService
+namespace SiMay.ServiceCore
 {
     [ServiceName("远程语音")]
     [ServiceKey(AppJobConstant.REMOTE_AUDIO)]
-    public class AudioService : ServiceManagerBase
+    public class AudioService : ApplicationRemoteService
     {
         private bool _isRun = true;
         private bool _isPlaying = false;
         private WinSoundRecord _Recorder = null;
         private WinSoundPlayer _Player = null;
+        public override void SessionInited(TcpSocketSaeaSession session)
+        {
+
+        }
 
         public override void SessionClosed()
         {
@@ -61,7 +62,7 @@ namespace SiMay.ServiceCore.ApplicationService
             }
             catch { }
 
-            SendAsyncToServer(MessageHead.C_AUDIO_DEVICE_OPENSTATE,
+            SendTo(CurrentSession, MessageHead.C_AUDIO_DEVICE_OPENSTATE,
                 new AudioDeviceStatesPack()
                 {
                     PlayerEnable = outDeviceOpen == 0 ? true : false,
@@ -74,20 +75,20 @@ namespace SiMay.ServiceCore.ApplicationService
             if (_isPlaying == true)
                 return;
 
-            SendAsyncToServer(MessageHead.C_AUDIO_DATA, bytes);
+            SendTo(CurrentSession, MessageHead.C_AUDIO_DATA, bytes);
         }
 
         [PacketHandler(MessageHead.S_AUDIO_START)]
         public void SetOpenAudioInConfig(TcpSocketSaeaSession session)
         {
-            var config = session.CompletedBuffer.GetMessageEntity<AudioOptionsPack>();
+            var config = GetMessageEntity<AudioOptionsPack>(session);
             this.OpenAudio(config.SamplesPerSecond, config.BitsPerSample, config.Channels);
         }
 
         [PacketHandler(MessageHead.S_AUDIO_DEIVCE_ONOFF)]
         public void SetAudioState(TcpSocketSaeaSession session)
         {
-            var state = session.CompletedBuffer.GetMessagePayload().ToUnicodeString();
+            var state = GetMessage(session).ToUnicodeString();
             if (state == "0")
                 _isPlaying = true;
             else if (state == "1")
@@ -97,7 +98,7 @@ namespace SiMay.ServiceCore.ApplicationService
         [PacketHandler(MessageHead.S_AUDIO_DATA)]
         public void PlayerData(TcpSocketSaeaSession session)
         {
-            byte[] payload = session.CompletedBuffer.GetMessagePayload();
+            byte[] payload = GetMessage(session);
             try
             {
                 if (!_isRun || _Player == null || _isPlaying == false) return; //正在录音不播放

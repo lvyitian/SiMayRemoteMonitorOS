@@ -94,7 +94,7 @@
             // 
             this.progressBar1.Location = new System.Drawing.Point(200, 55);
             this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(298, 13);
+            this.progressBar1.Size = new System.Drawing.Size(298, 9);
             this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
             this.progressBar1.TabIndex = 7;
             // 
@@ -155,7 +155,7 @@
             this.tip.TabIndex = 0;
             this.tip.Text = "正在监听远程声音......";
             // 
-            // AudioManager
+            // AudioApplication
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -163,7 +163,7 @@
             this.Controls.Add(this.groupBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
-            this.Name = "AudioManager";
+            this.Name = "AudioApplication";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "语音监听";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.AudioManager_FormClosing);

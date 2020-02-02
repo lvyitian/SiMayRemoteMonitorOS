@@ -18,7 +18,7 @@ namespace SiMay.Net.SessionProvider.Providers
         SessionProviderOptions _options;
         internal TcpSocketSessionProviderHandle(
             SessionProviderOptions options,
-            OnSessionNotify<SessionCompletedNotify, SessionHandler> onSessionNotifyProc)
+            OnSessionNotify<SessionCompletedNotify, SessionProviderContext> onSessionNotifyProc)
             : base(onSessionNotifyProc)
         {
 
@@ -27,6 +27,7 @@ namespace SiMay.Net.SessionProvider.Providers
             var serverConfig = new TcpSocketSaeaServerConfiguration();
 
             serverConfig.AppKeepAlive = true;
+            serverConfig.CompressTransferFromPacket = false;
             serverConfig.PendingConnectionBacklog = options.PendingConnectionBacklog;
 
             _server = TcpSocketsFactory.CreateServerAgent(TcpSocketSaeaSessionType.Packet, serverConfig, (notify, session) =>
@@ -46,16 +47,16 @@ namespace SiMay.Net.SessionProvider.Providers
 
                          break;
                      case TcpSocketCompletionNotify.OnSend:
-                         _onSessionNotifyProc(SessionCompletedNotify.OnSend, session.AppTokens[0] as SessionHandler);
+                         _onSessionNotifyProc(SessionCompletedNotify.OnSend, session.AppTokens[0] as SessionProviderContext);
                          break;
                      case TcpSocketCompletionNotify.OnDataReceiveing:
-                         _onSessionNotifyProc(SessionCompletedNotify.OnRecv, session.AppTokens[0] as SessionHandler);
+                         _onSessionNotifyProc(SessionCompletedNotify.OnRecv, session.AppTokens[0] as SessionProviderContext);
                          break;
                      case TcpSocketCompletionNotify.OnDataReceived:
-                         _onSessionNotifyProc(SessionCompletedNotify.OnReceived, session.AppTokens[0] as SessionHandler);
+                         _onSessionNotifyProc(SessionCompletedNotify.OnReceived, session.AppTokens[0] as SessionProviderContext);
                          break;
                      case TcpSocketCompletionNotify.OnClosed:
-                         _onSessionNotifyProc(SessionCompletedNotify.OnClosed, session.AppTokens[0] as SessionHandler);
+                         _onSessionNotifyProc(SessionCompletedNotify.OnClosed, session.AppTokens[0] as SessionProviderContext);
                          break;
                      default:
                          break;

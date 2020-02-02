@@ -1,11 +1,12 @@
-﻿using System;
+﻿using SiMay.ReflectCache;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace SiMay.Core.Packets
 {
-    public class DesktopRecordGetFramePack : BasePacket
+    public class DesktopRecordGetFramePack : EntitySerializerBase
     {
         public int Height { get; set; }
         public int Width { get; set; }

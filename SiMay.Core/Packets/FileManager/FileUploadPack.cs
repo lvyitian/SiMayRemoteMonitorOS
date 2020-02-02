@@ -1,16 +1,17 @@
-﻿using System;
+﻿using SiMay.ReflectCache;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace SiMay.Core.Packets.FileManager
 {
-    public class FileUploadPack : BasePacket
+    public class FileUploadPack : EntitySerializerBase
     {
         public string FileName { get; set; }
     }
 
-    public class FileUploadFileStatus : BasePacket
+    public class FileUploadFileStatus : EntitySerializerBase
     {
         /// <summary>
         /// 文件打开状态 0:文件不存在，1文件存在，2文件访问失败
@@ -19,7 +20,7 @@ namespace SiMay.Core.Packets.FileManager
         public long Position { get; set; }
     }
 
-    public class FileFristUploadDataPack : BasePacket
+    public class FileFristUploadDataPack : EntitySerializerBase
     {
         public int FileMode { get; set; }
         public long Position { get; set; }
@@ -27,7 +28,7 @@ namespace SiMay.Core.Packets.FileManager
         public byte[] Data { get; set; }
     }
 
-    public class FileUploadDataPack : BasePacket
+    public class FileUploadDataPack : EntitySerializerBase
     {
         public long FileSize { get; set; }
         public byte[] Data { get; set; }

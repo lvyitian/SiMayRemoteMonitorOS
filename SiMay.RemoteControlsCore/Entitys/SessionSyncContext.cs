@@ -8,7 +8,7 @@ namespace SiMay.RemoteControlsCore
 {
     public class SessionSyncContext
     {
-        public SessionSyncContext(SessionHandler session, IDictionary<string, object> dictions)
+        public SessionSyncContext(SessionProviderContext session, IDictionary<string, object> dictions)
         {
             Session = session;
             KeyDictions = dictions;
@@ -25,7 +25,7 @@ namespace SiMay.RemoteControlsCore
             }
         }
         public string UniqueId { get; set; } = Guid.NewGuid().ToString();
-        public SessionHandler Session { get; set; }
+        public SessionProviderContext Session { get; set; }
         public IDictionary<string, object> KeyDictions { get; set; }
     }
 }

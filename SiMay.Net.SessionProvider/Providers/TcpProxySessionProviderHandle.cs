@@ -17,6 +17,9 @@ using SiMay.Net.SessionProvider.Notify;
 using SiMay.Basic;
 using SiMay.Sockets.Tcp.Session;
 using SiMay.Sockets.Tcp.TcpConfiguration;
+using SiMay.Core.Packets;
+using SiMay.Core.Enums;
+using static SiMay.Serialize.PacketSerializeHelper;
 
 namespace SiMay.Net.SessionProvider.Providers
 {
@@ -25,22 +28,28 @@ namespace SiMay.Net.SessionProvider.Providers
     /// </summary>
     public class TcpProxySessionProviderHandle : SessionProvider
     {
-        const Int16 AckPacket = 1000;
+        private const Int16 AckHead = 1000;
+        private const Int16 CHANNEL_LOGOUT = 0;
+        private const Int16 CHANNEL_LOGIN = 1;
 
-        List<TcpProxySessionBased> _sessionList = new List<TcpProxySessionBased>();
-
-        TcpSocketSaeaClientAgent _clientAgent;
-        SessionProviderOptions _options;
-
-        List<byte> _manager_buffer = new List<byte>();
-        TcpSocketSaeaSession _manager_session;
-        int _manager_login = 0;
         bool _LogOut = false;
+        int _managerLoginSign = 0;
+        private OnProxyNotify<ProxyNotify> _onProxyNotify;
+        private List<byte> _dataBuffer = new List<byte>();
+        private List<TcpProxySessionBased> _tcpProxySessionList = new List<TcpProxySessionBased>();
+        private TcpSocketSaeaClientAgent _clientAgent;
+        private SessionProviderOptions _options;
+        private TcpSocketSaeaSession _managerSession;
 
-        OnProxyNotify<ProxyNotify> _onProxyNotify;
+        /// <summary>
+        /// session代理提供器构造函数
+        /// </summary>
+        /// <param name="options">代理配置设置</param>
+        /// <param name="onSessionNotifyProc">session事件通知</param>
+        /// <param name="onProxyNotify">代理事件通知</param>
         internal TcpProxySessionProviderHandle(
             SessionProviderOptions options,
-            OnSessionNotify<SessionCompletedNotify, SessionHandler> onSessionNotifyProc,
+            OnSessionNotify<SessionCompletedNotify, SessionProviderContext> onSessionNotifyProc,
             OnProxyNotify<ProxyNotify> onProxyNotify)
             : base(onSessionNotifyProc)
         {
@@ -59,13 +68,13 @@ namespace SiMay.Net.SessionProvider.Providers
                 switch (notify)
                 {
                     case TcpSocketCompletionNotify.OnConnected:
-                        this.ConnectionProcess(session);
+                        this.ConnectedHandler(session);
                         break;
                     case TcpSocketCompletionNotify.OnSend:
                         this.OnSend(session);
                         break;
                     case TcpSocketCompletionNotify.OnDataReceiveing:
-                        this.PacketProcess(session);
+                        this.PacketHandler(session);
                         break;
                     case TcpSocketCompletionNotify.OnClosed:
                         this.OnClosed(session);
@@ -76,13 +85,14 @@ namespace SiMay.Net.SessionProvider.Providers
             });
         }
 
-        private void ConnectionProcess(TcpSocketSaeaSession session)
+        private void ConnectedHandler(TcpSocketSaeaSession session)
         {
-            if (Interlocked.Exchange(ref _manager_login, 1) == 0)
+            if (Interlocked.Exchange(ref _managerLoginSign, CHANNEL_LOGIN) == CHANNEL_LOGOUT)
             {
+                //表示代理管理连接登陆
                 this.SendAck(session, SessionWorkType.ManagerSession);
 
-                _manager_session = session;
+                _managerSession = session;
                 session.AppTokens = new object[]
                 {
                     SessionWorkType.ManagerSession,
@@ -90,7 +100,7 @@ namespace SiMay.Net.SessionProvider.Providers
                 };
 
                 //获取所有主连接
-                SendMessageHelper.SendMessage(session, MsgCommand.Msg_Pull_Session);
+                MessageHelper.SendMessage(session, MsgCommand.Msg_Pull_Session);
             }
             else
             {
@@ -102,7 +112,7 @@ namespace SiMay.Net.SessionProvider.Providers
                     sessionBased
                 };
 
-                this._onSessionNotifyProc(SessionCompletedNotify.OnConnected, sessionBased as SessionHandler);
+                this._onSessionNotifyProc(SessionCompletedNotify.OnConnected, sessionBased as SessionProviderContext);
             }
         }
         private void OnSend(TcpSocketSaeaSession session)
@@ -111,45 +121,45 @@ namespace SiMay.Net.SessionProvider.Providers
             {
                 var sessionBased = session.AppTokens[1] as TcpProxySessionBased;
                 sessionBased._sendTransferredBytes = session.SendTransferredBytes;
-                this._onSessionNotifyProc(SessionCompletedNotify.OnSend, sessionBased as SessionHandler);
+                this._onSessionNotifyProc(SessionCompletedNotify.OnSend, sessionBased as SessionProviderContext);
             }
         }
 
-        private void PacketProcess(TcpSocketSaeaSession session)
+        private void PacketHandler(TcpSocketSaeaSession session)
         {
             byte[] data = new byte[session.ReceiveBytesTransferred];
             Array.Copy(session.CompletedBuffer, 0, data, 0, data.Length);
 
             if ((SessionWorkType)session.AppTokens[0] == SessionWorkType.ManagerSession)
             {
-                _manager_buffer.AddRange(data);
+                _dataBuffer.AddRange(data);
                 do
                 {
-                    if (_manager_buffer.Count < 4)
+                    if (_dataBuffer.Count < 4)
                         return;
 
-                    byte[] lenBytes = _manager_buffer.GetRange(0, 4).ToArray();
+                    byte[] lenBytes = _dataBuffer.GetRange(0, 4).ToArray();
                     int packageLen = BitConverter.ToInt32(lenBytes, 0);
 
                     //缓冲区越界判断
                     if (packageLen > (1024 * 1024 * 2) || packageLen < 1)
                     {
                         this.ConsoleWriteLine("DEBUG BUFFER OutOfRange !! PacketProcess MAIN", ConsoleColor.Red);
-                        this._manager_buffer.Clear();
+                        this._dataBuffer.Clear();
                         session.Close(true);
                         return;
                     }
 
-                    if (packageLen > _manager_buffer.Count - 4)
+                    if (packageLen > _dataBuffer.Count - 4)
                         return;
 
-                    byte[] completedBytes = _manager_buffer.GetRange(4, packageLen).ToArray();
+                    byte[] completedBytes = _dataBuffer.GetRange(4, packageLen).ToArray();
 
                     this.OnMessage(completedBytes);
 
-                    _manager_buffer.RemoveRange(0, packageLen + 4);
+                    _dataBuffer.RemoveRange(0, packageLen + 4);
 
-                } while (_manager_buffer.Count > 4);
+                } while (_dataBuffer.Count > 4);
             }
             else
             {
@@ -157,7 +167,7 @@ namespace SiMay.Net.SessionProvider.Providers
 
                 sessionBased._receiveTransferredBytes = data.Length;
 
-                this._onSessionNotifyProc(SessionCompletedNotify.OnRecv, sessionBased as SessionHandler);
+                this._onSessionNotifyProc(SessionCompletedNotify.OnRecv, sessionBased as SessionProviderContext);
 
                 sessionBased.Buffer.AddRange(data);
                 do
@@ -181,9 +191,9 @@ namespace SiMay.Net.SessionProvider.Providers
 
                     byte[] completeBytes = sessionBased.Buffer.GetRange(4, packageLen).ToArray();
 
-                    sessionBased._completedBuffer = CompressHelper.Decompress(completeBytes);
+                    sessionBased._completedBuffer = GZipHelper.Decompress(completeBytes);
 
-                    this._onSessionNotifyProc(SessionCompletedNotify.OnReceived, sessionBased as SessionHandler);
+                    this._onSessionNotifyProc(SessionCompletedNotify.OnReceived, sessionBased as SessionProviderContext);
 
                     sessionBased.Buffer.RemoveRange(0, packageLen + 4);
 
@@ -193,7 +203,7 @@ namespace SiMay.Net.SessionProvider.Providers
 
         private void OnClosed(TcpSocketSaeaSession session)
         {
-            if (session.AppTokens == null && this._manager_login == 0)
+            if (session.AppTokens == null && this._managerLoginSign == 0)
             {
                 session.AppTokens = new object[]
                 {
@@ -201,24 +211,24 @@ namespace SiMay.Net.SessionProvider.Providers
                     null
                 };
             }
-            else if (this._manager_login == 1 && session.AppTokens == null)
+            else if (this._managerLoginSign == 1 && session.AppTokens == null)
             {
                 return;
             }
 
             if ((SessionWorkType)session.AppTokens[0] == SessionWorkType.ManagerSession)
             {
-                Interlocked.Exchange(ref this._manager_login, 0);
+                Interlocked.Exchange(ref this._managerLoginSign, 0);
 
                 //_manager_buffer.Clear();
-                _manager_session = null;
+                _managerSession = null;
 
-                foreach (var _session in this._sessionList)
+                foreach (var _session in this._tcpProxySessionList)
                 {
-                    this._onSessionNotifyProc(SessionCompletedNotify.OnClosed, _session as SessionHandler);
+                    this._onSessionNotifyProc(SessionCompletedNotify.OnClosed, _session as SessionProviderContext);
                     _session.Dispose();
                 }
-                this._sessionList.Clear();
+                this._tcpProxySessionList.Clear();
 
                 if (!this._LogOut)
                 {
@@ -241,7 +251,7 @@ namespace SiMay.Net.SessionProvider.Providers
             else
             {
                 var sessionBased = session.AppTokens[1] as TcpProxySessionBased;
-                this._onSessionNotifyProc(SessionCompletedNotify.OnClosed, sessionBased as SessionHandler);
+                this._onSessionNotifyProc(SessionCompletedNotify.OnClosed, sessionBased as SessionProviderContext);
                 sessionBased.Dispose();
             }
         }
@@ -275,8 +285,8 @@ namespace SiMay.Net.SessionProvider.Providers
         private void ProcessAccessKeyWrong()
         {
             this._LogOut = true;
-            if (this._manager_login == 1)
-                this._manager_session.Close(true);
+            if (this._managerLoginSign == 1)
+                this._managerSession.Close(true);
 
             this._onProxyNotify?.Invoke(ProxyNotify.AccessKeyWrong);
         }
@@ -296,7 +306,7 @@ namespace SiMay.Net.SessionProvider.Providers
             Array.Copy(data, sizeof(Int64) + 1, bytes, 0, bytes.Length);
 
             session._receiveTransferredBytes = bytes.Length;
-            this._onSessionNotifyProc(SessionCompletedNotify.OnRecv, session as SessionHandler);
+            this._onSessionNotifyProc(SessionCompletedNotify.OnRecv, session as SessionProviderContext);
             session.Buffer.AddRange(bytes);
             do
             {
@@ -310,7 +320,7 @@ namespace SiMay.Net.SessionProvider.Providers
                 if (packageLen > (1024 * 1024 * 2) || packageLen < 1)
                 {
                     this.ConsoleWriteLine("DEBUG BUFFER OutOfRange !! ProcessPackage DATA", ConsoleColor.Red);
-                    this._manager_session.Close(true);
+                    this._managerSession.Close(true);
                     return;
                 }
 
@@ -319,9 +329,9 @@ namespace SiMay.Net.SessionProvider.Providers
 
                 byte[] completeBytes = session.Buffer.GetRange(4, packageLen).ToArray();
 
-                session._completedBuffer = CompressHelper.Decompress(completeBytes);
+                session._completedBuffer = GZipHelper.Decompress(completeBytes);
 
-                this._onSessionNotifyProc(SessionCompletedNotify.OnReceived, session as SessionHandler);
+                this._onSessionNotifyProc(SessionCompletedNotify.OnReceived, session as SessionProviderContext);
 
                 session.Buffer.RemoveRange(0, packageLen + 4);
 
@@ -332,8 +342,8 @@ namespace SiMay.Net.SessionProvider.Providers
         private void LogOut()
         {
             this._LogOut = true;
-            if (this._manager_login == 1)
-                this._manager_session.Close(true);
+            if (this._managerLoginSign == 1)
+                this._managerSession.Close(true);
 
             this._onProxyNotify?.Invoke(ProxyNotify.LogOut);
         }
@@ -344,8 +354,8 @@ namespace SiMay.Net.SessionProvider.Providers
             GCHandle gc = GCHandle.FromIntPtr(new IntPtr(id));
 
             TcpProxySessionBased session = gc.Target as TcpProxySessionBased;
-            this._onSessionNotifyProc(SessionCompletedNotify.OnClosed, session as SessionHandler);
-            this._sessionList.Remove(session);//移除List引用
+            this._onSessionNotifyProc(SessionCompletedNotify.OnClosed, session as SessionProviderContext);
+            this._tcpProxySessionList.Remove(session);//移除List引用
             session.Buffer.Clear();
             session.Dispose();
             //////////////////////////////check
@@ -364,7 +374,7 @@ namespace SiMay.Net.SessionProvider.Providers
             for (int i = 0; i < body.Length / sizeof(Int64); i++)
             {
                 Array.Copy(body, i * sizeof(Int64), sessionId, 0, sizeof(Int64));
-                TcpProxySessionBased sessionBased = new TcpProxySessionBased(_manager_session);
+                TcpProxySessionBased sessionBased = new TcpProxySessionBased(_managerSession);
                 sessionBased.RemoteId = BitConverter.ToInt64(sessionId, 0);
 
                 Console.WriteLine("CreateSession:" + sessionBased.RemoteId + " Id:" + sessionBased.Id);
@@ -376,13 +386,13 @@ namespace SiMay.Net.SessionProvider.Providers
                 //Array.Copy(sessionId, 0, sessionIds, i * (sizeof(Int64) + sizeof(Int64)), sizeof(Int64) + sizeof(Int64));
             }
 
-            SendMessageHelper.SendMessage(_manager_session, MsgCommand.Msg_Set_Session_Id, buffer.ToArray());
+            MessageHelper.SendMessage(_managerSession, MsgCommand.Msg_Set_Session_Id, buffer.ToArray());
 
-            this._sessionList.AddRange(sessionList.ToArray());
+            this._tcpProxySessionList.AddRange(sessionList.ToArray());
 
             foreach (var session in sessionList)
             {
-                this._onSessionNotifyProc?.Invoke(SessionCompletedNotify.OnConnected, session as SessionHandler);
+                this._onSessionNotifyProc?.Invoke(SessionCompletedNotify.OnConnected, session as SessionProviderContext);
             }
 
             sessionList.Clear();
@@ -390,19 +400,21 @@ namespace SiMay.Net.SessionProvider.Providers
 
         private void SendAck(TcpSocketSaeaSession session, SessionWorkType type)
         {
-            //                          //命令头      //accesskey     //workType
-            byte[] bytes = new byte[sizeof(Int16) + sizeof(Int64) + sizeof(Byte)];
-            BitConverter.GetBytes(AckPacket).CopyTo(bytes, 0);
-            BitConverter.GetBytes(_options.AccessKey).CopyTo(bytes, 2);
-            bytes[10] = (Byte)type;
+            var typeByte = (byte)type;
+            var ackBody = SerializePacket(new AckPack()
+            {
+                Type = typeByte.ConvertTo<ConnectionWorkType>(),
+                AccessId = _options.AccessId,
+                AccessKey = _options.AccessKey
+            });
+            ackBody = GZipHelper.Compress(ackBody, 0, ackBody.Length);
 
-            byte[] body = CompressHelper.Compress(bytes, 0, bytes.Length);
-
-            byte[] data = new byte[sizeof(Int32) + body.Length];
-            BitConverter.GetBytes(body.Length).CopyTo(data, 0);
-            body.CopyTo(data, 4);
-
-            session.SendAsync(data);
+            var dataBuilder = new List<byte>();
+            dataBuilder.AddRange(BitConverter.GetBytes(ackBody.Length));
+            dataBuilder.AddRange(ackBody);
+            ackBody = dataBuilder.ToArray();
+            dataBuilder.Clear();
+            session.SendAsync(ackBody);//构造发送
         }
 
         private void ConsoleWriteLine(string log, ConsoleColor color)
@@ -419,26 +431,26 @@ namespace SiMay.Net.SessionProvider.Providers
         }
         public override void BroadcastAsync(byte[] data)
         {
-            foreach (var session in this._sessionList)
+            foreach (var session in this._tcpProxySessionList)
                 session.SendAsync(data);
         }
 
         public override void BroadcastAsync(byte[] data, int offset, int lenght)
         {
-            foreach (var session in this._sessionList)
+            foreach (var session in this._tcpProxySessionList)
                 session.SendAsync(data, offset, lenght);
         }
 
         public override void CloseService()
         {
             this._LogOut = true;
-            if (this._manager_login == 1)
-                _manager_session.Close(true);
+            if (this._managerLoginSign == 1)
+                _managerSession.Close(true);
         }
 
         public override void DisconnectAll()
         {
-            foreach (var session in this._sessionList)
+            foreach (var session in this._tcpProxySessionList)
                 session.SessionClose();
         }
     }

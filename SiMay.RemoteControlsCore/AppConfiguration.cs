@@ -61,6 +61,12 @@ namespace SiMay.RemoteControlsCore
 
         public static AbstractAppConfigBase SysConfig { get; } = new ManagerAppConfig();
 
+        public static long AccessId
+        {
+            get;
+            set;
+        }
+
         public static string IPAddress
         {
             get { return SysConfig.GetConfig("IPAddress"); }
@@ -85,10 +91,10 @@ namespace SiMay.RemoteControlsCore
             set { SysConfig.SetConfig("MaxConnectCount", value.ToString()); }
         }
 
-        public static string WindowMaximize
+        public static bool WindowMaximize
         {
-            get { return SysConfig.GetConfig("Maximize"); }
-            set { SysConfig.SetConfig("Maximize", value); }
+            get { return bool.Parse(SysConfig.GetConfig("Maximize")); }
+            set { SysConfig.SetConfig("Maximize", value.ToString()); }
         }
         public static string LHostString
         {
@@ -108,10 +114,10 @@ namespace SiMay.RemoteControlsCore
             set { SysConfig.SetConfig("LockPassWord", value); }
         }
 
-        public static string WindowsIsLock
+        public static bool WindowsIsLock
         {
-            get { return SysConfig.GetConfig("WindowsIsLock"); }
-            set { SysConfig.SetConfig("WindowsIsLock", value); }
+            get { return bool.Parse(SysConfig.GetConfig("WindowsIsLock")); }
+            set { SysConfig.SetConfig("WindowsIsLock", value.ToString()); }
         }
 
         public static int DesktopRefreshInterval
@@ -120,22 +126,22 @@ namespace SiMay.RemoteControlsCore
             set { SysConfig.SetConfig("DesktopRefreshInterval", value.ToString()); }
         }
 
-        public static string AudioSamplesPerSecond
+        public static int AudioSamplesPerSecond
         {
-            get { return SysConfig.GetConfig("AudioSamplesPerSecond"); }
-            set { SysConfig.SetConfig("AudioSamplesPerSecond", value); }
+            get { return int.Parse(SysConfig.GetConfig("AudioSamplesPerSecond")); }
+            set { SysConfig.SetConfig("AudioSamplesPerSecond", value.ToString()); }
         }
 
-        public static string AudioBitsPerSample
+        public static int AudioBitsPerSample
         {
-            get { return SysConfig.GetConfig("AudioBitsPerSample"); }
-            set { SysConfig.SetConfig("AudioBitsPerSample", value); }
+            get { return int.Parse(SysConfig.GetConfig("AudioBitsPerSample")); }
+            set { SysConfig.SetConfig("AudioBitsPerSample", value.ToString()); }
         }
 
-        public static string AudioChannels
+        public static int AudioChannels
         {
-            get { return SysConfig.GetConfig("AudioChannels"); }
-            set { SysConfig.SetConfig("AudioChannels", value); }
+            get { return int.Parse(SysConfig.GetConfig("AudioChannels")); }
+            set { SysConfig.SetConfig("AudioChannels", value.ToString()); }
         }
 
         public static string SessionMode

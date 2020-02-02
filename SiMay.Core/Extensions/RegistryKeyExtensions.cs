@@ -246,16 +246,16 @@ namespace SiMay.Core.Extensions
                     {
                         case RegistryValueKind.String:
                         case RegistryValueKind.ExpandString:
-                            data = ByteConverter.ToString((byte[]) data);
+                            data = ByteConverterHelper.ToString((byte[]) data);
                             break;
                         case RegistryValueKind.DWord:
-                            data = ByteConverter.ToUInt32((byte[]) data);
+                            data = ByteConverterHelper.ToUInt32((byte[]) data);
                             break;
                         case RegistryValueKind.QWord:
-                            data = ByteConverter.ToUInt64((byte[]) data);
+                            data = ByteConverterHelper.ToUInt64((byte[]) data);
                             break;
                         case RegistryValueKind.MultiString:
-                            data = ByteConverter.ToStringArray((byte[]) data);
+                            data = ByteConverterHelper.ToStringArray((byte[]) data);
                             break;
                     }
                 }

@@ -1,11 +1,12 @@
-﻿using System;
+﻿using SiMay.ReflectCache;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace SiMay.Core.Packets.RegEdit
 {
-    public class GetRegistryKeysResponsePack
+    public class GetRegistryKeysResponsePack : EntitySerializerBase
     {
         public RegSeekerMatch[] Matches { get; set; }
 

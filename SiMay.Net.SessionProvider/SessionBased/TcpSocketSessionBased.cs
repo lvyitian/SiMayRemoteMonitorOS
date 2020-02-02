@@ -7,7 +7,7 @@ using System.Text;
 
 namespace SiMay.Net.SessionProvider.SessionBased
 {
-    public class TcpSocketSessionBased : SessionHandler
+    public class TcpSocketSessionBased : SessionProviderContext
     {
         TcpSocketSaeaSession _session;
         internal TcpSocketSessionBased(TcpSocketSaeaSession session)
@@ -37,12 +37,6 @@ namespace SiMay.Net.SessionProvider.SessionBased
                 return _session.CompletedBuffer;
             }
         }
-
-        public override int Send(byte[] data) 
-            => _session.Send(data);
-
-        public override int Send(byte[] data, int offset, int length) 
-            => _session.Send(data, offset, length);
 
         public override void SendAsync(byte[] data) 
             => _session.SendAsync(data);

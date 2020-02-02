@@ -1,4 +1,5 @@
 ﻿using SiMay.Core.Enums;
+using SiMay.ReflectCache;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,19 +7,19 @@ using System.Text;
 
 namespace SiMay.Core.Packets
 {
-    public class FileListPack : BasePacket
+    public class FileListPack : EntitySerializerBase
     {
         public string FilePath { get; set; }
 
     }
-    public class FileListItemsPack : BasePacket
+    public class FileListItemsPack : EntitySerializerBase
     {
         public FileItem[] FileList { get; set; }
         public string Path { get; set; }
         public string Message { get; set; }
         public bool IsSccessed { get; set; }
     }
-    public class FileItem
+    public class FileItem : EntitySerializerBase
     {
         public string FileName { get; set; }
 

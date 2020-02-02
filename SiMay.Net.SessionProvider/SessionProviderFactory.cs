@@ -13,7 +13,7 @@ namespace SiMay.Net.SessionProvider
     public class SessionProviderFactory
     {
         public static SessionProvider CreateTcpSessionProvider(SessionProviderOptions options,
-            OnSessionNotify<SessionCompletedNotify, SessionHandler> onSessionNotifyProc)
+            OnSessionNotify<SessionCompletedNotify, SessionProviderContext> onSessionNotifyProc)
         {
 
             SessionProvider provider = new TcpSocketSessionProviderHandle(options, onSessionNotifyProc);
@@ -22,7 +22,7 @@ namespace SiMay.Net.SessionProvider
         }
 
         public static SessionProvider CreateProxySessionProvider(SessionProviderOptions options,
-            OnSessionNotify<SessionCompletedNotify, SessionHandler> onSessionNotifyProc,
+            OnSessionNotify<SessionCompletedNotify, SessionProviderContext> onSessionNotifyProc,
             OnProxyNotify<ProxyNotify> onProxyNotifyProc)
         {
 

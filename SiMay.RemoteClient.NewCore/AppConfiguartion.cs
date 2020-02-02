@@ -49,7 +49,7 @@ namespace SiMay.ServiceCore
         /// <summary>
         /// 连接的服务端是否中间服务器
         /// </summary>
-        public static bool IsCentreServiceMode { get; set; } = false;
+        public static bool CenterServiceMode { get; set; } = false;
         public static string IdentifyId { get; set; }
 
         public static IPEndPoint ServerIPEndPoint { get; set; }
@@ -86,86 +86,136 @@ namespace SiMay.ServiceCore
             }
         }
 
-        public static string IsOpenScreenView
+        public static bool IsOpenScreenView
         {
             get
             {
-                return SysConfigs.GetConfig("isOpenScreenView");
+                try
+                {
+                    return bool.Parse(SysConfigs.GetConfig("isOpenScreenView"));
+                }
+                catch
+                {
+                    return false;
+                }
             }
             set
             {
-                SysConfigs.SetConfig("isOpenScreenView", value);
+                SysConfigs.SetConfig("isOpenScreenView", value.ToString());
             }
         }
 
-        public static string IsScreenRecord
+        public static bool IsScreenRecord
         {
             get
             {
-                return SysConfigs.GetConfig("IsScreenRecord");
+                try
+                {
+                    return bool.Parse(SysConfigs.GetConfig("IsScreenRecord"));
+                }
+                catch
+                {
+                    return false;
+                }
             }
             set
             {
-                SysConfigs.SetConfig("IsScreenRecord", value);
+                SysConfigs.SetConfig("IsScreenRecord", value.ToString());
             }
         }
 
-        public static string ScreenRecordHeight
+        public static int ScreenRecordHeight
         {
             get
             {
-                return SysConfigs.GetConfig("ScreenRecordHeight");
+                try
+                {
+                    return int.Parse(SysConfigs.GetConfig("ScreenRecordHeight"));
+                }
+                catch
+                {
+                    return 800;
+                }
             }
             set
             {
-                SysConfigs.SetConfig("ScreenRecordHeight", value);
+                SysConfigs.SetConfig("ScreenRecordHeight", value.ToString());
             }
         }
-        public static string ScreenRecordWidth
+        public static int ScreenRecordWidth
         {
             get
             {
-                return SysConfigs.GetConfig("ScreenRecordWidth");
+                try
+                {
+                    return int.Parse(SysConfigs.GetConfig("ScreenRecordWidth"));
+                }
+                catch
+                {
+                    return 1200;
+                }
             }
             set
             {
-                SysConfigs.SetConfig("ScreenRecordWidth", value);
+                SysConfigs.SetConfig("ScreenRecordWidth", value.ToString());
             }
         }
-        public static string ScreenRecordSpanTime
+        public static int ScreenRecordSpanTime
         {
             get
             {
-                return SysConfigs.GetConfig("ScreenRecordSpanTime");
+                try
+                {
+                    return int.Parse(SysConfigs.GetConfig("ScreenRecordSpanTime"));
+                }
+                catch
+                {
+                    return 3000;
+                }
             }
             set
             {
-                SysConfigs.SetConfig("ScreenRecordSpanTime", value);
+                SysConfigs.SetConfig("ScreenRecordSpanTime", value.ToString());
             }
         }
 
 
-        public static string KeyboardOffline
+        public static bool KeyboardOffline
         {
             get
             {
-                return SysConfigs.GetConfig("Offlinekeyboard");
+                try
+                {
+                    return bool.Parse(SysConfigs.GetConfig("Offlinekeyboard"));
+                }
+                catch
+                {
+                    return false;
+                }
             }
             set
             {
-                SysConfigs.SetConfig("Offlinekeyboard", value);
+                SysConfigs.SetConfig("Offlinekeyboard", value.ToString());
             }
         }
 
-        public static string HasSystemAuthority
+        public static bool HasSystemAuthority
         {
             get
             {
-                return SysConfigs.GetConfig("HasSystemAuthority");
+
+                try
+                {
+                    return bool.Parse(SysConfigs.GetConfig("HasSystemAuthority"));
+                }
+                catch
+                {
+                    return false;
+                }
             }
             set
             {
-                SysConfigs.SetConfig("HasSystemAuthority", value);
+                SysConfigs.SetConfig("HasSystemAuthority", value.ToString()) ;
             }
         }
     }

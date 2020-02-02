@@ -42,7 +42,7 @@ namespace SiMay.RemoteMonitor.MainApplication
         private Color _closeScreenColor = Color.FromArgb(127, 175, 219);
         private ImageList _imgList;
 
-        private AppMainAdapterHandler _appMainAdapterHandler = new AppMainAdapterHandler();
+        private MainApplicationAdapterHandler _appMainAdapterHandler = new MainApplicationAdapterHandler();
         private void MainApplication_Load(object sender, EventArgs e)
         {
             this.ViewOnAdaptiveHandler();
@@ -57,12 +57,8 @@ namespace SiMay.RemoteMonitor.MainApplication
         {
             this.Text = "SiMay远程监控管理系统-IOASJHD 正式版_" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
-            bool maximized;
-            if (bool.TryParse(AppConfiguration.WindowMaximize, out maximized))
-            {
-                if (maximized)
-                    this.WindowState = FormWindowState.Maximized;
-            }
+            if (AppConfiguration.WindowMaximize)
+                this.WindowState = FormWindowState.Maximized;
 
             this._imgList = new ImageList();
             this._imgList.Images.Add("ok", Resources.ok);
@@ -150,11 +146,8 @@ namespace SiMay.RemoteMonitor.MainApplication
                 }
             });
 
-            if (bool.TryParse(AppConfiguration.WindowsIsLock, out var isLock))
-            {
-                if (isLock) //锁住主控界面
-                    LockWindow();
-            }
+            if (AppConfiguration.WindowsIsLock) //锁住主控界面
+                LockWindow();
 
             _viewCarouselTimer = new System.Timers.Timer(_viewCarouselContext.ViewCarouselInterval);
             _viewCarouselTimer.Elapsed += ViewCarouselFunc;
@@ -169,7 +162,7 @@ namespace SiMay.RemoteMonitor.MainApplication
         }
         private void desktopViewLayout_Scroll(object sender, ScrollEventArgs e)
         {
-            this.ViewOnAdaptiveHandler();
+            //this.ViewOnAdaptiveHandler();
         }
         private void ViewOnAdaptiveHandler()
         {
@@ -181,31 +174,9 @@ namespace SiMay.RemoteMonitor.MainApplication
 
             this._viewCarouselContext.ViewWidth = width;
             this._viewCarouselContext.ViewHeight = height;
-
-            if (this.desktopViewLayout.Controls.Count <= 0)
-                return;
-
-            var displayTop = Math.Abs(containerRectangle.Y);//容器的可视top(y偏差纠正)
-            var displayBottom = Math.Abs(displayTop + desktopViewLayout.Height);//容器的可视bottom
-
-            var startControlIndex = (displayTop / height) * this._viewCarouselContext.ViewColum;
-            var endControlIndex = (displayBottom / height) * this._viewCarouselContext.ViewColum;
-
-            //Console.WriteLine(containerRectangle.Top + "|" + containerRectangle.Bottom);
-            //Console.WriteLine($"{startControlIndex} | {endControlIndex}");
-
-            int index = 0;
             foreach (var view in desktopViewLayout.Controls.Cast<IDesktopView>())
             {
-                if (view is Control control)
-                {
-                    var viewX = Math.Abs(control.Location.X);
-                    var viewY = Math.Abs(control.Location.Y);
-                    var controlRectangle = new Rectangle(viewX, viewY, control.Width, control.Height);
-                    view.InVisbleArea = RectangleHelper.WhetherContainsInDisplayRectangle(new Rectangle(0, displayTop, this.desktopViewLayout.Width, this.desktopViewLayout.Height), controlRectangle);
-                    Console.WriteLine($"{startControlIndex} | {endControlIndex} - " + view.InVisbleArea + " " + index);
-                }
-                if (view.Width == width && view.Height == height && index++ == viewCount)
+                if (view.Width == width && view.Height == height)
                     continue;
 
                 this.InvokeUI(() =>
@@ -214,6 +185,39 @@ namespace SiMay.RemoteMonitor.MainApplication
                     view.Width = width;
                 });
             }
+
+            //if (this.desktopViewLayout.Controls.Count <= 0)
+            //    return;
+
+            //var displayTop = Math.Abs(containerRectangle.Y);//容器的可视top(y偏差纠正)
+            //var displayBottom = Math.Abs(displayTop + desktopViewLayout.Height);//容器的可视bottom
+
+            //var startControlIndex = (displayTop / height) * this._viewCarouselContext.ViewColum;
+            //var endControlIndex = (displayBottom / height) * this._viewCarouselContext.ViewColum;
+
+            //Console.WriteLine(containerRectangle.Top + "|" + containerRectangle.Bottom);
+            //Console.WriteLine($"{startControlIndex} | {endControlIndex}");
+
+            //int index = 0;
+            //foreach (var view in desktopViewLayout.Controls.Cast<IDesktopView>())
+            //{
+            //    if (view is Control control)
+            //    {
+            //        var viewX = Math.Abs(control.Location.X);
+            //        var viewY = Math.Abs(control.Location.Y);
+            //        var controlRectangle = new Rectangle(viewX, viewY, control.Width, control.Height);
+            //        view.InVisbleArea = RectangleHelper.WhetherContainsInDisplayRectangle(new Rectangle(0, displayTop, this.desktopViewLayout.Width, this.desktopViewLayout.Height), controlRectangle);
+            //        Console.WriteLine($"{startControlIndex} | {endControlIndex} - " + view.InVisbleArea + " " + index);
+            //    }
+            //    if (view.Width == width && view.Height == height && index++ == viewCount)
+            //        continue;
+
+            //    this.InvokeUI(() =>
+            //    {
+            //        view.Height = height;
+            //        view.Width = width;
+            //    });
+            //}
         }
 
         private void ViewCarouselFunc(object sender, System.Timers.ElapsedEventArgs e)
@@ -325,10 +329,10 @@ namespace SiMay.RemoteMonitor.MainApplication
             return view;
         }
 
-        private void OnTransmitHandlerEvent(SessionHandler session)
+        private void OnTransmitHandlerEvent(SessionProviderContext session)
             => this._sendTransferredBytes += session.SendTransferredBytes;
 
-        private void OnReceiveHandlerEvent(SessionHandler session)
+        private void OnReceiveHandlerEvent(SessionProviderContext session)
             => this._receiveTransferredBytes += session.ReceiveTransferredBytes;
 
 
@@ -409,7 +413,7 @@ namespace SiMay.RemoteMonitor.MainApplication
         private void LockWindow()
         {
             this.Hide();
-            AppConfiguration.WindowsIsLock = "true";
+            AppConfiguration.WindowsIsLock = true;
             LockWindowsForm form = new LockWindowsForm();
             form.ShowDialog();
             this.Show();
@@ -418,7 +422,7 @@ namespace SiMay.RemoteMonitor.MainApplication
         private void StripButton_Click(object sender, EventArgs e)
         {
             var ustripbtn = sender as UToolStripButton;
-            string appkey = ustripbtn.CtrlType.GetAppKey();
+            string appkey = ustripbtn.CtrlType.GetApplicationKey();
             this.GetSelectedDesktopView().ForEach(c =>
             {
                 this._appMainAdapterHandler.RemoteActiveService(c.SessionSyncContext, appkey);
@@ -428,7 +432,7 @@ namespace SiMay.RemoteMonitor.MainApplication
         private void StripMenu_Click(object sender, EventArgs e)
         {
             var ustripbtn = sender as UToolStripMenuItem;
-            string appkey = ustripbtn.ApplicationType.GetAppKey();
+            string appkey = ustripbtn.ApplicationType.GetApplicationKey();
             this.GetSelectedListItem().ForEach(c =>
             {
                 this._appMainAdapterHandler.RemoteActiveService(c.SessionSyncContext, appkey);
@@ -823,7 +827,7 @@ namespace SiMay.RemoteMonitor.MainApplication
             if (MessageBox.Show("是否确认退出系统吗?", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) == DialogResult.OK)
             {
                 this._isRun = false;
-                this._appMainAdapterHandler.CloseService();
+                this._appMainAdapterHandler.Dispose();
             }
             else
             {
@@ -893,10 +897,10 @@ namespace SiMay.RemoteMonitor.MainApplication
         {
             //界面初始化完成会被触发一次。。
 
-            foreach (var item in this._appMainAdapterHandler.SyncContexts)
+            foreach (var item in this._appMainAdapterHandler.SessionSyncContexts)
                 item.KeyDictions[SysConstantsExtend.SessionListItem].ConvertTo<USessionListItem>().Remove();
 
-            foreach (var item in this._appMainAdapterHandler.SyncContexts)
+            foreach (var item in this._appMainAdapterHandler.SessionSyncContexts)
             {
                 if (item.KeyDictions[SysConstants.GroupName].ConvertTo<string>() == groupBox.Text || groupBox.Text == GROUP_ALL)
                     this.servicesOnlineList.Items.Add(item.KeyDictions[SysConstantsExtend.SessionListItem].ConvertTo<USessionListItem>());

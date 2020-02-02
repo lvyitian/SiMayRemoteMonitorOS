@@ -124,9 +124,7 @@ namespace SiMay.ServiceCore
                         Environment.Exit(0);
                 }
 
-                AppConfiguartion.HasSystemAuthority = args.Any(c => c.Equals(SERVICE_USER_START, StringComparison.OrdinalIgnoreCase)) ?
-                    "true" :
-                    "false";
+                AppConfiguartion.HasSystemAuthority = args.Any(c => c.Equals(SERVICE_USER_START, StringComparison.OrdinalIgnoreCase));
                 AppConfiguartion.ServiceName = startParameter.ServiceName.IsNullOrEmpty() ? "SiMayService" : startParameter.ServiceName;
                 AppConfiguartion.ServiceDisplayName = startParameter.ServiceDisplayName.IsNullOrEmpty() ? "SiMay远程被控服务" : startParameter.ServiceDisplayName;
 
@@ -139,7 +137,7 @@ namespace SiMay.ServiceCore
 
                 //非SYSTEM用户进程启动则进入安装服务
                 if (startParameter.InstallService && !args.Any(c => c.Equals(SERVICE_USER_START, StringComparison.OrdinalIgnoreCase)))
-                    ComputerSessionHelper.InstallAutoStartService();
+                    SystemSessionHelper.InstallAutoStartService();
 
                 Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;

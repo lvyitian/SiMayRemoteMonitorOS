@@ -1,4 +1,6 @@
-﻿using System;
+﻿using SiMay.ReflectCache;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,18 +12,20 @@ namespace SiMay.Serialize
     {
         public Encoding Encoding { get; set; } = Encoding.Unicode;
 
-        List<byte> _bytesArr = new List<byte>();
-        internal PacketSerializeSetup(object @object)
+        private List<byte> _bytesArr = new List<byte>();
+
+        internal PacketSerializeSetup(object instance)
         {
-            this.ActionSerialize(@object);
+            IMemberAccessor memberAccessor = DynamicMethodMemberAccessor.FindClassAccessor(instance.GetType());
+            this.StartSerialize(instance, memberAccessor);
         }
-        private void ActionSerialize(object @object)
+        private void StartSerialize(object instance, IMemberAccessor memberAccessor)
         {
-            var properties = @object.GetType().GetProperties();
+            var properties = instance.GetType().GetProperties();
             foreach (System.Reflection.PropertyInfo property in properties)
             {
                 var type = property.PropertyType;
-                var value = property.GetValue(@object, null);
+                var value = memberAccessor.GetValue(instance, property.Name); //property.GetValue(instance, null);
 
                 if (value == null)
                 {
@@ -65,22 +69,30 @@ namespace SiMay.Serialize
                     this.WriteDateTime((DateTime)value);
                 else if (type.BaseType.Equals(typeof(Enum)))
                     this.WriteEnum(value);
-                else if (type.IsArray)
+                else if (type.IsArray) //暂时仅支持数组
                 {
                     if (type.GetElementType().IsValueType)
                         throw new Exception("not supported this value array!");
 
-                    this.WriteArray((Array)value);
+                    var elementType = type.GetElementType();
+                    var arrayMemberAccessor = memberAccessor.Type.Equals(elementType) ? memberAccessor : DynamicMethodMemberAccessor.FindClassAccessor(elementType);
+                    this.WriteArray((Array)value, arrayMemberAccessor);
                 }
                 else if (type.IsClass)
                 {
+                    var childerInstanceMemberAccessor = memberAccessor.Type.Equals(property.PropertyType) ? memberAccessor : DynamicMethodMemberAccessor.FindClassAccessor(property.PropertyType);
                     this.WriteInt32(1);//是否为空标志位
-                    this.ActionSerialize(value);
+                    this.StartSerialize(value, childerInstanceMemberAccessor);
                 }
                 else
                     throw new Exception("not supported this type:" + type.FullName);
             }
         }
+        private bool IsArrayListCompatible(Type type)
+        {
+            return type.IsArray || type == typeof(ArrayList) || type == typeof(IEnumerable) || type == typeof(IList) || type == typeof(ICollection);
+        }
+
         public byte[] ToArray()
         {
             byte[] buffer = this._bytesArr.ToArray();
@@ -108,11 +120,11 @@ namespace SiMay.Serialize
             foreach (T item in val)
                 func(item);
         }
-        private void WriteArray(Array val)
+        private void WriteArray(Array val, IMemberAccessor memberAccessor)
         {
             this.WriteInt32(val.Length);
             foreach (var item in val)
-                this.ActionSerialize(item);
+                this.StartSerialize(item, memberAccessor);
         }
         private void WriteInt16(short s)
         {
@@ -145,8 +157,7 @@ namespace SiMay.Serialize
         }
         private void WriteDateTime(DateTime time)
         {
-            string str = time.ToString("yyyy");
-            if (str == "0001")
+            if (time.Equals(default))
                 this.WriteInt64(0);
             else
                 this.WriteInt64(time.ToFileTime());

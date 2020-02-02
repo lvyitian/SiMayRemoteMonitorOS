@@ -35,12 +35,12 @@ namespace SiMay.RemoteMonitor.Application
             this.Show();
         }
 
-        public void SessionClose(AdapterHandlerBase handler)
+        public void SessionClose(ApplicationAdapterHandler handler)
         {
             this.Text = _title + " [" + this.SystemAdapterHandler.StateContext.ToString() + "]";
         }
 
-        public void ContinueTask(AdapterHandlerBase handler)
+        public void ContinueTask(ApplicationAdapterHandler handler)
         {
             this.Text = _title;
         }
@@ -148,7 +148,7 @@ namespace SiMay.RemoteMonitor.Application
             this.SystemAdapterHandler.OnSystemInfoHandlerEvent -= OnSystemInfoHandlerEvent;
             this.SystemAdapterHandler.OnOccupyHandlerEvent -= OnOccupyHandlerEvent;
             this.SystemAdapterHandler.OnSessionsEventHandler -= OnSessionsEventHandler;
-            this.SystemAdapterHandler.CloseHandler();
+            this.SystemAdapterHandler.CloseSession();
         }
 
         private void GetSystemInfos()

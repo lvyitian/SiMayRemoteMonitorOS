@@ -10,9 +10,9 @@ namespace SiMay.Net.SessionProvider
 {
     public abstract class SessionProvider
     {
-        protected OnSessionNotify<SessionCompletedNotify, SessionHandler> _onSessionNotifyProc;
+        protected OnSessionNotify<SessionCompletedNotify, SessionProviderContext> _onSessionNotifyProc;
 
-        internal SessionProvider(OnSessionNotify<SessionCompletedNotify, SessionHandler> onSessionNotifyProc)
+        protected SessionProvider(OnSessionNotify<SessionCompletedNotify, SessionProviderContext> onSessionNotifyProc)
         {
             _onSessionNotifyProc = onSessionNotifyProc;
         }

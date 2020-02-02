@@ -3,14 +3,10 @@ using SiMay.Core;
 using SiMay.Core.Common;
 using SiMay.Core.Enums;
 using SiMay.Core.PacketModelBinder.Attributes;
-using SiMay.Core.PacketModelBinding;
 using SiMay.Core.Packets;
 using SiMay.Core.Packets.FileManager;
 using SiMay.ServiceCore.Attributes;
 using SiMay.ServiceCore.Entitys;
-using SiMay.ServiceCore.Extensions;
-
-using SiMay.Sockets.Tcp;
 using SiMay.Sockets.Tcp.Session;
 using System;
 using System.Collections.Generic;
@@ -20,11 +16,11 @@ using System.Linq;
 using System.Threading;
 using static SiMay.ServiceCore.CommonWin32Api;
 
-namespace SiMay.ServiceCore.ApplicationService
+namespace SiMay.ServiceCore
 {
     [ServiceName("文件管理")]
     [ServiceKey(AppJobConstant.REMOTE_FILE)]
-    public class FileService : ServiceManagerBase
+    public class FileService : ApplicationRemoteService
     {
         private const int FILE_BUFFER_SIZE = 1024 * 512;
 
@@ -33,6 +29,10 @@ namespace SiMay.ServiceCore.ApplicationService
         private bool _isStopTask = false;
         private System.IO.FileStream _fileStream;
         private ManualResetEvent _event = new ManualResetEvent(true);
+        public override void SessionInited(TcpSocketSaeaSession session)
+        {
+
+        }
         public override void SessionClosed()
         {
             this._isSessionClose = true;
@@ -43,7 +43,7 @@ namespace SiMay.ServiceCore.ApplicationService
         [PacketHandler(MessageHead.S_FILE_UPLOAD)]
         public void TryFixedDownloadFile(TcpSocketSaeaSession session)
         {
-            var pack = session.CompletedBuffer.GetMessageEntity<FileUploadPack>();
+            var pack = GetMessageEntity<FileUploadPack>(session);
             this._event.WaitOne();//等待上个文件传输完成
             if (_isSessionClose)
                 return;
@@ -74,13 +74,13 @@ namespace SiMay.ServiceCore.ApplicationService
                 this.SendErrorMessage(ex, "文件上传打开失败!");
             }
             Console.WriteLine("send status");
-            SendAsyncToServer(MessageHead.C_FILE_OPEN_STATUS, response);
+            SendTo(CurrentSession, MessageHead.C_FILE_OPEN_STATUS, response);
         }
 
         [PacketHandler(MessageHead.S_FILE_FRIST_DATA)]
         public void RecvFristDataHandler(TcpSocketSaeaSession session)
         {
-            var data = session.CompletedBuffer.GetMessageEntity<FileFristUploadDataPack>();
+            var data = GetMessageEntity<FileFristUploadDataPack>(session);
             if (data.FileMode == 0)
             {
                 _fileStream.Position = 0;
@@ -97,7 +97,7 @@ namespace SiMay.ServiceCore.ApplicationService
         [PacketHandler(MessageHead.S_FILE_DATA)]
         public void RecvDataHandler(TcpSocketSaeaSession session)
         {
-            var data = session.CompletedBuffer.GetMessageEntity<FileUploadDataPack>();
+            var data = GetMessageEntity<FileUploadDataPack>(session);
             this.WriteFileAsync(data.Data, data.FileSize);
         }
 
@@ -112,14 +112,14 @@ namespace SiMay.ServiceCore.ApplicationService
                 if (_fileStream.Length == originSize)
                     this.CloseFileStream();
                 else
-                    SendAsyncToServer(MessageHead.C_FILE_NEXT_DATA);
+                    SendTo(CurrentSession, MessageHead.C_FILE_NEXT_DATA);
             }, null);
         }
 
         [PacketHandler(MessageHead.S_FILE_FILE_PASTER)]
         public void CopyFiles(TcpSocketSaeaSession session)
         {
-            var files = session.CompletedBuffer.GetMessageEntity<FileCopyPack>();
+            var files = GetMessageEntity<FileCopyPack>(session);
             ThreadHelper.CreateThread(() =>
             {
                 var failFiles = new List<string>();
@@ -140,7 +140,7 @@ namespace SiMay.ServiceCore.ApplicationService
                         this.SendErrorMessage(ex, "文件复制失败!");
                     }
                 }
-                SendAsyncToServer(MessageHead.C_FILE_COPY_FINISH,
+                SendTo(CurrentSession, MessageHead.C_FILE_COPY_FINISH,
                     new FileCopyFinishPack()
                     {
                         ExceptionFileNames = failFiles.ToArray()
@@ -152,7 +152,7 @@ namespace SiMay.ServiceCore.ApplicationService
         [PacketHandler(MessageHead.S_FILE_DELETE)]
         public void DeleteFiles(TcpSocketSaeaSession session)
         {
-            var files = session.CompletedBuffer.GetMessageEntity<FileDeletePack>();
+            var files = GetMessageEntity<FileDeletePack>(session);
             ThreadHelper.CreateThread(() =>
             {
                 var response = new List<string>();
@@ -175,7 +175,7 @@ namespace SiMay.ServiceCore.ApplicationService
                     }
                 }
 
-                SendAsyncToServer(MessageHead.C_FILE_DELETE_FINISH,
+                SendTo(CurrentSession, MessageHead.C_FILE_DELETE_FINISH,
                     new FileDeleteFinishPack()
                     {
                         DeleteFileNames = response.ToArray()
@@ -187,7 +187,7 @@ namespace SiMay.ServiceCore.ApplicationService
         [PacketHandler(MessageHead.S_FILE_CREATE_DIR)]
         public void CreateDirectory(TcpSocketSaeaSession session)
         {
-            var file = session.CompletedBuffer.GetMessageEntity<FileCreateDirectoryPack>();
+            var file = GetMessageEntity<FileCreateDirectoryPack>(session);
             var result = true;
             try
             {
@@ -201,7 +201,7 @@ namespace SiMay.ServiceCore.ApplicationService
 
             if (!file.NoCallBack)
             {
-                SendAsyncToServer(MessageHead.C_FILE_CREATEF_DIR_FNISH,
+                SendTo(CurrentSession, MessageHead.C_FILE_CREATEF_DIR_FNISH,
                     new FileCreateDirectoryFinishPack()
                     {
                         IsSuccess = result
@@ -212,7 +212,7 @@ namespace SiMay.ServiceCore.ApplicationService
         [PacketHandler(MessageHead.S_FILE_RENAME)]
         public void FileReName(TcpSocketSaeaSession session)
         {
-            var file = session.CompletedBuffer.GetMessageEntity<FileReNamePack>();
+            var file = GetMessageEntity<FileReNamePack>(session);
             var result = true;
             ThreadHelper.CreateThread(() =>
             {
@@ -230,7 +230,7 @@ namespace SiMay.ServiceCore.ApplicationService
                     result = false;
                     this.SendErrorMessage(ex, "文件重命名失败!");
                 }
-                SendAsyncToServer(MessageHead.C_FILE_RENAME_FINISH,
+                SendTo(CurrentSession, MessageHead.C_FILE_RENAME_FINISH,
                     new FileReNameFinishPack()
                     {
                         SourceFileName = file.SourceFileName,
@@ -243,7 +243,7 @@ namespace SiMay.ServiceCore.ApplicationService
         [PacketHandler(MessageHead.S_FILE_OPEN_TEXT)]
         public void OpenText(TcpSocketSaeaSession session)
         {
-            var file = session.CompletedBuffer.GetMessageEntity<FileOpenTextPack>();
+            var file = GetMessageEntity<FileOpenTextPack>(session);
             var textPack = new FileTextPack();
             if (File.Exists(file.FileName) && new FileInfo(file.FileName).Length <= 1024 * 512)
             {
@@ -262,26 +262,26 @@ namespace SiMay.ServiceCore.ApplicationService
             else
                 this.SendErrorMessage(new Exception(), "文件不存在或文件长度超出范围!");
 
-            this.SendAsyncToServer(MessageHead.C_FILE_TEXT, textPack);
+            this.SendTo(CurrentSession, MessageHead.C_FILE_TEXT, textPack);
         }
 
         [PacketHandler(MessageHead.S_FILE_GETDIR_FILES)]
         public void SendDirectoryFiles(TcpSocketSaeaSession session)
         {
-            var file = session.CompletedBuffer.GetMessageEntity<FileDirectoryGetFilesPack>();
+            var file = GetMessageEntity<FileDirectoryGetFilesPack>(session);
             ThreadPool.QueueUserWorkItem(c =>
             {
                 _isStopTask = false;//允许任务继续
                 var fileItems = new EventList<DirectoryFileItem>(100);
                 fileItems.Notify += (list, items) =>
-                    this.SendAsyncToServer(MessageHead.C_FILE_DIR_FILES,
+                    this.SendTo(CurrentSession, MessageHead.C_FILE_DIR_FILES,
                         new FileDirectoryFilesPack()
                         {
                             Files = items
                         });
                 this.DirectoryGetFiles(file.DirectoryPath, fileItems);
 
-                this.SendAsyncToServer(MessageHead.C_FILE_DIR_FILES,
+                this.SendTo(CurrentSession, MessageHead.C_FILE_DIR_FILES,
                     new FileDirectoryFilesPack()
                     {
                         Files = fileItems.ToArray()
@@ -328,7 +328,7 @@ namespace SiMay.ServiceCore.ApplicationService
         [PacketHandler(MessageHead.S_FILE_DOWNLOAD)]
         public void TryFixedUploadFile(TcpSocketSaeaSession session)
         {
-            var file = session.CompletedBuffer.GetMessageEntity<FileDownloadPack>();
+            var file = GetMessageEntity<FileDownloadPack>(session);
             //var dir = Path.GetDirectoryName(file.FileName);
             //if (!Directory.Exists(dir))
             //    Directory.CreateDirectory(dir);
@@ -361,7 +361,7 @@ namespace SiMay.ServiceCore.ApplicationService
 
             if (status != 1)
             {
-                this.SendAsyncToServer(MessageHead.C_FILE_FRIST_DATA,
+                this.SendTo(CurrentSession, MessageHead.C_FILE_FRIST_DATA,
                     new FileFristDownloadDataPack()
                     {
                         //fileName = Path.GetFileName(file.FileName),
@@ -374,7 +374,7 @@ namespace SiMay.ServiceCore.ApplicationService
             var fileSize = _fileStream.Length;
             this.ReadFileAsync(data =>
             {
-                this.SendAsyncToServer(MessageHead.C_FILE_FRIST_DATA,
+                this.SendTo(CurrentSession, MessageHead.C_FILE_FRIST_DATA,
                     new FileFristDownloadDataPack()
                     {
                         //fileName = Path.GetFileName(file.FileName),
@@ -391,7 +391,7 @@ namespace SiMay.ServiceCore.ApplicationService
         {
             this.ReadFileAsync(data =>
             {
-                this.SendAsyncToServer(MessageHead.C_FILE_DATA,
+                this.SendTo(CurrentSession, MessageHead.C_FILE_DATA,
                     new FileDownloadDataPack()
                     {
                         Data = data
@@ -453,7 +453,7 @@ namespace SiMay.ServiceCore.ApplicationService
 
         private void SendErrorMessage(Exception e, string info)
         {
-            byte[] data = MessageHelper.CopyMessageHeadTo(MessageHead.C_FILE_ERROR_INFO,
+            SendTo(CurrentSession, MessageHead.C_FILE_ERROR_INFO,
                 new FileExceptionPack()
                 {
                     OccurredTime = DateTime.Now,
@@ -461,13 +461,12 @@ namespace SiMay.ServiceCore.ApplicationService
                     ExceptionMessage = e.Message,
                     StackTrace = e.StackTrace
                 });
-            SendAsyncToServer(data);
         }
 
         [PacketHandler(MessageHead.S_FILE_EXECUTE)]
         public void ExcuteFile(TcpSocketSaeaSession session)
         {
-            var file = session.CompletedBuffer.GetMessageEntity<FileExcutePack>();
+            var file =  GetMessageEntity<FileExcutePack>(session);
             try
             {
                 if (Directory.Exists(file.FilePath))
@@ -481,14 +480,14 @@ namespace SiMay.ServiceCore.ApplicationService
         [PacketHandler(MessageHead.S_FILE_REDIRION)]
         public void RedirtionHandler(TcpSocketSaeaSession session)
         {
-            var pack = session.CompletedBuffer.GetMessageEntity<FileRedirectionPath>();
+            var pack = GetMessageEntity<FileRedirectionPath>(session);
             this.GetFileListHandler(Environment.GetFolderPath(pack.SpecialFolder));
         }
 
         [PacketHandler(MessageHead.S_FILE_GET_FILES)]
         public void SendFilelist(TcpSocketSaeaSession session)
         {
-            var pack = session.CompletedBuffer.GetMessageEntity<FileListPack>();
+            var pack = GetMessageEntity<FileListPack>(session);
             this.GetFileListHandler(pack.FilePath);
         }
 
@@ -517,7 +516,7 @@ namespace SiMay.ServiceCore.ApplicationService
                     })
                     .ToArray();
 
-                SendAsyncToServer(MessageHead.C_FILE_FILE_LIST, new FileListItemsPack()
+                SendTo(CurrentSession, MessageHead.C_FILE_FILE_LIST, new FileListItemsPack()
                 {
                     FileList = dirs.Concat(files).ToArray(),
                     Path = path,
@@ -527,7 +526,7 @@ namespace SiMay.ServiceCore.ApplicationService
             }
             catch (Exception e)
             {
-                SendAsyncToServer(MessageHead.C_FILE_FILE_LIST, new FileListItemsPack()
+                SendTo(CurrentSession, MessageHead.C_FILE_FILE_LIST, new FileListItemsPack()
                 {
                     FileList = new FileItem[0],
                     Path = path,
@@ -540,11 +539,11 @@ namespace SiMay.ServiceCore.ApplicationService
         [PacketHandler(MessageHead.S_FILE_TREE_DIR)]
         public void GetTreeDirsHandler(TcpSocketSaeaSession session)
         {
-            var pack = session.CompletedBuffer.GetMessageEntity<FileGetTreeDirectoryPack>();
+            var pack = GetMessageEntity<FileGetTreeDirectoryPack>(session);
             if (pack.TargetRoot == "")
             {
                 var drives = this.GetDrivelist();
-                SendAsyncToServer(MessageHead.C_FILE_TREE_DIRS,
+                SendTo(CurrentSession, MessageHead.C_FILE_TREE_DIRS,
                     new FileTreeDirFilePack()
                     {
                         FileList = drives.ToArray(),
@@ -557,7 +556,7 @@ namespace SiMay.ServiceCore.ApplicationService
                 try
                 {
                     var dirs = Directory.GetDirectories(pack.TargetRoot).Select(c => new FileItem() { FileName = Path.GetFileName(c) }).ToArray();
-                    SendAsyncToServer(MessageHead.C_FILE_TREE_DIRS,
+                    SendTo(CurrentSession, MessageHead.C_FILE_TREE_DIRS,
                         new FileTreeDirFilePack()
                         {
                             FileList = dirs,
@@ -567,7 +566,7 @@ namespace SiMay.ServiceCore.ApplicationService
                 }
                 catch (Exception ex)
                 {
-                    SendAsyncToServer(MessageHead.C_FILE_TREE_DIRS,
+                    SendTo(CurrentSession, MessageHead.C_FILE_TREE_DIRS,
                         new FileTreeDirFilePack()
                         {
                             FileList = new FileItem[0],
@@ -588,7 +587,7 @@ namespace SiMay.ServiceCore.ApplicationService
             {
 
                 var drives = this.GetDrivelist();
-                SendAsyncToServer(MessageHead.C_FILE_FILE_LIST,
+                SendTo(CurrentSession, MessageHead.C_FILE_FILE_LIST,
                     new FileListItemsPack()
                     {
                         FileList = drives.ToArray(),
@@ -599,7 +598,7 @@ namespace SiMay.ServiceCore.ApplicationService
             }
             catch (Exception e)
             {
-                SendAsyncToServer(MessageHead.C_FILE_FILE_LIST,
+                SendTo(CurrentSession, MessageHead.C_FILE_FILE_LIST,
                     new FileListItemsPack()
                     {
                         FileList = new FileItem[0],

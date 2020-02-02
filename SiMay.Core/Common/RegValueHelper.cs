@@ -26,16 +26,16 @@ namespace SiMay.Core.Common
                 case RegistryValueKind.Binary:
                     return value.Data.Length > 0 ? BitConverter.ToString(value.Data).Replace("-", " ").ToLower() : "(zero-length binary value)";
                 case RegistryValueKind.MultiString:
-                    return string.Join(" ", ByteConverter.ToStringArray(value.Data));
+                    return string.Join(" ", ByteConverterHelper.ToStringArray(value.Data));
                 case RegistryValueKind.DWord:
-                    var dword = ByteConverter.ToUInt32(value.Data);
+                    var dword = ByteConverterHelper.ToUInt32(value.Data);
                     return $"0x{dword:x8} ({dword})"; // show hexadecimal and decimal
                 case RegistryValueKind.QWord:
-                    var qword = ByteConverter.ToUInt64(value.Data);
+                    var qword = ByteConverterHelper.ToUInt64(value.Data);
                     return $"0x{qword:x8} ({qword})"; // show hexadecimal and decimal
                 case RegistryValueKind.String:
                 case RegistryValueKind.ExpandString:
-                    return ByteConverter.ToString(value.Data);
+                    return ByteConverterHelper.ToString(value.Data);
                 default:
                     return string.Empty;
             }

@@ -11,7 +11,7 @@ using System.Threading;
 
 namespace SiMay.Net.SessionProvider.SessionBased
 {
-    public class TcpProxySessionBased : SessionHandler, IDisposable
+    public class TcpProxySessionBased : SessionProviderContext, IDisposable
     {
         long _id;
         internal long Id { get { return _id; } }
@@ -48,16 +48,6 @@ namespace SiMay.Net.SessionProvider.SessionBased
             get { return _completedBuffer; }
         }
 
-        public override int Send(byte[] data)
-        {
-            return 0;
-        }
-
-        public override int Send(byte[] data, int offset, int length)
-        {
-            return 0;
-        }
-
         public override void SendAsync(byte[] data)
         {
             this.SendAsync(data, 0, data.Length);
@@ -68,7 +58,7 @@ namespace SiMay.Net.SessionProvider.SessionBased
             if (this._disposable == 1)
                 return;
 
-            byte[] bytes = CompressHelper.Compress(data, offset, length);
+            byte[] bytes = GZipHelper.Compress(data, offset, length);
             if ((SessionWorkType)_session.AppTokens[0] == SessionWorkType.ManagerSession)
             {
                 byte[] body = new byte[sizeof(Int64) + sizeof(Int32) + bytes.Length];
@@ -76,7 +66,7 @@ namespace SiMay.Net.SessionProvider.SessionBased
                 BitConverter.GetBytes(bytes.Length).CopyTo(body, 8);
                 bytes.CopyTo(body, 12);
 
-                SendMessageHelper.SendMessage(_session, MsgCommand.Msg_MessageData, body);
+                MessageHelper.SendMessage(_session, MsgCommand.Msg_MessageData, body);
             }
             else
             {
@@ -95,7 +85,7 @@ namespace SiMay.Net.SessionProvider.SessionBased
 
             if ((SessionWorkType)_session.AppTokens[0] == SessionWorkType.ManagerSession)
             {
-                SendMessageHelper.SendMessage(_session, MsgCommand.Msg_Close_Session, BitConverter.GetBytes(this.RemoteId));
+                MessageHelper.SendMessage(_session, MsgCommand.Msg_Close_Session, BitConverter.GetBytes(this.RemoteId));
             }
             else
             {

@@ -40,7 +40,7 @@ namespace SiMay.Net.HttpRemoteMonitorService
         string _login_id = AppConfiguration.LoginId;
         string _login_password = AppConfiguration.LoginPassWord;
 
-        Dictionary<string, SessionHandler> _sessionDictionary = new Dictionary<string, SessionHandler>();
+        Dictionary<string, SessionProviderContext> _sessionDictionary = new Dictionary<string, SessionProviderContext>();
 
         Queue<Consolelog> _logQueue = new Queue<Consolelog>(10);
 
@@ -150,7 +150,7 @@ namespace SiMay.Net.HttpRemoteMonitorService
             this.SendMessage(JsonConvert.SerializeObject(model));
         }
 
-        private void OnNotifyProc(SessionCompletedNotify notify, SessionHandler session)
+        private void OnNotifyProc(SessionCompletedNotify notify, SessionProviderContext session)
         {
             switch (notify)
             {
@@ -170,7 +170,7 @@ namespace SiMay.Net.HttpRemoteMonitorService
             }
         }
 
-        private void OnMessage(SessionHandler session)
+        private void OnMessage(SessionProviderContext session)
         {
             object[] ars = session.AppTokens;
             ConnectionWorkType sessionWorkType = (ConnectionWorkType)ars[0];
@@ -188,7 +188,7 @@ namespace SiMay.Net.HttpRemoteMonitorService
                     case MessageHead.C_MAIN_LOGIN://上线包
                         this.ProcessLogin(session);
                         break;
-                    case MessageHead.C_MAIN_SCREENWALL_IMG://屏幕视图数据
+                    case MessageHead.C_MAIN_DESKTOPVIEW_FRAME://屏幕视图数据
                         this.ProcessDesktopViewData(session, session.CompletedBuffer.GetMessagePayload());
                         break;
                 }
@@ -202,7 +202,7 @@ namespace SiMay.Net.HttpRemoteMonitorService
 
                         session.AppTokens[0] = ConnectionWorkType.MAINCON;
 
-                        byte[] data = MessageHelper.CopyMessageHeadTo(MessageHead.S_GLOBAL_OK);
+                        byte[] data = Core.MessageHelper.CopyMessageHeadTo(MessageHead.S_GLOBAL_OK);
                         session.SendAsync(data);
 
                         break;
@@ -213,7 +213,7 @@ namespace SiMay.Net.HttpRemoteMonitorService
             }
         }
 
-        private void ProcessDesktopViewData(SessionHandler session, byte[] bytes)
+        private void ProcessDesktopViewData(SessionProviderContext session, byte[] bytes)
         {
             if (this._manager_login_c == 0) return;
 
@@ -230,7 +230,7 @@ namespace SiMay.Net.HttpRemoteMonitorService
             this.PutLogQueue("DEBUG ImageProcess id:" + id + " " + bytes.Length / 1024 + "k");
         }
 
-        private void SessionClosed(SessionHandler session)
+        private void SessionClosed(SessionProviderContext session)
         {
             string id = (string)session.AppTokens[1];
             this._sessionDictionary.Remove(id);
@@ -252,7 +252,7 @@ namespace SiMay.Net.HttpRemoteMonitorService
             }
         }
 
-        private void InitSessionAppToken(SessionHandler session)
+        private void InitSessionAppToken(SessionProviderContext session)
         {
             string id = "A" + Guid.NewGuid().ToString().Replace("-", "");
             //分配NONE,等待工作指令分配新的工作类型
@@ -267,7 +267,7 @@ namespace SiMay.Net.HttpRemoteMonitorService
             this.PutLogQueue("DEBUG Session Connect id:" + id);
         }
 
-        private void ProcessLogin(SessionHandler session)
+        private void ProcessLogin(SessionProviderContext session)
         {
             LoginPack login = PacketSerializeHelper.DeserializePacket<LoginPack>(session.CompletedBuffer.GetMessagePayload());
 
@@ -404,10 +404,10 @@ namespace SiMay.Net.HttpRemoteMonitorService
             string id = request.Id;
             if (this._sessionDictionary.ContainsKey(id))
             {
-                SessionHandler session = this._sessionDictionary[id];
+                SessionProviderContext session = this._sessionDictionary[id];
                 if (!(bool)session.AppTokens[2])
                 {
-                    byte[] data = MessageHelper.CopyMessageHeadTo(MessageHead.S_MAIN_DESKTOPVIEW);
+                    byte[] data = Core.MessageHelper.CopyMessageHeadTo(MessageHead.S_MAIN_CREATE_DESKTOPVIEW);
                     session.SendAsync(data);
 
                     session.AppTokens[2] = true;
@@ -420,12 +420,12 @@ namespace SiMay.Net.HttpRemoteMonitorService
             string id = request.Id;
             if (this._sessionDictionary.ContainsKey(id))
             {
-                SessionHandler session = this._sessionDictionary[id];
+                SessionProviderContext session = this._sessionDictionary[id];
                 if ((bool)session.AppTokens[2])
                 {
                     session.AppTokens[2] = false;
 
-                    byte[] data = MessageHelper.CopyMessageHeadTo(MessageHead.S_MAIN_USERDESKTOP_CLOSE);
+                    byte[] data = Core.MessageHelper.CopyMessageHeadTo(MessageHead.S_MAIN_DESKTOPVIEW_CLOSE);
                     session.SendAsync(data);
                 }
             }
@@ -436,7 +436,7 @@ namespace SiMay.Net.HttpRemoteMonitorService
 
             if (this._sessionDictionary.ContainsKey(id))
             {
-                byte[] data = MessageHelper.CopyMessageHeadTo(MessageHead.S_MAIN_SESSION, new byte[] { 6 });
+                byte[] data = Core.MessageHelper.CopyMessageHeadTo(MessageHead.S_MAIN_SESSION, new byte[] { 6 });
                 this._sessionDictionary[id].SendAsync(data);
             }
 
@@ -448,7 +448,7 @@ namespace SiMay.Net.HttpRemoteMonitorService
 
             if (this._sessionDictionary.ContainsKey(id))
             {
-                byte[] data = MessageHelper.CopyMessageHeadTo(MessageHead.S_MAIN_HTTPDOWNLOAD, url);
+                byte[] data = Core.MessageHelper.CopyMessageHeadTo(MessageHead.S_MAIN_HTTPDOWNLOAD, url);
                 this._sessionDictionary[id].SendAsync(data);
             }
         }
@@ -459,7 +459,7 @@ namespace SiMay.Net.HttpRemoteMonitorService
 
             if (this._sessionDictionary.ContainsKey(id))
             {
-                byte[] data = MessageHelper.CopyMessageHeadTo(MessageHead.S_MAIN_OPEN_WEBURL, url);
+                byte[] data = Core.MessageHelper.CopyMessageHeadTo(MessageHead.S_MAIN_OPEN_WEBURL, url);
                 this._sessionDictionary[id].SendAsync(data);
             }
         }
@@ -470,7 +470,7 @@ namespace SiMay.Net.HttpRemoteMonitorService
 
             if (this._sessionDictionary.ContainsKey(id))
             {
-                byte[] data = MessageHelper.CopyMessageHeadTo(MessageHead.S_MAIN_SESSION, new byte[] { byte.Parse(val) });
+                byte[] data = Core.MessageHelper.CopyMessageHeadTo(MessageHead.S_MAIN_SESSION, new byte[] { byte.Parse(val) });
                 this._sessionDictionary[id].SendAsync(data);
             }
         }
@@ -485,7 +485,7 @@ namespace SiMay.Net.HttpRemoteMonitorService
                 msg.MessageTitle = "系统通知";
                 msg.MessageBody = body;
 
-                byte[] data = MessageHelper.CopyMessageHeadTo(MessageHead.S_MAIN_MESSAGEBOX, PacketSerializeHelper.SerializePacket(msg));
+                byte[] data = Core.MessageHelper.CopyMessageHeadTo(MessageHead.S_MAIN_MESSAGEBOX, PacketSerializeHelper.SerializePacket(msg));
                 this._sessionDictionary[id].SendAsync(data);
             }
         }
@@ -496,7 +496,7 @@ namespace SiMay.Net.HttpRemoteMonitorService
             string des = request.val;
             if (this._sessionDictionary.ContainsKey(id))
             {
-                byte[] data = MessageHelper.CopyMessageHeadTo(MessageHead.S_MAIN_REMARK, des);
+                byte[] data = Core.MessageHelper.CopyMessageHeadTo(MessageHead.S_MAIN_REMARK, des);
                 this._sessionDictionary[id].SendAsync(data);
             }
         }
@@ -508,12 +508,12 @@ namespace SiMay.Net.HttpRemoteMonitorService
         {
             if (this._sessionDictionary.ContainsKey(id))
             {
-                SessionHandler session = this._sessionDictionary[id];
+                SessionProviderContext session = this._sessionDictionary[id];
 
                 if (!(bool)session.AppTokens[2])
                     return;
 
-                byte[] data = MessageHelper.CopyMessageHeadTo(MessageHead.S_MAIN_SCREENWALL_GETIMG, _desktopView_width + "|" + _desktopView_height + "|" + _desktopView_spantime);
+                byte[] data = Core.MessageHelper.CopyMessageHeadTo(MessageHead.S_MAIN_DESKTOPVIEW_GETFRAME, _desktopView_width + "|" + _desktopView_height + "|" + _desktopView_spantime);
                 session.SendAsync(data);
 
                 this.PutLogQueue("DEBUG pull Image height:" + _desktopView_height + " width:" + _desktopView_width);
@@ -527,7 +527,7 @@ namespace SiMay.Net.HttpRemoteMonitorService
         {
             foreach (var item in this._sessionDictionary)
             {
-                byte[] data = MessageHelper.CopyMessageHeadTo(MessageHead.S_GLOBAL_OK);
+                byte[] data = Core.MessageHelper.CopyMessageHeadTo(MessageHead.S_GLOBAL_OK);
                 item.Value.SendAsync(data);
             }
         }

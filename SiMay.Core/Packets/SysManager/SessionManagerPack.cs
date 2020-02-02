@@ -1,21 +1,22 @@
-﻿using System;
+﻿using SiMay.ReflectCache;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace SiMay.Core.Packets.SysManager
 {
-    public class CreateProcessAsUserPack
+    public class CreateProcessAsUserPack : EntitySerializerBase
     {
         public int SessionId { get; set; }
     }
 
-    public class SessionsPack : BasePacket
+    public class SessionsPack : EntitySerializerBase
     {
         public SessionItem[] Sessions { get; set; }
     }
 
-    public class SessionItem
+    public class SessionItem : EntitySerializerBase
     {
         public string UserName { get; set; }
         public int SessionId { get; set; }

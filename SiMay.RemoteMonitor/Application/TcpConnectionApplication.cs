@@ -31,11 +31,14 @@ namespace SiMay.RemoteMonitor.Application
         public void Start()
             => this.Show();
 
-        public void SessionClose(AdapterHandlerBase handler)
+        public void SessionClose(ApplicationAdapterHandler handler)
             => this.Text = _title + " [" + handler.StateContext.ToString() + "]";
 
-        public void ContinueTask(AdapterHandlerBase handler)
-            => this.Text = _title;
+        public void ContinueTask(ApplicationAdapterHandler handler)
+        {
+            this.Text = _title;
+            TcpConnectionAdapterHandler.GetTcpList();
+        }
 
         private void TcpConnectionManager_Load(object sender, EventArgs e)
         {
@@ -82,7 +85,7 @@ namespace SiMay.RemoteMonitor.Application
         private void TestApp_FormClosing(object sender, FormClosingEventArgs e)
         {
             TcpConnectionAdapterHandler.OnTcpListHandlerEvent -= OnTcpListHandlerEvent;
-            TcpConnectionAdapterHandler.CloseHandler();
+            TcpConnectionAdapterHandler.CloseSession();
         }
         private void 刷新列表ToolStripMenuItem_Click(object sender, EventArgs e)
         {

@@ -9,10 +9,10 @@ namespace SiMay.Net.SessionProviderService.OnChannelListViewItem
 {
     public class ChannelListViewItem : ListViewItem
     {
-        public ChannelListViewItem(TcpChannelContext context)
+        public ChannelListViewItem(TcpSessionChannelContext context)
         {
             TcpChannelContext = context;
         }
-        public TcpChannelContext TcpChannelContext { get; set; }
+        public TcpSessionChannelContext TcpChannelContext { get; set; }
     }
 }
