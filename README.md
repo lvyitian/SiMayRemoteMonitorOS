@@ -1,4 +1,5 @@
-﻿﻿# 系统介绍
+﻿﻿
+# 系统介绍
  - SiMay远程控制管理系统是一个Windows远程控制系统，底层基于IOCP的异步通信模型，能对海量客户端实时监控，目前功能已实现:远程桌面，基于可视区域逐行扫描算法，仅传输桌面变化区域，可有效节省传输流量；经典的文件管理方式，实现了快速上传下载文件和文件夹；实时传输远程语音与发送语音，及实时捕获远程摄像头；Windows风格界面的经典注册表管理模块；命令行终端；系统进程管理，实时进程查看，用户桌面视图墙轮播等功能，被控服务端支持绿色启动及以系统服务方式安装，解决了WindowsSession桌面切换限制，实现了捕获UAC,WinLogon桌面；系统实现了中间会话服务器，可支持不同平台多主控端同时监控同一被控端，项目完全采用C#.NET开发，代码仅供参考，项目不定时更新，欢迎关注点星星，fork。欢迎入群技术交流:905958449 :laughing:  :blush: 
 
 # 申明
@@ -16,66 +17,71 @@
   
 # 系统项目结构
 
-### SiMay.Core【公共核心功能】##
- - SiMay.Basic--基础通用库
- - SiMay.Core--系统核心统一公共库【统一通讯指令丶共用组件丶通信数据实体等..】
- - SiMay.Serialize--轻量级高性能二进制序列化库【作用:系统通信数据实体化】
+### SiMay.Core【公共核心功能】
+ - SiMay.Basic --基础通用库
+ - SiMay.Core --系统核心统一公共库【统一通讯指令丶共用组件丶通信数据实体等..】
+ - SiMay.Serialize --轻量级高性能二进制序列化库【作用:系统通信数据实体化】
 
-### SiMay.RemoteMonitor【主控端】##
- - SiMay.RemoteControlsCore 主控端核心库
- - SiMay.RemoteMonitor--Windows主控端(基于核心库)
+### SiMay.RemoteMonitor【主控端】
+ - SiMay.RemoteControlsCore --主控端核心库
+ - SiMay.RemoteMonitor --Windows主控端(基于核心库)
  - SiMay.RemoteMonitorForWeb【计划，未完成】 --Web主控端后端(基于核心库，支持.NET Core)，基于WebSocket与前端通信
  - SiMay.RemoteMonitorForWebSite【计划，未完成】 --Web监控前端
 
-### SiMay.RemoteService【远程服务端】##
+### SiMay.RemoteService【远程服务端】
  - SiMay.RemoteService.Loader --内存加载Loader，实现远程内存载入被控端核心库
  - SiMay.ServiceCore --被控端核心库/被控端主程序
 
-### SiMay.SessionProvider【会话提供库】##
- - SiMay.Net.SessionProvider--会话提供库【作用：提供服务器监听模式或者中间会话代理协议】
- - SiMay.Net.SessionProvider.Core--代理协议统一公用库【作用：统一中间库和服务器的通信指令及序列化等】
- - SiMay.Net.SessionProviderService--中间会话代理服务器【作用：提供保持服务端会话保持丶数据转发功能，基于此实现多平台端监控】
+### SiMay.SessionProvider【会话提供库】
+ - SiMay.Net.SessionProvider --会话提供库【作用：提供服务器监听模式或者中间会话代理协议】
+ - SiMay.Net.SessionProvider.Core --代理协议统一公用库【作用：统一中间库和服务器的通信指令及序列化等】
+ - SiMay.Net.SessionProviderService --中间会话代理服务器【作用：提供保持服务端会话保持丶数据转发功能，基于此实现多平台端监控】
 
-### SiMay.Sockets【Socket通信库】##
+### SiMay.Sockets【Socket通信库】
  - SiMay.Socket.Standard --轻量级通信引擎
- - SiMaySocketTestApp--通信引擎测试程序
+ - SiMaySocketTestApp --通信引擎测试程序
 
-### SiMay.Web.MonitorService【Web监控服务端，已弃用】##
- - SiMay.Net.HttpRemoteMonitorService--WebSocket监控服务端
+### SiMay.Web.MonitorService【Web监控服务端，已弃用】
+ - SiMay.Net.HttpRemoteMonitorService --WebSocket监控服务端
 
 
 ### 编译
-1.Bin为编译目录，重新生成后，主控程序将编译到此目录，Bin->dat目录为被控服务端目录，被控服务端编译后在此。(没有目录新建一下)
+ - 1.Bin为编译目录，重新生成后，主控程序将编译到此目录，Bin->dat目录为被控服务端目录，被控服务端编译后在此。(没有目录新建一下)
 
 ### 运行
-1.局域网
+ - 1.局域网
+
 主控端:打开位与Bin目录下的主控端程序SiMayRemoteMonitor.exe，确认系统设置服务器地址为0.0.0.0(监听本机所有网卡)，端口默认5200，使用会话模式为=本地服务器，然后保存配置重启程序,
 重启后日志输出监听成功，即主控端设置正确。
 
 被控服务端创建:打开主控端-->创建客户-->地址输入本机物理地址(或127.0.0.1)，端口设置为服务端监听端口(默认5200)-->点击连接测试检查配置是否正确-->创建服务端文件，服务端文件即为配置完成的被控端程序(如提示找不到文件，请检查被控服务程序是否存在[编译步骤是否正确])，双击运行被控服务程序即可在主控端看见服务在线信息，如主控端无在线信息，请检查上述步骤是否配置正确。
 
-2.广域网
+ - 2.广域网
+
 条件:需要主控端处于公网环境(或者设置路由内网映射、使用内网映射工具[如花生壳，内网通])，并且开放主控端监听端口(注意检查端口是否开放、防火墙通行规则)。
 创建客户端-->被控服务端连接至主控端的公网地址，端口即可
 
-3.中间服务器部署
+ - 3.中间服务器部署
+
 条件:需要中间服务器处于公网环境(建议部署在公网服务器，或者设置路由内网映射)，并且开放中间服务器监听端口(默认522端口、注意检查端口是否开放、防火墙通行规则)。
 
 主控端设置: 系统设置-->会话服务器地址 输入 中间服务器的公网地址，端口。-->设置会话模式为:中间会话模式-->确认AccessKey与中间服务器Accesskey一致。(中间会话服务器系统设置位于标题栏系统菜单右键)-->创建客户端并选择会话模式为中间会话模式，ip，端输入中间服务器的公网地址即可
 
-4.web端监控【完善中，不可用】
+ - 4.web端监控【完善中，不可用】
+
 配置IIS，部署SiMay.WebRemoteMonitor网站，编译启动SiMay.Net.HttpRemoteMonitorService，配置地址指向中间服务器ip，端口即可(无系统设置，需手动配置配置文件)，如连接成功，中间服务器出现主控制连接在线日志即可
 使用浏览器，访问SiMay.WebRemoteMonitor网站，输入SiMay.Net.HttpRemoteMonitorService配置的账号密码即可，当有中间服务器有被控端会话时，将自动连接至http服务，连接成功后网页可看到被控服务端计算机桌面视图，长按视图可打开更多功能。
 
 ### 技术架构
- - 基于IOCP的异步Socket高性能通信模型
- - 基于实体的实体消息协议
- - 热区域逐行扫描算法的远程桌面
  - 基于组件式的系统架构
+ - 基于实体的实体消息协议
+ - 基于IOCP的异步Socket高性能通信模型
+ - 基于可视区域逐行扫描算法的远程桌面
  - 基于Windows WaInXX系列实现的语音通讯
  - 基于Dx组件捕获摄像头
  - 基于HOOK技术的键盘记录
  - 基于WebSocket技术实现Web端监控
+ - 中间会话服务转发，支持多个主控端同时实时监控
 
 ### 开发环境
  - 建议 Visual Studio 2019 企业版

@@ -40,7 +40,7 @@ namespace SiMay.Net.SessionProviderServiceCore
                 }
 
                 TcpSessionChannelDispatcher dispatcher;
-                if (_dispatchers.TryGetValue((int)_accessId.Value, out dispatcher) || true)
+                if (_dispatchers.TryGetValue(_accessId.Value, out dispatcher) || true)
                 {
                     var calculateOffsetLength = (_packageLength.Value + defineHeadSize) - _transpondOffset;
                     if (ListByteBuffer.Count <= calculateOffsetLength)
