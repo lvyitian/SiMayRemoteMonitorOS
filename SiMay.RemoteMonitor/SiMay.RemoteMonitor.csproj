@@ -158,6 +158,7 @@
     <Compile Include="Helper\ListViewSortHelper.cs" />
     <Compile Include="Enums\FileItemType.cs" />
     <Compile Include="Extensions\ListViewExtensions.cs" />
+    <Compile Include="Helper\MessageBoxHelper.cs" />
     <Compile Include="MainApplication\DesktopViewCarousel\DesktopViewWallSettingForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -497,7 +498,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SiMay.Basic\SiMay.Basic.csproj">
-      <Project>{b30cd716-698a-4da2-bd1a-c152b16993c0}</Project>
+      <Project>{8f2f35cb-d5ee-4d92-b42f-bcffbf9c9d4f}</Project>
       <Name>SiMay.Basic</Name>
     </ProjectReference>
     <ProjectReference Include="..\SiMay.Core\SiMay.Core.csproj">
@@ -505,16 +506,16 @@
       <Name>SiMay.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\SiMay.Net.SessionProvider\SiMay.Net.SessionProvider.csproj">
-      <Project>{BF5B6F41-D688-447F-BF81-EA821216F188}</Project>
+      <Project>{71283236-56cb-481e-a644-b7f9af9efdf9}</Project>
       <Name>SiMay.Net.SessionProvider</Name>
     </ProjectReference>
     <ProjectReference Include="..\SiMay.RemoteControlsCore\SiMay.RemoteControlsCore.csproj">
       <Project>{44dfa13c-03c3-4f07-9d78-30f981bfabc5}</Project>
       <Name>SiMay.RemoteControlsCore</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SiMay.Serialize\SiMay.Serialize.csproj">
-      <Project>{4888d6bb-46d9-4519-8758-e13e397aa226}</Project>
-      <Name>SiMay.Serialize</Name>
+    <ProjectReference Include="..\SiMay.Serialize.Standard\SiMay.Serialize.Standard.csproj">
+      <Project>{9525a4aa-6731-4ab2-8cd0-addf7940fe32}</Project>
+      <Name>SiMay.Serialize.Standard</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

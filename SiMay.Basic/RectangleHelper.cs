@@ -8,7 +8,7 @@ namespace SiMay.Basic
 {
     public class RectangleHelper
     {
-        public static bool WhetherContainsInDisplayRectangle(Rectangle containerRect, Rectangle childRect)
+        public static bool WhetherContainsInRectangle(Rectangle containerRect, Rectangle childRect)
         {
             var result = childRect.Y + childRect.Height >= containerRect.Y && childRect.Y <= containerRect.Bottom;
             return result;

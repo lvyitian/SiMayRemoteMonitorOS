@@ -10,6 +10,9 @@ using System.Text;
 
 namespace SiMay.Sockets.Tcp.Session
 {
+    /// <summary>
+    /// 提供不同数据接收处理方式的抽象类(PACK和FULL)
+    /// </summary>
     public abstract class TcpSocketSaeaSession
     {
         protected NotifyEventHandler<TcpSocketCompletionNotify, TcpSocketSaeaSession> NotifyEventHandler { get; set; }

@@ -163,12 +163,12 @@
   <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\SiMay.Basic\SiMay.Basic.csproj">
-      <Project>{B30CD716-698A-4DA2-BD1A-C152B16993C0}</Project>
+      <Project>{8f2f35cb-d5ee-4d92-b42f-bcffbf9c9d4f}</Project>
       <Name>SiMay.Basic</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SiMay.Serialize\SiMay.Serialize.csproj">
-      <Project>{4888d6bb-46d9-4519-8758-e13e397aa226}</Project>
-      <Name>SiMay.Serialize</Name>
+    <ProjectReference Include="..\SiMay.Serialize.Standard\SiMay.Serialize.Standard.csproj">
+      <Project>{9525a4aa-6731-4ab2-8cd0-addf7940fe32}</Project>
+      <Name>SiMay.Serialize.Standard</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -19,6 +19,7 @@ using System.Linq;
 using System.Reflection;
 using System.ServiceProcess;
 using SiMay.ServiceCore.MainService;
+using SiMay.Serialize.Standard;
 
 namespace SiMay.ServiceCore
 {

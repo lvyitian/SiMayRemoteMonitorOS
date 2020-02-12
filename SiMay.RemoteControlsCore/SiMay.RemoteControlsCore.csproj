@@ -85,7 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SiMay.Basic\SiMay.Basic.csproj">
-      <Project>{B30CD716-698A-4DA2-BD1A-C152B16993C0}</Project>
+      <Project>{8F2F35CB-D5EE-4D92-B42F-BCFFBF9C9D4F}</Project>
       <Name>SiMay.Basic</Name>
     </ProjectReference>
     <ProjectReference Include="..\SiMay.Core\SiMay.Core.csproj">
@@ -93,12 +93,12 @@
       <Name>SiMay.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\SiMay.Net.SessionProvider\SiMay.Net.SessionProvider.csproj">
-      <Project>{BF5B6F41-D688-447F-BF81-EA821216F188}</Project>
+      <Project>{71283236-56CB-481E-A644-B7F9AF9EFDF9}</Project>
       <Name>SiMay.Net.SessionProvider</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SiMay.Serialize\SiMay.Serialize.csproj">
-      <Project>{4888d6bb-46d9-4519-8758-e13e397aa226}</Project>
-      <Name>SiMay.Serialize</Name>
+    <ProjectReference Include="..\SiMay.Serialize.Standard\SiMay.Serialize.Standard.csproj">
+      <Project>{9525A4AA-6731-4AB2-8CD0-ADDF7940FE32}</Project>
+      <Name>SiMay.Serialize.Standard</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

@@ -27,13 +27,14 @@ namespace SiMay.Basic
             catch { }
             return buffer;
         }
-
         public static byte[] Decompress(byte[] data)
+            => Decompress(data, 0, data.Length);
+        public static byte[] Decompress(byte[] data, int offset, int length)
         {
             byte[] buffer = null;
             try
             {
-                MemoryStream ms = new MemoryStream(data);
+                MemoryStream ms = new MemoryStream(data, offset, length);
                 GZipStream zip = new GZipStream(ms, CompressionMode.Decompress, true);
                 MemoryStream msreader = new MemoryStream();
                 buffer = new byte[0x1000];

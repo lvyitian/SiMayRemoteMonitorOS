@@ -17,7 +17,7 @@ namespace SiMay.Net.SessionProvider
             dataBuilder.AddRange(body);
             return dataBuilder.ToArray();
         }
-        public static void SendMessage(TcpSocketSaeaSession session, MsgCommand cmd, byte[] body = null)
+        public static void SendMessage(TcpSocketSaeaSession session, MessageHead cmd, byte[] body = null)
         {
             if (body == null)
                 body = new byte[] { 0 };

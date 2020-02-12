@@ -4,14 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4888D6BB-46D9-4519-8758-E13E397AA226}</ProjectGuid>
+    <ProjectGuid>{8BFDB408-D26D-4689-B426-BE45AD195880}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SiMay.Serialize</RootNamespace>
-    <AssemblyName>SiMay.Serialize</AssemblyName>
+    <RootNamespace>SiMay.Net.SessionProvider.Core</RootNamespace>
+    <AssemblyName>SiMay.Net.SessionProvider.Core</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -38,6 +37,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -45,14 +45,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ReflectCachePool\EntitySerializerBase.cs" />
-    <Compile Include="PacketDeserializeSetup.cs" />
-    <Compile Include="PacketSerializeHelper.cs" />
-    <Compile Include="PacketSerializeSetup.cs" />
+    <Compile Include="Helper\MessageHelper.cs" />
+    <Compile Include="LogHelper.cs" />
+    <Compile Include="MsgCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReflectCachePool\DynamicMethodMemberAccessor.cs" />
-    <Compile Include="ReflectCachePool\IMemberAccessor.cs" />
+    <Compile Include="Win32Api.cs" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

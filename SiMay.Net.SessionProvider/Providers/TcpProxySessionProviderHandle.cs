@@ -12,14 +12,13 @@ using System.Threading.Tasks;
 using System.Threading;
 using SiMay.Net.SessionProvider.Core;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
 using SiMay.Net.SessionProvider.Notify;
 using SiMay.Basic;
 using SiMay.Sockets.Tcp.Session;
 using SiMay.Sockets.Tcp.TcpConfiguration;
 using SiMay.Core.Packets;
 using SiMay.Core.Enums;
-using static SiMay.Serialize.PacketSerializeHelper;
+using static SiMay.Serialize.Standard.PacketSerializeHelper;
 
 namespace SiMay.Net.SessionProvider.Providers
 {
@@ -100,7 +99,7 @@ namespace SiMay.Net.SessionProvider.Providers
                 };
 
                 //获取所有主连接
-                MessageHelper.SendMessage(session, MsgCommand.Msg_Pull_Session);
+                MessageHelper.SendMessage(session, MessageHead.Msg_Pull_Session);
             }
             else
             {
@@ -257,25 +256,25 @@ namespace SiMay.Net.SessionProvider.Providers
         }
         private void OnMessage(byte[] data)
         {
-            MsgCommand cmd = (MsgCommand)data[0];
+            MessageHead cmd = (MessageHead)data[0];
             switch (cmd)
             {
-                case MsgCommand.Msg_Set_Session:
+                case MessageHead.Msg_Set_Session:
                     this.CreateSession(data);
                     break;
-                case MsgCommand.Msg_Connect_Work:
+                case MessageHead.Msg_Connect_Work:
                     this._clientAgent.ConnectToServer(this._options.ServiceIPEndPoint);
                     break;
-                case MsgCommand.Msg_LogOut:
+                case MessageHead.Msg_LogOut:
                     this.LogOut();
                     break;
-                case MsgCommand.Msg_MessageData:
+                case MessageHead.Msg_MessageData:
                     this.ProcessPackage(data);
                     break;
-                case MsgCommand.Msg_Close_Session:
+                case MessageHead.Msg_Close_Session:
                     this.ProcessSessionClose(data);
                     break;
-                case MsgCommand.Msg_AccessKeyWrong:
+                case MessageHead.Msg_AccessKeyWrong:
                     this.ProcessAccessKeyWrong();
                     break;
             }
@@ -386,7 +385,7 @@ namespace SiMay.Net.SessionProvider.Providers
                 //Array.Copy(sessionId, 0, sessionIds, i * (sizeof(Int64) + sizeof(Int64)), sizeof(Int64) + sizeof(Int64));
             }
 
-            MessageHelper.SendMessage(_managerSession, MsgCommand.Msg_Set_Session_Id, buffer.ToArray());
+            MessageHelper.SendMessage(_managerSession, MessageHead.Msg_Set_Session_Id, buffer.ToArray());
 
             this._tcpProxySessionList.AddRange(sessionList.ToArray());
 

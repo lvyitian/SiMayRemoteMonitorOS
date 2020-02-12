@@ -69,7 +69,7 @@ namespace SiMay.RemoteControlsCore
         public int ViewRefreshInterval { get; set; }
 
         /// <summary>
-        /// 线程同步上下文
+        /// 主线程同步上下文
         /// </summary>
         public SynchronizationContext SynchronizationContext { get; set; }
 
@@ -183,7 +183,7 @@ namespace SiMay.RemoteControlsCore
             else
                 SynchronizationContext.Send(NotifyProc, null);
 
-            void NotifyProc(object val)
+            void NotifyProc(object @object)
             {
                 try
                 {
@@ -370,7 +370,7 @@ namespace SiMay.RemoteControlsCore
             string identifyId = openControl.IdentifyId;
             //查找离线任务队列,如果有对应的任务则继续工作
             var task = FindOfSuspendTaskContext(identifyId);
-            if (task != null)
+            if (!task.IsNull())
             {
                 //再发出重连命令后，如果使用者主动关闭消息处理器将不再建立连接
                 if (task.AdapterHandler.WhetherClose)
@@ -392,7 +392,7 @@ namespace SiMay.RemoteControlsCore
             else
             {
                 var context = SysUtil.ApplicationTypes.FirstOrDefault(x => x.ApplicationKey.Equals(appKey));
-                if (context != null)
+                if (!context.IsNull())
                 {
 
                     var appHandlerType = context.Type.GetAppAdapterHandlerType();
@@ -437,7 +437,7 @@ namespace SiMay.RemoteControlsCore
         {
             string macName = GetMessage(session).ToUnicodeString();
             var syncContext = session.AppTokens[SysConstants.INDEX_WORKER].ConvertTo<SessionSyncContext>();
-            syncContext.KeyDictions[SysConstants.RecordScreenIsAction] = true;//开启
+            syncContext.KeyDictions[SysConstants.HasLaunchDesktopRecord] = true;//开启
             syncContext.KeyDictions[SysConstants.MachineName] = macName;//标识名(用计算机名作为唯一标识)
 
             SendTo(session, MessageHead.S_MAIN_DESKTOPRECORD_GETFRAME);
@@ -451,15 +451,15 @@ namespace SiMay.RemoteControlsCore
         private void ScreenSaveHandler(SessionProviderContext session)
         {
             var syncContext = session.AppTokens[SysConstants.INDEX_WORKER].ConvertTo<SessionSyncContext>();
-            bool status = syncContext.KeyDictions[SysConstants.RecordScreenIsAction].ConvertTo<bool>();
-            string macName = syncContext.KeyDictions[SysConstants.MachineName].ConvertTo<string>();
+            var status = syncContext.KeyDictions[SysConstants.HasLaunchDesktopRecord].ConvertTo<bool>();
+            var macName = syncContext.KeyDictions[SysConstants.MachineName].ConvertTo<string>();
 
-            if (!Directory.Exists(Path.Combine("ScreenRecord", macName)))
-                Directory.CreateDirectory(Path.Combine("ScreenRecord", macName));
+            if (!Directory.Exists(Path.Combine("DesktopRecord", macName)))
+                Directory.CreateDirectory(Path.Combine("DesktopRecord", macName));
 
-            using (var ms = new MemoryStream(session.CompletedBuffer.GetMessagePayload()))
+            using (var ms = new MemoryStream(GetMessage(session)))
             {
-                string fileName = Path.Combine(Environment.CurrentDirectory, "ScreenRecord", macName, DateTime.Now.ToFileTime() + ".png");
+                string fileName = Path.Combine(Environment.CurrentDirectory, "DesktopRecord", macName, DateTime.Now.ToFileTime() + ".png");
                 Image img = Image.FromStream(ms);
                 img.Save(fileName);
                 img.Dispose();
@@ -481,7 +481,7 @@ namespace SiMay.RemoteControlsCore
             var describePack = GetMessageEntity<DesktopViewDescribePack>(session);
             var syncContext = session.AppTokens[SysConstants.INDEX_WORKER].ConvertTo<SessionSyncContext>();
             var view = this.OnCreateDesktopViewHandlerEvent?.Invoke(syncContext);
-            if (view == null)
+            if (view.IsNull())
                 return;
             view.Caption = describePack.MachineName + "-(" + describePack.RemarkInformation + ")";
             syncContext.KeyDictions[SysConstants.DesktopView] = view;
@@ -547,7 +547,7 @@ namespace SiMay.RemoteControlsCore
             syncContext.KeyDictions[SysConstants.OpenScreenRecord] = login.OpenScreenRecord;
             syncContext.KeyDictions[SysConstants.OpenScreenWall] = login.OpenScreenWall;
             syncContext.KeyDictions[SysConstants.IdentifyId] = login.IdentifyId;
-            syncContext.KeyDictions[SysConstants.RecordScreenIsAction] = false;//桌面记录状态
+            syncContext.KeyDictions[SysConstants.HasLaunchDesktopRecord] = false;//桌面记录状态
             syncContext.KeyDictions[SysConstants.RecordHeight] = login.RecordHeight;//用于桌面记录的高
             syncContext.KeyDictions[SysConstants.RecordWidth] = login.RecordWidth;//用于桌面记录宽
             syncContext.KeyDictions[SysConstants.RecordSpanTime] = login.RecordSpanTime;
@@ -591,7 +591,7 @@ namespace SiMay.RemoteControlsCore
                     { SysConstants.OpenScreenWall, login.OpenScreenWall },
                     { SysConstants.IdentifyId, login.IdentifyId },
                     { SysConstants.OpenScreenRecord, login.OpenScreenRecord },
-                    { SysConstants.RecordScreenIsAction, false },
+                    { SysConstants.HasLaunchDesktopRecord, false },
                     { SysConstants.RecordHeight, login.RecordHeight },
                     { SysConstants.RecordWidth, login.RecordWidth },
                     { SysConstants.RecordSpanTime, login.RecordSpanTime },

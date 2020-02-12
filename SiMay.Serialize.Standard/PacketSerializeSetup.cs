@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace SiMay.Serialize
+namespace SiMay.Serialize.Standard
 {
     public class PacketSerializeSetup
     {

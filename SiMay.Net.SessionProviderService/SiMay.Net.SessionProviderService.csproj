@@ -8,7 +8,7 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>SiMay.Net.SessionProviderService</RootNamespace>
     <AssemblyName>SiMay.Net.SessionProviderService</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
@@ -105,12 +105,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SiMay.Basic\SiMay.Basic.csproj">
-      <Project>{B30CD716-698A-4DA2-BD1A-C152B16993C0}</Project>
+      <Project>{8F2F35CB-D5EE-4D92-B42F-BCFFBF9C9D4F}</Project>
       <Name>SiMay.Basic</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SiMay.Net.SessionProvider.Core\SiMay.Net.SessionProvider.Core.csproj">
-      <Project>{8BFDB408-D26D-4689-B426-BE45AD195880}</Project>
-      <Name>SiMay.Net.SessionProvider.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\SiMay.Sockets.Standard\SiMay.Sockets.Standard.csproj">
       <Project>{866f8fe0-ee58-4d38-8be7-cbdd19dd1b40}</Project>

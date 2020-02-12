@@ -11,7 +11,7 @@ using SiMay.Core.PacketModelBinder.Attributes;
 using SiMay.Core.Packets;
 using SiMay.Core.Packets.FileManager;
 using SiMay.Net.SessionProvider.SessionBased;
-using SiMay.Serialize;
+using SiMay.Serialize.Standard;
 
 namespace SiMay.RemoteControlsCore.HandlerAdapters
 {
@@ -314,7 +314,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
             var status = 0;
             //返回null表示已断开连接
-            if (responsed == null)
+            if (responsed.IsNull())
             {
                 var positionNull = await this.AwaitResetDownloadFile(fileStream);//等待重新连接
                 if (positionNull.HasValue)
@@ -348,7 +348,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
                 //LogHelper.DebugWriteLog("download data:" + (data == null ? "null" : data.Data.Length.ToString()));
                 if (this.WhetherClose)
                     break;//传输中途关闭应用
-                if (data == null)
+                if (data.IsNull())
                 {
                     var positionNull = await this.AwaitResetDownloadFile(fileStream).ConfigureAwait(true);
                     if (!positionNull.HasValue)
@@ -463,7 +463,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
             LogHelper.DebugWriteLog("begin upload");
             var responsed = await this.AwaitOpenUploadFileStatus(remoteFileName);//获取远程文件状态
-            if (responsed == null)//返回null表示等待结果期间连接中断
+            if (responsed.IsNull())//返回null表示等待结果期间连接中断
             {
                 var isReset = await this.AwaitResetUploadFile();
                 if (isReset)
@@ -691,7 +691,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
                     var targetFileName = file.FileName;
                     var localFileName = file.FileName.Substring(remotedirectory.LastIndexOf("\\") + 1);
                     var fileStream = onCreateFileStream?.Invoke(localFileName);
-                    if (fileStream == null)
+                    if (fileStream.IsNull())
                         continue;
                     if (_transferMode == TransferMode.Cancel || TransferTaskFlage == TransferTaskFlage.Abort)
                         break;
@@ -752,7 +752,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             this._sessionOfLinesEvent.Reset();//阻塞等待重连
             this._workerStreamEvent.SetOneData();//如果有正在等待数据响应的，则先释放信号，进入重置方法
             LogHelper.DebugWriteLog("close eventSet");
-            if (this.WhetherClose)//如果窗口已关闭,则释放退出
+            if (this.WhetherClose)//如果应用已关闭,则释放退出
                 this._sessionOfLinesEvent.Set();
 
             base.SessionClosed(session);

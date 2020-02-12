@@ -66,7 +66,7 @@ namespace SiMay.Net.SessionProvider.SessionBased
                 BitConverter.GetBytes(bytes.Length).CopyTo(body, 8);
                 bytes.CopyTo(body, 12);
 
-                MessageHelper.SendMessage(_session, MsgCommand.Msg_MessageData, body);
+                MessageHelper.SendMessage(_session, MessageHead.Msg_MessageData, body);
             }
             else
             {
@@ -85,7 +85,7 @@ namespace SiMay.Net.SessionProvider.SessionBased
 
             if ((SessionWorkType)_session.AppTokens[0] == SessionWorkType.ManagerSession)
             {
-                MessageHelper.SendMessage(_session, MsgCommand.Msg_Close_Session, BitConverter.GetBytes(this.RemoteId));
+                MessageHelper.SendMessage(_session, MessageHead.Msg_Close_Session, BitConverter.GetBytes(this.RemoteId));
             }
             else
             {

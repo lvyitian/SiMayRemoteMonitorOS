@@ -211,7 +211,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SiMay.Basic\SiMay.Basic.csproj">
-      <Project>{B30CD716-698A-4DA2-BD1A-C152B16993C0}</Project>
+      <Project>{8f2f35cb-d5ee-4d92-b42f-bcffbf9c9d4f}</Project>
       <Name>SiMay.Basic</Name>
     </ProjectReference>
     <ProjectReference Include="..\SiMay.Core\SiMay.Core.csproj">
@@ -222,9 +222,9 @@
       <Project>{7efe8058-f772-40eb-8e12-6e88e2a9e19a}</Project>
       <Name>SiMay.RemoteService.Loader</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SiMay.Serialize\SiMay.Serialize.csproj">
-      <Project>{4888d6bb-46d9-4519-8758-e13e397aa226}</Project>
-      <Name>SiMay.Serialize</Name>
+    <ProjectReference Include="..\SiMay.Serialize.Standard\SiMay.Serialize.Standard.csproj">
+      <Project>{9525A4AA-6731-4AB2-8CD0-ADDF7940FE32}</Project>
+      <Name>SiMay.Serialize.Standard</Name>
     </ProjectReference>
     <ProjectReference Include="..\SiMay.Sockets.Standard\SiMay.Sockets.Standard.csproj">
       <Project>{866f8fe0-ee58-4d38-8be7-cbdd19dd1b40}</Project>

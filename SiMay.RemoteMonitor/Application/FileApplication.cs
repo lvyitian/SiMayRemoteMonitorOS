@@ -73,20 +73,7 @@ namespace SiMay.RemoteMonitor.Application
 
         private void FileManager_Load(object sender, EventArgs e)
         {
-            this._closeTreeBtn = new Button();
-            this._closeTreeBtn.Click += _closeTreeBtn_Click;
-            this._closeTreeBtn.Hide();
-            this._closeTreeBtn.Text = "收起";
-            this._closeTreeBtn.Height = 25;
-            this._closeTreeBtn.Width = 100;
-            this._remoteDirectoryTreeView = new TreeView();
-            this._remoteDirectoryTreeView.ImageList = _imgList;
-            this._remoteDirectoryTreeView.ContextMenuStrip = this.treeContext;
-            this._remoteDirectoryTreeView.DoubleClick += remoteDirectoryTreeView_DoubleClick;
-            this._remoteDirectoryTreeView.Hide();
-            this.Controls.Add(_remoteDirectoryTreeView);
-            this.Controls.Add(_closeTreeBtn);
-            this.Initialize();
+            this.InitializeUI();
 
             this.Text = this._title = this._title.Replace("#Name#", this.RemoteFileAdapterHandler.OriginName);
             this.RemoteFileAdapterHandler.OnRemoteExceptionEventHandler += OnRemoteExceptionEventHandler;
@@ -101,7 +88,7 @@ namespace SiMay.RemoteMonitor.Application
             this.RemoteFileAdapterHandler.GetRemoteRootTreeItems(string.Empty);
             this.RemoteFileAdapterHandler.GetRemoteDriveItems();
         }
-        private void Initialize()
+        private void InitializeUI()
         {
             string downPath = Path.Combine(Environment.CurrentDirectory, "download");
 
@@ -111,6 +98,20 @@ namespace SiMay.RemoteMonitor.Application
             this.txtSavePath.Text = downPath;
             this.fileList.SmallImageList = _imgList;
             this.fileList.LargeImageList = _imgList;
+
+            this._closeTreeBtn = new Button();
+            this._closeTreeBtn.Click += _closeTreeBtn_Click;
+            this._closeTreeBtn.Hide();
+            this._closeTreeBtn.Text = "收起";
+            this._closeTreeBtn.Height = 25;
+            this._closeTreeBtn.Width = 100;
+            this._remoteDirectoryTreeView = new TreeView();
+            this._remoteDirectoryTreeView.ImageList = _imgList;
+            this._remoteDirectoryTreeView.ContextMenuStrip = this.treeContext;
+            this._remoteDirectoryTreeView.DoubleClick += remoteDirectoryTreeView_DoubleClick;
+            this._remoteDirectoryTreeView.Hide();
+            this.Controls.Add(_remoteDirectoryTreeView);
+            this.Controls.Add(_closeTreeBtn);
 
             IntPtr sysMenuHandle = GetSystemMenu(this.Handle, false);
 

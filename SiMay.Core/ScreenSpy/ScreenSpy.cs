@@ -152,7 +152,7 @@ namespace SiMay.Core.ScreenSpy
                                             FragmentData = _jpgCompression.Compress(m_new)
                                         }
                                      };
-                                this.OnDifferencesNotice?.Invoke(fragments, DifferStatus.NEXTSCREEN);
+                                this.OnDifferencesNotice?.Invoke(fragments, DifferStatus.NEXT_SCREEN);
                             }
                             else
                                 m_old.Dispose();
@@ -166,7 +166,7 @@ namespace SiMay.Core.ScreenSpy
 
             _clientHotRegion = rect;
 
-            this.OnDifferencesNotice?.Invoke(null, DifferStatus.COMPLETE);
+            this.OnDifferencesNotice?.Invoke(null, DifferStatus.COMPLETED);
         }
 
         public void FullFindDifferences(bool hotRegionScan, Rectangle rect)
@@ -256,7 +256,7 @@ namespace SiMay.Core.ScreenSpy
 
             if (this.OnDifferencesNotice != null)
             {
-                this.OnDifferencesNotice(fragments.ToArray(), DifferStatus.FULLDIFFERENCES);
+                this.OnDifferencesNotice(fragments.ToArray(), DifferStatus.FULL_DIFFERENCES);
                 fragments.Clear();
             }
         }

@@ -115,7 +115,7 @@ namespace SiMay.ServiceCore
         {
             switch (nCode)
             {
-                case DifferStatus.FULLDIFFERENCES:
+                case DifferStatus.FULL_DIFFERENCES:
                     SendTo(CurrentSession, MessageHead.C_SCREEN_DIFFBITMAP,
                         new ScreenFragmentPack()
                         {
@@ -123,7 +123,7 @@ namespace SiMay.ServiceCore
                         });
                     break;
 
-                case DifferStatus.NEXTSCREEN:
+                case DifferStatus.NEXT_SCREEN:
                     SendTo(CurrentSession, MessageHead.C_SCREEN_BITMP,
                         new ScreenFragmentPack()
                         {
@@ -131,7 +131,7 @@ namespace SiMay.ServiceCore
                         });
                     break;
 
-                case DifferStatus.COMPLETE:
+                case DifferStatus.COMPLETED:
                     SendTo(CurrentSession, MessageHead.C_SCREEN_SCANCOMPLETE);
                     break;
             }

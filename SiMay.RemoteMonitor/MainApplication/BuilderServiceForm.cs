@@ -1,8 +1,7 @@
 ﻿using SiMay.Basic;
 using SiMay.Core.Entitys;
 using SiMay.RemoteControlsCore;
-using SiMay.RemoteMonitor.Entitys;
-using SiMay.Serialize;
+using SiMay.Serialize.Standard;
 using System;
 using System.Collections.Generic;
 using System.IO;

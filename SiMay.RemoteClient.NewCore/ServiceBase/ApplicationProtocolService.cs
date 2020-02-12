@@ -88,7 +88,7 @@ namespace SiMay.ServiceCore
 
         protected long GetAccessId(TcpSocketSaeaSession session)
         {
-            if (session.CompletedBuffer == null)
+            if (session.CompletedBuffer.IsNull())
                 return 0;
             return BitConverter.ToInt64(session.CompletedBuffer, 0);
         }

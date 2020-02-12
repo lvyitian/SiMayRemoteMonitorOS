@@ -7,9 +7,9 @@ using System.Text;
 
 namespace SiMay.Sockets.UtilityHelper
 {
-    class DeCompressHelper
+    class GZipHelper
     {
-        public static byte[] GZipCompress(byte[] data, int offset, int lenght)
+        public static byte[] Compress(byte[] data, int offset, int lenght)
         {
             byte[] buffer = null;
             try
@@ -27,7 +27,7 @@ namespace SiMay.Sockets.UtilityHelper
             return buffer;
         }
 
-        public static byte[] GzipDecompress(byte[] data)
+        public static byte[] Decompress(byte[] data)
         {
             byte[] buffer = null;
             try

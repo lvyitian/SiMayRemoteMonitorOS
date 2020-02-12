@@ -185,7 +185,7 @@ namespace SiMay.Sockets.Tcp.Session
         private void PackageProcess()
         {
             if (this._isCompress)
-                CompletedBuffer = DeCompressHelper.GzipDecompress(CompletedBuffer);
+                CompletedBuffer = GZipHelper.Decompress(CompletedBuffer);
 
             this.NotifyEventHandler?.Invoke(TcpSocketCompletionNotify.OnDataReceived, this);
         }
@@ -205,7 +205,7 @@ namespace SiMay.Sockets.Tcp.Session
                 return;
 
             byte[] buffer = this._isCompress 
-                ? this.BuilderPack(DeCompressHelper.GZipCompress(data, offset, lenght)) 
+                ? this.BuilderPack(GZipHelper.Compress(data, offset, lenght)) 
                 : this.BuilderPack(data, offset, lenght);
 
             var awaiter = HandlerSaeaPool.Take();
