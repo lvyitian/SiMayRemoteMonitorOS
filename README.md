@@ -9,12 +9,13 @@
  - 仅是个人项目，总结在工作中所遇到的有趣技术，新技术，新语法等，系统架构等，经过几次重构，系统相对比较成熟了，决定开源反馈开源社区，希望更多人能和我一起进步，欢迎吐槽改进。
 
 ![主控界面](https://images.gitee.com/uploads/images/2019/0717/225727_cc5c40c8_1654743.jpeg "主控制界面")
-![创建服务端](https://images.gitee.com/uploads/images/2019/0717/225801_d0ccad61_1654743.jpeg "创建服务端")
+![创建服务端](https://images.gitee.com/uploads/images/2020/0216/154537_c7d2473c_1654743.png "创建服务")
 ![远程桌面](https://images.gitee.com/uploads/images/2019/0717/225853_2d8f4f8d_1654743.jpeg "远程桌面")
 ![文件管理](https://images.gitee.com/uploads/images/2019/0717/225829_9fed04ca_1654743.jpeg "文件管理")
 ![语音传输](https://images.gitee.com/uploads/images/2019/0717/225918_159b8bec_1654743.jpeg "语音传输")
 ![注册表管理](https://images.gitee.com/uploads/images/2019/0906/221633_6f9559ff_1654743.jpeg "注册表管理")
-  
+![中间服务器](https://images.gitee.com/uploads/images/2020/0216/154108_e5e50552_1654743.png "多对一实时控制")
+
 # 系统项目结构
 
 ### SiMay.Core【公共核心功能】
