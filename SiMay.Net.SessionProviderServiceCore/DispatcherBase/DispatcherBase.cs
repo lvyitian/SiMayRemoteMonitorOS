@@ -8,16 +8,28 @@ namespace SiMay.Net.SessionProviderServiceCore
     public abstract class DispatcherBase : IDisposable
     {
         /// <summary>
+        /// 输出日志
+        /// </summary>
+        /// <param name="logLevel"></param>
+        /// <param name="log"></param>
+        protected void Log(LogOutLevelType logLevel, string log)
+            => this.LogOutputEventHandler?.Invoke(this, logLevel, log);
+
+        /// <summary>
+        /// 日志输出事件
+        /// </summary>
+        public event Action<DispatcherBase, LogOutLevelType, string> LogOutputEventHandler;
+
+        /// <summary>
         /// 当前连接会话
         /// </summary>
-        protected TcpSocketSaeaSession CurrentSession
+        public TcpSocketSaeaSession CurrentSession
         {
             get;
-            set;
+            protected set;
         }
 
         private long? _dispatcherId;
-
         /// <summary>
         /// Id
         /// </summary>
@@ -51,7 +63,7 @@ namespace SiMay.Net.SessionProviderServiceCore
         /// <summary>
         /// 缓冲区
         /// </summary>
-        public List<byte> ListByteBuffer
+        public virtual List<byte> ListByteBuffer
         {
             get;
             set;
@@ -70,14 +82,6 @@ namespace SiMay.Net.SessionProviderServiceCore
                 this,
                 ConnectionWorkType
             };
-        }
-
-        /// <summary>
-        /// 获取当前会话
-        /// </summary>
-        public TcpSocketSaeaSession GetCurrentSession()
-        {
-            return CurrentSession;
         }
 
         /// <summary>

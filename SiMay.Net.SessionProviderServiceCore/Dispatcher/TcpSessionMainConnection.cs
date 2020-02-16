@@ -20,10 +20,13 @@ namespace SiMay.Net.SessionProviderServiceCore
         public byte[] ACKPacketData { get; set; }
 
         long? _accessId;
+        long? _lastChannelCreatedTime;
         int? _packageLength;
         int _transpondOffset;
         public override void OnMessage()
         {
+            base.OnMessage();
+
             int defineHeadSize = sizeof(int);
             int defineAccessIdSize = sizeof(long);
             do
@@ -39,31 +42,38 @@ namespace SiMay.Net.SessionProviderServiceCore
                     this._transpondOffset = 0;
                 }
 
-                TcpSessionChannelDispatcher dispatcher;
-                if (_dispatchers.TryGetValue(_accessId.Value, out dispatcher) || true)
+                var calculateOffsetLength = (_packageLength.Value + defineHeadSize) - _transpondOffset;
+                if (ListByteBuffer.Count <= calculateOffsetLength)
+                    calculateOffsetLength = ListByteBuffer.Count;
+                this._transpondOffset += calculateOffsetLength;
+                if (calculateOffsetLength == 0)
                 {
-                    var calculateOffsetLength = (_packageLength.Value + defineHeadSize) - _transpondOffset;
-                    if (ListByteBuffer.Count <= calculateOffsetLength)
-                        calculateOffsetLength = ListByteBuffer.Count;
-
-                    var data = ListByteBuffer.GetRange(0, calculateOffsetLength).ToArray();
-
-                    dispatcher?.SendTo(MessageHelper.CopyMessageHeadTo(MessageHead.MID_MESSAGE_DATA,
-                        new MessageDataPacket()
-                        {
-                            AccessId = dispatcher.DispatcherId,
-                            DispatcherId = this.DispatcherId,
-                            Data = data
-                        }));
-
-                    this._transpondOffset += data.Length;
-                    if (_transpondOffset == _packageLength)
-                    {
-                        this._accessId = null; this._packageLength = null;
-                    }
-
-                    ListByteBuffer.RemoveRange(0, calculateOffsetLength);
+                    this._accessId = null; this._packageLength = null; this._lastChannelCreatedTime = null;continue;
                 }
+                var data = ListByteBuffer.GetRange(0, calculateOffsetLength).ToArray();
+                TcpSessionChannelDispatcher dispatcher;
+                if (_dispatchers.TryGetValue(_accessId.Value, out dispatcher) && dispatcher is TcpSessionMainApplicationConnection mainApplicationConnection)
+                {
+                    if (!_lastChannelCreatedTime.HasValue)
+                        this._lastChannelCreatedTime = mainApplicationConnection.CreatedTime;
+
+                    //数据包未完整发送完成期间，如果主控端被登出，则剩余的数据不再发送
+                    if (mainApplicationConnection.CreatedTime == _lastChannelCreatedTime.Value)
+                    {
+                        mainApplicationConnection.SendTo(MessageHelper.CopyMessageHeadTo(MessageHead.MID_MESSAGE_DATA,
+                            new MessageDataPacket()
+                            {
+                                AccessId = dispatcher.DispatcherId,
+                                DispatcherId = this.DispatcherId,
+                                Data = data
+                            }));
+                    }
+                    else
+                    {
+                        this.Log(LogOutLevelType.Debug, "原主控端已离线，数据被抛弃!");
+                    }
+                }
+                ListByteBuffer.RemoveRange(0, calculateOffsetLength);
             } while (ListByteBuffer.Count > defineHeadSize + defineAccessIdSize);
         }
 
@@ -78,7 +88,7 @@ namespace SiMay.Net.SessionProviderServiceCore
 
         public override void OnClosed()
         {
-
+            ListByteBuffer.Clear();
         }
     }
 }

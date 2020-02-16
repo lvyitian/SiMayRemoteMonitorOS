@@ -36,7 +36,7 @@ namespace SiMay.RemoteMonitor.MainApplication
             Socket testSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
-                testSock.Connect(IPHelper.GetHostByName(mls_address.Text), int.Parse(mls_port.Text));
+                testSock.Connect(HostHelper.GetHostByName(mls_address.Text), int.Parse(mls_port.Text));
                 testSock.Close();
                 MessageBoxHelper.ShowBoxExclamation("连接: " + mls_address.Text + ":" + mls_port.Text + " 成功!", "连接成功");
             }

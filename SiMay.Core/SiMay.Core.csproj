@@ -166,6 +166,10 @@
       <Project>{8f2f35cb-d5ee-4d92-b42f-bcffbf9c9d4f}</Project>
       <Name>SiMay.Basic</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SiMay.Net.SessionProvider.Core\SiMay.Net.SessionProvider.Core.csproj">
+      <Project>{0B2B697D-DD20-4869-836C-08C848E1813F}</Project>
+      <Name>SiMay.Net.SessionProvider.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SiMay.Serialize.Standard\SiMay.Serialize.Standard.csproj">
       <Project>{9525a4aa-6731-4ab2-8cd0-addf7940fe32}</Project>
       <Name>SiMay.Serialize.Standard</Name>

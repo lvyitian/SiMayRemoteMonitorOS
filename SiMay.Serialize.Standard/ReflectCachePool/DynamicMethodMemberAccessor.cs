@@ -19,8 +19,7 @@ namespace SiMay.ReflectCache
         public static IMemberAccessor FindClassAccessor(Type instanceType)
         {
             IMemberAccessor classAccessor;
-            classAccessors.TryGetValue(instanceType, out classAccessor);
-            if (classAccessor == null)
+            if (!classAccessors.TryGetValue(instanceType, out classAccessor))
                 classAccessors.Add(instanceType, CreateMemberAccessor(instanceType));
 
             return classAccessor;

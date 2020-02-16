@@ -41,7 +41,7 @@ namespace SiMay.RemoteMonitor.UserControls
                 this.SubItems.Add("Unknown");
             }
             this.SubItems.Add(SessionSyncContext.KeyDictions[SysConstants.Remark].ConvertTo<string>());
-            this.SubItems.Add(SessionSyncContext.KeyDictions[SysConstants.OSVersion].ConvertTo<string>());
+            this.SubItems.Add(SessionSyncContext.KeyDictions[SysConstants.ServiceVison].ConvertTo<string>());
             this.SubItems.Add(SessionSyncContext.KeyDictions[SysConstants.StartRunTime].ConvertTo<string>());
             this.SubItems.Add(SessionSyncContext.KeyDictions[SysConstants.GroupName].ConvertTo<string>());
         }

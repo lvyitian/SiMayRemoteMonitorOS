@@ -9,6 +9,6 @@ namespace SiMay.RemoteService.Loader.Interface
 {
     public interface IAppMainService
     {
-        void Notify(TcpSocketCompletionNotify notify, TcpSocketSaeaSession session);
+        void Notify(TcpSessionNotify notify, TcpSocketSaeaSession session);
     }
 }

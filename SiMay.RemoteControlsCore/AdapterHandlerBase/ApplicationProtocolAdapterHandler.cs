@@ -1,7 +1,7 @@
 ﻿using SiMay.Basic;
 using SiMay.Core;
 using SiMay.Core.PacketModelBinding;
-using SiMay.Net.SessionProvider.SessionBased;
+using SiMay.Net.SessionProvider;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -55,7 +55,7 @@ namespace SiMay.RemoteControlsCore
         }
         protected virtual void SendToBefore(SessionProviderContext session, byte[] data)
         {
-            var accessId = AppConfiguration.AccessId;
+            var accessId = AppConfiguration.UseAccessId;
             SendTo(session, WrapAccessId(GZipHelper.Compress(data, 0, data.Length), accessId));
         }
 

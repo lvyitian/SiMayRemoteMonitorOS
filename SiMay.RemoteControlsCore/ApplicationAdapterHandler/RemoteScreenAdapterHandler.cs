@@ -12,7 +12,7 @@ using SiMay.Core.PacketModelBinding;
 using SiMay.Core.Packets;
 using SiMay.Core.Packets.Screen;
 using SiMay.Core.ScreenSpy.Entitys;
-using SiMay.Net.SessionProvider.SessionBased;
+using SiMay.Net.SessionProvider;
 using SiMay.RemoteControlsCore.Enum;
 using static SiMay.Serialize.Standard.PacketSerializeHelper;
 

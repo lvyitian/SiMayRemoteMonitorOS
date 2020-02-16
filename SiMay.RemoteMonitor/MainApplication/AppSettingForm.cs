@@ -36,6 +36,9 @@ namespace SiMay.RemoteMonitor.MainApplication
             AppConfiguration.SessionMode = sessionModeList.SelectedIndex.ToString();
             AppConfiguration.ServiceIPAddress = txtservice_address.Text;
             AppConfiguration.ServicePort = int.Parse(txtservice_port.Text);
+            AppConfiguration.AccessId = long.Parse(txtAccessId.Text);
+            AppConfiguration.EnabledAnonyMous = enableAnonymous.Checked;
+            AppConfiguration.MainAppAccessKey = long.Parse(txtMainAppAccessKey.Text);
 
             DialogResult result = MessageBox.Show("设置完成，是否重启生效设置?", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation);
 
@@ -70,14 +73,18 @@ namespace SiMay.RemoteMonitor.MainApplication
             accessKey.Text = AppConfiguration.AccessKey;
             txtservice_address.Text = AppConfiguration.ServiceIPAddress;
             txtservice_port.Text = AppConfiguration.ServicePort.ToString();
+            txtAccessId.Text = AppConfiguration.AccessId.ToString();
+            txtMainAppAccessKey.Text = AppConfiguration.MainAppAccessKey.ToString();
 
             int index = int.Parse(AppConfiguration.SessionMode);
             sessionModeList.SelectedIndex = index;
 
-            if (AppConfiguration.WindowMaximize)
-                maximizeCheckBox.Checked = true;
-            else
-                maximizeCheckBox.Checked = false;
+            maximizeCheckBox.Checked = AppConfiguration.WindowMaximize;
+
+            enableAnonymous.Checked = AppConfiguration.EnabledAnonyMous;
+            txtAccessId.Enabled = AppConfiguration.EnabledAnonyMous;
+
+            txtAccessId.Enabled = enableAnonymous.Checked ? false : true;
         }
 
         private void conPwd_KeyPress(object sender, KeyPressEventArgs e)
@@ -93,6 +100,11 @@ namespace SiMay.RemoteMonitor.MainApplication
         private void button1_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void enableAnonymous_CheckedChanged(object sender, EventArgs e)
+        {
+            txtAccessId.Enabled = enableAnonymous.Checked ? false : true;
         }
     }
 }

@@ -100,6 +100,10 @@
       <Project>{9525A4AA-6731-4AB2-8CD0-ADDF7940FE32}</Project>
       <Name>SiMay.Serialize.Standard</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SiMay.Sockets.Standard\SiMay.Sockets.Standard.csproj">
+      <Project>{866F8FE0-EE58-4D38-8BE7-CBDD19DD1B40}</Project>
+      <Name>SiMay.Sockets.Standard</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -16,7 +16,7 @@ namespace SiMay.Sockets.Tcp
         public static TcpSocketSaeaClientAgent CreateClientAgent(
             TcpSocketSaeaSessionType saeaSessionType,
             TcpSocketSaeaClientConfiguration configuration,
-            NotifyEventHandler<TcpSocketCompletionNotify, TcpSocketSaeaSession> completetionNotify)
+            NotifyEventHandler<TcpSessionNotify, TcpSocketSaeaSession> completetionNotify)
         {
             configuration._intervalWhetherService = false;
             return new TcpSocketSaeaClientAgent(saeaSessionType, configuration, completetionNotify);
@@ -25,7 +25,7 @@ namespace SiMay.Sockets.Tcp
         public static TcpSocketSaeaServer CreateServerAgent(
             TcpSocketSaeaSessionType saeaSessionType,
             TcpSocketSaeaServerConfiguration configuration,
-            NotifyEventHandler<TcpSocketCompletionNotify, TcpSocketSaeaSession> completetionNotify)
+            NotifyEventHandler<TcpSessionNotify, TcpSocketSaeaSession> completetionNotify)
         {
             configuration._intervalWhetherService = true;
             return new TcpSocketSaeaServer(saeaSessionType, configuration, completetionNotify);

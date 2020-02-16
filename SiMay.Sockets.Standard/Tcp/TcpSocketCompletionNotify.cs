@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SiMay.Sockets.Tcp
 {
-    public enum TcpSocketCompletionNotify
+    public enum TcpSessionNotify
     {
         OnConnected,
         OnSend,

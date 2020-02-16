@@ -27,12 +27,12 @@ namespace SiMay.Net.SessionProvider.Core
         /// <param name="data"></param>
         /// <param name="size"></param>
         /// <returns></returns>
-        public static byte[] CopyMessageHeadTo<T>(T cmd, byte[] data, int size)
+        public static byte[] CopyMessageHeadTo<T>(T cmd, byte[] data, int offset, int size)
             where T : struct
         {
             byte[] buff = new byte[size + sizeof(short)];
             BitConverter.GetBytes(Convert.ToInt16(cmd)).CopyTo(buff, 0);
-            Array.Copy(data, 0, buff, sizeof(Int16), size);
+            Array.Copy(data, 0, buff, sizeof(Int16) + offset, size);
 
             return buff;
         }
@@ -49,7 +49,7 @@ namespace SiMay.Net.SessionProvider.Core
             if (data == null)
                 data = new byte[] { };
 
-            return CopyMessageHeadTo(cmd, data, data.Length);
+            return CopyMessageHeadTo(cmd, data, 0, data.Length);
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace SiMay.Net.SessionProvider.Core
         {
             byte[] data = str.UnicodeStringToBytes();
 
-            return CopyMessageHeadTo(cmd, data, data.Length);
+            return CopyMessageHeadTo(cmd, data, 0, data.Length);
         }
 
         /// <summary>

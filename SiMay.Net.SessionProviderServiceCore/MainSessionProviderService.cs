@@ -8,22 +8,39 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading;
 
 namespace SiMay.Net.SessionProviderServiceCore
 {
     public class MainSessionProviderService
     {
-
         /// <summary>
         /// 日志输出
         /// </summary>
-        public event Action<string> LogOutputEventHandler;
+        public event Action<LogOutLevelType, string> LogOutputEventHandler;
+
+        /// <summary>
+        /// 连接事件
+        /// </summary>
+        public event Action<TcpSessionChannelDispatcher> OnConnectedEventHandler;
+
+        /// <summary>
+        /// 离线事件
+        /// </summary>
+        public event Action<TcpSessionChannelDispatcher> OnClosedEventHandler;
+
+        /// <summary>
+        /// 主线程同步上下文
+        /// </summary>
+        public SynchronizationContext SynchronizationContext { get; set; }
 
         private TcpSocketSaeaServer _tcpSaeaServer;
         private IList<Tuple<long, long>> _appServiceChannels = new List<Tuple<long, long>>();
         private IDictionary<long, TcpSessionChannelDispatcher> _dispatchers = new Dictionary<long, TcpSessionChannelDispatcher>();
-        public bool StartService()
+        public bool StartService(StartServiceOptions options)
         {
+            ApplicationConfiguartion.SetOptions(options);
+
             var serverConfig = new TcpSocketSaeaServerConfiguration();
             serverConfig.ReuseAddress = false;
             serverConfig.KeepAlive = true;
@@ -31,40 +48,62 @@ namespace SiMay.Net.SessionProviderServiceCore
             serverConfig.KeepAliveSpanTime = 1000;
             serverConfig.PendingConnectionBacklog = 0;
 
-            var ipe = new IPEndPoint(IPAddress.Parse(ApplicationConfiguartion.LocalAddress), ApplicationConfiguartion.ServicePort);
+            var ipe = new IPEndPoint(IPAddress.Parse(ApplicationConfiguartion.Options.LocalAddress), ApplicationConfiguartion.Options.ServicePort);
 
             _tcpSaeaServer = TcpSocketsFactory.CreateServerAgent(TcpSocketSaeaSessionType.Full, serverConfig, (notify, session) =>
             {
-                switch (notify)
+                if (SynchronizationContext.IsNull())
+                    NotifyProc(null);
+                else
+                    SynchronizationContext.Send(NotifyProc, null);
+
+                void NotifyProc(object @object)
                 {
-                    case TcpSocketCompletionNotify.OnConnected:
+                    switch (notify)
+                    {
+                        case TcpSessionNotify.OnConnected:
 
-                        ApportionDispatcher apportionDispatcher = new ApportionDispatcher();
-                        apportionDispatcher.ApportionTypeHandlerEvent += ApportionTypeHandlerEvent;
-                        apportionDispatcher.SetSession(session);
+                            ApportionDispatcher apportionDispatcher = new ApportionDispatcher();
+                            apportionDispatcher.ApportionTypeHandlerEvent += ApportionTypeHandlerEvent;
+                            apportionDispatcher.LogOutputEventHandler += ApportionDispatcher_LogOutputEventHandler;
+                            apportionDispatcher.SetSession(session);
 
-                        break;
-                    case TcpSocketCompletionNotify.OnSend:
-                        break;
-                    case TcpSocketCompletionNotify.OnDataReceiveing:
-                        this.OnDataReceiveingHandler(session);
-                        break;
-                    case TcpSocketCompletionNotify.OnClosed:
-                        this.OnClosedHandler(session);
-                        break;
-                    default:
-                        break;
+                            break;
+                        case TcpSessionNotify.OnSend:
+                            break;
+                        case TcpSessionNotify.OnDataReceiveing:
+                            this.OnDataReceiveingHandler(session);
+                            break;
+                        case TcpSessionNotify.OnClosed:
+                            this.OnClosedHandler(session);
+                            break;
+                        default:
+                            break;
+                    }
                 }
-
             });
-            return true;
+
+            try
+            {
+                _tcpSaeaServer.Listen(ipe);
+                LogOutputEventHandler?.Invoke(LogOutLevelType.Debug, $"SiMay中间会话服务器监听 {ipe.Port} 端口启动成功!");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogOutputEventHandler?.Invoke(LogOutLevelType.Error, $"SiMay中间会话服务器启动发生错误,端口:{ipe.Port} 错误信息:{ex.Message}!");
+                return false;
+            }
+        }
+
+        private void ApportionDispatcher_LogOutputEventHandler(DispatcherBase dispatcher, LogOutLevelType level, string log)
+        {
+            LogOutputEventHandler?.Invoke(level, log);
         }
 
         private void OnDataReceiveingHandler(TcpSocketSaeaSession session)
         {
-            byte[] data = new byte[session.ReceiveBytesTransferred];
-            Array.Copy(session.CompletedBuffer, 0, data, 0, data.Length);
-
+            byte[] data = session.CompletedBuffer.Copy(0, session.ReceiveBytesTransferred);
             var dispatcher = session.AppTokens[SysContanct.INDEX_WORKER].ConvertTo<DispatcherBase>();
             dispatcher.ListByteBuffer.AddRange(data);
             dispatcher.OnMessage();
@@ -96,6 +135,11 @@ namespace SiMay.Net.SessionProviderServiceCore
 
             if (_dispatchers.ContainsKey(closedDispatcher.DispatcherId))
                 _dispatchers.Remove(closedDispatcher.DispatcherId);
+
+            if (closedDispatcher is TcpSessionChannelDispatcher tcpSessionChannelDispatcher)
+                this.OnClosedEventHandler?.Invoke(tcpSessionChannelDispatcher);
+
+            this.LogOutputEventHandler?.Invoke(LogOutLevelType.Warning, $"ID:{closedDispatcher.DispatcherId} 的连接已与服务器断开连接!");
         }
 
         private void ApportionTypeHandlerEvent(ApportionDispatcher apportionDispatcher, ConnectionWorkType type)
@@ -119,6 +163,7 @@ namespace SiMay.Net.SessionProviderServiceCore
                 default:
                     break;
             }
+            this.LogOutputEventHandler?.Invoke(LogOutLevelType.Debug, $"工作类型:{type.ToString()} 的连接已分配!");
         }
 
         private void MainServiceConnect(ApportionDispatcher apportionDispatcher)
@@ -142,6 +187,7 @@ namespace SiMay.Net.SessionProviderServiceCore
                 .Where(c => c.ConnectionWorkType == ConnectionWorkType.MainApplicationConnection)
                 .ForEach(c => c.SendTo(data));
 
+            this.OnConnectedEventHandler?.Invoke(mainServiceChannelDispatcher);
             _dispatchers.Add(mainServiceChannelDispatcher.DispatcherId, mainServiceChannelDispatcher);
         }
 
@@ -149,56 +195,70 @@ namespace SiMay.Net.SessionProviderServiceCore
         {
             var accessId = apportionDispatcher.GetAccessId();
             var mainappChannelDispatcher = apportionDispatcher.CreateMainApplicationChannelDispatcher(_dispatchers);
-            if (!_dispatchers.ContainsKey(accessId))//可能重连太快
-            {
-                //主控端使用自身AccessId作索引
-                _dispatchers.Add(accessId, mainappChannelDispatcher);
-            }
-            else
+            if (_dispatchers.ContainsKey(accessId))//可能重连太快
             {
                 var aboutOfCloseDispatcher = _dispatchers[accessId];
 
                 var data = MessageHelper.CopyMessageHeadTo(MessageHead.MID_LOGOUT,
                     new LogOutPacket()
                     {
-                        Message = "已有相同Id的主控端登陆，你已被登出!"
+                        Message = "已有相同Id的主控端登陆，你已被登出"
                     });
                 aboutOfCloseDispatcher.SendTo(data);
-                aboutOfCloseDispatcher.CloseSession();
+                aboutOfCloseDispatcher.CloseSession();//调用后底层会触发Closed事件
+
+                this.LogOutputEventHandler?.Invoke(LogOutLevelType.Debug, $"有相同Id:{accessId}的主控端登陆!");
             }
+            _dispatchers.Add(accessId, mainappChannelDispatcher);
+
+            this.OnConnectedEventHandler?.Invoke(mainappChannelDispatcher);
         }
 
         private void ApplicationServiceConnect(ApportionDispatcher apportionDispatcher)
         {
+            var appWorkerConnectionDispatcher = apportionDispatcher.CreateApplicationWorkerChannelDispatcher(_dispatchers, ConnectionWorkType.ApplicationServiceConnection);
+            appWorkerConnectionDispatcher.ListByteBuffer.AddRange(apportionDispatcher.GetACKPacketData().BuilderHeadPacket());
+            this._dispatchers.Add(appWorkerConnectionDispatcher.DispatcherId, appWorkerConnectionDispatcher);
+            this._appServiceChannels.Add(new Tuple<long, long>(apportionDispatcher.GetAccessId(), appWorkerConnectionDispatcher.DispatcherId));
+            this.OnConnectedEventHandler?.Invoke(appWorkerConnectionDispatcher);
             //找到相应主控端连接
             TcpSessionChannelDispatcher dispatcher;
             if (_dispatchers.TryGetValue(apportionDispatcher.GetAccessId(), out dispatcher))
             {
-                var appWorkerConnectionDispatcher = apportionDispatcher.CreateApplicationWorkerChannelDispatcher(_dispatchers, ConnectionWorkType.ApplicationServiceConnection);
-                this._appServiceChannels.Add(new Tuple<long, long>(apportionDispatcher.GetAccessId(), appWorkerConnectionDispatcher.DispatcherId));
-
                 var data = MessageHelper.CopyMessageHeadTo(MessageHead.MID_APPWORK);
                 dispatcher.SendTo(data);
+            }
+            else
+            {
+                appWorkerConnectionDispatcher.CloseSession();
+                this.LogOutputEventHandler?.Invoke(LogOutLevelType.Debug, $"应用服务工作连接未找到相应的主控端!");
             }
         }
 
         private void ApplicationConnect(ApportionDispatcher apportionDispatcher)
         {
-            TcpSessionChannelDispatcher dispatcher;
+            TcpSessionChannelDispatcher dispatcher = null;
             var serviceWorkerChannelItem = this._appServiceChannels.FirstOrDefault(c => c.Item1 == apportionDispatcher.GetAccessId());
             if (!serviceWorkerChannelItem.IsNull() && _dispatchers.TryGetValue(serviceWorkerChannelItem.Item2, out dispatcher))
             {
+                this._appServiceChannels.Remove(serviceWorkerChannelItem);
                 var serviceChannelDispatcher = dispatcher.ConvertTo<TcpSessionApplicationWorkerConnection>();
                 var appChannelDispatcher = apportionDispatcher.CreateApplicationWorkerChannelDispatcher(_dispatchers, ConnectionWorkType.ApplicationConnection);
+                this._dispatchers.Add(appChannelDispatcher.DispatcherId, appChannelDispatcher);
+                this.OnConnectedEventHandler?.Invoke(appChannelDispatcher);
+
                 if (!serviceChannelDispatcher.IsJoin)
                 {
                     serviceChannelDispatcher.Join(appChannelDispatcher);
                     serviceChannelDispatcher.OnMessage();
                     appChannelDispatcher.OnMessage();
                 }
-                this._appServiceChannels.Remove(serviceWorkerChannelItem);
-
-                _dispatchers.Add(appChannelDispatcher.DispatcherId, appChannelDispatcher);
+                else appChannelDispatcher.CloseSession();
+            }
+            else
+            {
+                apportionDispatcher.CloseSession();
+                this.LogOutputEventHandler?.Invoke(LogOutLevelType.Debug, $"主控端应用工作连接未找到可匹配的应用服务工作连接!");
             }
         }
     }

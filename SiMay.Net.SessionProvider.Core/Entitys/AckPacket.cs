@@ -8,7 +8,7 @@ namespace SiMay.Net.SessionProvider.Core
 {
     public class AckPacket : EntitySerializerBase
     {
-        public ConnectionWorkType Type { get; set; }
+        public byte Type { get; set; }
         public long AccessId { get; set; }
         public long AccessKey { get; set; }
     }

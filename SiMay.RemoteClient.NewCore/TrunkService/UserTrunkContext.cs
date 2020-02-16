@@ -66,19 +66,19 @@ namespace SiMay.ServiceCore
             {
                 switch (notity)
                 {
-                    case TcpSocketCompletionNotify.OnConnected:
+                    case TcpSessionNotify.OnConnected:
                         LogHelper.DebugWriteLog("InitConntectTrunkService:OnClosed");
                         _trunkTcpSession = session;
                         SendActiveFlag();
                         break;
-                    case TcpSocketCompletionNotify.OnSend:
+                    case TcpSessionNotify.OnSend:
                         break;
-                    case TcpSocketCompletionNotify.OnDataReceiveing:
+                    case TcpSessionNotify.OnDataReceiveing:
                         break;
-                    case TcpSocketCompletionNotify.OnDataReceived:
+                    case TcpSessionNotify.OnDataReceived:
                         _handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<TrunkMessageHead>(), this);
                         break;
-                    case TcpSocketCompletionNotify.OnClosed:
+                    case TcpSessionNotify.OnClosed:
                         LogHelper.DebugWriteLog("InitConntectTrunkService:OnClosed");
                         _trunkTcpSession = null;
                         _autoReset.Set();

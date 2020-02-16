@@ -18,9 +18,8 @@ namespace SiMay.RemoteMonitor
 
         [DllImport("user32.dll")]
         public static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);//获取窗体系统菜单
+
         [DllImport("user32.dll")]
-
-
         public static extern bool InsertMenu(IntPtr hMenu, Int32 wPosition, Int32 wFlags, Int32 wIDNewItem, string lpNewItem);//插入菜单
 
         [DllImport("user32.dll", CallingConvention = CallingConvention.StdCall)]

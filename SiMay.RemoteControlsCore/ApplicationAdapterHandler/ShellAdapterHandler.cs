@@ -7,7 +7,7 @@ using SiMay.Core;
 using SiMay.Core.Extensions;
 using SiMay.Core.PacketModelBinder.Attributes;
 using SiMay.Core.PacketModelBinding;
-using SiMay.Net.SessionProvider.SessionBased;
+using SiMay.Net.SessionProvider;
 
 namespace SiMay.RemoteControlsCore.HandlerAdapters
 {

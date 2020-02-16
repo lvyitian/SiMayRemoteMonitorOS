@@ -49,17 +49,17 @@ namespace SiMay.ServiceCore
             {
                 switch (notity)
                 {
-                    case TcpSocketCompletionNotify.OnConnected:
+                    case TcpSessionNotify.OnConnected:
                         LogHelper.DebugWriteLog("OnConnected");
                         break;
-                    case TcpSocketCompletionNotify.OnSend:
+                    case TcpSessionNotify.OnSend:
                         break;
-                    case TcpSocketCompletionNotify.OnDataReceiveing:
+                    case TcpSessionNotify.OnDataReceiveing:
                         break;
-                    case TcpSocketCompletionNotify.OnDataReceived:
+                    case TcpSessionNotify.OnDataReceived:
                         _handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<TrunkMessageHead>(), this);
                         break;
-                    case TcpSocketCompletionNotify.OnClosed:
+                    case TcpSessionNotify.OnClosed:
                         this.SessionClosedHandler(session);
                         break;
                     default:

@@ -4,36 +4,47 @@ using System.Text;
 
 namespace SiMay.Net.SessionProviderServiceCore
 {
-    public class ApplicationConfiguartion
+    internal class ApplicationConfiguartion
+    {
+        public static void SetOptions(StartServiceOptions options) => Options = options;
+        public static StartServiceOptions Options { get; private set; }
+    }
+
+    public class StartServiceOptions
     {
         /// <summary>
         /// 监听地址
         /// </summary>
-        public static string LocalAddress { get; set; }
+        public string LocalAddress { get; set; }
 
         /// <summary>
         /// 监听端口
         /// </summary>
-        public static int ServicePort { get; set; }
+        public int ServicePort { get; set; }
 
         /// <summary>
         /// 最大数据包长度
         /// </summary>
-        public static long MaxPacketSize { get; set; }
+        public long MaxPacketSize { get; set; }
 
         /// <summary>
         /// 允许主控端匿名登陆
         /// </summary>
-        public static bool MainApplicationAnonymous { get; set; }
+        public bool MainApplicationAnonyMous { get; set; }
 
         /// <summary>
         /// 允许登陆的主控端Id
         /// </summary>
-        public static long[] MainApplicationAllowAccessId { get; set; }
+        public long[] MainApplicationAllowAccessId { get; set; }
 
         /// <summary>
-        /// 连接AccessKey(包含主控端)
+        /// 主控端登陆Key
         /// </summary>
-        public static int AccessKey { get; set; }
+        public long MainAppAccessKey { get; set; }
+
+        /// <summary>
+        /// 连接AccessKey
+        /// </summary>
+        public long AccessKey { get; set; }
     }
 }

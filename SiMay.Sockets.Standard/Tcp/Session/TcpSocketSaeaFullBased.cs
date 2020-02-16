@@ -21,7 +21,7 @@ namespace SiMay.Sockets.Tcp.Session
             TcpSocketConfigurationBase configuration,
             SaeaAwaiterPool handlerSaeaPool,
             SessionPool sessionPool,
-            NotifyEventHandler<TcpSocketCompletionNotify, TcpSocketSaeaSession> notifyEventHandler,
+            NotifyEventHandler<TcpSessionNotify, TcpSocketSaeaSession> notifyEventHandler,
             TcpSocketSaeaEngineBased agent)
             : base(notifyEventHandler, configuration, handlerSaeaPool, sessionPool, agent) 
             => CompletedBuffer = new byte[configuration.ReceiveBufferSize];
@@ -96,7 +96,7 @@ namespace SiMay.Sockets.Tcp.Session
             }
             this.ReceiveBytesTransferred = bytesTransferred;
 
-            NotifyEventHandler?.Invoke(TcpSocketCompletionNotify.OnDataReceiveing, this);
+            NotifyEventHandler?.Invoke(TcpSessionNotify.OnDataReceiveing, this);
 
             awaiter.Saea.SetBuffer(CompletedBuffer, 0, CompletedBuffer.Length);
             SaeaExHelper.ReceiveAsync(this.Socket, awaiter, PacketPartProcess);
@@ -124,7 +124,7 @@ namespace SiMay.Sockets.Tcp.Session
                 this.SendTransferredBytes = a.Saea.Buffer.Length;
 
                 HandlerSaeaPool.Return(awaiter);
-                this.NotifyEventHandler?.Invoke(TcpSocketCompletionNotify.OnSend, this);
+                this.NotifyEventHandler?.Invoke(TcpSessionNotify.OnSend, this);
             });
         }
 
@@ -151,7 +151,7 @@ namespace SiMay.Sockets.Tcp.Session
 
                     if (notify)
                     {
-                        this.NotifyEventHandler?.Invoke(TcpSocketCompletionNotify.OnClosed, this);
+                        this.NotifyEventHandler?.Invoke(TcpSessionNotify.OnClosed, this);
                     }
                 }
             }

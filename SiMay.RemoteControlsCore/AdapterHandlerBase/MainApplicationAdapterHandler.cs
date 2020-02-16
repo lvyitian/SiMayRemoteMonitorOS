@@ -1,7 +1,7 @@
 ﻿using SiMay.Basic;
 using SiMay.Core;
 using SiMay.Core.Packets;
-using SiMay.Net.SessionProvider.SessionBased;
+using SiMay.Net.SessionProvider;
 using System;
 using System.Collections.Generic;
 using System.Linq;

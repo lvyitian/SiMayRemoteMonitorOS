@@ -12,7 +12,7 @@ namespace SiMay.Net.SessionProviderServiceCore
         {
             var mainServiceChannelDispatcher = new TcpSessionMainConnection(dispatchers);
             mainServiceChannelDispatcher.ACKPacketData = apportionDispatcher.GetACKPacketData();
-            mainServiceChannelDispatcher.SetSession(apportionDispatcher.GetCurrentSession());
+            mainServiceChannelDispatcher.SetSession(apportionDispatcher.CurrentSession);
             var bufferData = apportionDispatcher.ListByteBuffer.ToArray();
             if (bufferData.Length > 0)//如缓冲区有数据，则处理消息
             {
@@ -27,7 +27,7 @@ namespace SiMay.Net.SessionProviderServiceCore
             var accessId = apportionDispatcher.GetAccessId();
             var mainappChannelDispatcher = new TcpSessionMainApplicationConnection(dispatchers);
             mainappChannelDispatcher.DispatcherId = accessId;
-            mainappChannelDispatcher.SetSession(apportionDispatcher.GetCurrentSession());
+            mainappChannelDispatcher.SetSession(apportionDispatcher.CurrentSession);
 
             var bufferData = apportionDispatcher.ListByteBuffer.ToArray();
             if (bufferData.Length > 0)//如缓冲区有数据，则处理消息
@@ -42,7 +42,7 @@ namespace SiMay.Net.SessionProviderServiceCore
         {
             var workerConnection = new TcpSessionApplicationWorkerConnection();
             workerConnection.ConnectionWorkType = workType;
-            workerConnection.SetSession(apportionDispatcher.GetCurrentSession());
+            workerConnection.SetSession(apportionDispatcher.CurrentSession);
 
             var bufferData = apportionDispatcher.ListByteBuffer.ToArray();
             if (bufferData.Length > 0)//如缓冲区有数据，则处理消息

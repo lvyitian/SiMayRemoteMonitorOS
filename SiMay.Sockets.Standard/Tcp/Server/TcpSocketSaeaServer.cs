@@ -22,7 +22,7 @@ namespace SiMay.Sockets.Tcp.Server
         internal TcpSocketSaeaServer(
             TcpSocketSaeaSessionType saeaSessionType,
             TcpSocketSaeaServerConfiguration configuration,
-            NotifyEventHandler<TcpSocketCompletionNotify, TcpSocketSaeaSession> completetionNotify)
+            NotifyEventHandler<TcpSessionNotify, TcpSocketSaeaSession> completetionNotify)
             : base(saeaSessionType, configuration, completetionNotify)
         {
             this._config = configuration;
@@ -93,7 +93,7 @@ namespace SiMay.Sockets.Tcp.Server
                 var session = SessionPool.Take();
                 session.Attach(acceptedSocket);
                 this.TcpSocketSaeaSessions.Add(session);
-                this.CompletetionNotify?.Invoke(TcpSocketCompletionNotify.OnConnected, session);
+                this.CompletetionNotify?.Invoke(TcpSessionNotify.OnConnected, session);
 
                 session.StartProcess();
             }

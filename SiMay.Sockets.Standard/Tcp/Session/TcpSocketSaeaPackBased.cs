@@ -30,7 +30,7 @@ namespace SiMay.Sockets.Tcp.Session
             TcpSocketConfigurationBase configuration,
             SaeaAwaiterPool handlerSaeaPool,
             SessionPool sessionPool,
-            NotifyEventHandler<TcpSocketCompletionNotify, TcpSocketSaeaSession> notifyEventHandler,
+            NotifyEventHandler<TcpSessionNotify, TcpSocketSaeaSession> notifyEventHandler,
             TcpSocketSaeaEngineBased agent)
             : base(notifyEventHandler, configuration, handlerSaeaPool, sessionPool, agent)
         {
@@ -163,7 +163,7 @@ namespace SiMay.Sockets.Tcp.Session
             }
 
             this.ReceiveBytesTransferred = bytesTransferred;
-            this.NotifyEventHandler?.Invoke(TcpSocketCompletionNotify.OnDataReceiveing, this);
+            this.NotifyEventHandler?.Invoke(TcpSessionNotify.OnDataReceiveing, this);
 
             _heartTime = DateTime.Now;
             _packageRecvOffset += bytesTransferred;
@@ -187,7 +187,7 @@ namespace SiMay.Sockets.Tcp.Session
             if (this._isCompress)
                 CompletedBuffer = GZipHelper.Decompress(CompletedBuffer);
 
-            this.NotifyEventHandler?.Invoke(TcpSocketCompletionNotify.OnDataReceived, this);
+            this.NotifyEventHandler?.Invoke(TcpSessionNotify.OnDataReceived, this);
         }
 
         private void EndTransfer(SaeaAwaiter awaiter)
@@ -218,7 +218,7 @@ namespace SiMay.Sockets.Tcp.Session
 
                  this.HandlerSaeaPool.Return(awaiter);
                  this.SendTransferredBytes = a.Saea.Buffer.Length;
-                 this.NotifyEventHandler?.Invoke(TcpSocketCompletionNotify.OnSend, this);
+                 this.NotifyEventHandler?.Invoke(TcpSessionNotify.OnSend, this);
              });
 
         }
@@ -242,6 +242,7 @@ namespace SiMay.Sockets.Tcp.Session
             {
                 if (Socket != null)
                 {
+                    State = TcpSocketConnectionState.Closed;
                     try
                     {
                         Socket.Shutdown(SocketShutdown.Both);
@@ -255,11 +256,9 @@ namespace SiMay.Sockets.Tcp.Session
                     {
                         Socket = null;
                     }
-                    State = TcpSocketConnectionState.Closed;
-
                     if (notify)
                     {
-                        this.NotifyEventHandler?.Invoke(TcpSocketCompletionNotify.OnClosed, this);
+                        this.NotifyEventHandler?.Invoke(TcpSessionNotify.OnClosed, this);
                     }
                 }
             }

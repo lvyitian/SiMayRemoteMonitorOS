@@ -8,7 +8,7 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>SiMay.Net.SessionProviderService</RootNamespace>
     <AssemblyName>SiMay.Net.SessionProviderService</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
@@ -50,19 +50,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AccessKeyExamine.cs" />
     <Compile Include="ApplicationConfiguration.cs" />
-    <Compile Include="AppOptionsDialog.cs">
+    <Compile Include="SystemOptionsDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="AppOptionsDialog.Designer.cs">
-      <DependentUpon>AppOptionsDialog.cs</DependentUpon>
+    <Compile Include="SystemOptionsDialog.Designer.cs">
+      <DependentUpon>SystemOptionsDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Delagate\TcpChannelContextNotifyHandler.cs" />
-    <Compile Include="LogShowQueueHelper.cs" />
-    <Compile Include="Notify\ManagerChannelNotify.cs" />
-    <Compile Include="OnChannelListViewItem\ChannelListViewItem.cs" />
-    <Compile Include="MessageHelper.cs" />
+    <Compile Include="ChannelViewItem\ChannelViewItem.cs" />
     <Compile Include="SessionProviderService.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -71,11 +66,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SysContact.cs" />
-    <Compile Include="TcpSessionChannelContext.cs" />
-    <Compile Include="TcpChannelContextServiceType.cs" />
-    <EmbeddedResource Include="AppOptionsDialog.resx">
-      <DependentUpon>AppOptionsDialog.cs</DependentUpon>
+    <Compile Include="Win32.cs" />
+    <EmbeddedResource Include="SystemOptionsDialog.resx">
+      <DependentUpon>SystemOptionsDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SessionProviderService.resx">
       <DependentUpon>SessionProviderService.cs</DependentUpon>
@@ -108,9 +101,13 @@
       <Project>{8F2F35CB-D5EE-4D92-B42F-BCFFBF9C9D4F}</Project>
       <Name>SiMay.Basic</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SiMay.Sockets.Standard\SiMay.Sockets.Standard.csproj">
-      <Project>{866f8fe0-ee58-4d38-8be7-cbdd19dd1b40}</Project>
-      <Name>SiMay.Sockets.Standard</Name>
+    <ProjectReference Include="..\SiMay.Net.SessionProvider.Core\SiMay.Net.SessionProvider.Core.csproj">
+      <Project>{0b2b697d-dd20-4869-836c-08c848e1813f}</Project>
+      <Name>SiMay.Net.SessionProvider.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SiMay.Net.SessionProviderServiceCore\SiMay.Net.SessionProviderServiceCore.csproj">
+      <Project>{3c91f949-5187-4cdf-9a5b-aa3c20f7544b}</Project>
+      <Name>SiMay.Net.SessionProviderServiceCore</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -24,6 +24,7 @@ namespace SiMay.Net.SessionProviderServiceCore
         }
         public override void OnMessage()
         {
+            base.OnMessage();
             if (ListByteBuffer.Count > 0)
             {
                 this._targetConnection.SendTo(ListByteBuffer.ToArray());
@@ -32,6 +33,8 @@ namespace SiMay.Net.SessionProviderServiceCore
         }
         public override void OnClosed()
         {
+            if (_targetConnection.CurrentSession.State == Sockets.Tcp.TcpSocketConnectionState.Closed)
+                return;
             _targetConnection.CloseSession();
             ListByteBuffer.Clear();
         }

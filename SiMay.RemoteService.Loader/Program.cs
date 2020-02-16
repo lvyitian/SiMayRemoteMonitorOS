@@ -180,7 +180,7 @@ namespace SiMay.RemoteService.Loader
             _clientAgent.ConnectToServer(_iPEndPoint);
         }
 
-        private static void Notify(TcpSocketCompletionNotify notify, TcpSocketSaeaSession session)
+        private static void Notify(TcpSessionNotify notify, TcpSocketSaeaSession session)
         {
             if (_appMainService != null)
             {
@@ -191,15 +191,15 @@ namespace SiMay.RemoteService.Loader
 
             switch (notify)
             {
-                case TcpSocketCompletionNotify.OnConnected:
+                case TcpSessionNotify.OnConnected:
                     byte[] ack = BuilderAckPacket(_startParameter.AccessKey, CONNECT_MAIN);
                     MsgHelper.SendMessage(session, C_GLOBAL_CONNECT, ack);
                     break;
-                case TcpSocketCompletionNotify.OnSend:
+                case TcpSessionNotify.OnSend:
                     break;
-                case TcpSocketCompletionNotify.OnDataReceiveing:
+                case TcpSessionNotify.OnDataReceiveing:
                     break;
-                case TcpSocketCompletionNotify.OnDataReceived:
+                case TcpSessionNotify.OnDataReceived:
                     switch (MsgHelper.GetMessageHead(session.CompletedBuffer))
                     {
                         case S_GLOBAL_OK:
@@ -215,7 +215,7 @@ namespace SiMay.RemoteService.Loader
                             break;
                     }
                     break;
-                case TcpSocketCompletionNotify.OnClosed:
+                case TcpSessionNotify.OnClosed:
 
                     if (_hasloadPlugin)
                         return;

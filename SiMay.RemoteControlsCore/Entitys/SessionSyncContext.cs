@@ -1,4 +1,4 @@
-﻿using SiMay.Net.SessionProvider.SessionBased;
+﻿using SiMay.Net.SessionProvider;
 using System;
 using System.Collections.Generic;
 using System.Linq;

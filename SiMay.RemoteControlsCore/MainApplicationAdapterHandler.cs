@@ -5,9 +5,8 @@ using SiMay.Core.Extensions;
 using SiMay.Core.PacketModelBinder.Attributes;
 using SiMay.Core.Packets;
 using SiMay.Net.SessionProvider;
-using SiMay.Net.SessionProvider.Delegate;
-using SiMay.Net.SessionProvider.Notify;
-using SiMay.Net.SessionProvider.SessionBased;
+using SiMay.Net.SessionProvider.Providers;
+using SiMay.Sockets.Tcp;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -56,7 +55,7 @@ namespace SiMay.RemoteControlsCore
         /// <summary>
         /// 代理协议事件
         /// </summary>
-        public event OnProxyNotify<ProxyNotify> OnProxyNotifyHandlerEvent;
+        public event Action<ProxyProviderNotify, EventArgs> OnProxyNotifyHandlerEvent;
 
         /// <summary>
         /// 监听日志事件
@@ -93,48 +92,56 @@ namespace SiMay.RemoteControlsCore
         /// 是否已启动
         /// </summary>
         private bool _launch;
-        public void StartService()
+
+        public void StartApp()
         {
             if (_launch)
                 return;
 
             _launch = true;
 
-            AppConfiguration.AccessId = DateTime.Now.ToFileTimeUtc();//暂时使用UTC时间作为主控端标识
-
             ThreadHelper.CreateThread(ApplicationResetThread, true);
 
-            var sessionMode = int.Parse(AppConfiguration.SessionMode).ConvertTo<SessionProviderType>();
+            this.StartService();
+        }
 
-            string ip = sessionMode == SessionProviderType.TcpServiceSession
+        public void StartService()
+        {
+            var providerType = int.Parse(AppConfiguration.SessionMode).ConvertTo<SessionProviderType>();
+
+            string ip = providerType == SessionProviderType.TcpServiceSession
                 ? AppConfiguration.IPAddress
                 : AppConfiguration.ServiceIPAddress;
 
-            int port = sessionMode == SessionProviderType.TcpServiceSession
+            int port = providerType == SessionProviderType.TcpServiceSession
                 ? AppConfiguration.Port
                 : AppConfiguration.ServicePort;
 
-            int maxconnectCount = AppConfiguration.MaxConnectCount;
+            AppConfiguration.UseAccessId = !AppConfiguration.EnabledAnonyMous ? AppConfiguration.AccessId : DateTime.Now.ToFileTimeUtc();
 
-            var options = new SessionProviderOptions
+            int maxConnectCount = AppConfiguration.MaxConnectCount;
+
+            var providerOptions = new SessionProviderOptions
             {
                 ServiceIPEndPoint = new IPEndPoint(IPAddress.Parse(ip), port),
-                PendingConnectionBacklog = maxconnectCount,
-                AccessKey = long.Parse(AppConfiguration.AccessKey)
+                PendingConnectionBacklog = maxConnectCount,
+                AccessId = AppConfiguration.UseAccessId,//暂时使用UTC时间作为主控端标识
+                MainAppAccessKey = AppConfiguration.MainAppAccessKey,
+                MaxPacketSize = 1024 * 1024 * 2,
+                AccessKey = long.Parse(AppConfiguration.AccessKey),
+                SessionProviderType = providerType
             };
 
-            var providerType = sessionMode;
-            options.SessionProviderType = providerType;
             if (providerType == SessionProviderType.TcpServiceSession)
             {
-                if (StartServiceProvider(options))
+                if (StartServiceProvider(providerOptions))
                     this.OnLogHandlerEvent?.Invoke($"SiMay远程监控管理系统端口 {port.ToString()} 监听成功!", LogSeverityLevel.Information);
                 else
                     this.OnLogHandlerEvent?.Invoke($"SiMay远程监控管理系统端口 {port.ToString()} 启动失败,请检查配置!", LogSeverityLevel.Warning);
             }
             else
             {
-                if (StartProxySessionProvider(options))
+                if (StartProxySessionProvider(providerOptions))
                     this.OnLogHandlerEvent?.Invoke($"SiMay远程监控管理系统初始化成功!", LogSeverityLevel.Information);
                 else
                     this.OnLogHandlerEvent?.Invoke($"SiMay远程监控管理系统初始化发生错误，请注意检查配置!", LogSeverityLevel.Warning);
@@ -142,7 +149,8 @@ namespace SiMay.RemoteControlsCore
 
             bool StartServiceProvider(SessionProviderOptions providerOptions)
             {
-                SessionProvider = SessionProviderFactory.CreateTcpSessionProvider(providerOptions, OnNotifyProc);
+                SessionProvider = SessionProviderFactory.CreateTcpSessionProvider(providerOptions);
+                SessionProvider.SessionNotifyEventHandler += OnNotifyProc;
                 try
                 {
                     SessionProvider.StartSerivce();
@@ -157,7 +165,12 @@ namespace SiMay.RemoteControlsCore
 
             bool StartProxySessionProvider(SessionProviderOptions providerOptions)
             {
-                SessionProvider = SessionProviderFactory.CreateProxySessionProvider(options, OnNotifyProc, OnProxyNotifyHandlerEvent);
+                SessionProvider = SessionProviderFactory.CreateProxySessionProvider(providerOptions);
+                SessionProvider.SessionNotifyEventHandler += OnNotifyProc;
+
+                if (SessionProvider is TcpProxySessionProvider proxySessionProvider)
+                    proxySessionProvider.ProxyProviderNotify += OnProxyNotifyHandlerEvent;
+
                 try
                 {
                     SessionProvider.StartSerivce();
@@ -176,9 +189,9 @@ namespace SiMay.RemoteControlsCore
         /// </summary>
         /// <param name="session"></param>
         /// <param name="notify"></param>
-        private void OnNotifyProc(SessionCompletedNotify notify, SessionProviderContext session)
+        private void OnNotifyProc(SessionProviderContext session, TcpSessionNotify notify)
         {
-            if (SynchronizationContext == null)
+            if (SynchronizationContext.IsNull())
                 NotifyProc(null);
             else
                 SynchronizationContext.Send(NotifyProc, null);
@@ -189,7 +202,7 @@ namespace SiMay.RemoteControlsCore
                 {
                     switch (notify)
                     {
-                        case SessionCompletedNotify.OnConnected:
+                        case TcpSessionNotify.OnConnected:
                             //先分配好工作类型，等待工作指令分配新的工作类型
                             session.AppTokens = new object[SysConstants.INDEX_COUNT]
                             {
@@ -197,18 +210,18 @@ namespace SiMay.RemoteControlsCore
                                 null
                             };
                             break;
-                        case SessionCompletedNotify.OnSend:
+                        case TcpSessionNotify.OnSend:
                             //耗时操作会导致性能严重降低
                             this.OnTransmitHandlerEvent?.Invoke(session);
                             break;
-                        case SessionCompletedNotify.OnRecv:
+                        case TcpSessionNotify.OnDataReceiveing:
                             //耗时操作会导致性能严重降低
                             this.OnReceiveHandlerEvent?.Invoke(session);
                             break;
-                        case SessionCompletedNotify.OnReceived:
+                        case TcpSessionNotify.OnDataReceived:
                             this.OnReceiveComplete(session);
                             break;
-                        case SessionCompletedNotify.OnClosed:
+                        case TcpSessionNotify.OnClosed:
                             this.OnClosed(session);
                             break;
                     }

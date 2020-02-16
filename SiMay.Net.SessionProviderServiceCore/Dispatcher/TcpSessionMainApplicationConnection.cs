@@ -9,6 +9,10 @@ namespace SiMay.Net.SessionProviderServiceCore
 {
     public class TcpSessionMainApplicationConnection : TcpSessionChannelDispatcher
     {
+        private long _createdTime = DateTime.Now.ToFileTime();
+
+        public long CreatedTime => _createdTime;
+
         public override ConnectionWorkType ConnectionWorkType => ConnectionWorkType.MainApplicationConnection;
 
         private readonly IDictionary<long, TcpSessionChannelDispatcher> _dispatchers;
@@ -19,6 +23,8 @@ namespace SiMay.Net.SessionProviderServiceCore
 
         public override void OnMessage()
         {
+            base.OnMessage();
+
             int defineHeadSize = sizeof(int);
             do
             {
@@ -28,18 +34,25 @@ namespace SiMay.Net.SessionProviderServiceCore
                 byte[] lenBytes = ListByteBuffer.GetRange(0, defineHeadSize).ToArray();
                 int packageLen = BitConverter.ToInt32(lenBytes, 0);
 
-                if (packageLen > ListByteBuffer.Count + defineHeadSize)
+                if (packageLen < 0 || packageLen > ApplicationConfiguartion.Options.MaxPacketSize)
+                {
+                    this.CloseSession();
+                    this.Log(LogOutLevelType.Error, $"Type:{ConnectionWorkType.ToString()} 长度不合法!");
+                    return;
+                }
+
+                if (packageLen + defineHeadSize > ListByteBuffer.Count)
                     return;
 
                 byte[] data = ListByteBuffer.GetRange(defineHeadSize, packageLen).ToArray();
 
-                this.MessageHandler(data);
+                this.MessageCompletedHandler(data);
                 ListByteBuffer.RemoveRange(0, packageLen + defineHeadSize);
 
             } while (ListByteBuffer.Count > defineHeadSize);
         }
 
-        private void MessageHandler(byte[] data)
+        private void MessageCompletedHandler(byte[] data)
         {
 
             switch (data.GetMessageHead<MessageHead>())
@@ -79,18 +92,28 @@ namespace SiMay.Net.SessionProviderServiceCore
             SendTo(data);
         }
 
+        /// <summary>
+        /// 构造带长度消息头的数据
+        /// </summary>
+        /// <param name="data"></param>
+        public override void SendTo(byte[] data)
+        {
+            base.SendTo(data.BuilderHeadPacket());
+        }
+
         private void TranspondMessage(long dispatcherId, byte[] data)
         {
             TcpSessionChannelDispatcher dispatcher;
             if (_dispatchers.TryGetValue(dispatcherId, out dispatcher))
             {
-                dispatcher.SendTo(data);//直接转发
+                dispatcher.SendTo(data.BuilderHeadPacket());//直接转发
             }
+            else this.Log(LogOutLevelType.Debug, $"ID:{dispatcherId} 未找到主服务连接!");
         }
 
         public override void OnClosed()
         {
-
+            ListByteBuffer.Clear();
         }
     }
 }

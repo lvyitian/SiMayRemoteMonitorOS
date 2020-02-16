@@ -27,7 +27,7 @@ namespace SiMay.Sockets.Tcp
 
         protected TcpSocketSaeaSessionType SaeaSessionType { get; set; }
 
-        protected NotifyEventHandler<TcpSocketCompletionNotify, TcpSocketSaeaSession> CompletetionNotify { get; set; }
+        protected NotifyEventHandler<TcpSessionNotify, TcpSocketSaeaSession> CompletetionNotify { get; set; }
 
         public int SessionCount
         {
@@ -38,7 +38,7 @@ namespace SiMay.Sockets.Tcp
         internal TcpSocketSaeaEngineBased(
             TcpSocketSaeaSessionType saeaSessionType,
             TcpSocketConfigurationBase configuration,
-            NotifyEventHandler<TcpSocketCompletionNotify, TcpSocketSaeaSession> completetionNotify)
+            NotifyEventHandler<TcpSessionNotify, TcpSocketSaeaSession> completetionNotify)
         {
             TcpSocketSaeaSessions = new List<TcpSocketSaeaSession>();
             HandlerSaeaPool = new SaeaAwaiterPool();

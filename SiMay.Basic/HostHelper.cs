@@ -6,7 +6,7 @@ using System.Text;
 
 namespace SiMay.Basic
 {
-    public class IPHelper
+    public class HostHelper
     {
         public static string GetHostByName(string host)
         {

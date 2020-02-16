@@ -1,8 +1,7 @@
 ﻿using SiMay.Basic;
 using SiMay.Core;
 using SiMay.Core.Enums;
-using SiMay.Net.SessionProvider.Notify;
-using SiMay.Net.SessionProvider.SessionBased;
+using SiMay.Net.SessionProvider;
 using SiMay.RemoteControlsCore;
 using SiMay.RemoteMonitor.Extensions;
 using SiMay.RemoteMonitor.Properties;
@@ -253,7 +252,7 @@ namespace SiMay.RemoteMonitor.MainApplication
             this._appMainAdapterHandler.OnLoginHandlerEvent += OnLoginHandlerEvent;
             this._appMainAdapterHandler.OnLoginUpdateHandlerEvent += OnLoginUpdateHandlerEvent;
             this._appMainAdapterHandler.OnLogHandlerEvent += OnLogHandlerEvent;
-            this._appMainAdapterHandler.StartService();
+            this._appMainAdapterHandler.StartApp();
         }
 
         private void OnLoginUpdateHandlerEvent(SessionSyncContext syncContext)
@@ -340,17 +339,17 @@ namespace SiMay.RemoteMonitor.MainApplication
         /// 代理协议事件
         /// </summary>
         /// <param name="notify"></param>
-        private void OnProxyNotify(ProxyNotify notify)
+        private void OnProxyNotify(ProxyProviderNotify notify, EventArgs arg)
         {
             switch (notify)
             {
-                case ProxyNotify.AccessKeyWrong:
-                    MessageBoxHelper.ShowBoxExclamation("AccessKey错误,与会话服务器的连接自动关闭!");
+                case ProxyProviderNotify.AccessIdOrKeyWrong:
+                    this.InvokeUI(() => this.WriteRuninglog("AccessKey错误,与会话服务器的连接自动关闭!", "error"));
                     break;
-                case ProxyNotify.LogOut:
-                    if (MessageBox.Show("已有其他控制端连接服务器,本次连接已自动关闭,是否重新连接?", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly) == DialogResult.OK)
+                case ProxyProviderNotify.LogOut:
+                    if (MessageBox.Show($"{arg.ConvertTo<LogOutEventArgs>().Message},本次连接已自动关闭,是否重新连接?", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly) == DialogResult.OK)
                     {
-                        this._appMainAdapterHandler.SessionProvider.StartSerivce();
+                        this._appMainAdapterHandler.StartService();
                     }
                     break;
             }

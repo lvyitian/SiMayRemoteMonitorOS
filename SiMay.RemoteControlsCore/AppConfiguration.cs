@@ -26,13 +26,16 @@ namespace SiMay.RemoteControlsCore
             { "AudioBitsPerSample", "16" },
             { "AudioChannels", "1" },
             { "SessionMode", "0" },
-            { "AccessKey", "522222" },
             { "ServiceIPAddress", "127.0.0.1" },
             { "ServicePort", "522" },
             { "EnabledCarousel", "true" },
             { "CarouselInterval", "5000" },
             { "ViewColumn", "4" },
             { "ViewRow", "3" },
+            { "EnabledAnonyMous", "true" },
+            { "AccessId" , "123456789" },
+            { "MainAppAccessKey", "5200" },
+            { "AccessKey", "5200" }
         };
 
         string _filePath = Path.Combine(Environment.CurrentDirectory, "SiMayConfig.ini");
@@ -60,12 +63,6 @@ namespace SiMay.RemoteControlsCore
     {
 
         public static AbstractAppConfigBase SysConfig { get; } = new ManagerAppConfig();
-
-        public static long AccessId
-        {
-            get;
-            set;
-        }
 
         public static string IPAddress
         {
@@ -189,6 +186,29 @@ namespace SiMay.RemoteControlsCore
         {
             get { return int.Parse(SysConfig.GetConfig("ViewRow")); }
             set { SysConfig.SetConfig("ViewRow", value.ToString()); }
+        }
+
+        /// <summary>
+        /// 临时Id
+        /// </summary>
+        public static long UseAccessId { get; set; }
+
+        public static long AccessId
+        {
+            get { return long.Parse(SysConfig.GetConfig("AccessId")); }
+            set { SysConfig.SetConfig("AccessId", value.ToString()); }
+        }
+
+        public static long MainAppAccessKey
+        {
+            get { return long.Parse(SysConfig.GetConfig("MainAppAccessKey")); }
+            set { SysConfig.SetConfig("MainAppAccessKey", value.ToString()); }
+        }
+
+        public static bool EnabledAnonyMous
+        {
+            get { return bool.Parse(SysConfig.GetConfig("EnabledAnonyMous")); }
+            set { SysConfig.SetConfig("EnabledAnonyMous", value.ToString()); }
         }
     }
 }

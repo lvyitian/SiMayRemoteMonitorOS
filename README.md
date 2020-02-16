@@ -6,7 +6,7 @@
  - 作为创作者，我对由此软件引起的任何行为和/或损害不承担任何责任。 您对自己的行为承担全部责任，并承认此软件仅用于教育和研究目的。 不得用于您不拥有或有权使用的任何系统。 使用此软件，您自动同意上述内容，感谢支持。 
 
 # 背景
- - 项目仅是个人技术总结项目，总结在工作中所遇到的有趣技术，测试新技术，比如系统架构，语法等。经过几次重构，系统相对比较成熟了，决定开源反馈开源社区，希望更多人能和我一起进步，欢迎吐槽改进。
+ - 仅是个人项目，总结在工作中所遇到的有趣技术，新技术，新语法等，系统架构等，经过几次重构，系统相对比较成熟了，决定开源反馈开源社区，希望更多人能和我一起进步，欢迎吐槽改进。
 
 ![主控界面](https://images.gitee.com/uploads/images/2019/0717/225727_cc5c40c8_1654743.jpeg "主控制界面")
 ![创建服务端](https://images.gitee.com/uploads/images/2019/0717/225801_d0ccad61_1654743.jpeg "创建服务端")
@@ -22,22 +22,22 @@
  - SiMay.Core --系统核心统一公共库【统一通讯指令丶共用组件丶通信数据实体等..】
  - SiMay.Serialize --轻量级高性能二进制序列化库【作用:系统通信数据实体化】
 
-### SiMay.RemoteMonitor【主控端】
+### SiMay.RemoteMonitor【主控制端】
  - SiMay.RemoteControlsCore --主控端核心库
  - SiMay.RemoteMonitor --Windows主控端(基于核心库)
  - SiMay.RemoteMonitorForWeb【计划，未完成】 --Web主控端后端(基于核心库，支持.NET Core)，基于WebSocket与前端通信
  - SiMay.RemoteMonitorForWebSite【计划，未完成】 --Web监控前端
 
-### SiMay.RemoteService【远程服务端】
+### SiMay.RemoteService【远程被控服务端】
  - SiMay.RemoteService.Loader --内存加载Loader，实现远程内存载入被控端核心库
  - SiMay.ServiceCore --被控端核心库/被控端主程序
 
-### SiMay.SessionProvider【会话提供库】
+### SiMay.SessionProvider【会话提供层】
  - SiMay.Net.SessionProvider --会话提供库【作用：提供服务器监听模式或者中间会话代理协议】
  - SiMay.Net.SessionProvider.Core --代理协议统一公用库【作用：统一中间库和服务器的通信指令及序列化等】
  - SiMay.Net.SessionProviderService --中间会话代理服务器【作用：提供保持服务端会话保持丶数据转发功能，基于此实现多平台端监控】
 
-### SiMay.Sockets【Socket通信库】
+### SiMay.Sockets【通信层】
  - SiMay.Socket.Standard --轻量级通信引擎
  - SiMaySocketTestApp --通信引擎测试程序
 

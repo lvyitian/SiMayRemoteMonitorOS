@@ -1,5 +1,4 @@
-﻿using SiMay.Core.Enums;
-using SiMay.ReflectCache;
+﻿using SiMay.ReflectCache;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +8,8 @@ namespace SiMay.Core.Packets
 {
     public class AckPack : EntitySerializerBase
     {
-        public ConnectionWorkType Type { get; set; }
+        public byte Type { get; set; }
         public long AccessId { get; set; }
         public long AccessKey { get; set; }
-
     }
 }

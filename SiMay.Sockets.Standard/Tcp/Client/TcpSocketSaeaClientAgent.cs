@@ -20,7 +20,7 @@ namespace SiMay.Sockets.Tcp.Client
         internal TcpSocketSaeaClientAgent(
             TcpSocketSaeaSessionType saeaSessionType,
             TcpSocketSaeaClientConfiguration configuration,
-            NotifyEventHandler<TcpSocketCompletionNotify, TcpSocketSaeaSession> completetionNotify)
+            NotifyEventHandler<TcpSessionNotify, TcpSocketSaeaSession> completetionNotify)
             : base(saeaSessionType, configuration, completetionNotify)
         {
 
@@ -88,14 +88,14 @@ namespace SiMay.Sockets.Tcp.Client
                  if (e != SocketError.Success)
                  {
                      LogHelper.WriteLog("client_connect-error");
-                     CompletetionNotify?.Invoke(TcpSocketCompletionNotify.OnClosed, session);
+                     CompletetionNotify?.Invoke(TcpSessionNotify.OnClosed, session);
                      SessionPool.Return(session);
                      return;
                  }
                  TcpSocketSaeaSessions.Add(session);
 
                  session.Attach(socket);
-                 CompletetionNotify?.Invoke(TcpSocketCompletionNotify.OnConnected, session);
+                 CompletetionNotify?.Invoke(TcpSessionNotify.OnConnected, session);
                  session.StartProcess();
              });
         }

@@ -49,7 +49,7 @@ namespace SiMay.ServiceCore.MainService
         {
             while (true) //第一次解析域名,直至解析成功
             {
-                var ip = IPHelper.GetHostByName(startParameter.Host);
+                var ip = HostHelper.GetHostByName(startParameter.Host);
                 if (ip != null)
                 {
                     AppConfiguartion.ServerIPEndPoint = new IPEndPoint(IPAddress.Parse(ip), startParameter.Port);
@@ -150,7 +150,7 @@ namespace SiMay.ServiceCore.MainService
             //尝试解析出最新的域名地址
             ThreadHelper.ThreadPoolStart(c =>
             {
-                var ip = IPHelper.GetHostByName(AppConfiguartion.HostAddress);
+                var ip = HostHelper.GetHostByName(AppConfiguartion.HostAddress);
                 if (ip.IsNullOrEmpty())
                     return;
                 AppConfiguartion.ServerIPEndPoint = new IPEndPoint(IPAddress.Parse(ip), AppConfiguartion.HostPort);
@@ -163,14 +163,14 @@ namespace SiMay.ServiceCore.MainService
         /// 作用：连接确认，以便服务端识别这是一个有效的工作连接，type = 中间服务器识别 ， accessId = 发起创建应用服务请求的主控端标识
         /// </summary>
         /// <param name="session"></param>
-        private void SendAckPack(TcpSocketSaeaSession session, ConnectionWorkType type, long accessId)
+        private void SendACK(TcpSocketSaeaSession session, ConnectionWorkType type, long accessId)
         {
             SendTo(session, MessageHead.C_GLOBAL_CONNECT,
                 new AckPack()
                 {
                     AccessId = accessId,//当前主控端标识
                     AccessKey = AppConfiguartion.AccessKey,
-                    Type = type
+                    Type = (byte)type
                 });
         }
 
@@ -179,18 +179,18 @@ namespace SiMay.ServiceCore.MainService
         /// </summary>
         /// <param name="notify"></param>
         /// <param name="session"></param>
-        public void Notify(TcpSocketCompletionNotify notify, TcpSocketSaeaSession session)
+        public void Notify(TcpSessionNotify notify, TcpSocketSaeaSession session)
         {
             try
             {
                 switch (notify)
                 {
-                    case TcpSocketCompletionNotify.OnConnected:
+                    case TcpSessionNotify.OnConnected:
                         this.ConnectedHandler(session, notify);
                         break;
-                    case TcpSocketCompletionNotify.OnDataReceiveing:
+                    case TcpSessionNotify.OnDataReceiveing:
                         break;
-                    case TcpSocketCompletionNotify.OnDataReceived:
+                    case TcpSessionNotify.OnDataReceived:
                         var workType = (ConnectionWorkType)session.AppTokens[0];
                         if (workType == ConnectionWorkType.MAINCON)
                             this.HandlerBinder.InvokePacketHandler(session, GetMessageHead(session), this);
@@ -200,7 +200,7 @@ namespace SiMay.ServiceCore.MainService
                             appService.HandlerBinder.InvokePacketHandler(session, GetMessageHead(session), appService);
                         }
                         break;
-                    case TcpSocketCompletionNotify.OnClosed:
+                    case TcpSessionNotify.OnClosed:
                         this.CloseHandler(session, notify);
                         break;
                 }
@@ -224,7 +224,7 @@ namespace SiMay.ServiceCore.MainService
         /// </summary>
         /// <param name="session"></param>
         /// <param name="notify"></param>
-        private void ConnectedHandler(TcpSocketSaeaSession session, TcpSocketCompletionNotify notify)
+        private void ConnectedHandler(TcpSocketSaeaSession session, TcpSessionNotify notify)
         {
             //当服务主连接离线或未连接，优先与session关联
             if (Interlocked.Exchange(ref _sessionKeepSign, STATE_NORMAL) == STATE_DISCONNECT)
@@ -236,7 +236,7 @@ namespace SiMay.ServiceCore.MainService
                 };
                 this.SetSession(session);
                 //服务主连接accessId保留
-                this.SendAckPack(session, ConnectionWorkType.MAINCON, 0);
+                this.SendACK(session, ConnectionWorkType.MAINCON, 0);
             }
             else
             {
@@ -253,11 +253,11 @@ namespace SiMay.ServiceCore.MainService
                     service
                 };
                 service.SetSession(session);
-                this.SendAckPack(session, ConnectionWorkType.WORKCON, service.AccessId);
+                this.SendACK(session, ConnectionWorkType.WORKCON, service.AccessId);
             }
 
         }
-        private void CloseHandler(TcpSocketSaeaSession session, TcpSocketCompletionNotify notify)
+        private void CloseHandler(TcpSocketSaeaSession session, TcpSessionNotify notify)
         {
             if (_sessionKeepSign == STATE_DISCONNECT && session.AppTokens.IsNull())
             {
@@ -270,7 +270,7 @@ namespace SiMay.ServiceCore.MainService
             }
             else if (_sessionKeepSign == STATE_NORMAL && session.AppTokens.IsNull())//task连接，连接服务器失败
             {
-                _taskQueue.Dequeue();//移除
+                _taskQueue.Dequeue();
                 return;//不重试连接，因为可能会连接不上，导致频繁重试连接
             }
 
@@ -468,7 +468,7 @@ namespace SiMay.ServiceCore.MainService
         {
             var isConstraint = GetMessage(session)[0];
             AppConfiguartion.IsOpenScreenView = true;
-            if (_screenViewIsAction != true || isConstraint == 0)
+            if (!_screenViewIsAction || isConstraint == 0)
                 this.OnRemoteCreateDesktopView();
         }
 
@@ -479,8 +479,10 @@ namespace SiMay.ServiceCore.MainService
         [PacketHandler(MessageHead.S_MAIN_DESKTOPVIEW_GETFRAME)]
         private void SendNextFrameDesktopView(TcpSocketSaeaSession session)
         {
-            ThreadPool.QueueUserWorkItem(c =>
+            ThreadHelper.ThreadPoolStart(c =>
             {
+                ThreadLocalAccessId.Value = GetAccessId(session);
+
                 var getframe = GetMessageEntity<DesktopViewGetFramePack>(session);
                 if (getframe.Width == 0 || getframe.Height == 0 || getframe.TimeSpan == 0 || getframe.TimeSpan < 50)
                     return;

@@ -17,7 +17,7 @@ namespace SiMay.Net.SessionProviderServiceCore
 
         public event Action<ApportionDispatcher, ConnectionWorkType> ApportionTypeHandlerEvent;
 
-        private byte[] _ackRetainPacketData;
+        private byte[] _ackRetainData;
         private long _accessId;
         public override void OnMessage()
         {
@@ -28,33 +28,43 @@ namespace SiMay.Net.SessionProviderServiceCore
             byte[] lenBytes = ListByteBuffer.GetRange(0, defineHeadSize).ToArray();
             int packageLen = BitConverter.ToInt32(lenBytes, 0);
 
-            if (packageLen < 0 || packageLen > ApplicationConfiguartion.MaxPacketSize || packageLen < 25) //数据不合法 或 小于大概ack固定长度
+            if (packageLen < 0 || packageLen > ApplicationConfiguartion.Options.MaxPacketSize || packageLen < 25) //数据不合法 或 小于大概ack固定长度
             {
                 this.CloseSession();
+                this.Log(LogOutLevelType.Error, $"Type:{ConnectionWorkType.ToString()} 长度不合法!");
                 return;
             }
 
-            if (packageLen > ListByteBuffer.Count - defineHeadSize)
+            if (packageLen + defineHeadSize > ListByteBuffer.Count)
                 return;
 
-            this._ackRetainPacketData = ListByteBuffer.GetRange(0, defineHeadSize + packageLen).ToArray();
+            this._ackRetainData = ListByteBuffer.GetRange(defineHeadSize, packageLen).ToArray();
             ListByteBuffer.RemoveRange(0, packageLen + defineHeadSize);
 
-            this._accessId = BitConverter.ToInt64(_ackRetainPacketData, defineHeadSize);
-
             var longSize = sizeof(long);
-            var packageBody = GZipHelper.Decompress(_ackRetainPacketData, defineHeadSize + longSize, _ackRetainPacketData.Length - defineHeadSize - longSize);
+            var packageBody = GZipHelper.Decompress(_ackRetainData, longSize, _ackRetainData.Length - longSize);
             var messageHead = TakeMessageHead(packageBody);
             if (messageHead == ACK_HEAD)
             {
                 var ack = PacketSerializeHelper.DeserializePacket<AckPacket>(TakeMessage(packageBody));
-                if (ValidityAccessIdWithKey(ack.Type, ack.AccessId, ack.AccessKey))
-                    this.ApportionTypeHandlerEvent?.Invoke(this, ack.Type);
+
+                this._accessId = ack.AccessId;
+
+                if (ValidityAccessIdWithKey((ConnectionWorkType)ack.Type, ack.AccessId, ack.AccessKey))
+                    this.ApportionTypeHandlerEvent?.Invoke(this, (ConnectionWorkType)ack.Type);
                 else
+                {
+                    var data = MessageHelper.CopyMessageHeadTo(MessageHead.MID_ACCESS_KEY_WRONG);
+                    this.CurrentSession.SendAsync(data.BuilderHeadPacket());
                     this.CloseSession();
+                    this.Log(LogOutLevelType.Debug, $"Type:{((ConnectionWorkType)ack.Type).ToString()} AccessId:{ack.AccessId} 或AccessKey:{ack.AccessKey} 验证失败，登陆不成功!");
+                }
             }
             else
+            {
                 this.CloseSession();
+                this.Log(LogOutLevelType.Warning, $"未知消息,连接被关闭!");
+            }
 
         }
 
@@ -67,19 +77,13 @@ namespace SiMay.Net.SessionProviderServiceCore
         /// <returns></returns>
         private bool ValidityAccessIdWithKey(ConnectionWorkType type, long id, long key)
         {
-            if (type == ConnectionWorkType.MainApplicationConnection &&
-                ApplicationConfiguartion.MainApplicationAnonymous &&
-                key.Equals(ApplicationConfiguartion.AccessKey))
-                return true;//主控端允许匿名Id登陆
-
-            else if (type == ConnectionWorkType.MainApplicationConnection &&
-                !ApplicationConfiguartion.MainApplicationAnonymous &&
-                ApplicationConfiguartion.MainApplicationAllowAccessId.Contains(id) &&
-                ApplicationConfiguartion.AccessKey.Equals(key))
-                return true;
+            if (type == ConnectionWorkType.MainApplicationConnection && ApplicationConfiguartion.Options.MainApplicationAnonyMous)
+                return key.Equals(ApplicationConfiguartion.Options.MainAppAccessKey);//主控端允许匿名Id登陆
+            else if (type == ConnectionWorkType.MainApplicationConnection && !ApplicationConfiguartion.Options.MainApplicationAnonyMous)
+                return ApplicationConfiguartion.Options.MainApplicationAllowAccessId.Contains(id) && ApplicationConfiguartion.Options.MainAppAccessKey.Equals(key);
             else
             {
-                return key.Equals(ApplicationConfiguartion.AccessKey);//其他的暂仅验证AccessKey
+                return key.Equals(ApplicationConfiguartion.Options.AccessKey);//其他的暂仅验证AccessKey
             }
         }
 
@@ -89,7 +93,7 @@ namespace SiMay.Net.SessionProviderServiceCore
         /// <returns></returns>
         public long GetAccessId()
         {
-            if (_ackRetainPacketData.IsNull())
+            if (_ackRetainData.IsNull())
                 throw new ArgumentNullException();
 
             return _accessId;
@@ -101,10 +105,10 @@ namespace SiMay.Net.SessionProviderServiceCore
         /// <returns></returns>
         public byte[] GetACKPacketData()
         {
-            if (_ackRetainPacketData.IsNull())
+            if (_ackRetainData.IsNull())
                 throw new ArgumentNullException();
 
-            return _ackRetainPacketData;
+            return _ackRetainData;
         }
 
         private Int16 TakeMessageHead(byte[] data)
@@ -121,7 +125,7 @@ namespace SiMay.Net.SessionProviderServiceCore
 
         public override void OnClosed()
         {
-
+            ListByteBuffer.Clear();
         }
     }
 }

@@ -70,18 +70,18 @@ namespace SiMay.ServiceCore
             {
                 var startParameter = new StartParameterEx()
                 {
-                    Host = "127.0.0.1",
-                    Port = 5200,
+                    Host = "94.191.115.121",
+                    Port = 522,
                     //Port = 522,
                     GroupName = "默认分组",
                     RemarkInformation = "SiMayService",
                     IsHide = false,
                     IsMutex = false,
                     IsAutoStart = false,
-                    SessionMode = 0,
-                    //SessionMode = 1,
+                    //SessionMode = 0,
+                    SessionMode = 1,
                     AccessKey = 5200,
-                    ServiceVersion = "正式5.0",
+                    ServiceVersion = "正式6.0",
                     RunTimeText = DateTime.Now.ToString(),
                     UniqueId = "AAAAAAAAAAAAAAA11111111",
                     ServiceName = "SiMayService",

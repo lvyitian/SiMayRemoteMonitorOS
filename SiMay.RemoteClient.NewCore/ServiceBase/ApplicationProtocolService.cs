@@ -3,6 +3,7 @@ using SiMay.Core;
 using SiMay.Core.PacketModelBinding;
 using SiMay.Sockets.Tcp.Session;
 using System;
+using System.Threading;
 
 namespace SiMay.ServiceCore
 {
@@ -11,6 +12,7 @@ namespace SiMay.ServiceCore
     /// </summary>
     public abstract class ApplicationProtocolService : ApplicationServiceBase
     {
+        protected ThreadLocal<long> ThreadLocalAccessId = new ThreadLocal<long>();
         /// <summary>
         /// 数据处理绑定
         /// </summary>
@@ -40,7 +42,8 @@ namespace SiMay.ServiceCore
 
         protected virtual void SendToBefore(TcpSocketSaeaSession session, byte[] data)
         {
-            var accessId = GetAccessId(session);
+            var accessId = ThreadLocalAccessId.IsValueCreated ? ThreadLocalAccessId.Value : GetAccessId(session);
+            Console.WriteLine("ID:" + accessId);
             SendTo(session, WrapAccessId(GZipHelper.Compress(data, 0, data.Length), accessId));
         }
 

@@ -15,7 +15,7 @@ namespace SiMay.Sockets.Tcp.Session
     /// </summary>
     public abstract class TcpSocketSaeaSession
     {
-        protected NotifyEventHandler<TcpSocketCompletionNotify, TcpSocketSaeaSession> NotifyEventHandler { get; set; }
+        protected NotifyEventHandler<TcpSessionNotify, TcpSocketSaeaSession> NotifyEventHandler { get; set; }
 
         protected TcpSocketConfigurationBase Configuration { get; set; }
 
@@ -42,7 +42,7 @@ namespace SiMay.Sockets.Tcp.Session
         public DateTime StartTime { get; protected set; }
 
         internal TcpSocketSaeaSession(
-            NotifyEventHandler<TcpSocketCompletionNotify, TcpSocketSaeaSession> notifyEventHandler,
+            NotifyEventHandler<TcpSessionNotify, TcpSocketSaeaSession> notifyEventHandler,
             TcpSocketConfigurationBase configuration,
             SaeaAwaiterPool handlerSaeaPool,
             SessionPool sessionPool,

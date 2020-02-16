@@ -8,7 +8,7 @@ using SiMay.Core.Enums;
 using SiMay.Core.PacketModelBinder.Attributes;
 using SiMay.Core.PacketModelBinding;
 using SiMay.Core.Packets.Startup;
-using SiMay.Net.SessionProvider.SessionBased;
+using SiMay.Net.SessionProvider;
 
 namespace SiMay.RemoteControlsCore.HandlerAdapters
 {
