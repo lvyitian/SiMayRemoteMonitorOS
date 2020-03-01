@@ -998,7 +998,6 @@
             this.toolStripMenuItem3.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.H)));
             this.toolStripMenuItem3.Size = new System.Drawing.Size(105, 24);
             this.toolStripMenuItem3.Text = "关于程序(&H)";
-            this.toolStripMenuItem3.Visible = false;
             this.toolStripMenuItem3.Click += new System.EventHandler(this.About);
             // 
             // MainApplication
