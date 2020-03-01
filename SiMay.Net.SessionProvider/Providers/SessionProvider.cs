@@ -24,7 +24,8 @@ namespace SiMay.Net.SessionProvider
         /// 广播发送
         /// </summary>
         /// <param name="data"></param>
-        public abstract void BroadcastAsync(byte[] data);
+        public virtual void BroadcastAsync(byte[] data)
+            => BroadcastAsync(data, 0, data.Length);
 
         /// <summary>
         /// 广播发送

@@ -43,10 +43,6 @@ namespace SiMay.Net.SessionProviderServiceCore
             var workerConnection = new TcpSessionApplicationWorkerConnection();
             workerConnection.ConnectionWorkType = workType;
             workerConnection.SetSession(apportionDispatcher.CurrentSession);
-
-            var bufferData = apportionDispatcher.ListByteBuffer.ToArray();
-            if (bufferData.Length > 0)//如缓冲区有数据，则处理消息
-                workerConnection.ListByteBuffer.AddRange(bufferData);
             return workerConnection;
         }
     }

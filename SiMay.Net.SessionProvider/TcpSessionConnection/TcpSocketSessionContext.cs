@@ -14,6 +14,7 @@ namespace SiMay.Net.SessionProvider
         public TcpSocketSessionContext(TcpSocketSaeaSession session)
         {
             CurrentSession = session;
+            session.AppTokens = new object[] { this };
         }
         /// <summary>
         /// 发送长度

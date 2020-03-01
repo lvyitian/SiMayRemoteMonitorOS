@@ -27,7 +27,10 @@ namespace SiMay.ReflectCache
 
         private static IMemberAccessor CreateMemberAccessor(Type type)
         {
-            return Activator.CreateInstance(typeof(DynamicMethod<>).MakeGenericType(type)) as IMemberAccessor;
+            var instance = Activator.CreateInstance(typeof(DynamicMethod<>).MakeGenericType(type)) as IMemberAccessor;
+            if (instance == null)
+                throw new Exception("Activator.CreateInstance Object is empty");
+            return instance;
         }
     }
 

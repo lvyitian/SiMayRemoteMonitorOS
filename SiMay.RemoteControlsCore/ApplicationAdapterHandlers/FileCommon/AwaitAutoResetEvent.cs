@@ -48,7 +48,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             {
                 LogHelper.DebugWriteLog(frame.GetMethod().Name + " AwaitOneData ----wait version:" + _version);
                 _event.Reset();
-                _event.WaitOne(1000);
+                _event.WaitOne();
                 LogHelper.DebugWriteLog(frame.GetMethod().Name + " AwaitOneData ----wait finish version:" + _version);
             }
             return this._buffer;

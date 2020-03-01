@@ -190,9 +190,7 @@ namespace SiMay.Net.SessionProvider.Providers
                 };
             }
             else if (session.AppTokens.IsNull() && this._currentState == CHANNEL_LOGIN)
-            {
                 return;
-            }
 
             var type = session.AppTokens[SysContanct.INDEX_WORKTYPE].ConvertTo<ConnectionWorkType>();
             if (type == ConnectionWorkType.MainApplicationConnection)
@@ -211,7 +209,7 @@ namespace SiMay.Net.SessionProvider.Providers
                 {
                     foreach (var proxySession in _proxySessions.Select(c => c.Value))
                         this.SessionNotify(proxySession, TcpSessionNotify.OnClosed);
-                    this._proxySessions.Clear(); 
+                    this._proxySessions.Clear();
                 }
 
                 if (!_wetherLogOut)
@@ -234,7 +232,7 @@ namespace SiMay.Net.SessionProvider.Providers
                 {
                     var sessionContext = session.AppTokens[SysContanct.INDEX_WORKER].ConvertTo<TcpSocketSessionContext>();
                     this.SessionNotify(sessionContext, TcpSessionNotify.OnClosed);
-                    this._proxySessions.Remove(sessionContext.GetHashCode()); 
+                    this._proxySessions.Remove(sessionContext.GetHashCode());
                 }
             }
         }
@@ -242,11 +240,6 @@ namespace SiMay.Net.SessionProvider.Providers
         public override void StartSerivce()
         {
             this._clientAgent.ConnectToServer(ApplicationConfiguartion.Options.ServiceIPEndPoint);
-        }
-        public override void BroadcastAsync(byte[] data)
-        {
-            foreach (var session in this._proxySessions.Select(c => c.Value))
-                session.SendAsync(data);
         }
 
         public override void BroadcastAsync(byte[] data, int offset, int lenght)

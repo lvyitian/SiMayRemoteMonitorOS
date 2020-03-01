@@ -58,6 +58,12 @@ namespace SiMay.RemoteControlsCore
         public event Action<ProxyProviderNotify, EventArgs> OnProxyNotifyHandlerEvent;
 
         /// <summary>
+        /// 当应用被创建
+        /// </summary>
+        public event Action<IApplication> OnApplicationCreatedEventHandler;
+
+
+        /// <summary>
         /// 监听日志事件
         /// </summary>
         public event Action<string, LogSeverityLevel> OnLogHandlerEvent;
@@ -424,6 +430,8 @@ namespace SiMay.RemoteControlsCore
                         .GetProperties()
                         .Single(c => !c.GetCustomAttribute<ApplicationAdapterHandlerAttribute>(true).IsNull());
                     handlerFieder.SetValue(app, appHandlerBase);
+
+                    this.OnApplicationCreatedEventHandler?.Invoke(app);
 
                     //app.HandlerAdapter = handlerBase;
                     app.Start();

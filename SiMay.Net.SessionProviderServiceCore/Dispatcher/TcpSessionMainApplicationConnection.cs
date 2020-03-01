@@ -16,10 +16,7 @@ namespace SiMay.Net.SessionProviderServiceCore
         public override ConnectionWorkType ConnectionWorkType => ConnectionWorkType.MainApplicationConnection;
 
         private readonly IDictionary<long, TcpSessionChannelDispatcher> _dispatchers;
-        public TcpSessionMainApplicationConnection(IDictionary<long, TcpSessionChannelDispatcher> dispatchers)
-        {
-            _dispatchers = dispatchers;
-        }
+        public TcpSessionMainApplicationConnection(IDictionary<long, TcpSessionChannelDispatcher> dispatchers) => _dispatchers = dispatchers;
 
         public override void OnMessage()
         {
@@ -44,9 +41,9 @@ namespace SiMay.Net.SessionProviderServiceCore
                 if (packageLen + defineHeadSize > ListByteBuffer.Count)
                     return;
 
-                byte[] data = ListByteBuffer.GetRange(defineHeadSize, packageLen).ToArray();
+                byte[] mainAppMessageData = ListByteBuffer.GetRange(defineHeadSize, packageLen).ToArray();
 
-                this.MessageCompletedHandler(data);
+                this.MessageCompletedHandler(mainAppMessageData);
                 ListByteBuffer.RemoveRange(0, packageLen + defineHeadSize);
 
             } while (ListByteBuffer.Count > defineHeadSize);

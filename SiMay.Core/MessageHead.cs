@@ -192,6 +192,11 @@ namespace SiMay.Core
         S_STARTUP_REMOVE_ITEM,                             //移除启动项目
 
         C_STARTUP_LIST = 2000,                             //启动项列表
-        C_STARTUP_OPER_RESPONSE                            //操作结果
+        C_STARTUP_OPER_RESPONSE,                           //操作结果
+
+        C_REMOTE_UPDATE_READY = 2000,                      //远程就绪
+        C_REMOTE_UPDATE_NEXT_DATA,                         //获取下一个文件数据
+        
+        S_REMOTE_UPDATE_DATA,                              //文件数据
     }
 }

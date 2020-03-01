@@ -36,12 +36,6 @@ namespace SiMay.Net.SessionProviderService
                         SystemOptionsDialog dlg = new SystemOptionsDialog();
                         dlg.ShowDialog();
                         break;
-                    case IDM_RUNLOG:
-                        if (File.Exists("Run.log"))
-                        {
-                            Process.Start("Run.log");
-                        }
-                        break;
                 }
             }
             base.WndProc(ref m);
@@ -61,7 +55,6 @@ namespace SiMay.Net.SessionProviderService
 
             InsertMenu(sysMenuHandle, 7, MF_SEPARATOR, 0, null);
             InsertMenu(sysMenuHandle, 8, MF_BYPOSITION, IDM_OPTIONS, "系统设置");
-            InsertMenu(sysMenuHandle, 9, MF_BYPOSITION, IDM_RUNLOG, "运行日志");
 
             this._log_imgList = new ImageList();
             this._log_imgList.Images.Add("ok", Resources.ok);
@@ -87,10 +80,10 @@ namespace SiMay.Net.SessionProviderService
             _sessionProviderService.LogOutputEventHandler += LogOutputEventHandler;
             var startResult = _sessionProviderService.StartService(new StartServiceOptions()
             {
-                AccessKey = ApplicationConfiguration.AccessKey,
                 LocalAddress = ApplicationConfiguration.LoalAddress,
                 ServicePort = ApplicationConfiguration.Port,
                 MaxPacketSize = 1024 * 1024 * 2,
+                AccessKey = ApplicationConfiguration.AccessKey,
                 MainAppAccessKey = ApplicationConfiguration.MainAppAccessKey,
                 MainApplicationAllowAccessId = !ApplicationConfiguration.AccessIds.IsNullOrEmpty() ? ApplicationConfiguration.AccessIds.Split(',').Select(c => long.Parse(c)).ToArray() : new long[0],
                 MainApplicationAnonyMous = ApplicationConfiguration.AnonyMous
@@ -106,8 +99,8 @@ namespace SiMay.Net.SessionProviderService
 
             dispatcher.LogOutputEventHandler -= LogOutputEventHandler;
 
-            _channelCount--;
-            lableConnectionCount.Text = _channelCount.ToString();
+            this._channelCount--;
+            this.lableConnectionCount.Text = _channelCount.ToString();
         }
 
         private void OnConnectedEventHandler(TcpSessionChannelDispatcher dispatcher)
@@ -115,16 +108,18 @@ namespace SiMay.Net.SessionProviderService
             var viewItem = new ChannelViewItem(dispatcher);
             this.channelListView.Items.Add(viewItem);
             dispatcher.LogOutputEventHandler += LogOutputEventHandler;
-            _channelCount++;
-            lableConnectionCount.Text = _channelCount.ToString();
+            this._channelCount++;
+            this.lableConnectionCount.Text = _channelCount.ToString();
         }
 
         private void LogOutputEventHandler(DispatcherBase dispatcher, LogOutLevelType levelType, string log) => this.Log(levelType, log);
 
         private void Log(LogOutLevelType levelType, string log)
         {
-            var viewItem = new ListViewItem();
+            if (this.logList.Items.Count > 500)
+                CleanViewLog();
 
+            var viewItem = new ListViewItem();
             viewItem.Text = DateTime.Now.ToString();
             viewItem.SubItems.Add(log);
             switch (levelType)
@@ -147,17 +142,17 @@ namespace SiMay.Net.SessionProviderService
             foreach (ChannelViewItem item in channelListView.Items)
             {
                 item.SetVelocityText(item.SendStreamLength, item.ReceiveStreamLength);
-                _uploadTransferBytes += item.SendStreamLength;
-                _receiveTransferBytes += item.ReceiveStreamLength;
+                this._uploadTransferBytes += item.SendStreamLength;
+                this._receiveTransferBytes += item.ReceiveStreamLength;
 
                 item.SendStreamLength = 0;
                 item.ReceiveStreamLength = 0;
             }
 
-            lbUpload.Text = (_uploadTransferBytes / 1024).ToString("0.00");
-            lbReceive.Text = (_receiveTransferBytes / 1024).ToString("0.00");
-            _uploadTransferBytes = 0;
-            _receiveTransferBytes = 0;
+            this.lbUpload.Text = (_uploadTransferBytes / 1024).ToString("0.00");
+            this.lbReceive.Text = (_receiveTransferBytes / 1024).ToString("0.00");
+            this._uploadTransferBytes = 0;
+            this._receiveTransferBytes = 0;
         }
 
         private void CleanViewLog()
@@ -173,13 +168,13 @@ namespace SiMay.Net.SessionProviderService
 
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            if (logList.SelectedItems.Count != 0)
+            if (this.logList.SelectedItems.Count != 0)
                 Clipboard.SetText(string.Join(",", logList.Items[logList.SelectedItems.FristOrDefault<ListViewItem>().Index].SubItems.Select<ListViewSubItem, string>(c => c.Text)));
         }
 
         private void toolStripMenuItem2_Click(object sender, EventArgs e)
         {
-            if (logList.SelectedItems.Count != 0)
+            if (this.logList.SelectedItems.Count != 0)
             {
                 int Index = logList.SelectedItems[0].Index;
                 if (Index >= 1)

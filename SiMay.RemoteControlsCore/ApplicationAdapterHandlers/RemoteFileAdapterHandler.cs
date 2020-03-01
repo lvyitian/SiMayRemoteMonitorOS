@@ -382,8 +382,9 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_FILE_FRIST_DATA)]
         private void SetOpenEvent(SessionProviderContext session)
         {
-            LogHelper.DebugWriteLog("C_FILE_FRIST_DATA SetOpenEvent head:" + string.Join(",", session.CompletedBuffer.Take(2).Select(c => c.ToString()).ToArray()) /*+ " fileName:" + session.CompletedBuffer.GetMessageEntity<FileFristDownloadDataPack>().fileName*/);
-            _workerStreamEvent.SetOneData(GetMessage(session));
+            //LogHelper.DebugWriteLog("C_FILE_FRIST_DATA SetOpenEvent head:" + string.Join(",", session.CompletedBuffer.Take(2).Select(c => c.ToString()).ToArray()) /*+ " fileName:" + session.CompletedBuffer.GetMessageEntity<FileFristDownloadDataPack>().fileName*/);
+            var data = GetMessage(session);
+            _workerStreamEvent.SetOneData(data);
         }
         private async Task<FileFristDownloadDataPack> AwaitOpenDownloadData(string remoteFileName, long position)
         {
@@ -401,7 +402,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
                     var data = _workerStreamEvent.AwaitOneData();
                     if (data.IsNullOrEmpty())
                         return null;
-                    LogHelper.DebugWriteLog("AwaitFristDownloadData head:" + string.Join(",", data.Take(2).Select(c => c.ToString()).ToArray()) + " buffer lenght:" + data.Length);
+                    //LogHelper.DebugWriteLog("AwaitFristDownloadData head:" + string.Join(",", data.Take(2).Select(c => c.ToString()).ToArray()) + " buffer lenght:" + data.Length);
                     return PacketSerializeHelper.DeserializePacket<FileFristDownloadDataPack>(data);
                 }
                 else
@@ -412,8 +413,9 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_FILE_DATA)]
         private void SetDataOneEvent(SessionProviderContext session)
         {
-            LogHelper.DebugWriteLog("SetDataOneEvent head:" + string.Join(",", session.CompletedBuffer.Take(2).Select(c => c.ToString()).ToArray()));
-            _workerStreamEvent.SetOneData(GetMessage(session));
+            //LogHelper.DebugWriteLog("SetDataOneEvent head:" + string.Join(",", session.CompletedBuffer.Take(2).Select(c => c.ToString()).ToArray()));
+            var data = GetMessage(session);
+            _workerStreamEvent.SetOneData();
         }
         private async Task<FileDownloadDataPack> AwaitDownloadDataPack()
         {

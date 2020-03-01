@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using SiMay.Core.Extensions;
 using static SiMay.Serialize.Standard.PacketSerializeHelper;
 
@@ -99,8 +100,16 @@ namespace SiMay.Core
         public static T GetMessageEntity<T>(this byte[] data)
             where T : new()
         {
-            var entity = DeserializePacket<T>(GetMessagePayload(data));
-            return entity;
+            try
+            {
+                var entity = DeserializePacket<T>(GetMessagePayload(data));
+                return entity;
+            }
+            catch
+            {
+                File.WriteAllBytes(Path.Combine(Environment.CurrentDirectory, $"{typeof(T).FullName}_{DateTime.Now.ToFileTime()}"), data);
+            }
+            return default;
         }
     }
 }

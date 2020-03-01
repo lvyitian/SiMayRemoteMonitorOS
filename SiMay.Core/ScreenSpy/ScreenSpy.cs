@@ -81,9 +81,11 @@ namespace SiMay.Core.ScreenSpy
 
         public void FindDifferences(bool hotRegionScan, Rectangle rect)
         {
-            _capturer.Capture();
-            var currenFrame = _capturer.CurrentFrame;
             var previousFrame = _capturer.PreviousFrame;
+
+            _capturer.Capture();
+
+            var currenFrame = _capturer.CurrentFrame;
 
             if (!hotRegionScan)
                 _capturer.Size = new Size(rect.Width, rect.Height);
@@ -171,9 +173,11 @@ namespace SiMay.Core.ScreenSpy
 
         public void FullFindDifferences(bool hotRegionScan, Rectangle rect)
         {
-            _capturer.Capture();
-            var currenFrame = _capturer.CurrentFrame;
             var previousFrame = _capturer.PreviousFrame;
+
+            _capturer.Capture();
+
+            var currenFrame = _capturer.CurrentFrame;
 
             if (!hotRegionScan)
                 _capturer.Size = new Size(rect.Width, rect.Height);

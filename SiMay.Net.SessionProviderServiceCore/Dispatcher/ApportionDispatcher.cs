@@ -30,8 +30,8 @@ namespace SiMay.Net.SessionProviderServiceCore
 
             if (packageLen < 0 || packageLen > ApplicationConfiguartion.Options.MaxPacketSize || packageLen < 25) //数据不合法 或 小于大概ack固定长度
             {
-                this.CloseSession();
                 this.Log(LogOutLevelType.Error, $"Type:{ConnectionWorkType.ToString()} 长度不合法!");
+                this.CloseSession();
                 return;
             }
 
@@ -54,10 +54,10 @@ namespace SiMay.Net.SessionProviderServiceCore
                     this.ApportionTypeHandlerEvent?.Invoke(this, (ConnectionWorkType)ack.Type);
                 else
                 {
-                    var data = MessageHelper.CopyMessageHeadTo(MessageHead.MID_ACCESS_KEY_WRONG);
-                    this.CurrentSession.SendAsync(data.BuilderHeadPacket());
-                    this.CloseSession();
+                    var midData = MessageHelper.CopyMessageHeadTo(MessageHead.MID_ACCESS_KEY_WRONG);
+                    this.CurrentSession.SendAsync(midData.BuilderHeadPacket());
                     this.Log(LogOutLevelType.Debug, $"Type:{((ConnectionWorkType)ack.Type).ToString()} AccessId:{ack.AccessId} 或AccessKey:{ack.AccessKey} 验证失败，登陆不成功!");
+                    this.CloseSession();
                 }
             }
             else

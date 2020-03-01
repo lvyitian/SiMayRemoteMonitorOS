@@ -1,26 +1,27 @@
-﻿using System;
+﻿using SiMay.ReflectCache;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace SiMay.ServiceCore
 {
-    public class ActivePack
+    public class ActivePack : EntitySerializerBase
     {
         public int SessionId { get; set; }
     }
 
-    public class SessionStatusPack
+    public class SessionStatusPack : EntitySerializerBase
     {
         public SessionItem[] Sessions { get; set; }
     }
 
-    public class CreateUserProcessPack
+    public class CreateUserProcessPack : EntitySerializerBase
     {
         public int SessionId { get; set; }
     }
 
-    public class SessionItem
+    public class SessionItem : EntitySerializerBase
     {
         public string UserName { get; set; }
         public int SessionId { get; set; }

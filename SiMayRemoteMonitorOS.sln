@@ -33,9 +33,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SiMay.Basic", "SiMay.Basic\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SiMay.Serialize.Standard", "SiMay.Serialize.Standard\SiMay.Serialize.Standard.csproj", "{9525A4AA-6731-4AB2-8CD0-ADDF7940FE32}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiMay.Net.SessionProvider", "SiMay.Net.SessionProvider\SiMay.Net.SessionProvider.csproj", "{71283236-56CB-481E-A644-B7F9AF9EFDF9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SiMay.Net.SessionProvider", "SiMay.Net.SessionProvider\SiMay.Net.SessionProvider.csproj", "{71283236-56CB-481E-A644-B7F9AF9EFDF9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiMay.Net.SessionProvider.Core", "SiMay.Net.SessionProvider.Core\SiMay.Net.SessionProvider.Core.csproj", "{0B2B697D-DD20-4869-836C-08C848E1813F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SiMay.Net.SessionProvider.Core", "SiMay.Net.SessionProvider.Core\SiMay.Net.SessionProvider.Core.csproj", "{0B2B697D-DD20-4869-836C-08C848E1813F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiMay.RemoteMonitorForWeb", "SiMay.RemoteMonitorForWeb\SiMay.RemoteMonitorForWeb.csproj", "{55F9EAC2-AA55-4E10-8B00-404EBC7E164D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -192,6 +194,18 @@ Global
 		{0B2B697D-DD20-4869-836C-08C848E1813F}.Release|x64.Build.0 = Release|Any CPU
 		{0B2B697D-DD20-4869-836C-08C848E1813F}.Release|x86.ActiveCfg = Release|Any CPU
 		{0B2B697D-DD20-4869-836C-08C848E1813F}.Release|x86.Build.0 = Release|Any CPU
+		{55F9EAC2-AA55-4E10-8B00-404EBC7E164D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55F9EAC2-AA55-4E10-8B00-404EBC7E164D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55F9EAC2-AA55-4E10-8B00-404EBC7E164D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{55F9EAC2-AA55-4E10-8B00-404EBC7E164D}.Debug|x64.Build.0 = Debug|Any CPU
+		{55F9EAC2-AA55-4E10-8B00-404EBC7E164D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{55F9EAC2-AA55-4E10-8B00-404EBC7E164D}.Debug|x86.Build.0 = Debug|Any CPU
+		{55F9EAC2-AA55-4E10-8B00-404EBC7E164D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55F9EAC2-AA55-4E10-8B00-404EBC7E164D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55F9EAC2-AA55-4E10-8B00-404EBC7E164D}.Release|x64.ActiveCfg = Release|Any CPU
+		{55F9EAC2-AA55-4E10-8B00-404EBC7E164D}.Release|x64.Build.0 = Release|Any CPU
+		{55F9EAC2-AA55-4E10-8B00-404EBC7E164D}.Release|x86.ActiveCfg = Release|Any CPU
+		{55F9EAC2-AA55-4E10-8B00-404EBC7E164D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -209,6 +223,7 @@ Global
 		{9525A4AA-6731-4AB2-8CD0-ADDF7940FE32} = {5E72F9F6-8DB0-4727-92F3-D05A3CC0348E}
 		{71283236-56CB-481E-A644-B7F9AF9EFDF9} = {9328FEED-6E95-4863-BB7B-521D0D02D7FA}
 		{0B2B697D-DD20-4869-836C-08C848E1813F} = {9328FEED-6E95-4863-BB7B-521D0D02D7FA}
+		{55F9EAC2-AA55-4E10-8B00-404EBC7E164D} = {A86A6BBD-1122-4993-B472-6A0265E5F2A1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A0BD3F74-AC23-4649-932F-ECB61CF9EED6}

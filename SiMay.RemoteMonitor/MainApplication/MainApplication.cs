@@ -251,8 +251,14 @@ namespace SiMay.RemoteMonitor.MainApplication
             this._appMainAdapterHandler.OnCreateDesktopViewHandlerEvent += OnCreateDesktopViewHandlerEvent;
             this._appMainAdapterHandler.OnLoginHandlerEvent += OnLoginHandlerEvent;
             this._appMainAdapterHandler.OnLoginUpdateHandlerEvent += OnLoginUpdateHandlerEvent;
+            this._appMainAdapterHandler.OnApplicationCreatedEventHandler += OnApplicationCreatedEventHandler;
             this._appMainAdapterHandler.OnLogHandlerEvent += OnLogHandlerEvent;
             this._appMainAdapterHandler.StartApp();
+        }
+
+        private void OnApplicationCreatedEventHandler(IApplication app)
+        {
+
         }
 
         private void OnLoginUpdateHandlerEvent(SessionSyncContext syncContext)

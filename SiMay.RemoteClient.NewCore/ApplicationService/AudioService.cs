@@ -65,8 +65,8 @@ namespace SiMay.ServiceCore
             SendTo(CurrentSession, MessageHead.C_AUDIO_DEVICE_OPENSTATE,
                 new AudioDeviceStatesPack()
                 {
-                    PlayerEnable = outDeviceOpen == 0 ? true : false,
-                    RecordEnable = inDeviceOpen == 0 ? true : false
+                    PlayerEnable = outDeviceOpen == 0,
+                    RecordEnable = inDeviceOpen == 0
                 });
         }
 

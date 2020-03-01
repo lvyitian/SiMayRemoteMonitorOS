@@ -12,7 +12,6 @@ namespace SiMay.ServiceCore
     /// </summary>
     public abstract class ApplicationProtocolService : ApplicationServiceBase
     {
-        protected ThreadLocal<long> ThreadLocalAccessId = new ThreadLocal<long>();
         /// <summary>
         /// 数据处理绑定
         /// </summary>
@@ -42,8 +41,7 @@ namespace SiMay.ServiceCore
 
         protected virtual void SendToBefore(TcpSocketSaeaSession session, byte[] data)
         {
-            var accessId = ThreadLocalAccessId.IsValueCreated ? ThreadLocalAccessId.Value : GetAccessId(session);
-            Console.WriteLine("ID:" + accessId);
+            var accessId = GetAccessId(session);
             SendTo(session, WrapAccessId(GZipHelper.Compress(data, 0, data.Length), accessId));
         }
 
@@ -83,9 +81,7 @@ namespace SiMay.ServiceCore
 
         private byte[] TakeHeadAndMessage(TcpSocketSaeaSession session)
         {
-            var length = session.CompletedBuffer.Length - sizeof(long);
-            var bytes = new byte[length];
-            Array.Copy(session.CompletedBuffer, sizeof(long), bytes, 0, length);
+            var bytes = session.CompletedBuffer.Copy(sizeof(long), session.CompletedBuffer.Length - sizeof(long));
             return GZipHelper.Decompress(bytes);
         }
 

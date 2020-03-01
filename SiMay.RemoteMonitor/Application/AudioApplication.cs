@@ -24,16 +24,21 @@ namespace SiMay.RemoteMonitor.Application
 
         private WinSoundRecord _recorder;
         private WinSoundPlayer _player;
-        private FileStream _fileStream;
+
         private bool _isRun = false;
         private bool _isPlaying = true;
         private int _recvVoiceDataLength = 0;
         private int _sendVoiceDataLength = 0;
         private int _soundBufferCount = 8;
 
+        private int _samplesPerSecond;
+        private short _bitsPerSample;
+        private short _channels;
+        private int _dataBufferSize;
+
         private bool _isRecord = false;
         private DateTime _runtimeSpan;
-
+        private PCMStreamToWavHelper _pcmStreamToWavHelper;
         public AudioApplication()
         {
             InitializeComponent();
@@ -42,6 +47,11 @@ namespace SiMay.RemoteMonitor.Application
         public void Start()
         {
             this.Show();
+        }
+
+        public void SetParameter(object arg)
+        {
+            throw new NotImplementedException();
         }
 
         public void SessionClose(ApplicationAdapterHandler handler)
@@ -61,7 +71,7 @@ namespace SiMay.RemoteMonitor.Application
             this.AudioAdapterHandler.OnOpenDeviceStatusEventHandler += OnOpenDeviceStatusEventHandler;
             this.AudioAdapterHandler.OnPlayerEventHandler += OnPlayerEventHandler;
             Initialize();
-            
+
             this._runtimeSpan = DateTime.Now;
             System.Timers.Timer timer = new System.Timers.Timer();
             timer.Interval = 1000;
@@ -79,10 +89,10 @@ namespace SiMay.RemoteMonitor.Application
             };
             timer.Start();
 
-            
+
         }
 
-        private async void OnPlayerEventHandler(AudioAdapterHandler adapterHandler, byte[] voiceData)
+        private void OnPlayerEventHandler(AudioAdapterHandler adapterHandler, byte[] voiceData)
         {
             if (this._isRun && this._player != null && this._isPlaying == true)
             {
@@ -95,7 +105,7 @@ namespace SiMay.RemoteMonitor.Application
                     }));
                     this._player.PlayData(voiceData);
                     if (this._isRecord)
-                        await this._fileStream.WriteAsync(voiceData, 0, voiceData.Length);
+                        this._pcmStreamToWavHelper.WritePCMDataChunk(voiceData);
                 }
                 catch { }
             }
@@ -115,16 +125,17 @@ namespace SiMay.RemoteMonitor.Application
 
         private void Initialize()
         {
-            int samplesPerSecond = AppConfiguration.AudioSamplesPerSecond;
-            int bitsPerSample = AppConfiguration.AudioBitsPerSample;
-            int channels = AppConfiguration.AudioChannels;
+            _samplesPerSecond = AppConfiguration.AudioSamplesPerSecond;
+            _bitsPerSample = (short)AppConfiguration.AudioBitsPerSample;
+            _channels = (short)AppConfiguration.AudioChannels;
+            _dataBufferSize = 1280;
 
             string waveOutDeviceName = WinSound.GetWaveOutDeviceNames().Count > 0 ? WinSound.GetWaveOutDeviceNames()[0] : null;
 
             if (waveOutDeviceName != null)
             {
                 _player = new WinSoundPlayer();
-                _player.Open(waveOutDeviceName, samplesPerSecond, bitsPerSample, channels, 1280, _soundBufferCount);
+                _player.Open(waveOutDeviceName, _samplesPerSecond, _bitsPerSample, _channels, _dataBufferSize, _soundBufferCount);
             }
             else
             {
@@ -137,13 +148,13 @@ namespace SiMay.RemoteMonitor.Application
             {
                 _recorder = new WinSoundRecord();
                 _recorder.DataRecorded += Recorder_DataRecorded;
-                _recorder.Open(waveInDeviceName, samplesPerSecond, bitsPerSample, channels, 1280, _soundBufferCount);
+                _recorder.Open(waveInDeviceName, _samplesPerSecond, _bitsPerSample, _channels, _dataBufferSize, _soundBufferCount);
             }
             else
             {
                 MessageBoxHelper.ShowBoxExclamation("本机未找到录音设备!");
             }
-            this.AudioAdapterHandler.StartRemoteAudio(samplesPerSecond, bitsPerSample, channels);
+            this.AudioAdapterHandler.StartRemoteAudio(_samplesPerSecond, _bitsPerSample, _channels);
 
             this._isRun = true;
         }
@@ -204,16 +215,22 @@ namespace SiMay.RemoteMonitor.Application
 
         private void checkBox2_CheckedChanged(object sender, EventArgs e)
         {
-            this._isRecord = checkBox2.Checked;
             if (checkBox2.Checked)
-                _fileStream = new FileStream(DateTime.Now.ToFileTime() + ".PCM", FileMode.CreateNew, FileAccess.ReadWrite, FileShare.ReadWrite);
+            {
+                var directory = Path.Combine(Environment.CurrentDirectory, AudioAdapterHandler.OriginName);
+                if (!Directory.Exists(directory))
+                    Directory.CreateDirectory(directory);
+
+                var fileName = Path.Combine(directory, $"语音_{DateTime.Now.ToString("yyyy-MM-dd hh_mm_ss")}.wav");
+
+                _pcmStreamToWavHelper = new PCMStreamToWavHelper(fileName, _samplesPerSecond, _bitsPerSample, _channels, _dataBufferSize);
+            }
             else
             {
-                string name = _fileStream.Name;
-                _fileStream.Flush();
-                _fileStream.Close();
-                MessageBoxHelper.ShowBoxExclamation("录音已完成,文件位于:" + name);
+                _pcmStreamToWavHelper.Close();
+                MessageBoxHelper.ShowBoxExclamation($"录音已完成,文件位于:{_pcmStreamToWavHelper.FileName}");
             }
+            this._isRecord = checkBox2.Checked;
         }
     }
 }

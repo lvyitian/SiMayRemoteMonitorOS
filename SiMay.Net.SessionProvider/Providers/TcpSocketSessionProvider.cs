@@ -15,7 +15,6 @@ namespace SiMay.Net.SessionProvider.Providers
         internal TcpSocketSessionProvider(SessionProviderOptions options)
         {
             ApplicationConfiguartion.SetOptions(options);
-            ;
             var serverConfig = new TcpSocketSaeaServerConfiguration();
 
             serverConfig.AppKeepAlive = true;
@@ -29,9 +28,6 @@ namespace SiMay.Net.SessionProvider.Providers
                      case TcpSessionNotify.OnConnected:
 
                          SessionProviderContext sessionBased = new TcpSocketSessionContext(session);
-                         session.AppTokens = new object[] {
-                             sessionBased
-                         };
                          this.SessionNotify(sessionBased, TcpSessionNotify.OnConnected);
                          break;
                      case TcpSessionNotify.OnSend:
@@ -52,12 +48,7 @@ namespace SiMay.Net.SessionProvider.Providers
 
              });
         }
-        public override void StartSerivce()
-        {
-            _server.Listen(ApplicationConfiguartion.Options.ServiceIPEndPoint);
-        }
-
-        public override void BroadcastAsync(byte[] data) => _server.BroadcastAsync(data);
+        public override void StartSerivce() => _server.Listen(ApplicationConfiguartion.Options.ServiceIPEndPoint);
 
         public override void BroadcastAsync(byte[] data, int offset, int lenght) => _server.BroadcastAsync(data, offset, lenght);
 

@@ -105,7 +105,7 @@ namespace SiMay.Net.SessionProviderServiceCore
         {
             byte[] data = session.CompletedBuffer.Copy(0, session.ReceiveBytesTransferred);
             var dispatcher = session.AppTokens[SysContanct.INDEX_WORKER].ConvertTo<DispatcherBase>();
-            dispatcher.ListByteBuffer.AddRange(data);
+            dispatcher.OnMessageBefore(data);
             dispatcher.OnMessage();
         }
 
@@ -135,6 +135,13 @@ namespace SiMay.Net.SessionProviderServiceCore
 
             if (_dispatchers.ContainsKey(closedDispatcher.DispatcherId))
                 _dispatchers.Remove(closedDispatcher.DispatcherId);
+
+            if (closedDispatcher is ApportionDispatcher ofclosedApportionDispatcher)
+            {
+                ofclosedApportionDispatcher.ApportionTypeHandlerEvent -= ApportionTypeHandlerEvent;
+                ofclosedApportionDispatcher.LogOutputEventHandler -= ApportionDispatcher_LogOutputEventHandler;
+                ofclosedApportionDispatcher.Dispose();
+            }
 
             if (closedDispatcher is TcpSessionChannelDispatcher tcpSessionChannelDispatcher)
                 this.OnClosedEventHandler?.Invoke(tcpSessionChannelDispatcher);
@@ -217,7 +224,15 @@ namespace SiMay.Net.SessionProviderServiceCore
         private void ApplicationServiceConnect(ApportionDispatcher apportionDispatcher)
         {
             var appWorkerConnectionDispatcher = apportionDispatcher.CreateApplicationWorkerChannelDispatcher(_dispatchers, ConnectionWorkType.ApplicationServiceConnection);
+
             appWorkerConnectionDispatcher.ListByteBuffer.AddRange(apportionDispatcher.GetACKPacketData().BuilderHeadPacket());
+
+            if (apportionDispatcher.ListByteBuffer.Count > 0)
+            {
+                var bufferData = apportionDispatcher.ListByteBuffer.ToArray();
+                appWorkerConnectionDispatcher.ListByteBuffer.AddRange(bufferData);
+            }
+
             this._dispatchers.Add(appWorkerConnectionDispatcher.DispatcherId, appWorkerConnectionDispatcher);
             this._appServiceChannels.Add(new Tuple<long, long>(apportionDispatcher.GetAccessId(), appWorkerConnectionDispatcher.DispatcherId));
             this.OnConnectedEventHandler?.Invoke(appWorkerConnectionDispatcher);
@@ -244,6 +259,13 @@ namespace SiMay.Net.SessionProviderServiceCore
                 this._appServiceChannels.Remove(serviceWorkerChannelItem);
                 var serviceChannelDispatcher = dispatcher.ConvertTo<TcpSessionApplicationWorkerConnection>();
                 var appChannelDispatcher = apportionDispatcher.CreateApplicationWorkerChannelDispatcher(_dispatchers, ConnectionWorkType.ApplicationConnection);
+
+                if (apportionDispatcher.ListByteBuffer.Count > 0)
+                {
+                    var bufferData = apportionDispatcher.ListByteBuffer.ToArray();
+                    appChannelDispatcher.ListByteBuffer.AddRange(bufferData);
+                }
+
                 this._dispatchers.Add(appChannelDispatcher.DispatcherId, appChannelDispatcher);
                 this.OnConnectedEventHandler?.Invoke(appChannelDispatcher);
 

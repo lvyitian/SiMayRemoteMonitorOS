@@ -141,7 +141,7 @@ namespace SiMay.ServiceCore
         {
             var rect = GetMessageEntity<ScreenHotRectanglePack>(session);
             //根据监控模式使用热区域扫描
-            bool ishotRegtionScan = rect.CtrlMode == 1 ? true : false;
+            bool ishotRegtionScan = false;// rect.CtrlMode == 1 ? true : false;
 
             if (_hasSystemAuthor)
                 Win32Interop.SwitchToInputDesktop();

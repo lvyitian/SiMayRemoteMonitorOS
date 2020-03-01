@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using SiMay.Net.SessionProvider.Core;
+using SiMay.Sockets.Tcp;
 
 namespace SiMay.Net.SessionProviderServiceCore
 {
@@ -22,6 +23,9 @@ namespace SiMay.Net.SessionProviderServiceCore
             _targetConnection = targetConnection;
             targetConnection.Join(this);
         }
+
+        public override void OnMessageBefore(byte[] data) => this._targetConnection.SendTo(data);
+
         public override void OnMessage()
         {
             base.OnMessage();
@@ -33,7 +37,7 @@ namespace SiMay.Net.SessionProviderServiceCore
         }
         public override void OnClosed()
         {
-            if (_targetConnection.CurrentSession.State == Sockets.Tcp.TcpSocketConnectionState.Closed)
+            if (_targetConnection.CurrentSession.State == TcpSocketConnectionState.Closed)
                 return;
             _targetConnection.CloseSession();
             ListByteBuffer.Clear();

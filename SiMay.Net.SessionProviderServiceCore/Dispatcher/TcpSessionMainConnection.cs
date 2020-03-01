@@ -12,10 +12,7 @@ namespace SiMay.Net.SessionProviderServiceCore
 
         private readonly object _sendLock = new object();
         private readonly IDictionary<long, TcpSessionChannelDispatcher> _dispatchers;
-        public TcpSessionMainConnection(IDictionary<long, TcpSessionChannelDispatcher> dispatchers)
-        {
-            _dispatchers = dispatchers;
-        }
+        public TcpSessionMainConnection(IDictionary<long, TcpSessionChannelDispatcher> dispatchers) => _dispatchers = dispatchers;
 
         public byte[] ACKPacketData { get; set; }
 
@@ -48,9 +45,9 @@ namespace SiMay.Net.SessionProviderServiceCore
                 this._transpondOffset += calculateOffsetLength;
                 if (calculateOffsetLength == 0)
                 {
-                    this._accessId = null; this._packageLength = null; this._lastChannelCreatedTime = null;continue;
+                    this._accessId = null; this._packageLength = null; this._lastChannelCreatedTime = null; continue;
                 }
-                var data = ListByteBuffer.GetRange(0, calculateOffsetLength).ToArray();
+                var waitTranspondData = ListByteBuffer.GetRange(0, calculateOffsetLength).ToArray();
                 TcpSessionChannelDispatcher dispatcher;
                 if (_dispatchers.TryGetValue(_accessId.Value, out dispatcher) && dispatcher is TcpSessionMainApplicationConnection mainApplicationConnection)
                 {
@@ -65,7 +62,7 @@ namespace SiMay.Net.SessionProviderServiceCore
                             {
                                 AccessId = dispatcher.DispatcherId,
                                 DispatcherId = this.DispatcherId,
-                                Data = data
+                                Data = waitTranspondData
                             }));
                     }
                     else

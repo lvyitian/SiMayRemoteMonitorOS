@@ -51,12 +51,13 @@
   <ItemGroup>
     <Compile Include="AppConfig\AbstractConfigBase.cs" />
     <Compile Include="AppJobConstant.cs" />
-    <Compile Include="Common\ByteConverterHelper.cs" />
-    <Compile Include="Common\FileHelper.cs" />
-    <Compile Include="Common\GeoLocationHelper.cs" />
-    <Compile Include="Common\PlatformHelper.cs" />
-    <Compile Include="Common\RegistryKeyHelper.cs" />
-    <Compile Include="Common\RegValueHelper.cs" />
+    <Compile Include="Helper\ByteConverterHelper.cs" />
+    <Compile Include="Helper\FileHelper.cs" />
+    <Compile Include="Helper\FileTransmissionHelper.cs" />
+    <Compile Include="Helper\GeoLocationHelper.cs" />
+    <Compile Include="Helper\PlatformHelper.cs" />
+    <Compile Include="Helper\RegistryKeyHelper.cs" />
+    <Compile Include="Helper\RegValueHelper.cs" />
     <Compile Include="Entitys\GeoInformation.cs" />
     <Compile Include="Entitys\RegValueData.cs" />
     <Compile Include="Entitys\ServiceOptions.cs" />
@@ -71,7 +72,7 @@
     <Compile Include="Enums\TcpConnectionState.cs" />
     <Compile Include="Enums\WordType.cs" />
     <Compile Include="Extensions\RegistryKeyExtensions.cs" />
-    <Compile Include="Common\FileIconUtil.cs" />
+    <Compile Include="Helper\FileIconUtil.cs" />
     <Compile Include="Extensions\UnicodeExtensions.cs" />
     <Compile Include="LogHelper.cs" />
     <Compile Include="MessageHead.cs" />
@@ -130,6 +131,7 @@
     <Compile Include="Packets\Reg\RegValueItem.cs" />
     <Compile Include="Packets\Reg\RegValuesPack.cs" />
     <Compile Include="Packets\RemoteUpdatePack.cs" />
+    <Compile Include="Packets\RemoteUpdate\DataPacket.cs" />
     <Compile Include="Packets\Screen\MonitorChangePack.cs" />
     <Compile Include="Packets\Screen\ScreenBitInfoPack.cs" />
     <Compile Include="Packets\Screen\ScreenClipoardValuePack.cs" />

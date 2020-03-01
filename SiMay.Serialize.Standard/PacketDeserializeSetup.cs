@@ -5,12 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 
 namespace SiMay.Serialize.Standard
 {
     public class PacketDeserializeSetup
     {
-        private int _index = 0;
+        private volatile int _index = 0;
         private List<byte> _bytesArr = new List<byte>();
         public Encoding Encoding { get; set; } = Encoding.Unicode;
 
@@ -201,7 +202,7 @@ namespace SiMay.Serialize.Standard
                 throw new ArgumentOutOfRangeException();
 
             byte[] bytes = this._bytesArr.GetRange(_index, lenght).ToArray();
-            _index += lenght;
+            Interlocked.Add(ref _index, lenght);
             return bytes;
         }
     }

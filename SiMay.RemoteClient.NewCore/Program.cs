@@ -71,8 +71,8 @@ namespace SiMay.ServiceCore
                 var startParameter = new StartParameterEx()
                 {
                     Host = "94.191.115.121",
+                    //Port = 520,
                     Port = 522,
-                    //Port = 522,
                     GroupName = "默认分组",
                     RemarkInformation = "SiMayService",
                     IsHide = false,
@@ -106,7 +106,7 @@ namespace SiMay.ServiceCore
                         startParameter.IsHide = options.IsHide;
                         startParameter.AccessKey = options.AccessKey;
                         startParameter.SessionMode = options.SessionMode;
-                        startParameter.UniqueId = options.Id;
+                        startParameter.UniqueId = options.Id + $"_{Environment.MachineName}";
                         startParameter.IsMutex = options.IsMutex;
                         startParameter.GroupName = options.GroupName;
                         startParameter.InstallService = options.InstallService;

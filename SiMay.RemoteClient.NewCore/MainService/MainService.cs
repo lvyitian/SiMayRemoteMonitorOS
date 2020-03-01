@@ -481,8 +481,6 @@ namespace SiMay.ServiceCore.MainService
         {
             ThreadHelper.ThreadPoolStart(c =>
             {
-                ThreadLocalAccessId.Value = GetAccessId(session);
-
                 var getframe = GetMessageEntity<DesktopViewGetFramePack>(session);
                 if (getframe.Width == 0 || getframe.Height == 0 || getframe.TimeSpan == 0 || getframe.TimeSpan < 50)
                     return;
@@ -523,10 +521,8 @@ namespace SiMay.ServiceCore.MainService
             SendTo(session, MessageHead.C_MAIN_DESKTOPRECORD_OPEN, Environment.MachineName);
         }
         [PacketHandler(MessageHead.S_MAIN_DESKTOPRECORD_CLOSE)]
-        private void DesktopRecordClose(TcpSocketSaeaSession session)
-        {
-            AppConfiguartion.IsScreenRecord = false;
-        }
+        private void DesktopRecordClose(TcpSocketSaeaSession session) 
+            => AppConfiguartion.IsScreenRecord = false;
 
         /// <summary>
         /// 远程创建屏幕墙屏幕视图
@@ -609,7 +605,7 @@ namespace SiMay.ServiceCore.MainService
 
             var loginPack = new LoginPack();
             loginPack.IPV4 = SystemInfoHelper.GetLocalIPV4();
-            loginPack.MachineName = Environment.MachineName ?? "";
+            loginPack.MachineName = Environment.MachineName ?? string.Empty;
             loginPack.Remark = remarkInfomation;
             loginPack.ProcessorCount = Environment.ProcessorCount;
             loginPack.ProcessorInfo = SystemInfoHelper.GetMyCpuInfo;

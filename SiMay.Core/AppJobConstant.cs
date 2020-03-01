@@ -24,5 +24,7 @@ namespace SiMay.Core
         public const string REMOTE_TCP = "TcpConnectionManagerJob";
 
         public const string REMOTE_VIDEO = "RemoteViedoJob";
+
+        public const string REMOTE_UPDATE = "RemoteUpdateJob";
     }
 }
