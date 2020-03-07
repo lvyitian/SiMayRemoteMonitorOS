@@ -11,6 +11,7 @@ namespace SiMay.ReflectCache
 
         static DynamicMethodMemberAccessor()
         {
+            //预加载所有数据实体
             var currentDomainTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(c => c.GetTypes());
             foreach (var type in currentDomainTypes.Where(c => c.IsSubclassOf(typeof(EntitySerializerBase))))
                 classAccessors.Add(type, CreateMemberAccessor(type));
@@ -20,8 +21,10 @@ namespace SiMay.ReflectCache
         {
             IMemberAccessor classAccessor;
             if (!classAccessors.TryGetValue(instanceType, out classAccessor))
-                classAccessors.Add(instanceType, CreateMemberAccessor(instanceType));
-
+            {
+                classAccessor = CreateMemberAccessor(instanceType);
+                classAccessors.Add(instanceType, classAccessor);
+            }
             return classAccessor;
         }
 
