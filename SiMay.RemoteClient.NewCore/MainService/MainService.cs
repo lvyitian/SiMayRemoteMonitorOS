@@ -21,6 +21,7 @@ using SiMay.ServiceCore.Attributes;
 using System.Drawing;
 using SiMay.RemoteService.Loader.Interface;
 using SiMay.RemoteService.Loader.Entitys;
+using System.Collections.Generic;
 
 namespace SiMay.ServiceCore.MainService
 {
@@ -481,9 +482,13 @@ namespace SiMay.ServiceCore.MainService
         {
             ThreadHelper.ThreadPoolStart(c =>
             {
-                var getframe = GetMessageEntity<DesktopViewGetFramePack>(session);
+                var args = c.ConvertTo<object[]>();
+                var accessId = args[0].ConvertTo<long>();
+                var getframe = args[1].ConvertTo<DesktopViewGetFramePack>();
                 if (getframe.Width == 0 || getframe.Height == 0 || getframe.TimeSpan == 0 || getframe.TimeSpan < 50)
                     return;
+
+                Thread.SetData(Thread.GetNamedDataSlot("AccessId"), accessId);
 
                 Thread.Sleep(getframe.TimeSpan);
 
@@ -493,7 +498,7 @@ namespace SiMay.ServiceCore.MainService
                         InVisbleArea = getframe.InVisbleArea,
                         ViewData = getframe.InVisbleArea ? ImageExtensionHelper.CaptureNoCursorToBytes(new Size(getframe.Width, getframe.Height)) : new byte[0]
                     });
-            });
+            }, new object[] { GetAccessId(session), GetMessageEntity<DesktopViewGetFramePack>(session) });
         }
         [PacketHandler(MessageHead.S_MAIN_DESKTOPVIEW_CLOSE)]
         private void CloseDesktopView(TcpSocketSaeaSession session)
@@ -521,7 +526,7 @@ namespace SiMay.ServiceCore.MainService
             SendTo(session, MessageHead.C_MAIN_DESKTOPRECORD_OPEN, Environment.MachineName);
         }
         [PacketHandler(MessageHead.S_MAIN_DESKTOPRECORD_CLOSE)]
-        private void DesktopRecordClose(TcpSocketSaeaSession session) 
+        private void DesktopRecordClose(TcpSocketSaeaSession session)
             => AppConfiguartion.IsScreenRecord = false;
 
         /// <summary>

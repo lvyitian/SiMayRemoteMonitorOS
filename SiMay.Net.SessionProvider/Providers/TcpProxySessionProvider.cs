@@ -132,24 +132,26 @@ namespace SiMay.Net.SessionProvider.Providers
 
         private void ProxyMainConnectionSessionNotify(TcpProxyApplicationConnectionContext proxyContext, TcpSessionNotify type)
         {
-            switch (type)
-            {
-                case TcpSessionNotify.OnConnected:
-                    this.SessionNotify(proxyContext, TcpSessionNotify.OnConnected);
-                    break;
-                case TcpSessionNotify.OnSend:
-                    this.SessionNotify(proxyContext, TcpSessionNotify.OnSend);
-                    break;
-                case TcpSessionNotify.OnDataReceiveing:
-                    this.SessionNotify(proxyContext, TcpSessionNotify.OnDataReceiveing);
-                    break;
-                case TcpSessionNotify.OnDataReceived:
-                    this.SessionNotify(proxyContext, TcpSessionNotify.OnDataReceived);
-                    break;
-                case TcpSessionNotify.OnClosed:
-                    this.SessionNotify(proxyContext, TcpSessionNotify.OnClosed);
-                    break;
-            }
+            this.SessionNotify(proxyContext, type);
+
+            //switch (type)
+            //{
+            //    case TcpSessionNotify.OnConnected:
+            //        this.SessionNotify(proxyContext, TcpSessionNotify.OnConnected);
+            //        break;
+            //    case TcpSessionNotify.OnSend:
+            //        this.SessionNotify(proxyContext, TcpSessionNotify.OnSend);
+            //        break;
+            //    case TcpSessionNotify.OnDataReceiveing:
+            //        this.SessionNotify(proxyContext, TcpSessionNotify.OnDataReceiveing);
+            //        break;
+            //    case TcpSessionNotify.OnDataReceived:
+            //        this.SessionNotify(proxyContext, TcpSessionNotify.OnDataReceived);
+            //        break;
+            //    case TcpSessionNotify.OnClosed:
+            //        this.SessionNotify(proxyContext, TcpSessionNotify.OnClosed);
+            //        break;
+            //}
         }
 
         private void OnSend(TcpSocketSaeaSession session)

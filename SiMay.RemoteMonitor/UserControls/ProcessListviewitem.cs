@@ -27,7 +27,7 @@ namespace SiMay.RemoteMonitor.UserControls
             this.Text = processName;
             this.SubItems.Add(windowName);
             this.SubItems.Add(windowHandler.ToString());
-            this.SubItems.Add(((double)memorySize / 1024).ToString("0.00") + " MB");
+            this.SubItems.Add(((double)memorySize / 1024).ToString("0.0000") + " MB");
             this.SubItems.Add(threadCount.ToString());
             this.SubItems.Add(sessionId.ToString());
             this.SubItems.Add(user);

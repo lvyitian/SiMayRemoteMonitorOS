@@ -3,6 +3,8 @@ using SiMay.Core;
 using SiMay.Core.PacketModelBinding;
 using SiMay.Sockets.Tcp.Session;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 namespace SiMay.ServiceCore
@@ -38,10 +40,12 @@ namespace SiMay.ServiceCore
             byte[] bytes = MessageHelper.CopyMessageHeadTo(msg, lpString);
             SendToBefore(session, bytes);
         }
-
         protected virtual void SendToBefore(TcpSocketSaeaSession session, byte[] data)
         {
-            var accessId = GetAccessId(session);
+            //为解决延迟发送导致的accessId不安全问题
+            var accessIdObj = Thread.GetData(Thread.GetNamedDataSlot("AccessId"));
+            var accessId = accessIdObj.IsNull() ? GetAccessId(session) : accessIdObj.ConvertTo<long>();
+
             SendTo(session, WrapAccessId(GZipHelper.Compress(data, 0, data.Length), accessId));
         }
 
@@ -50,7 +54,7 @@ namespace SiMay.ServiceCore
             session.SendAsync(data);
         }
         /// <summary>
-        /// 包装主控端标识
+        /// 封装主控端标识
         /// </summary>
         /// <param name="data"></param>
         /// <param name="accessId"></param>
@@ -85,6 +89,11 @@ namespace SiMay.ServiceCore
             return GZipHelper.Decompress(bytes);
         }
 
+        /// <summary>
+        /// 获取当前数据来源AccessId
+        /// </summary>
+        /// <param name="session"></param>
+        /// <returns></returns>
         protected long GetAccessId(TcpSocketSaeaSession session)
         {
             if (session.CompletedBuffer.IsNull())

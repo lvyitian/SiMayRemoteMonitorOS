@@ -53,13 +53,13 @@ namespace SiMay.RemoteMonitor.Application
         private void SystemManager_Load(object sender, EventArgs e)
         {
             this.Text = _title;
-            this.processList.Columns.Add("映像名称", 130);
+            this.processList.Columns.Add("映像名称", 150);
             this.processList.Columns.Add("窗口标题", 150);
-            this.processList.Columns.Add("窗口句柄", 70);
-            this.processList.Columns.Add("内存", 70);
-            this.processList.Columns.Add("线程数量", 70);
-            this.processList.Columns.Add("会话标识", 70);
-            this.processList.Columns.Add("用户名称", 70);
+            this.processList.Columns.Add("窗口句柄", 100);
+            this.processList.Columns.Add("内存", 100);
+            this.processList.Columns.Add("线程数量", 100);
+            this.processList.Columns.Add("会话标识", 100);
+            this.processList.Columns.Add("用户名称", 100);
             this.processList.Columns.Add("文件位置", 300);
 
             this.SystemAdapterHandler.OnProcessListHandlerEvent += OnProcessListHandlerEvent;
