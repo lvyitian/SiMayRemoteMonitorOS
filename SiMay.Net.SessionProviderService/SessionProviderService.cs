@@ -134,7 +134,11 @@ namespace SiMay.Net.SessionProviderService
                     viewItem.ImageKey = "err";
                     break;
             }
-            this.logList.Items.Insert(1, viewItem);
+            if (this.logList.Items.Count > 1)
+                this.logList.Items.Insert(1, viewItem);
+            else
+                this.logList.Items.Add(viewItem);
+
             LogHelper.WriteLog($"Level:{levelType.ToString()} {log}", ApplicationConfiguration.LogFileName);
         }
         private void timerFlowCalac_Tick(object sender, EventArgs e)

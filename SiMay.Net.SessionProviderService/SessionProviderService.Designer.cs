@@ -85,7 +85,7 @@
             this.channelListView.Location = new System.Drawing.Point(0, 0);
             this.channelListView.Margin = new System.Windows.Forms.Padding(4);
             this.channelListView.Name = "channelListView";
-            this.channelListView.Size = new System.Drawing.Size(963, 236);
+            this.channelListView.Size = new System.Drawing.Size(860, 202);
             this.channelListView.TabIndex = 0;
             this.channelListView.UseCompatibleStateImageBehavior = false;
             this.channelListView.View = System.Windows.Forms.View.Details;
@@ -140,10 +140,10 @@
             this.toolStripStatusLabel6,
             this.lbReceive,
             this.toolStripStatusLabel8});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 589);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 511);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 19, 0);
-            this.statusStrip1.Size = new System.Drawing.Size(963, 26);
+            this.statusStrip1.Size = new System.Drawing.Size(860, 26);
             this.statusStrip1.TabIndex = 1;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -162,7 +162,7 @@
             // toolStripStatusLabel3
             // 
             this.toolStripStatusLabel3.Name = "toolStripStatusLabel3";
-            this.toolStripStatusLabel3.Size = new System.Drawing.Size(451, 20);
+            this.toolStripStatusLabel3.Size = new System.Drawing.Size(130, 20);
             this.toolStripStatusLabel3.Spring = true;
             // 
             // toolStripStatusLabel2
@@ -243,8 +243,9 @@
             // 
             // label5
             // 
+            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(737, 9);
+            this.label5.Location = new System.Drawing.Point(634, 9);
             this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(105, 15);
@@ -253,8 +254,9 @@
             // 
             // lableConnectionCount
             // 
+            this.lableConnectionCount.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lableConnectionCount.AutoSize = true;
-            this.lableConnectionCount.Location = new System.Drawing.Point(856, 9);
+            this.lableConnectionCount.Location = new System.Drawing.Point(753, 9);
             this.lableConnectionCount.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lableConnectionCount.Name = "lableConnectionCount";
             this.lableConnectionCount.Size = new System.Drawing.Size(15, 15);
@@ -278,8 +280,8 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.logList);
-            this.splitContainer1.Size = new System.Drawing.Size(963, 554);
-            this.splitContainer1.SplitterDistance = 236;
+            this.splitContainer1.Size = new System.Drawing.Size(860, 476);
+            this.splitContainer1.SplitterDistance = 202;
             this.splitContainer1.SplitterWidth = 1;
             this.splitContainer1.TabIndex = 8;
             // 
@@ -295,7 +297,7 @@
             this.logList.Location = new System.Drawing.Point(0, 0);
             this.logList.Margin = new System.Windows.Forms.Padding(4);
             this.logList.Name = "logList";
-            this.logList.Size = new System.Drawing.Size(963, 317);
+            this.logList.Size = new System.Drawing.Size(860, 273);
             this.logList.TabIndex = 1;
             this.logList.UseCompatibleStateImageBehavior = false;
             this.logList.View = System.Windows.Forms.View.Details;
@@ -352,7 +354,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(963, 615);
+            this.ClientSize = new System.Drawing.Size(860, 537);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.lableConnectionCount);
             this.Controls.Add(this.label5);

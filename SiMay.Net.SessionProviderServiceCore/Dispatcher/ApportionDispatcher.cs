@@ -54,8 +54,11 @@ namespace SiMay.Net.SessionProviderServiceCore
                     this.ApportionTypeHandlerEvent?.Invoke(this, (ConnectionWorkType)ack.Type);
                 else
                 {
-                    var midData = MessageHelper.CopyMessageHeadTo(MessageHead.MID_ACCESS_KEY_WRONG);
-                    this.CurrentSession.SendAsync(midData.BuilderHeadPacket());
+                    if ((ConnectionWorkType)ack.Type == ConnectionWorkType.MainApplicationConnection)
+                    {
+                        var midData = MessageHelper.CopyMessageHeadTo(MessageHead.MID_ACCESS_KEY_WRONG);
+                        this.CurrentSession.SendAsync(midData.BuilderHeadPacket());
+                    }
                     this.Log(LogOutLevelType.Debug, $"Type:{((ConnectionWorkType)ack.Type).ToString()} AccessId:{ack.AccessId} 或AccessKey:{ack.AccessKey} 验证失败，登陆不成功!");
                     this.CloseSession();
                 }
