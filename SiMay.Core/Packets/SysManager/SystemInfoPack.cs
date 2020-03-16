@@ -26,4 +26,8 @@ namespace SiMay.Core.Packets
         public string ItemName { get; set; }
         public string Value { get; set; }
     }
+    public class ServiceInfoPack : EntitySerializerBase
+    {
+        public ServiceItem[] ServiceList { get; set; }
+    }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualBasic.Devices;
+using Microsoft.Win32;
 using SiMay.Basic;
 using SiMay.Core;
 using SiMay.Core.Common;
@@ -279,6 +280,144 @@ namespace SiMay.ServiceCore
                     CpuUsage = cpuUserate,
                     MemoryUsage = (_memoryInfo.TotalPhysicalMemory / 1024 / 1024).ToString() + "MB/" + ((_memoryInfo.TotalPhysicalMemory - _memoryInfo.AvailablePhysicalMemory) / 1024 / 1024).ToString() + "MB"
                 });
+        }
+
+
+        [PacketHandler(MessageHead.S_SYSTEM_SERVICE_LIST)]
+        public void GetServiceList(TcpSocketSaeaSession session) => this.SendServiceList();
+
+        [PacketHandler(MessageHead.S_SYSTEM_SERVICE_START)]
+        public void Service_Start(TcpSocketSaeaSession session)
+        {
+            var serviceItem = GetMessageEntity<ServiceItem>(session);
+            try
+            {
+                using (var sc = new System.ServiceProcess.ServiceController(serviceItem.ServiceName))
+                {
+                    if (sc.Status.Equals(System.ServiceProcess.ServiceControllerStatus.Stopped))
+                    {
+                        sc.Start();
+                    }
+                }
+            }
+            catch { }
+
+            SendServiceList();
+
+        }
+
+        [PacketHandler(MessageHead.S_SYSTEM_SERVICE_STOP)]
+        public void Service_Stop(TcpSocketSaeaSession session)
+        {
+            var serviceItem = GetMessageEntity<ServiceItem>(session);
+            try
+            {
+                using (var sc = new System.ServiceProcess.ServiceController(serviceItem.ServiceName))
+                {
+                    if (sc.Status.Equals(System.ServiceProcess.ServiceControllerStatus.Running))
+                    {
+                        sc.Stop();
+                    }
+                }
+            }
+            catch { }
+
+            SendServiceList();
+
+        }
+
+        [PacketHandler(MessageHead.S_SYSTEM_SERVICE_RESTART)]
+        public void Service_ReStart(TcpSocketSaeaSession session)
+        {
+            var serviceItem = GetMessageEntity<ServiceItem>(session);
+            try
+            {
+                using (var sc = new System.ServiceProcess.ServiceController(serviceItem.ServiceName))
+                {
+                    if (sc.Status.Equals(System.ServiceProcess.ServiceControllerStatus.Stopped))
+                    {
+                        sc.Start();
+                    }
+                    if (sc.Status.Equals(System.ServiceProcess.ServiceControllerStatus.Running))
+                    {
+                        sc.Stop();
+                        while (true)
+                        {
+                            System.Threading.Thread.Sleep(1000);
+                            if (sc.Status.Equals(System.ServiceProcess.ServiceControllerStatus.Stopped))
+                            {
+                                sc.Start();
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+
+            SendServiceList();
+
+        }
+
+        [PacketHandler(MessageHead.S_SYSTEM_SERVICE_STARTTYPE_SET)]
+        public void Service_StartType(TcpSocketSaeaSession session)
+        {
+            var serviceItem = GetMessageEntity<ServiceItem>(session);
+            try
+            {
+                Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Services\" + serviceItem.ServiceName, true)?.SetValue("Start", serviceItem.StartType, RegistryValueKind.DWord);
+            }
+            catch { }
+            SendServiceList();
+
+        }
+
+        private void SendServiceList()
+        {
+            var serviceList = System.ServiceProcess.ServiceController.GetServices()
+                .OrderBy(s => s.ServiceName)
+                .Select(c => new ServiceItem()
+                {
+                    ServiceName = c.ServiceName,
+                    DisplayName = c.DisplayName,
+                    Description = GetDescription(c.ServiceName),
+                    Status = c.Status.ToString(),
+                    StartType = c.StartType.ToString(),
+                    UserName = GetLoginUserName(c.ServiceName),
+                    FilePath = GetImagePath(c.ServiceName)
+                }).ToArray();
+
+            SendTo(CurrentSession, MessageHead.C_SYSTEM_SERVICE_LIST,
+                new ServiceInfoPack()
+                {
+                    ServiceList = serviceList
+                });
+        }
+
+        private string GetDescription(string serviceName)
+        {
+            string ReturnValue = string.Empty;
+            using (var management = new System.Management.ManagementObject(new System.Management.ManagementPath(string.Format("Win32_Service.Name='{0}'", serviceName))))
+            {
+                try
+                {
+                    ReturnValue = management["Description"].ToString();
+                }
+                catch
+                {
+                    ReturnValue = (string)Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Services\" + serviceName)?.GetValue("Description") ?? string.Empty;
+                }
+
+            }
+            return ReturnValue;
+        }
+        private string GetLoginUserName(string serviceName)
+        {
+            return (string)Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Services\" + serviceName)?.GetValue("ObjectName") ?? string.Empty;
+        }
+        private string GetImagePath(string serviceName)
+        {
+            return (string)Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Services\" + serviceName)?.GetValue("ImagePath") ?? string.Empty;
         }
     }
 }

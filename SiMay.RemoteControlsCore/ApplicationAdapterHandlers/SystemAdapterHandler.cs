@@ -107,5 +107,34 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
                 });
         }
 
+        public event Action<SystemAdapterHandler, IEnumerable<ServiceItem>> OnServicesListEventHandler;
+
+        [PacketHandler(MessageHead.C_SYSTEM_SERVICE_LIST)]
+        private void ServiceItemHandler(SessionProviderContext session)
+        {
+            var serviceList = GetMessageEntity<ServiceInfoPack>(session).ServiceList;
+            OnServicesListEventHandler?.Invoke(this, serviceList);
+        }
+
+        public void Service_GetList()
+        {
+            SendTo(CurrentSession, MessageHead.S_SYSTEM_SERVICE_LIST);
+        }
+        public void Service_Stop(ServiceItem serviceItems)
+        {
+            SendTo(CurrentSession, MessageHead.S_SYSTEM_SERVICE_STOP, serviceItems);
+        }
+        public void Service_Strat(ServiceItem serviceItems)
+        {
+            SendTo(CurrentSession, MessageHead.S_SYSTEM_SERVICE_START, serviceItems);
+        }
+        public void Service_ReStrat(ServiceItem serviceItems)
+        {
+            SendTo(CurrentSession, MessageHead.S_SYSTEM_SERVICE_RESTART, serviceItems);
+        }
+        public void Service_StartType_Set(ServiceItem serviceItems)
+        {
+            SendTo(CurrentSession, MessageHead.S_SYSTEM_SERVICE_STARTTYPE_SET, serviceItems);
+        }
     }
 }

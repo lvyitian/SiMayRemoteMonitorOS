@@ -23,4 +23,15 @@ namespace SiMay.Core.Packets
         public string User { get; set; }
         public string FilePath { get; set; }
     }
+
+    public class ServiceItem : EntitySerializerBase
+    {
+        public string ServiceName { get; set; }
+        public string DisplayName { get; set; }
+        public string Description { get; set; }
+        public string Status { get; set; }
+        public string UserName { get; set; }
+        public string StartType { get; set; }
+        public string FilePath { get; set; }
+    }
 }

@@ -116,12 +116,18 @@ namespace SiMay.Core
         S_SYSTEM_GET_OCCUPY,                               //获取系统占用率信息
         S_SYSTEM_ENUMSESSIONS,                             //获取所有会话信息
         S_SYSTEM_CREATE_USER_PROCESS,                      //创建用户进程
+        S_SYSTEM_SERVICE_LIST,                             //服务列表
+        S_SYSTEM_SERVICE_STOP,                             //停止服务
+        S_SYSTEM_SERVICE_START,                            //启动服务
+        S_SYSTEM_SERVICE_RESTART,                          //重启服务
+        S_SYSTEM_SERVICE_STARTTYPE_SET,                    //设置服务启动方式
 
         //接收指令
         C_SYSTEM_PROCESS_LIST = 2000,                      //进程列表
         C_SYSTEM_SYSTEMINFO,                               //系统信息
         C_SYSTEM_OCCUPY_INFO,                              //系统占用率信息
         C_SYSTEM_SESSIONS,                                 //会话信息
+        C_SYSTEM_SERVICE_LIST,                             //服务列表
 
         //键盘记录---------------------------------------------------------------
         S_KEYBOARD_ONOPEN = 1000,                          //窗口打开

@@ -71,6 +71,9 @@ namespace SiMay.RemoteMonitor.Application
             this.SystemAdapterHandler.GetSystemInfoItems();
             this.SystemAdapterHandler.EnumSession();
             this.GetSystemInfos();
+
+            this.SystemAdapterHandler.OnServicesListEventHandler += OnServicesListEventHandler;
+            this.SystemAdapterHandler.Service_GetList();
         }
 
         private void OnSessionsEventHandler(SystemAdapterHandler adapterHandler, IEnumerable<Core.Packets.SysManager.SessionItem> sessions)
@@ -296,6 +299,92 @@ namespace SiMay.RemoteMonitor.Application
             }
 
             this.SystemAdapterHandler.EnumSession();
+        }
+
+        private void OnServicesListEventHandler(SystemAdapterHandler adapterHandler, IEnumerable<ServiceItem> serviceItems)
+        {
+            this.serviceList.Items.Clear();
+            var serviceList = new List<ServiceItem>(serviceItems);
+            foreach (var item in serviceList)
+            {
+                var serviceitem = new ServiceViewItem(item.ServiceName, item.DisplayName, item.Description, item.Status, item.StartType, item.UserName);
+                this.serviceList.Items.Add(serviceitem);
+            }
+        }
+
+        private void tmunStart_Click(object sender, EventArgs e)
+        {
+            if (serviceList.SelectedItems.Count > 0)
+            {
+                ListView.SelectedListViewItemCollection selectItem = this.serviceList.SelectedItems;
+                this.SystemAdapterHandler.Service_Strat(new ServiceItem()
+                {
+                    ServiceName = selectItem[0].Text
+                });
+            }
+        }
+
+        private void tmunStop_Click(object sender, EventArgs e)
+        {
+            if (serviceList.SelectedItems.Count > 0)
+            {
+                ListView.SelectedListViewItemCollection selectItem = this.serviceList.SelectedItems;
+                this.SystemAdapterHandler.Service_Stop(new ServiceItem()
+                {
+                    ServiceName = selectItem[0].Text
+                });
+            }
+        }
+
+        private void tmunReStart_Click(object sender, EventArgs e)
+        {
+            if (serviceList.SelectedItems.Count > 0)
+            {
+                ListView.SelectedListViewItemCollection selectItem = this.serviceList.SelectedItems;
+                this.SystemAdapterHandler.Service_ReStrat(new ServiceItem()
+                {
+                    ServiceName = selectItem[0].Text
+                });
+            }
+        }
+
+        private void tmunAutomatic_Click(object sender, EventArgs e)
+        {
+            if (serviceList.SelectedItems.Count > 0)
+            {
+                ListView.SelectedListViewItemCollection selectItem = this.serviceList.SelectedItems;
+                this.SystemAdapterHandler.Service_StartType_Set(new ServiceItem()
+                {
+                    ServiceName = selectItem[0].Text,
+                    StartType = "2"
+                });
+            }
+        }
+
+        private void tmunManual_Click(object sender, EventArgs e)
+        {
+            if (serviceList.SelectedItems.Count > 0)
+            {
+                ListView.SelectedListViewItemCollection selectItem = this.serviceList.SelectedItems;
+                this.SystemAdapterHandler.Service_StartType_Set(new ServiceItem()
+                {
+                    ServiceName = selectItem[0].Text,
+                    StartType = "3"
+                });
+            }
+        }
+
+        private void tmunDisable_Click(object sender, EventArgs e)
+        {
+            if (serviceList.SelectedItems.Count > 0)
+            {
+                ListView.SelectedListViewItemCollection selectItem = this.serviceList.SelectedItems;
+                this.SystemAdapterHandler.Service_StartType_Set(new ServiceItem()
+                {
+                    ServiceName = selectItem[0].Text,
+                    StartType = "4"
+                });
+            }
         }
     }
 }
