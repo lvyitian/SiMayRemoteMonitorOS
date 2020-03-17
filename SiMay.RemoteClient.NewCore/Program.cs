@@ -19,6 +19,7 @@ using System.Linq;
 using System.Reflection;
 using System.ServiceProcess;
 using SiMay.ServiceCore.MainService;
+using SiMay.Serialize.Standard;
 
 namespace SiMay.ServiceCore
 {
@@ -69,23 +70,23 @@ namespace SiMay.ServiceCore
             {
                 var startParameter = new StartParameterEx()
                 {
-                    Host = "192.168.1.105",
-                    Port = 5200,
-                    //Port = 522,
+                    Host = "94.191.115.121",
+                    //Port = 520,
+                    Port = 522,
                     GroupName = "默认分组",
                     RemarkInformation = "SiMayService",
                     IsHide = false,
                     IsMutex = false,
                     IsAutoStart = false,
-                    SessionMode = 0,
-                    //SessionMode = 1,
+                    //SessionMode = 0,
+                    SessionMode = 1,
                     AccessKey = 5200,
-                    ServiceVersion = "正式5.0",
+                    ServiceVersion = "正式6.0",
                     RunTimeText = DateTime.Now.ToString(),
                     UniqueId = "AAAAAAAAAAAAAAA11111111",
                     ServiceName = "SiMayService",
                     ServiceDisplayName = "SiMay远程被控服务",
-                    InstallService = true
+                    InstallService = false
                 };
                 try
                 {
@@ -105,7 +106,7 @@ namespace SiMay.ServiceCore
                         startParameter.IsHide = options.IsHide;
                         startParameter.AccessKey = options.AccessKey;
                         startParameter.SessionMode = options.SessionMode;
-                        startParameter.UniqueId = options.Id;
+                        startParameter.UniqueId = options.Id + $"_{Environment.MachineName}";
                         startParameter.IsMutex = options.IsMutex;
                         startParameter.GroupName = options.GroupName;
                         startParameter.InstallService = options.InstallService;
@@ -124,9 +125,7 @@ namespace SiMay.ServiceCore
                         Environment.Exit(0);
                 }
 
-                AppConfiguartion.HasSystemAuthority = args.Any(c => c.Equals(SERVICE_USER_START, StringComparison.OrdinalIgnoreCase)) ?
-                    "true" :
-                    "false";
+                AppConfiguartion.HasSystemAuthority = args.Any(c => c.Equals(SERVICE_USER_START, StringComparison.OrdinalIgnoreCase));
                 AppConfiguartion.ServiceName = startParameter.ServiceName.IsNullOrEmpty() ? "SiMayService" : startParameter.ServiceName;
                 AppConfiguartion.ServiceDisplayName = startParameter.ServiceDisplayName.IsNullOrEmpty() ? "SiMay远程被控服务" : startParameter.ServiceDisplayName;
 
@@ -139,7 +138,7 @@ namespace SiMay.ServiceCore
 
                 //非SYSTEM用户进程启动则进入安装服务
                 if (startParameter.InstallService && !args.Any(c => c.Equals(SERVICE_USER_START, StringComparison.OrdinalIgnoreCase)))
-                    ComputerSessionHelper.InstallAutoStartService();
+                    SystemSessionHelper.InstallAutoStartService();
 
                 Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;

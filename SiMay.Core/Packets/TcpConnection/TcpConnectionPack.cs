@@ -1,20 +1,21 @@
-﻿using System;
+﻿using SiMay.ReflectCache;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace SiMay.Core.Packets.TcpConnection
 {
-    public class TcpConnectionPack : BasePacket
+    public class TcpConnectionPack : EntitySerializerBase
     {
         public TcpConnectionItem[] TcpConnections { get; set; }
     }
 
-    public class KillTcpConnectionPack : BasePacket
+    public class KillTcpConnectionPack : EntitySerializerBase
     {
         public KillTcpConnectionItem[] Kills { get; set; }
     }
-    public class KillTcpConnectionItem
+    public class KillTcpConnectionItem : EntitySerializerBase
     {
         public string LocalAddress { get; set; }
 

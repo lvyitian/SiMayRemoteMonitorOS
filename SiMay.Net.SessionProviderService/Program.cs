@@ -30,7 +30,7 @@ namespace SiMay.Net.SessionProviderService
             Exception e = (Exception)ex.ExceptionObject;
             LogHelper.WriteLog("子线程异常:" + Environment.NewLine +
                 "异常信息:" + e.Message + Environment.NewLine +
-                "异常堆栈:" + e.StackTrace + Environment.NewLine);
+                "异常堆栈:" + e.StackTrace + Environment.NewLine, ApplicationConfiguration.LogFileName);
         }
 
         private static void Application_ThreadException(object sender, ThreadExceptionEventArgs ex)
@@ -39,7 +39,7 @@ namespace SiMay.Net.SessionProviderService
 
             LogHelper.WriteLog("UI异常:" + Environment.NewLine +
                 "异常信息:" + e.Message + Environment.NewLine +
-                "异常堆栈:" + e.StackTrace + Environment.NewLine);
+                "异常堆栈:" + e.StackTrace + Environment.NewLine, ApplicationConfiguration.LogFileName);
         }
     }
 }

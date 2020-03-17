@@ -17,6 +17,7 @@ namespace SiMay.RemoteMonitor.UserControls
         public UDesktopView(SessionSyncContext syncContext)
         {
             SessionSyncContext = syncContext;
+            
             InitializeComponent();
         }
 
@@ -33,6 +34,7 @@ namespace SiMay.RemoteMonitor.UserControls
         }
 
         public SessionSyncContext SessionSyncContext { get; set; }
+        public bool InVisbleArea { get; set; } = true;
 
         private void img_DoubleClick(object sender, EventArgs e)
         {

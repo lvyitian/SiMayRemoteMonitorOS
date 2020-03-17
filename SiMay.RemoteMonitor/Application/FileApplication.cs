@@ -5,7 +5,6 @@ using SiMay.Core.Enums;
 using SiMay.Core.Packets;
 using SiMay.RemoteControlsCore;
 using SiMay.RemoteControlsCore.HandlerAdapters;
-using SiMay.RemoteControlsCore.Interface;
 using SiMay.RemoteMonitor.Application.FileCommon;
 using SiMay.RemoteMonitor.Attributes;
 using SiMay.RemoteMonitor.Enums;
@@ -28,7 +27,7 @@ namespace SiMay.RemoteMonitor.Application
     [OnTools]
     [ApplicationName("文件管理")]
     [AppResourceName("FileManager")]
-    [Application(typeof(RemoteFileAdapterHandler), "FileManagerJob", 10)]
+    [Application(typeof(RemoteFileAdapterHandler), AppJobConstant.REMOTE_FILE, 10)]
     public partial class FileApplication : Form, IApplication
     {
         private const Int32 IDM_DIR_DESKTOP = 1000;
@@ -62,32 +61,24 @@ namespace SiMay.RemoteMonitor.Application
             this.Show();
         }
 
-        public void SessionClose(AdapterHandlerBase handler)
+        public void SetParameter(object arg)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SessionClose(ApplicationAdapterHandler handler)
         {
             this.Text = this._title + " [" + this.RemoteFileAdapterHandler.StateContext.ToString() + "]";
         }
 
-        public void ContinueTask(AdapterHandlerBase handler)
+        public void ContinueTask(ApplicationAdapterHandler handler)
         {
             this.Text = this._title;
         }
 
         private void FileManager_Load(object sender, EventArgs e)
         {
-            this._closeTreeBtn = new Button();
-            this._closeTreeBtn.Click += _closeTreeBtn_Click;
-            this._closeTreeBtn.Hide();
-            this._closeTreeBtn.Text = "收起";
-            this._closeTreeBtn.Height = 25;
-            this._closeTreeBtn.Width = 100;
-            this._remoteDirectoryTreeView = new TreeView();
-            this._remoteDirectoryTreeView.ImageList = _imgList;
-            this._remoteDirectoryTreeView.ContextMenuStrip = this.treeContext;
-            this._remoteDirectoryTreeView.DoubleClick += remoteDirectoryTreeView_DoubleClick;
-            this._remoteDirectoryTreeView.Hide();
-            this.Controls.Add(_remoteDirectoryTreeView);
-            this.Controls.Add(_closeTreeBtn);
-            this.Initialize();
+            this.InitializeUI();
 
             this.Text = this._title = this._title.Replace("#Name#", this.RemoteFileAdapterHandler.OriginName);
             this.RemoteFileAdapterHandler.OnRemoteExceptionEventHandler += OnRemoteExceptionEventHandler;
@@ -102,7 +93,7 @@ namespace SiMay.RemoteMonitor.Application
             this.RemoteFileAdapterHandler.GetRemoteRootTreeItems(string.Empty);
             this.RemoteFileAdapterHandler.GetRemoteDriveItems();
         }
-        private void Initialize()
+        private void InitializeUI()
         {
             string downPath = Path.Combine(Environment.CurrentDirectory, "download");
 
@@ -112,6 +103,20 @@ namespace SiMay.RemoteMonitor.Application
             this.txtSavePath.Text = downPath;
             this.fileList.SmallImageList = _imgList;
             this.fileList.LargeImageList = _imgList;
+
+            this._closeTreeBtn = new Button();
+            this._closeTreeBtn.Click += _closeTreeBtn_Click;
+            this._closeTreeBtn.Hide();
+            this._closeTreeBtn.Text = "收起";
+            this._closeTreeBtn.Height = 25;
+            this._closeTreeBtn.Width = 100;
+            this._remoteDirectoryTreeView = new TreeView();
+            this._remoteDirectoryTreeView.ImageList = _imgList;
+            this._remoteDirectoryTreeView.ContextMenuStrip = this.treeContext;
+            this._remoteDirectoryTreeView.DoubleClick += remoteDirectoryTreeView_DoubleClick;
+            this._remoteDirectoryTreeView.Hide();
+            this.Controls.Add(_remoteDirectoryTreeView);
+            this.Controls.Add(_closeTreeBtn);
 
             IntPtr sysMenuHandle = GetSystemMenu(this.Handle, false);
 
@@ -257,7 +262,7 @@ namespace SiMay.RemoteMonitor.Application
             this.RemoteFileAdapterHandler.OnFileTransferProgressEventHandler -= OnFileTransferProgressEventHandler;
             this.RemoteFileAdapterHandler.OnDirectoryCreateFinishEventHandler -= OnDirectoryCreateFinishEventHandler;
             this.RemoteFileAdapterHandler.OnFileTreeItemsEventHandler -= OnFileTreeItemsEventHandler;
-            this.RemoteFileAdapterHandler.CloseHandler();
+            this.RemoteFileAdapterHandler.CloseSession();
         }
 
         private void 打开ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -582,7 +587,7 @@ namespace SiMay.RemoteMonitor.Application
                 }
                 if (this._transferMode == TransferMode.Cancel ||//选择取消传输
                     this.RemoteFileAdapterHandler.TransferTaskFlage == TransferTaskFlage.Abort ||//终止传输信号
-                    this.RemoteFileAdapterHandler.IsClose)//关闭应用
+                    this.RemoteFileAdapterHandler.WhetherClose)//关闭应用
                     break;
             }
             this.downloadMenuItem.Enabled = true;
@@ -717,7 +722,7 @@ namespace SiMay.RemoteMonitor.Application
 
         private void OnFileTransferProgressEventHandler(RemoteFileAdapterHandler adapterHandler, FileTransferFlag state, string fileName, long position, long fileSize)
         {
-            if (this.RemoteFileAdapterHandler.IsClose)//UI未关闭时才允许操作控件
+            if (this.RemoteFileAdapterHandler.WhetherClose)//UI未关闭时才允许操作控件
                 return;
 
             switch (state)

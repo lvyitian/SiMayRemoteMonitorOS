@@ -1,4 +1,5 @@
-﻿using SiMay.Core.Packets.TcpConnection;
+﻿using SiMay.Core;
+using SiMay.Core.Packets.TcpConnection;
 using SiMay.RemoteControlsCore;
 using SiMay.RemoteControlsCore.HandlerAdapters;
 using SiMay.RemoteMonitor.Attributes;
@@ -9,7 +10,7 @@ using System.Windows.Forms;
 namespace SiMay.RemoteMonitor.Application
 {
     [ApplicationName("Tcp连接管理")]
-    [Application(typeof(TcpConnectionAdapterHandler), "TcpConnectionManagerJob", 90)]
+    [Application(typeof(TcpConnectionAdapterHandler), AppJobConstant.REMOTE_TCP, 90)]
     public partial class TcpConnectionApplication : Form, IApplication
     {
         [ApplicationAdapterHandler]
@@ -30,11 +31,19 @@ namespace SiMay.RemoteMonitor.Application
         public void Start()
             => this.Show();
 
-        public void SessionClose(AdapterHandlerBase handler)
+        public void SetParameter(object arg)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SessionClose(ApplicationAdapterHandler handler)
             => this.Text = _title + " [" + handler.StateContext.ToString() + "]";
 
-        public void ContinueTask(AdapterHandlerBase handler)
-            => this.Text = _title;
+        public void ContinueTask(ApplicationAdapterHandler handler)
+        {
+            this.Text = _title;
+            TcpConnectionAdapterHandler.GetTcpList();
+        }
 
         private void TcpConnectionManager_Load(object sender, EventArgs e)
         {
@@ -81,7 +90,7 @@ namespace SiMay.RemoteMonitor.Application
         private void TestApp_FormClosing(object sender, FormClosingEventArgs e)
         {
             TcpConnectionAdapterHandler.OnTcpListHandlerEvent -= OnTcpListHandlerEvent;
-            TcpConnectionAdapterHandler.CloseHandler();
+            TcpConnectionAdapterHandler.CloseSession();
         }
         private void 刷新列表ToolStripMenuItem_Click(object sender, EventArgs e)
         {

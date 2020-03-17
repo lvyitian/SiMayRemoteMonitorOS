@@ -1,4 +1,5 @@
 ﻿using SiMay.Basic;
+using SiMay.Core;
 using SiMay.Core.Packets;
 using SiMay.RemoteControlsCore;
 using SiMay.RemoteControlsCore.HandlerAdapters;
@@ -17,7 +18,7 @@ namespace SiMay.RemoteMonitor.Application
     [OnTools]
     [ApplicationName("系统管理")]
     [AppResourceName("SystemManager")]
-    [Application(typeof(SystemAdapterHandler), "SystemManagerJob", 70)]
+    [Application(typeof(SystemAdapterHandler), AppJobConstant.REMOTE_SYSMANAGER, 70)]
     public partial class SystemApplication : Form, IApplication
     {
         private string _title = "//系统管理 #Name#";
@@ -34,12 +35,17 @@ namespace SiMay.RemoteMonitor.Application
             this.Show();
         }
 
-        public void SessionClose(AdapterHandlerBase handler)
+        public void SetParameter(object arg)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SessionClose(ApplicationAdapterHandler handler)
         {
             this.Text = _title + " [" + this.SystemAdapterHandler.StateContext.ToString() + "]";
         }
 
-        public void ContinueTask(AdapterHandlerBase handler)
+        public void ContinueTask(ApplicationAdapterHandler handler)
         {
             this.Text = _title;
         }
@@ -47,13 +53,13 @@ namespace SiMay.RemoteMonitor.Application
         private void SystemManager_Load(object sender, EventArgs e)
         {
             this.Text = _title;
-            this.processList.Columns.Add("映像名称", 130);
+            this.processList.Columns.Add("映像名称", 150);
             this.processList.Columns.Add("窗口标题", 150);
-            this.processList.Columns.Add("窗口句柄", 70);
-            this.processList.Columns.Add("内存", 70);
-            this.processList.Columns.Add("线程数量", 70);
-            this.processList.Columns.Add("会话标识", 70);
-            this.processList.Columns.Add("用户名称", 70);
+            this.processList.Columns.Add("窗口句柄", 100);
+            this.processList.Columns.Add("内存", 100);
+            this.processList.Columns.Add("线程数量", 100);
+            this.processList.Columns.Add("会话标识", 100);
+            this.processList.Columns.Add("用户名称", 100);
             this.processList.Columns.Add("文件位置", 300);
 
             this.SystemAdapterHandler.OnProcessListHandlerEvent += OnProcessListHandlerEvent;
@@ -65,6 +71,9 @@ namespace SiMay.RemoteMonitor.Application
             this.SystemAdapterHandler.GetSystemInfoItems();
             this.SystemAdapterHandler.EnumSession();
             this.GetSystemInfos();
+
+            this.SystemAdapterHandler.OnServicesListEventHandler += OnServicesListEventHandler;
+            this.SystemAdapterHandler.Service_GetList();
         }
 
         private void OnSessionsEventHandler(SystemAdapterHandler adapterHandler, IEnumerable<Core.Packets.SysManager.SessionItem> sessions)
@@ -147,7 +156,7 @@ namespace SiMay.RemoteMonitor.Application
             this.SystemAdapterHandler.OnSystemInfoHandlerEvent -= OnSystemInfoHandlerEvent;
             this.SystemAdapterHandler.OnOccupyHandlerEvent -= OnOccupyHandlerEvent;
             this.SystemAdapterHandler.OnSessionsEventHandler -= OnSessionsEventHandler;
-            this.SystemAdapterHandler.CloseHandler();
+            this.SystemAdapterHandler.CloseSession();
         }
 
         private void GetSystemInfos()
@@ -290,6 +299,92 @@ namespace SiMay.RemoteMonitor.Application
             }
 
             this.SystemAdapterHandler.EnumSession();
+        }
+
+        private void OnServicesListEventHandler(SystemAdapterHandler adapterHandler, IEnumerable<ServiceItem> serviceItems)
+        {
+            this.serviceList.Items.Clear();
+            var serviceList = new List<ServiceItem>(serviceItems);
+            foreach (var item in serviceList)
+            {
+                var serviceitem = new ServiceViewItem(item.ServiceName, item.DisplayName, item.Description, item.Status, item.StartType, item.UserName);
+                this.serviceList.Items.Add(serviceitem);
+            }
+        }
+
+        private void tmunStart_Click(object sender, EventArgs e)
+        {
+            if (serviceList.SelectedItems.Count > 0)
+            {
+                ListView.SelectedListViewItemCollection selectItem = this.serviceList.SelectedItems;
+                this.SystemAdapterHandler.Service_Strat(new ServiceItem()
+                {
+                    ServiceName = selectItem[0].Text
+                });
+            }
+        }
+
+        private void tmunStop_Click(object sender, EventArgs e)
+        {
+            if (serviceList.SelectedItems.Count > 0)
+            {
+                ListView.SelectedListViewItemCollection selectItem = this.serviceList.SelectedItems;
+                this.SystemAdapterHandler.Service_Stop(new ServiceItem()
+                {
+                    ServiceName = selectItem[0].Text
+                });
+            }
+        }
+
+        private void tmunReStart_Click(object sender, EventArgs e)
+        {
+            if (serviceList.SelectedItems.Count > 0)
+            {
+                ListView.SelectedListViewItemCollection selectItem = this.serviceList.SelectedItems;
+                this.SystemAdapterHandler.Service_ReStrat(new ServiceItem()
+                {
+                    ServiceName = selectItem[0].Text
+                });
+            }
+        }
+
+        private void tmunAutomatic_Click(object sender, EventArgs e)
+        {
+            if (serviceList.SelectedItems.Count > 0)
+            {
+                ListView.SelectedListViewItemCollection selectItem = this.serviceList.SelectedItems;
+                this.SystemAdapterHandler.Service_StartType_Set(new ServiceItem()
+                {
+                    ServiceName = selectItem[0].Text,
+                    StartType = "2"
+                });
+            }
+        }
+
+        private void tmunManual_Click(object sender, EventArgs e)
+        {
+            if (serviceList.SelectedItems.Count > 0)
+            {
+                ListView.SelectedListViewItemCollection selectItem = this.serviceList.SelectedItems;
+                this.SystemAdapterHandler.Service_StartType_Set(new ServiceItem()
+                {
+                    ServiceName = selectItem[0].Text,
+                    StartType = "3"
+                });
+            }
+        }
+
+        private void tmunDisable_Click(object sender, EventArgs e)
+        {
+            if (serviceList.SelectedItems.Count > 0)
+            {
+                ListView.SelectedListViewItemCollection selectItem = this.serviceList.SelectedItems;
+                this.SystemAdapterHandler.Service_StartType_Set(new ServiceItem()
+                {
+                    ServiceName = selectItem[0].Text,
+                    StartType = "4"
+                });
+            }
         }
     }
 }

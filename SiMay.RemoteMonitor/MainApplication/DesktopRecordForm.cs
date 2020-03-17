@@ -23,7 +23,7 @@ namespace SiMay.RemoteMonitor.MainApplication
 
         private void DesktopRecordManager_Load(object sender, EventArgs e)
         {
-            bool isAction = _syncContext.KeyDictions[SysConstants.RecordScreenIsAction].ConvertTo<bool>();
+            bool isAction = _syncContext.KeyDictions[SysConstants.HasLaunchDesktopRecord].ConvertTo<bool>();
             string macName = _syncContext.KeyDictions[SysConstants.MachineName].ConvertTo<string>();
             int screenHeight = _syncContext.KeyDictions[SysConstants.RecordHeight].ConvertTo<int>();
             int screenWidth = _syncContext.KeyDictions[SysConstants.RecordWidth].ConvertTo<int>();
@@ -68,7 +68,7 @@ namespace SiMay.RemoteMonitor.MainApplication
 
             //_session.SendAsync(data);
 
-            _syncContext.KeyDictions[SysConstants.RecordScreenIsAction] = true;
+            _syncContext.KeyDictions[SysConstants.HasLaunchDesktopRecord] = true;
             _syncContext.KeyDictions[SysConstants.RecordHeight] = screenHeight;
             _syncContext.KeyDictions[SysConstants.RecordWidth] = screenWidth;
             _syncContext.KeyDictions[SysConstants.RecordSpanTime] = spantime;
@@ -82,7 +82,7 @@ namespace SiMay.RemoteMonitor.MainApplication
             //byte[] data = MessageHelper.CopyMessageHeadTo(MessageHead.S_MAIN_SCREEN_RECORD_CLOSE);
             //_session.SendAsync(data);
 
-            _syncContext.KeyDictions[SysConstants.RecordScreenIsAction] = false;
+            _syncContext.KeyDictions[SysConstants.HasLaunchDesktopRecord] = false;
             startbtn.Enabled = true;
             stopbtn.Enabled = false;
         }

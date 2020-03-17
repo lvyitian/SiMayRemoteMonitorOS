@@ -18,9 +18,8 @@ namespace SiMay.RemoteMonitor
 
         [DllImport("user32.dll")]
         public static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);//获取窗体系统菜单
+
         [DllImport("user32.dll")]
-
-
         public static extern bool InsertMenu(IntPtr hMenu, Int32 wPosition, Int32 wFlags, Int32 wIDNewItem, string lpNewItem);//插入菜单
 
         [DllImport("user32.dll", CallingConvention = CallingConvention.StdCall)]
@@ -42,6 +41,9 @@ namespace SiMay.RemoteMonitor
 
         [DllImport("user32.dll")]
         public static extern bool EnableMenuItem(IntPtr hmenu, uint uIDEnableItem, uint wEnable);//设置菜单可用
+
+        [DllImport("user32.dll")]
+        public static extern bool ModifyMenu(IntPtr hmenu, Int32 nPosition, Int32 nFlags, Int32 uIDNewltem, string IpNewltem);//设置菜单可用
 
 
         public const Int32 MF_SEPARATOR = 0x800;

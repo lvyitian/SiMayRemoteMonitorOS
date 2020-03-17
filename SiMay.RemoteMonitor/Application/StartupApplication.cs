@@ -1,4 +1,5 @@
-﻿using SiMay.Core.Enums;
+﻿using SiMay.Core;
+using SiMay.Core.Enums;
 using SiMay.Core.Packets.Startup;
 using SiMay.RemoteControlsCore;
 using SiMay.RemoteControlsCore.HandlerAdapters;
@@ -16,7 +17,7 @@ using System.Windows.Forms;
 namespace SiMay.RemoteMonitor.Application
 {
     [ApplicationName("启动项管理")]
-    [Application(typeof(StartupAdapterHandler), "StartupManagerJob", 100)]
+    [Application(typeof(StartupAdapterHandler), AppJobConstant.REMOTE_STARTUP, 100)]
     public partial class StartupApplication : Form, IApplication
     {
         [ApplicationAdapterHandler]
@@ -35,12 +36,17 @@ namespace SiMay.RemoteMonitor.Application
             this.Show();
         }
 
-        public void SessionClose(AdapterHandlerBase handler)
+        public void SetParameter(object arg)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SessionClose(ApplicationAdapterHandler handler)
         {
             this.Text = _title + " [" + this.StartupAdapterHandler.StateContext.ToString() + "]";
         }
 
-        public void ContinueTask(AdapterHandlerBase handler)
+        public void ContinueTask(ApplicationAdapterHandler handler)
         {
             this.Text = _title;
         }
@@ -109,7 +115,7 @@ namespace SiMay.RemoteMonitor.Application
         private void StartupManager_FormClosing(object sender, FormClosingEventArgs e)
         {
             this.StartupAdapterHandler.OnStartupItemHandlerEvent -= OnStartupItemHandlerEvent;
-            this.StartupAdapterHandler.CloseHandler();
+            this.StartupAdapterHandler.CloseSession();
         }
     }
 }

@@ -7,15 +7,47 @@ namespace SiMay.Core.Enums
 {
     public enum MOUSEKEY_ENUM : byte
     {
+        /// <summary>
+        /// 鼠标移动
+        /// </summary>
         Move,
+
+        /// <summary>
+        /// 左键按下
+        /// </summary>
         LeftDown,
+
+        /// <summary>
+        /// 左键抬起
+        /// </summary>
         LeftUp,
+
         MiddleDown,
         MiddleUp,
+
+        /// <summary>
+        /// 右键按下
+        /// </summary>
         RightDown,
+
+        /// <summary>
+        /// 右键抬起
+        /// </summary>
         RightUp,
+
+        /// <summary>
+        /// 滚轮
+        /// </summary>
         Wheel,
+
+        /// <summary>
+        /// 按键按下
+        /// </summary>
         KeyDown,
+
+        /// <summary>
+        /// 按键抬起
+        /// </summary>
         KeyUp
     }
 }

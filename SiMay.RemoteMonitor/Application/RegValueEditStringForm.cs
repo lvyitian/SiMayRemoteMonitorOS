@@ -17,12 +17,12 @@ namespace SiMay.RemoteMonitor.Application
             InitializeComponent();
 
             this.valueNameTxtBox.Text = RegValueHelper.GetName(value.Name);
-            this.valueDataTxtBox.Text = ByteConverter.ToString(value.Data);
+            this.valueDataTxtBox.Text = ByteConverterHelper.ToString(value.Data);
         }
 
         private void okButton_Click(object sender, EventArgs e)
         {
-            _value.Data = ByteConverter.GetBytes(valueDataTxtBox.Text);
+            _value.Data = ByteConverterHelper.GetBytes(valueDataTxtBox.Text);
             this.Tag = _value;
             this.DialogResult = DialogResult.OK;
             this.Close();

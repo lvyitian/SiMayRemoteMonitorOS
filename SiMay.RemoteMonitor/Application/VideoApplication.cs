@@ -1,12 +1,17 @@
-﻿using SiMay.Basic;
+﻿using Accord.Video.FFMPEG;
+using SiMay.Basic;
+using SiMay.Core;
 using SiMay.RemoteControlsCore;
 using SiMay.RemoteControlsCore.HandlerAdapters;
 using SiMay.RemoteMonitor.Attributes;
 using System;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Net;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using static SiMay.RemoteMonitor.Win32Api;
@@ -16,7 +21,7 @@ namespace SiMay.RemoteMonitor.Application
     [OnTools]
     [ApplicationName("视频监控")]
     [AppResourceName("ViedoManager")]
-    [Application(typeof(VideoAppAdapterHandler), "RemoteViedoJob", 30)]
+    [Application(typeof(VideoAppAdapterHandler), AppJobConstant.REMOTE_VIDEO, 30)]
     public partial class VideoApplication : Form, IApplication
     {
         private string _title = "//视频监控 #Name#";
@@ -32,11 +37,17 @@ namespace SiMay.RemoteMonitor.Application
             => this.Show();
 
 
-        public void SessionClose(AdapterHandlerBase handler)
+        public void SetParameter(object arg)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public void SessionClose(ApplicationAdapterHandler handler)
             => this.Text = _title + " [" + VideoAppAdapterHandler.StateContext.ToString() + "]";
 
 
-        public void ContinueTask(AdapterHandlerBase handler)
+        public void ContinueTask(ApplicationAdapterHandler handler)
         {
             this.Text = _title;
             VideoAppAdapterHandler.StartGetFrame();
@@ -46,20 +57,27 @@ namespace SiMay.RemoteMonitor.Application
         const Int32 IDM_DEFAULT = 1001;
         const Int32 IDM_LOW = 1002;
         const Int32 IDM_SAVE = 1003;
+        const Int32 IDM_RECORD = 1004;
 
+        private int _videoFrameWidth = 0;
+        private int _videoFrameHeight = 0;
+        private Bitmap _videoFrame;
+        private bool _stop = true;
+        private int _menuContextIndex = 0;
         private void VedioManager_Load(object sender, EventArgs e)
         {
             int index = 7;
             IntPtr sysMenuHandle = GetSystemMenu(this.Handle, false);
-            InsertMenu(sysMenuHandle, index, MF_SEPARATOR, 0, null);
+            InsertMenu(sysMenuHandle, index++, MF_SEPARATOR, 0, null);
             InsertMenu(sysMenuHandle, index++, MF_BYPOSITION, IDM_HEIGHT, "高画质");
             InsertMenu(sysMenuHandle, index++, MF_BYPOSITION, IDM_DEFAULT, "中画质");
             InsertMenu(sysMenuHandle, index++, MF_BYPOSITION, IDM_LOW, "低画质");
             InsertMenu(sysMenuHandle, index++, MF_SEPARATOR, 0, null);
             InsertMenu(sysMenuHandle, index++, MF_BYPOSITION, IDM_SAVE, "保存快照");
 
+            _menuContextIndex = index++;
+            InsertMenu(sysMenuHandle, _menuContextIndex, MF_BYPOSITION, IDM_RECORD, "开始录制");
             CheckMenuItem(sysMenuHandle, IDM_DEFAULT, MF_CHECKED);
-
             this.Text = _title = _title.Replace("#Name#", VideoAppAdapterHandler.OriginName);
 
             this.ShowTip("视频帧加载中...");
@@ -75,6 +93,19 @@ namespace SiMay.RemoteMonitor.Application
 
         private void OnImageFrameHandlerEvent(VideoAppAdapterHandler adapterHandler, Image image)
         {
+            lock (this)
+            {
+                _videoFrameHeight = image.Height;
+                _videoFrameWidth = image.Width;
+
+                if (!_videoFrame.IsNull())
+                    _videoFrame.Dispose();
+
+                _videoFrame = new Bitmap(image.Width, image.Height);
+                Graphics g = Graphics.FromImage(_videoFrame);
+                g.DrawImage(image, 0, 0);
+                g.Dispose();
+            }
             this.pictureBox.Image = image;
         }
 
@@ -120,9 +151,48 @@ namespace SiMay.RemoteMonitor.Application
                         MessageBoxHelper.ShowBoxExclamation("快照已保存到:" + fileName);
 
                         break;
+                    case IDM_RECORD:
+                        if (_stop)
+                        {
+                            if (_videoFrameWidth == 0 || _videoFrameHeight == 0)
+                                return;
+                            _stop = false;
+                            ModifyMenu(sysMenuHandle, _menuContextIndex, MF_BYPOSITION, IDM_RECORD, "停止录制");
+                            Task.Run(CreateDesktopRecordThread);
+                        }
+                        else
+                        {
+                            _stop = true;
+                            ModifyMenu(sysMenuHandle, _menuContextIndex, MF_BYPOSITION, IDM_RECORD, "开始录制");
+                        }
+                        break;
                 }
             }
             base.WndProc(ref m);
+        }
+
+        private async void CreateDesktopRecordThread()
+        {
+            var targetDirectory = Path.Combine(Environment.CurrentDirectory, VideoAppAdapterHandler.OriginName);
+            if (!Directory.Exists(targetDirectory))
+                Directory.CreateDirectory(targetDirectory);
+
+            var fileName = Path.Combine(targetDirectory, $"摄像头查看_{VideoAppAdapterHandler.OriginName}_{DateTime.Now.ToString("yyyy-MM-dd hhmmss")}.avi");
+
+            var videoWriter = new VideoFileWriter();
+            videoWriter.Open(fileName, _videoFrameWidth, _videoFrameHeight, 10, VideoCodec.H264);
+
+            do
+            {
+                if (!_videoFrame.IsNull())
+                {
+                    lock (this)
+                        videoWriter.WriteVideoFrame(_videoFrame);
+                    GC.Collect();
+                }
+                await Task.Delay(100); //帧率控制,每秒10帧，防止写入过快
+            } while (!_stop);
+            videoWriter.Close();
         }
 
         private void ShowTip(string str)
@@ -140,9 +210,10 @@ namespace SiMay.RemoteMonitor.Application
 
         private void VedioManager_FormClosing(object sender, FormClosingEventArgs e)
         {
+            _stop = true;
             VideoAppAdapterHandler.OnImageFrameHandlerEvent -= OnImageFrameHandlerEvent;
             VideoAppAdapterHandler.OnCameraNotStartupHandlerEvent -= OnCameraNotStartupHandlerEvent;
-            VideoAppAdapterHandler.CloseHandler();
+            VideoAppAdapterHandler.CloseSession();
         }
     }
 }

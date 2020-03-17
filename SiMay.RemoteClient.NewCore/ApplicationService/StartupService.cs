@@ -4,27 +4,31 @@ using SiMay.Core.Common;
 using SiMay.Core.Enums;
 using SiMay.Core.Extensions;
 using SiMay.Core.PacketModelBinder.Attributes;
-using SiMay.Core.PacketModelBinding;
-using SiMay.Core.Packets;
 using SiMay.Core.Packets.Startup;
 using SiMay.Core.Packets.Startup.Enums;
 using SiMay.ServiceCore.Attributes;
-using SiMay.ServiceCore.Extensions;
-using SiMay.Sockets.Tcp;
 using SiMay.Sockets.Tcp.Session;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Windows.Forms;
 
-namespace SiMay.ServiceCore.ApplicationService
+namespace SiMay.ServiceCore
 {
     [ServiceName("启动项管理")]
-    [ServiceKey("StartupManagerJob")]
-    public class StartupService : ServiceManagerBase
+    [ServiceKey(AppJobConstant.REMOTE_STARTUP)]
+    public class StartupService : ApplicationRemoteService
     {
+        public override void SessionInited(TcpSocketSaeaSession session)
+        {
+
+        }
+
+        public override void SessionClosed()
+        {
+
+        }
+
         [PacketHandler(MessageHead.S_STARTUP_GET_LIST)]
         public void HandleGetStartupItems(TcpSocketSaeaSession session)
         {
@@ -109,24 +113,31 @@ namespace SiMay.ServiceCore.ApplicationService
                 {
                     var files = new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.Startup)).GetFiles();
 
-                    startupItems.AddRange(files.Where(file => file.Name != "desktop.ini").Select(file => new StartupItemPack
-                    { Name = file.Name, Path = file.FullName, Type = StartupType.StartMenu }));
+                    startupItems.AddRange(files.Where(file => file.Name != "desktop.ini")
+                        .Select(file => new StartupItemPack
+                        {
+                            Name = file.Name,
+                            Path = file.FullName,
+                            Type = StartupType.StartMenu
+                        }));
                 }
 
-                SendAsyncToServer(MessageHead.C_STARTUP_LIST, new StartupItemsPack()
-                {
-                    StartupItems = startupItems.ToArray()
-                });
+                SendTo(CurrentSession, MessageHead.C_STARTUP_LIST,
+                    new StartupItemsPack()
+                    {
+                        StartupItems = startupItems.ToArray()
+                    });
             }
             catch (Exception ex)
             {
                 LogHelper.WriteErrorByCurrentMethod(ex);
-                SendAsyncToServer(MessageHead.C_STARTUP_OPER_RESPONSE, new StartupOperResponsePack()
-                {
-                    OperFlag = OperFlag.GetStartupItems,
-                    Successed = false,
-                    Msg = ex.Message
-                });
+                SendTo(CurrentSession, MessageHead.C_STARTUP_OPER_RESPONSE,
+                    new StartupOperResponsePack()
+                    {
+                        OperFlag = OperFlag.GetStartupItems,
+                        Successed = false,
+                        Msg = ex.Message
+                    });
             }
         }
         [PacketHandler(MessageHead.S_STARTUP_ADD_ITEM)]
@@ -134,7 +145,7 @@ namespace SiMay.ServiceCore.ApplicationService
         {
             try
             {
-                var command = session.CompletedBuffer.GetMessageEntity<StartupItemPack>();
+                var command = GetMessageEntity<StartupItemPack>(session);
                 switch (command.Type)
                 {
                     case StartupType.LocalMachineRun:
@@ -208,12 +219,13 @@ namespace SiMay.ServiceCore.ApplicationService
             }
             catch (Exception ex)
             {
-                SendAsyncToServer(MessageHead.C_STARTUP_OPER_RESPONSE, new StartupOperResponsePack()
-                {
-                    OperFlag = OperFlag.AddStartupItem,
-                    Successed = false,
-                    Msg = ex.Message
-                });
+                SendTo(CurrentSession, MessageHead.C_STARTUP_OPER_RESPONSE,
+                    new StartupOperResponsePack()
+                    {
+                        OperFlag = OperFlag.AddStartupItem,
+                        Successed = false,
+                        Msg = ex.Message
+                    });
             }
         }
 
@@ -222,7 +234,7 @@ namespace SiMay.ServiceCore.ApplicationService
         {
             try
             {
-                var pack = session.CompletedBuffer.GetMessageEntity<StartupItemsPack>();
+                var pack = GetMessageEntity<StartupItemsPack>(session);
                 foreach (var command in pack.StartupItems)
                 {
                     switch (command.Type)
@@ -289,12 +301,13 @@ namespace SiMay.ServiceCore.ApplicationService
             }
             catch (Exception ex)
             {
-                SendAsyncToServer(MessageHead.C_STARTUP_OPER_RESPONSE, new StartupOperResponsePack()
-                {
-                    OperFlag = OperFlag.RemoveStartupItem,
-                    Successed = false,
-                    Msg = ex.Message
-                });
+                SendTo(CurrentSession, MessageHead.C_STARTUP_OPER_RESPONSE,
+                    new StartupOperResponsePack()
+                    {
+                        OperFlag = OperFlag.RemoveStartupItem,
+                        Successed = false,
+                        Msg = ex.Message
+                    });
             }
         }
     }

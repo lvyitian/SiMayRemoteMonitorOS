@@ -19,23 +19,26 @@ namespace SiMay.RemoteMonitor.MainApplication
 
         private void save_Click(object sender, EventArgs e)
         {
-            if (ip.Text == "" || port.Text == "" || connectNum.Text == "" || conPwd.Text == "")
+            if (ip.Text == "" || port.Text == "" || connectLimitCount.Text == "" || conPwd.Text == "")
             {
                 MessageBoxHelper.ShowBoxExclamation("请正确完整填写设置,否则可能导致客户端上线失败!");
                 return;
             }
 
             AppConfiguration.IPAddress = ip.Text;
-            AppConfiguration.Port = port.Text;
-            AppConfiguration.MaxConnectCount = connectNum.Text;
+            AppConfiguration.Port = int.Parse(port.Text);
+            AppConfiguration.MaxConnectCount = int.Parse(connectLimitCount.Text);
             AppConfiguration.ConnectPassWord = conPwd.Text;
             AppConfiguration.DbClickViewExc = (funComboBox.Items[funComboBox.SelectedIndex] as KeyValueItem).Value;
-            AppConfiguration.WindowMaximize = maximizeCheckBox.Checked.ToString();
+            AppConfiguration.WindowMaximize = maximizeCheckBox.Checked;
             AppConfiguration.LockPassWord = pwdTextBox.Text;
             AppConfiguration.AccessKey = accessKey.Text;
             AppConfiguration.SessionMode = sessionModeList.SelectedIndex.ToString();
             AppConfiguration.ServiceIPAddress = txtservice_address.Text;
-            AppConfiguration.ServicePort = txtservice_port.Text;
+            AppConfiguration.ServicePort = int.Parse(txtservice_port.Text);
+            AppConfiguration.AccessId = long.Parse(txtAccessId.Text);
+            AppConfiguration.EnabledAnonyMous = enableAnonymous.Checked;
+            AppConfiguration.MainAppAccessKey = long.Parse(txtMainAppAccessKey.Text);
 
             DialogResult result = MessageBox.Show("设置完成，是否重启生效设置?", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation);
 
@@ -64,20 +67,24 @@ namespace SiMay.RemoteMonitor.MainApplication
 
             ip.Text = AppConfiguration.IPAddress;
             conPwd.Text = AppConfiguration.ConnectPassWord;
-            port.Text = AppConfiguration.Port;
-            connectNum.Text = AppConfiguration.MaxConnectCount;
+            port.Text = AppConfiguration.Port.ToString();
+            connectLimitCount.Text = AppConfiguration.MaxConnectCount.ToString();
             pwdTextBox.Text = AppConfiguration.LockPassWord;
             accessKey.Text = AppConfiguration.AccessKey;
             txtservice_address.Text = AppConfiguration.ServiceIPAddress;
-            txtservice_port.Text = AppConfiguration.ServicePort;
+            txtservice_port.Text = AppConfiguration.ServicePort.ToString();
+            txtAccessId.Text = AppConfiguration.AccessId.ToString();
+            txtMainAppAccessKey.Text = AppConfiguration.MainAppAccessKey.ToString();
 
             int index = int.Parse(AppConfiguration.SessionMode);
             sessionModeList.SelectedIndex = index;
 
-            if (Boolean.Parse(AppConfiguration.WindowMaximize))
-                maximizeCheckBox.Checked = true;
-            else
-                maximizeCheckBox.Checked = false;
+            maximizeCheckBox.Checked = AppConfiguration.WindowMaximize;
+
+            enableAnonymous.Checked = AppConfiguration.EnabledAnonyMous;
+            txtAccessId.Enabled = AppConfiguration.EnabledAnonyMous;
+
+            txtAccessId.Enabled = enableAnonymous.Checked ? false : true;
         }
 
         private void conPwd_KeyPress(object sender, KeyPressEventArgs e)
@@ -93,6 +100,11 @@ namespace SiMay.RemoteMonitor.MainApplication
         private void button1_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void enableAnonymous_CheckedChanged(object sender, EventArgs e)
+        {
+            txtAccessId.Enabled = enableAnonymous.Checked ? false : true;
         }
     }
 }

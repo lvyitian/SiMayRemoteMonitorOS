@@ -1,11 +1,12 @@
-﻿using System;
+﻿using SiMay.ReflectCache;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace SiMay.Core.Packets
 {
-    public class LoginPack : BasePacket
+    public class LoginPack : EntitySerializerBase
     {
         public string IPV4 { get; set; }
         public string MachineName { get; set; }

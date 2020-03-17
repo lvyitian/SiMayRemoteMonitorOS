@@ -1,33 +1,23 @@
-﻿using SiMay.Net.SessionProvider.Delegate;
-using SiMay.Net.SessionProvider.Notify;
-using SiMay.Net.SessionProvider.Providers;
-using SiMay.Net.SessionProvider.SessionBased;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SiMay.Net.SessionProvider.Providers;
 
 namespace SiMay.Net.SessionProvider
 {
     public class SessionProviderFactory
     {
-        public static SessionProvider CreateTcpSessionProvider(SessionProviderOptions options,
-            OnSessionNotify<SessionCompletedNotify, SessionHandler> onSessionNotifyProc)
+        public static SessionProvider CreateTcpSessionProvider(SessionProviderOptions options)
         {
-
-            SessionProvider provider = new TcpSocketSessionProviderHandle(options, onSessionNotifyProc);
-
+            SessionProvider provider = new TcpSocketSessionProvider(options);
             return provider;
         }
 
-        public static SessionProvider CreateProxySessionProvider(SessionProviderOptions options,
-            OnSessionNotify<SessionCompletedNotify, SessionHandler> onSessionNotifyProc,
-            OnProxyNotify<ProxyNotify> onProxyNotifyProc)
+        public static SessionProvider CreateProxySessionProvider(SessionProviderOptions options)
         {
-
-            SessionProvider provider = new TcpProxySessionProviderHandle(options, onSessionNotifyProc, onProxyNotifyProc);
-
+            SessionProvider provider = new TcpProxySessionProvider(options);
             return provider;
         }
 

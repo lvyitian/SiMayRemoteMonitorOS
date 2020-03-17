@@ -1,15 +1,16 @@
-﻿using System;
+﻿using SiMay.ReflectCache;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace SiMay.Core.Packets.FileManager
 {
-    public class FileOpenTextPack : BasePacket
+    public class FileOpenTextPack : EntitySerializerBase
     {
         public string FileName { get; set; }
     }
-    public class FileTextPack : BasePacket
+    public class FileTextPack : EntitySerializerBase
     {
         /// <summary>
         /// 是否可以访问

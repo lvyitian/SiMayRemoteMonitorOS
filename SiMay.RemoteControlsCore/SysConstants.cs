@@ -28,7 +28,7 @@ namespace SiMay.RemoteControlsCore
         public const string OpenScreenWall = "OpenScreenWall";
         public const string IdentifyId = "IdentifyId";
         public const string OpenScreenRecord = "OpenScreenRecord";
-        public const string RecordScreenIsAction = "RecordScreenIsAction";
+        public const string HasLaunchDesktopRecord = "RecordScreenIsAction";
         public const string RecordHeight = "RecordHeight";
         public const string RecordWidth = "RecordWidth";
         public const string RecordSpanTime = "RecordSpanTime";

@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using Microsoft.Win32;
+using SiMay.Core;
 using SiMay.Core.Common;
 using SiMay.Core.Extensions;
 using SiMay.Core.Packets.RegEdit;
@@ -17,7 +18,7 @@ namespace SiMay.RemoteMonitor.Application
     [OnTools]
     [ApplicationName("注册表管理")]
     [AppResourceName("RegEditManager")]
-    [Application(typeof(RegistryEditorAdapterHandler), "RemoteRegistryEditorJob", 50)]
+    [Application(typeof(RegistryEditorAdapterHandler), AppJobConstant.REMOTE_REGEDIT, 50)]
     public partial class RegEditorApplication : Form, IApplication
     {
         protected override CreateParams CreateParams
@@ -43,12 +44,17 @@ namespace SiMay.RemoteMonitor.Application
             this.Show();
         }
 
-        public void SessionClose(AdapterHandlerBase handler)
+        public void SetParameter(object arg)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SessionClose(ApplicationAdapterHandler handler)
         {
             this.Text = this._title + " [" + this.RegistryEditorAdapterHandler.StateContext.ToString() + "]";
         }
 
-        public void ContinueTask(AdapterHandlerBase handler)
+        public void ContinueTask(ApplicationAdapterHandler handler)
         {
             this.Text = this._title;
         }
@@ -79,7 +85,7 @@ namespace SiMay.RemoteMonitor.Application
             this.RegistryEditorAdapterHandler.OnValueDeletedEventHandler -= OnValueDeletedEventHandler;
             this.RegistryEditorAdapterHandler.OnValueRenamedEventHandler -= OnValueRenamedEventHandler;
             this.RegistryEditorAdapterHandler.OnValueChangedEventHandler -= OnValueChangedEventHandler;
-            this.RegistryEditorAdapterHandler.CloseHandler();
+            this.RegistryEditorAdapterHandler.CloseSession();
         }
 
         private void ShowErrorMessage(object sender, string errorMsg)

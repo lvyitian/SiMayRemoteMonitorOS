@@ -1,13 +1,13 @@
-﻿using SiMay.Basic;
+﻿using System;
+using System.IO;
 using SiMay.Core.Extensions;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using static SiMay.Serialize.PacketSerializeHelper;
+using static SiMay.Serialize.Standard.PacketSerializeHelper;
 
 namespace SiMay.Core
 {
-
+    /// <summary>
+    /// 消息处理帮助(格式:Int16的消息头 + payload)
+    /// </summary>
     public static class MessageHelper
     {
         /// <summary>
@@ -86,9 +86,9 @@ namespace SiMay.Core
         /// <returns></returns>
         public static byte[] GetMessagePayload(this byte[] data)
         {
-            byte[] bytes = new byte[data.Length - sizeof(short)];
-            Array.Copy(data, sizeof(short), bytes, 0, bytes.Length);
-            return bytes;
+            byte[] payload = new byte[data.Length - sizeof(short)];
+            Array.Copy(data, sizeof(short), payload, 0, payload.Length);
+            return payload;
         }
 
         /// <summary>
@@ -100,8 +100,16 @@ namespace SiMay.Core
         public static T GetMessageEntity<T>(this byte[] data)
             where T : new()
         {
-            var entity = DeserializePacket<T>(GetMessagePayload(data));
-            return entity;
+            try
+            {
+                var entity = DeserializePacket<T>(GetMessagePayload(data));
+                return entity;
+            }
+            catch
+            {
+                File.WriteAllBytes(Path.Combine(Environment.CurrentDirectory, $"{typeof(T).FullName}_{DateTime.Now.ToFileTime()}"), data);
+            }
+            return default;
         }
     }
 }

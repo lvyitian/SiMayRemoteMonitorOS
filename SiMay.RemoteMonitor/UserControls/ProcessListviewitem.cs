@@ -27,7 +27,7 @@ namespace SiMay.RemoteMonitor.UserControls
             this.Text = processName;
             this.SubItems.Add(windowName);
             this.SubItems.Add(windowHandler.ToString());
-            this.SubItems.Add(((double)memorySize / 1024).ToString("0.00") + " MB");
+            this.SubItems.Add(((double)memorySize / 1024).ToString("0.0000") + " MB");
             this.SubItems.Add(threadCount.ToString());
             this.SubItems.Add(sessionId.ToString());
             this.SubItems.Add(user);
@@ -111,6 +111,57 @@ namespace SiMay.RemoteMonitor.UserControls
             }
 
             return describe;
+        }
+    }
+
+    public class ServiceViewItem : ListViewItem
+    {
+        public string ServiceName { get; set; }
+        public string DisplayName { get; set; }
+        public string Description { get; set; }
+        public string Status { get; set; }
+        public string UserName { get; set; }
+        public string StartType { get; set; }
+        public ServiceViewItem(string serviceName, string displayName, string description, string status, string startType, string userName)
+        {
+            this.ServiceName = serviceName;
+            this.DisplayName = displayName;
+            this.Description = description;
+            this.Status = status;
+            this.StartType = startType;
+            this.UserName = userName;
+
+            this.Text = serviceName;
+            this.SubItems.Add(displayName);
+            this.SubItems.Add(description);
+            this.SubItems.Add(ServiceStatus(status));
+            this.SubItems.Add(ServiceStatus(startType));
+            this.SubItems.Add(userName);
+        }
+
+        private string ServiceStatus(string status)
+        {
+            if (status == "Running")
+            {
+                return "正在运行";
+            }
+            else if (status == "Stopped")
+            {
+                return "未在运行";
+            }
+            else if (status == "Automatic")
+            {
+                return "自动";
+            }
+            else if (status == "Manual")
+            {
+                return "手动";
+            }
+            else if (status == "Disabled")
+            {
+                return "禁用";
+            }
+            return "未知";
         }
     }
 }

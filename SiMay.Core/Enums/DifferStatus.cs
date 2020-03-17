@@ -7,8 +7,19 @@ namespace SiMay.Core.Enums
 {
     public enum DifferStatus
     {
-        FULLDIFFERENCES,
-        NEXTSCREEN,
-        COMPLETE
+        /// <summary>
+        /// 全屏扫描完成
+        /// </summary>
+        FULL_DIFFERENCES,
+
+        /// <summary>
+        /// 差异下一帧扫描完成
+        /// </summary>
+        NEXT_SCREEN,
+
+        /// <summary>
+        /// 完成扫描
+        /// </summary>
+        COMPLETED
     }
 }

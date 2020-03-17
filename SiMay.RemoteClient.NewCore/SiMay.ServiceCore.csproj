@@ -8,8 +8,8 @@
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SiMay.ServiceCore</RootNamespace>
-    <AssemblyName>SiMayServiceCore</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <AssemblyName>SiMayService</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <IsWebBootstrapper>false</IsWebBootstrapper>
@@ -35,7 +35,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\Bin\plugins\</OutputPath>
+    <OutputPath>..\Bin\dat\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -47,7 +47,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\Bin\plugins\</OutputPath>
+    <OutputPath>..\Bin\dat\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -57,7 +57,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\Debug\</OutputPath>
+    <OutputPath>..\Bin\dat\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x64</PlatformTarget>
@@ -87,6 +87,9 @@
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="AForge.Video">
       <HintPath>..\AForge.dll\AForge.Video.dll</HintPath>
@@ -114,6 +117,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApplicationService\RemoteUpdateService.cs" />
     <Compile Include="Attributes\ServiceName.cs" />
     <Compile Include="Attributes\ServiceKeyAttribute.cs" />
     <Compile Include="ApplicationService\RegistryEditorService.cs" />
@@ -124,21 +128,20 @@
     <Compile Include="Entitys\EventList.cs" />
     <Compile Include="Helper\ImageExtensionHelper.cs" />
     <Compile Include="Helper\ServiceInstallerHelper.cs" />
-    <Compile Include="MainService\UpdateService.cs" />
-    <Compile Include="MainService\ComputerSessionHelper.cs" />
+    <Compile Include="MainService\SystemSessionHelper.cs" />
     <Compile Include="ApplicationService\AForgeViedo.cs" />
     <Compile Include="AppConfiguartion.cs" />
     <Compile Include="ApplicationService\AudioService.cs" />
-    <Compile Include="MainService\DesktopRecordManager.cs" />
     <Compile Include="ApplicationService\Keyboard.cs" />
     <Compile Include="ApplicationService\KeyboardService.cs" />
     <Compile Include="Extensions\ServiceTypeExtension.cs" />
-    <Compile Include="MainService\ManagerTaskQueue.cs" />
-    <Compile Include="ApplicationService\ProcessSpy.cs" />
+    <Compile Include="MainService\ServiceTaskQueue.cs" />
     <Compile Include="ApplicationService\ShellService.cs" />
     <Compile Include="ApplicationService\FileService.cs" />
     <Compile Include="MainService\DownloadHelper.cs" />
-    <Compile Include="ApplicationService\ServiceManagerBase.cs" />
+    <Compile Include="ServiceBase\ApplicationProtocolService.cs" />
+    <Compile Include="ServiceBase\ApplicationRemoteService.cs" />
+    <Compile Include="ServiceBase\ApplicationServiceBase.cs" />
     <Compile Include="ApplicationService\ScreenService.cs" />
     <Compile Include="Helper\SystemInfoHelper.cs" />
     <Compile Include="ApplicationService\SystemService.cs" />
@@ -147,7 +150,9 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Interface\IApplicationService.cs" />
-    <Compile Include="TrunkService\Packet\EntityPack.cs" />
+    <Compile Include="Helper\RegValueHelper.cs" />
+    <Compile Include="ServiceBase\MainApplicationService.cs" />
+    <Compile Include="TrunkService\Packet\PacketEntity.cs" />
     <Compile Include="TrunkService\Service.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -207,24 +212,24 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SiMay.Basic\SiMay.Basic.csproj">
-      <Project>{B30CD716-698A-4DA2-BD1A-C152B16993C0}</Project>
+      <Project>{8f2f35cb-d5ee-4d92-b42f-bcffbf9c9d4f}</Project>
       <Name>SiMay.Basic</Name>
     </ProjectReference>
     <ProjectReference Include="..\SiMay.Core\SiMay.Core.csproj">
       <Project>{1aadc6f7-6ff9-4c68-8a26-e507f22b9060}</Project>
       <Name>SiMay.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SiMay.RemoteService\SiMay.RemoteService.csproj">
+    <ProjectReference Include="..\SiMay.RemoteService.Loader\SiMay.RemoteService.Loader.csproj">
       <Project>{7efe8058-f772-40eb-8e12-6e88e2a9e19a}</Project>
-      <Name>SiMay.RemoteService</Name>
+      <Name>SiMay.RemoteService.Loader</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SiMay.Serialize\SiMay.Serialize.csproj">
-      <Project>{4888d6bb-46d9-4519-8758-e13e397aa226}</Project>
-      <Name>SiMay.Serialize</Name>
+    <ProjectReference Include="..\SiMay.Serialize.Standard\SiMay.Serialize.Standard.csproj">
+      <Project>{9525A4AA-6731-4AB2-8CD0-ADDF7940FE32}</Project>
+      <Name>SiMay.Serialize.Standard</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SiMay.Sockets.V4\SiMay.Sockets.V4.csproj">
-      <Project>{d181fcce-ecc7-4710-89cc-d97f94a6181b}</Project>
-      <Name>SiMay.Sockets.V4</Name>
+    <ProjectReference Include="..\SiMay.Sockets.Standard\SiMay.Sockets.Standard.csproj">
+      <Project>{866f8fe0-ee58-4d38-8be7-cbdd19dd1b40}</Project>
+      <Name>SiMay.Sockets.Standard</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

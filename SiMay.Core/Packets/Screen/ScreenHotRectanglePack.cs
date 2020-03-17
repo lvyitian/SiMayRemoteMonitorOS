@@ -1,11 +1,12 @@
-﻿using System;
+﻿using SiMay.ReflectCache;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace SiMay.Core.Packets
 {
-    public class ScreenHotRectanglePack : BasePacket
+    public class ScreenHotRectanglePack : EntitySerializerBase
     {
         public int X { get; set; }
         public int Y { get; set; }

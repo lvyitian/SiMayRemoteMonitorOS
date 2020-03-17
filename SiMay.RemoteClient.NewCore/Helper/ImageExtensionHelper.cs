@@ -1,8 +1,5 @@
 ﻿using SiMay.Core.ScreenSpy;
-using SiMay.ServiceCore.ApplicationService;
 using SiMay.ServiceCore.Win32;
-using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -13,7 +10,7 @@ namespace SiMay.ServiceCore.Helper
     public class ImageExtensionHelper
     {
         static ICapturer _capturer = new BitBltCapture(false);
-        static bool _hasSystemAuthor = AppConfiguartion.HasSystemAuthority.Equals("true", StringComparison.OrdinalIgnoreCase);
+        static bool _hasSystemAuthor = AppConfiguartion.HasSystemAuthority;
         public static byte[] CaptureNoCursorToBytes(Size size)
         {
             if (_hasSystemAuthor)

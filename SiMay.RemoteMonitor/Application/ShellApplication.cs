@@ -1,4 +1,5 @@
-﻿using SiMay.RemoteControlsCore;
+﻿using SiMay.Core;
+using SiMay.RemoteControlsCore;
 using SiMay.RemoteControlsCore.HandlerAdapters;
 using SiMay.RemoteMonitor.Attributes;
 using System;
@@ -10,7 +11,7 @@ namespace SiMay.RemoteMonitor.Application
     [OnTools]
     [ApplicationName("远程终端")]
     [AppResourceName("ShellManager")]
-    [Application(typeof(ShellAdapterHandler), "RemoteShellJob", 60)]
+    [Application(typeof(ShellAdapterHandler), AppJobConstant.REMOTE_SHELL, 60)]
     public partial class ShellApplication : Form, IApplication
     {
 
@@ -30,12 +31,17 @@ namespace SiMay.RemoteMonitor.Application
             this.Show();
         }
 
-        public void SessionClose(AdapterHandlerBase handler)
+        public void SetParameter(object arg)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SessionClose(ApplicationAdapterHandler handler)
         {
             this.Text = _title + " [" + this.ShellAdapterHandler.StateContext.ToString() + "]";
         }
 
-        public void ContinueTask(AdapterHandlerBase handler)
+        public void ContinueTask(ApplicationAdapterHandler handler)
         {
             this.Text = _title;
         }
@@ -66,7 +72,7 @@ namespace SiMay.RemoteMonitor.Application
         private void ShellForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             this.ShellAdapterHandler.OnOutputCommandEventHandler -= OnOutputCommandEventHandler;
-            this.ShellAdapterHandler.CloseHandler();
+            this.ShellAdapterHandler.CloseSession();
         }
 
         private void textBox1_KeyPress(object sender, KeyPressEventArgs e)

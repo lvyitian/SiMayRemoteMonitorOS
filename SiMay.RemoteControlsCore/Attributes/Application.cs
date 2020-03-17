@@ -12,10 +12,10 @@ namespace SiMay.RemoteControlsCore
     {
         public int Rank { get; set; }
         public Type AppHandlerAdapterType { get; set; }
-        public string AppKey { get; set; }
+        public string ApplicationKey { get; set; }
         public ApplicationAttribute(Type type, string appKey, int rank)
         {
-            AppKey = appKey;
+            ApplicationKey = appKey;
             AppHandlerAdapterType = type;
             Rank = rank;
         }

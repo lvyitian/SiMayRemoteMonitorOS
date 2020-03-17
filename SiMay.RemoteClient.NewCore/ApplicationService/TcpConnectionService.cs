@@ -1,27 +1,31 @@
 ﻿using SiMay.Core;
 using SiMay.Core.Enums;
 using SiMay.Core.PacketModelBinder.Attributes;
-using SiMay.Core.PacketModelBinding;
-using SiMay.Core.Packets;
 using SiMay.Core.Packets.TcpConnection;
-using SiMay.ServiceCore;
 using SiMay.ServiceCore.Attributes;
-using SiMay.ServiceCore.Extensions;
-using SiMay.Sockets.Tcp;
 using SiMay.Sockets.Tcp.Session;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace SiMay.ServiceCore.ApplicationService
+namespace SiMay.ServiceCore
 {
     [ServiceName("Tcp连接管理")]
-    [ServiceKey("TcpConnectionManagerJob")]
-    public class TcpConnectionService : ServiceManagerBase
+    [ServiceKey(AppJobConstant.REMOTE_TCP)]
+    public class TcpConnectionService : ApplicationRemoteService
     {
+        public override void SessionInited(TcpSocketSaeaSession session)
+        {
+
+        }
+
+        public override void SessionClosed()
+        {
+
+        }
+
         [PacketHandler(MessageHead.S_TCP_GET_LIST)]
         public void GetTcpConnectionList(TcpSocketSaeaSession session)
         {
@@ -54,16 +58,17 @@ namespace SiMay.ServiceCore.ApplicationService
                 var ss = connections[i];
             }
 
-            SendAsyncToServer(MessageHead.C_TCP_LIST, new TcpConnectionPack()
-            {
-                TcpConnections = connections
-            });
+            SendTo(CurrentSession, MessageHead.C_TCP_LIST,
+                new TcpConnectionPack()
+                {
+                    TcpConnections = connections
+                });
         }
 
         [PacketHandler(MessageHead.S_TCP_CLOSE_CHANNEL)]
         public void CloseTcpConnectionHandler(TcpSocketSaeaSession session)
         {
-            var kills = session.CompletedBuffer.GetMessageEntity<KillTcpConnectionPack>();
+            var kills = GetMessageEntity<KillTcpConnectionPack>(session);
 
             var table = GetTable();
 

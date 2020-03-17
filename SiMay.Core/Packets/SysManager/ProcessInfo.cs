@@ -1,11 +1,12 @@
-﻿using System;
+﻿using SiMay.ReflectCache;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace SiMay.Core.Packets
 {
-    public class ProcessItem
+    public class ProcessItem : EntitySerializerBase
     {
         public int ProcessId { get; set; }
 
@@ -20,6 +21,17 @@ namespace SiMay.Core.Packets
         public int ProcessThreadCount { get; set; }
         public int SessionId { get; set; }
         public string User { get; set; }
+        public string FilePath { get; set; }
+    }
+
+    public class ServiceItem : EntitySerializerBase
+    {
+        public string ServiceName { get; set; }
+        public string DisplayName { get; set; }
+        public string Description { get; set; }
+        public string Status { get; set; }
+        public string UserName { get; set; }
+        public string StartType { get; set; }
         public string FilePath { get; set; }
     }
 }

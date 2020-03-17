@@ -9,10 +9,12 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SiMay.RemoteMonitor</RootNamespace>
     <AssemblyName>SiMayRemoteMonitor</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -45,7 +47,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x86\Debug\</OutputPath>
+    <OutputPath>..\Bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
@@ -55,7 +57,7 @@
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <OutputPath>bin\x86\Release\</OutputPath>
+    <OutputPath>..\Bin\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
@@ -69,10 +71,20 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Accord, Version=3.8.0.0, Culture=neutral, PublicKeyToken=fa1a88e29555ccf7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Accord.3.8.0\lib\net46\Accord.dll</HintPath>
+    </Reference>
+    <Reference Include="Accord.Video, Version=3.8.0.0, Culture=neutral, PublicKeyToken=fa1a88e29555ccf7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Accord.Video.3.8.0\lib\net46\Accord.Video.dll</HintPath>
+    </Reference>
+    <Reference Include="Accord.Video.FFMPEG, Version=3.8.0.0, Culture=neutral, PublicKeyToken=fa1a88e29555ccf7, processorArchitecture=x86">
+      <HintPath>..\packages\Accord.Video.FFMPEG.3.8.0\lib\net46\Accord.Video.FFMPEG.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Design" />
+    <Reference Include="System.Management" />
     <Reference Include="System.Net" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Xml.Linq" />
@@ -155,21 +167,26 @@
       <DependentUpon>TcpConnectionApplication.cs</DependentUpon>
     </Compile>
     <Compile Include="Entitys\KeyValueItem.cs" />
+    <Compile Include="Helper\KeygenHelper.cs" />
     <Compile Include="Helper\ListViewSortHelper.cs" />
     <Compile Include="Enums\FileItemType.cs" />
     <Compile Include="Extensions\ListViewExtensions.cs" />
-    <Compile Include="MainApplication\DesktopView\DesktopViewWallSettingForm.cs">
+    <Compile Include="Helper\MessageBoxHelper.cs" />
+    <Compile Include="Helper\PCMStreamToWavHelper.cs" />
+    <Compile Include="MainApplication\DesktopViewCarousel\DesktopViewWallSettingForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MainApplication\DesktopView\DesktopViewWallSettingForm.Designer.cs">
+    <Compile Include="MainApplication\DesktopViewCarousel\DesktopViewWallSettingForm.Designer.cs">
       <DependentUpon>DesktopViewWallSettingForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="MainApplication\DesktopViewCarousel\DesktopViewSettingContext.cs" />
     <Compile Include="MainApplication\RemoteUpdateServiceForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MainApplication\RemoteUpdateServiceForm.Designer.cs">
       <DependentUpon>RemoteUpdateServiceForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="UnconventionalApplication\RemoteUpdateApplication.cs" />
     <Compile Include="UserControls\FileListViewItem.cs" />
     <Compile Include="SysConstantsExtend.cs" />
     <Compile Include="Extensions\AppTypeExtension.cs" />
@@ -383,7 +400,7 @@
     <EmbeddedResource Include="MainApplication\DesktopRecordViewerForm.resx">
       <DependentUpon>DesktopRecordViewerForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MainApplication\DesktopView\DesktopViewWallSettingForm.resx">
+    <EmbeddedResource Include="MainApplication\DesktopViewCarousel\DesktopViewWallSettingForm.resx">
       <DependentUpon>DesktopViewWallSettingForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainApplication\EnterForm.resx">
@@ -440,6 +457,7 @@
     <None Include="app.manifest">
       <SubType>Designer</SubType>
     </None>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -496,7 +514,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SiMay.Basic\SiMay.Basic.csproj">
-      <Project>{b30cd716-698a-4da2-bd1a-c152b16993c0}</Project>
+      <Project>{8f2f35cb-d5ee-4d92-b42f-bcffbf9c9d4f}</Project>
       <Name>SiMay.Basic</Name>
     </ProjectReference>
     <ProjectReference Include="..\SiMay.Core\SiMay.Core.csproj">
@@ -504,20 +522,29 @@
       <Name>SiMay.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\SiMay.Net.SessionProvider\SiMay.Net.SessionProvider.csproj">
-      <Project>{BF5B6F41-D688-447F-BF81-EA821216F188}</Project>
+      <Project>{71283236-56cb-481e-a644-b7f9af9efdf9}</Project>
       <Name>SiMay.Net.SessionProvider</Name>
     </ProjectReference>
     <ProjectReference Include="..\SiMay.RemoteControlsCore\SiMay.RemoteControlsCore.csproj">
       <Project>{44dfa13c-03c3-4f07-9d78-30f981bfabc5}</Project>
       <Name>SiMay.RemoteControlsCore</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SiMay.Serialize\SiMay.Serialize.csproj">
-      <Project>{4888d6bb-46d9-4519-8758-e13e397aa226}</Project>
-      <Name>SiMay.Serialize</Name>
+    <ProjectReference Include="..\SiMay.Serialize.Standard\SiMay.Serialize.Standard.csproj">
+      <Project>{9525a4aa-6731-4ab2-8cd0-addf7940fe32}</Project>
+      <Name>SiMay.Serialize.Standard</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\Accord.3.8.0\build\Accord.targets" Condition="Exists('..\packages\Accord.3.8.0\build\Accord.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。使用“NuGet 程序包还原”可下载这些程序包。有关更多信息，请参见 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Accord.3.8.0\build\Accord.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Accord.3.8.0\build\Accord.targets'))" />
+    <Error Condition="!Exists('..\packages\Accord.Video.FFMPEG.3.8.0\build\Accord.Video.FFMPEG.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Accord.Video.FFMPEG.3.8.0\build\Accord.Video.FFMPEG.targets'))" />
+  </Target>
+  <Import Project="..\packages\Accord.Video.FFMPEG.3.8.0\build\Accord.Video.FFMPEG.targets" Condition="Exists('..\packages\Accord.Video.FFMPEG.3.8.0\build\Accord.Video.FFMPEG.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

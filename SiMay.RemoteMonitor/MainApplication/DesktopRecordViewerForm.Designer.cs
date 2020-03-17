@@ -47,9 +47,9 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox.BackColor = System.Drawing.Color.Black;
-            this.pictureBox.Location = new System.Drawing.Point(0, 0);
+            this.pictureBox.Location = new System.Drawing.Point(9, 10);
             this.pictureBox.Name = "pictureBox";
-            this.pictureBox.Size = new System.Drawing.Size(861, 520);
+            this.pictureBox.Size = new System.Drawing.Size(993, 579);
             this.pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox.TabIndex = 0;
             this.pictureBox.TabStop = false;
@@ -57,7 +57,7 @@
             // startimeBox
             // 
             this.startimeBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.startimeBox.Location = new System.Drawing.Point(197, 525);
+            this.startimeBox.Location = new System.Drawing.Point(197, 599);
             this.startimeBox.Name = "startimeBox";
             this.startimeBox.Size = new System.Drawing.Size(122, 21);
             this.startimeBox.TabIndex = 1;
@@ -66,7 +66,7 @@
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(325, 529);
+            this.label1.Location = new System.Drawing.Point(325, 603);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(17, 12);
             this.label1.TabIndex = 2;
@@ -75,7 +75,7 @@
             // endtimeBox
             // 
             this.endtimeBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.endtimeBox.Location = new System.Drawing.Point(348, 525);
+            this.endtimeBox.Location = new System.Drawing.Point(348, 599);
             this.endtimeBox.Name = "endtimeBox";
             this.endtimeBox.Size = new System.Drawing.Size(122, 21);
             this.endtimeBox.TabIndex = 3;
@@ -83,7 +83,7 @@
             // button1
             // 
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button1.Location = new System.Drawing.Point(476, 524);
+            this.button1.Location = new System.Drawing.Point(476, 598);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 4;
@@ -94,7 +94,7 @@
             // button2
             // 
             this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button2.Location = new System.Drawing.Point(774, 524);
+            this.button2.Location = new System.Drawing.Point(924, 598);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 23);
             this.button2.TabIndex = 5;
@@ -105,7 +105,7 @@
             // button3
             // 
             this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button3.Location = new System.Drawing.Point(693, 524);
+            this.button3.Location = new System.Drawing.Point(843, 598);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(75, 23);
             this.button3.TabIndex = 6;
@@ -116,7 +116,7 @@
             // button4
             // 
             this.button4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button4.Location = new System.Drawing.Point(612, 524);
+            this.button4.Location = new System.Drawing.Point(762, 598);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(75, 23);
             this.button4.TabIndex = 7;
@@ -128,7 +128,7 @@
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(3, 529);
+            this.label2.Location = new System.Drawing.Point(3, 603);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(59, 12);
             this.label2.TabIndex = 8;
@@ -138,17 +138,17 @@
             // 
             this.usersCombox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.usersCombox.FormattingEnabled = true;
-            this.usersCombox.Location = new System.Drawing.Point(60, 526);
+            this.usersCombox.Location = new System.Drawing.Point(60, 600);
             this.usersCombox.Name = "usersCombox";
             this.usersCombox.Size = new System.Drawing.Size(121, 20);
             this.usersCombox.TabIndex = 9;
             this.usersCombox.SelectedIndexChanged += new System.EventHandler(this.usersCombox_SelectedIndexChanged);
             // 
-            // DesktopRecordViewerDialog
+            // DesktopRecordViewerForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(861, 550);
+            this.ClientSize = new System.Drawing.Size(1011, 624);
             this.Controls.Add(this.usersCombox);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.button4);
@@ -159,7 +159,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.startimeBox);
             this.Controls.Add(this.pictureBox);
-            this.Name = "DesktopRecordViewerDialog";
+            this.Name = "DesktopRecordViewerForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "桌面记录查看";
             this.Load += new System.EventHandler(this.DesktopRecordViewer_Load);

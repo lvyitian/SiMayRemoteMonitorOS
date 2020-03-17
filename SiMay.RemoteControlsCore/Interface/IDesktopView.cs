@@ -21,6 +21,12 @@ namespace SiMay.RemoteControlsCore
         /// 视图标题
         /// </summary>
         string Caption { get; set; }
+
+        /// <summary>
+        /// 是否在可播放区域
+        /// </summary>
+        bool InVisbleArea { get; set; }
+
         /// <summary>
         /// 会话同步上下文
         /// </summary>

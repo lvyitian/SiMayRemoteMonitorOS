@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RunAnalyzersDuringLiveAnalysis>false</RunAnalyzersDuringLiveAnalysis>
+    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SiMay.Basic\SiMay.Basic.csproj" />
+    <ProjectReference Include="..\SiMay.Net.SessionProvider.Core\SiMay.Net.SessionProvider.Core.csproj" />
+    <ProjectReference Include="..\SiMay.Serialize.Standard\SiMay.Serialize.Standard.csproj" />
+    <ProjectReference Include="..\SiMay.Sockets.Standard\SiMay.Sockets.Standard.csproj" />
+  </ItemGroup>
+
+</Project>

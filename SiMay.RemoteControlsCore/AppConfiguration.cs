@@ -17,20 +17,25 @@ namespace SiMay.RemoteControlsCore
             { "ConnectPassWord", "5200" },
             { "MaxConnectCount", "100000" },
             { "Maximize", "false" },
-            { "DesktopViewHeight", "220" },
-            { "DesktopViewWidth", "280" },
             { "lHosts", "127.0.0.1:5200" },
             { "DbClickViewExc", "" },
             { "LockPassWord", "5200" },
             { "WindowsIsLock", "false" },
-            { "DesktopRefreshTimeSpan", "1500" },
+            { "DesktopRefreshInterval", "1500" },
             { "AudioSamplesPerSecond", "8000" },
             { "AudioBitsPerSample", "16" },
             { "AudioChannels", "1" },
             { "SessionMode", "0" },
-            { "AccessKey", "522222" },
             { "ServiceIPAddress", "127.0.0.1" },
-            { "ServicePort", "522" }
+            { "ServicePort", "522" },
+            { "EnabledCarousel", "true" },
+            { "CarouselInterval", "5000" },
+            { "ViewColumn", "4" },
+            { "ViewRow", "3" },
+            { "EnabledAnonyMous", "true" },
+            { "AccessId" , "123456789" },
+            { "MainAppAccessKey", "5200" },
+            { "AccessKey", "5200" }
         };
 
         string _filePath = Path.Combine(Environment.CurrentDirectory, "SiMayConfig.ini");
@@ -65,10 +70,10 @@ namespace SiMay.RemoteControlsCore
             set { SysConfig.SetConfig("IPAddress", value); }
         }
 
-        public static string Port
+        public static int Port
         {
-            get { return SysConfig.GetConfig("Port"); }
-            set { SysConfig.SetConfig("Port", value); }
+            get { return int.Parse(SysConfig.GetConfig("Port")); }
+            set { SysConfig.SetConfig("Port", value.ToString()); }
         }
 
         public static string ConnectPassWord
@@ -77,30 +82,17 @@ namespace SiMay.RemoteControlsCore
             set { SysConfig.SetConfig("ConnectPassWord", value); }
         }
 
-        public static string MaxConnectCount
+        public static int MaxConnectCount
         {
-            get { return SysConfig.GetConfig("MaxConnectCount"); }
-            set { SysConfig.SetConfig("MaxConnectCount", value); }
+            get { return int.Parse(SysConfig.GetConfig("MaxConnectCount")); }
+            set { SysConfig.SetConfig("MaxConnectCount", value.ToString()); }
         }
 
-        public static string WindowMaximize
+        public static bool WindowMaximize
         {
-            get { return SysConfig.GetConfig("Maximize"); }
-            set { SysConfig.SetConfig("Maximize", value); }
+            get { return bool.Parse(SysConfig.GetConfig("Maximize")); }
+            set { SysConfig.SetConfig("Maximize", value.ToString()); }
         }
-
-        public static string DesktopViewHeight
-        {
-            get { return SysConfig.GetConfig("DesktopViewHeight"); }
-            set { SysConfig.SetConfig("DesktopViewHeight", value); }
-        }
-
-        public static string DesktopViewWidth
-        {
-            get { return SysConfig.GetConfig("DesktopViewWidth"); }
-            set { SysConfig.SetConfig("DesktopViewWidth", value); }
-        }
-
         public static string LHostString
         {
             get { return SysConfig.GetConfig("lHosts"); }
@@ -119,34 +111,34 @@ namespace SiMay.RemoteControlsCore
             set { SysConfig.SetConfig("LockPassWord", value); }
         }
 
-        public static string WindowsIsLock
+        public static bool WindowsIsLock
         {
-            get { return SysConfig.GetConfig("WindowsIsLock"); }
-            set { SysConfig.SetConfig("WindowsIsLock", value); }
+            get { return bool.Parse(SysConfig.GetConfig("WindowsIsLock")); }
+            set { SysConfig.SetConfig("WindowsIsLock", value.ToString()); }
         }
 
-        public static string DesktopRefreshTimeSpan
+        public static int DesktopRefreshInterval
         {
-            get { return SysConfig.GetConfig("DesktopRefreshTimeSpan"); }
-            set { SysConfig.SetConfig("DesktopRefreshTimeSpan", value); }
+            get { return int.Parse(SysConfig.GetConfig("DesktopRefreshInterval")); }
+            set { SysConfig.SetConfig("DesktopRefreshInterval", value.ToString()); }
         }
 
-        public static string AudioSamplesPerSecond
+        public static int AudioSamplesPerSecond
         {
-            get { return SysConfig.GetConfig("AudioSamplesPerSecond"); }
-            set { SysConfig.SetConfig("AudioSamplesPerSecond", value); }
+            get { return int.Parse(SysConfig.GetConfig("AudioSamplesPerSecond")); }
+            set { SysConfig.SetConfig("AudioSamplesPerSecond", value.ToString()); }
         }
 
-        public static string AudioBitsPerSample
+        public static int AudioBitsPerSample
         {
-            get { return SysConfig.GetConfig("AudioBitsPerSample"); }
-            set { SysConfig.SetConfig("AudioBitsPerSample", value); }
+            get { return int.Parse(SysConfig.GetConfig("AudioBitsPerSample")); }
+            set { SysConfig.SetConfig("AudioBitsPerSample", value.ToString()); }
         }
 
-        public static string AudioChannels
+        public static int AudioChannels
         {
-            get { return SysConfig.GetConfig("AudioChannels"); }
-            set { SysConfig.SetConfig("AudioChannels", value); }
+            get { return int.Parse(SysConfig.GetConfig("AudioChannels")); }
+            set { SysConfig.SetConfig("AudioChannels", value.ToString()); }
         }
 
         public static string SessionMode
@@ -166,10 +158,57 @@ namespace SiMay.RemoteControlsCore
             set { SysConfig.SetConfig("ServiceIPAddress", value); }
         }
 
-        public static string ServicePort
+        public static int ServicePort
         {
-            get { return SysConfig.GetConfig("ServicePort"); }
-            set { SysConfig.SetConfig("ServicePort", value); }
+            get { return int.Parse(SysConfig.GetConfig("ServicePort")); }
+            set { SysConfig.SetConfig("ServicePort", value.ToString()); }
+        }
+
+        public static bool CarouselEnabled
+        {
+            get { return bool.Parse(SysConfig.GetConfig("EnabledCarousel")); }
+            set { SysConfig.SetConfig("EnabledCarousel", value.ToString()); }
+        }
+
+        public static int CarouselInterval
+        {
+            get { return int.Parse(SysConfig.GetConfig("CarouselInterval")); }
+            set { SysConfig.SetConfig("CarouselInterval", value.ToString()); }
+        }
+
+        public static int ViewColumn
+        {
+            get { return int.Parse(SysConfig.GetConfig("ViewColumn")); }
+            set { SysConfig.SetConfig("ViewColumn", value.ToString()); }
+        }
+
+        public static int ViewRow
+        {
+            get { return int.Parse(SysConfig.GetConfig("ViewRow")); }
+            set { SysConfig.SetConfig("ViewRow", value.ToString()); }
+        }
+
+        /// <summary>
+        /// 临时Id
+        /// </summary>
+        public static long UseAccessId { get; set; }
+
+        public static long AccessId
+        {
+            get { return long.Parse(SysConfig.GetConfig("AccessId")); }
+            set { SysConfig.SetConfig("AccessId", value.ToString()); }
+        }
+
+        public static long MainAppAccessKey
+        {
+            get { return long.Parse(SysConfig.GetConfig("MainAppAccessKey")); }
+            set { SysConfig.SetConfig("MainAppAccessKey", value.ToString()); }
+        }
+
+        public static bool EnabledAnonyMous
+        {
+            get { return bool.Parse(SysConfig.GetConfig("EnabledAnonyMous")); }
+            set { SysConfig.SetConfig("EnabledAnonyMous", value.ToString()); }
         }
     }
 }

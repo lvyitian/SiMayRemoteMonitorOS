@@ -1,11 +1,12 @@
-﻿using System;
+﻿using SiMay.ReflectCache;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace SiMay.Core.Entitys
 {
-    public class ServiceOptions
+    public class ServiceOptions : EntitySerializerBase
     {
         public string Id { get; set; }
         public string Host { get; set; }

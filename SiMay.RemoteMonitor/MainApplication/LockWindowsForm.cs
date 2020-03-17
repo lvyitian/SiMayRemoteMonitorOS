@@ -24,7 +24,7 @@ namespace SiMay.RemoteMonitor.MainApplication
             if (pwdTextBox.Text.Equals(AppConfiguration.LockPassWord))
             {
                 this._ifree = true;
-                AppConfiguration.WindowsIsLock = "false";
+                AppConfiguration.WindowsIsLock = false;
                 this.Close();
             }
             else

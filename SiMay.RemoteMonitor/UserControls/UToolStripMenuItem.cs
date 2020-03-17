@@ -10,8 +10,8 @@ namespace SiMay.RemoteMonitor.UserControls
     {
         public UToolStripMenuItem(string name, Type type) 
             : base(name)
-            => CtrlType = type;
+            => ApplicationType = type;
 
-        public Type CtrlType { get; set; }
+        public Type ApplicationType { get; set; }
     }
 }

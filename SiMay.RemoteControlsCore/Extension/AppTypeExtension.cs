@@ -13,10 +13,10 @@ namespace SiMay.RemoteControlsCore
             var attr = type.GetCustomAttribute<ApplicationAttribute>(true);
             return attr.AppHandlerAdapterType;
         }
-        public static string GetAppKey(this Type type)
+        public static string GetApplicationKey(this Type type)
         {
             var attr = type.GetCustomAttribute<ApplicationAttribute>(true);
-            return attr.AppKey;
+            return attr.ApplicationKey;
         }
 
         public static int GetRank(this Type type)

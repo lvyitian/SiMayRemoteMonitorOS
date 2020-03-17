@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SiMay.ReflectCache;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ namespace SiMay.Core.Packets.FileManager
     /// <summary>
     /// 文件下载
     /// </summary>
-    public class FileDownloadPack : BasePacket
+    public class FileDownloadPack : EntitySerializerBase
     {
         public string FileName { get; set; }
         /// <summary>
@@ -20,7 +21,7 @@ namespace SiMay.Core.Packets.FileManager
     /// <summary>
     /// 首数据包(减少交互快速传输文件)
     /// </summary>
-    public class FileFristDownloadDataPack : BasePacket
+    public class FileFristDownloadDataPack : EntitySerializerBase
     {
         //public string fileName { get; set; }
         /// <summary>
@@ -37,7 +38,7 @@ namespace SiMay.Core.Packets.FileManager
         public byte[] Data { get; set; }
     }
 
-    public class FileDownloadDataPack : BasePacket
+    public class FileDownloadDataPack : EntitySerializerBase
     {
         public byte[] Data { get; set; }
     }

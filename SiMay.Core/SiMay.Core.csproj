@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SiMay.Core</RootNamespace>
     <AssemblyName>SiMay.Core</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -23,6 +23,7 @@
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>8.0</LangVersion>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -33,6 +34,7 @@
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>8.0</LangVersion>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -48,12 +50,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppConfig\AbstractConfigBase.cs" />
-    <Compile Include="ByteConverter.cs" />
-    <Compile Include="Common\FileHelper.cs" />
-    <Compile Include="Common\GeoLocationHelper.cs" />
-    <Compile Include="Common\PlatformHelper.cs" />
-    <Compile Include="Common\RegistryKeyHelper.cs" />
-    <Compile Include="Common\RegValueHelper.cs" />
+    <Compile Include="AppJobConstant.cs" />
+    <Compile Include="Helper\ByteConverterHelper.cs" />
+    <Compile Include="Helper\FileHelper.cs" />
+    <Compile Include="Helper\FileTransmissionHelper.cs" />
+    <Compile Include="Helper\GeoLocationHelper.cs" />
+    <Compile Include="Helper\PlatformHelper.cs" />
+    <Compile Include="Helper\RegistryKeyHelper.cs" />
+    <Compile Include="Helper\RegValueHelper.cs" />
     <Compile Include="Entitys\GeoInformation.cs" />
     <Compile Include="Entitys\RegValueData.cs" />
     <Compile Include="Entitys\ServiceOptions.cs" />
@@ -68,7 +72,7 @@
     <Compile Include="Enums\TcpConnectionState.cs" />
     <Compile Include="Enums\WordType.cs" />
     <Compile Include="Extensions\RegistryKeyExtensions.cs" />
-    <Compile Include="FileIconUtil.cs" />
+    <Compile Include="Helper\FileIconUtil.cs" />
     <Compile Include="Extensions\UnicodeExtensions.cs" />
     <Compile Include="LogHelper.cs" />
     <Compile Include="MessageHead.cs" />
@@ -97,7 +101,7 @@
     <Compile Include="Packets\FileManager\FileUploadPack.cs" />
     <Compile Include="Packets\LoginPack.cs" />
     <Compile Include="Packets\MessagePack.cs" />
-    <Compile Include="Packets\OpenDialogPack.cs" />
+    <Compile Include="Packets\ActivedApplicationPack.cs" />
     <Compile Include="Packets\RegEdit\DoChangeRegistryValuePack.cs" />
     <Compile Include="Packets\RegEdit\DoCreateRegistryKeyPack.cs" />
     <Compile Include="Packets\RegEdit\DoCreateRegistryValuePack.cs" />
@@ -127,12 +131,13 @@
     <Compile Include="Packets\Reg\RegValueItem.cs" />
     <Compile Include="Packets\Reg\RegValuesPack.cs" />
     <Compile Include="Packets\RemoteUpdatePack.cs" />
+    <Compile Include="Packets\RemoteUpdate\DataPacket.cs" />
     <Compile Include="Packets\Screen\MonitorChangePack.cs" />
     <Compile Include="Packets\Screen\ScreenBitInfoPack.cs" />
     <Compile Include="Packets\Screen\ScreenClipoardValuePack.cs" />
     <Compile Include="Packets\Screen\ScreenFragmentPack.cs" />
     <Compile Include="Packets\Screen\ScreenHotRectanglePack.cs" />
-    <Compile Include="Packets\Screen\ScreenMKeyPack.cs" />
+    <Compile Include="Packets\Screen\ScreenKeyPack.cs" />
     <Compile Include="Packets\Screen\ScreenSetClipoardPack.cs" />
     <Compile Include="Packets\Screen\ScreenSetQtyPack.cs" />
     <Compile Include="Packets\ServicePluginPack.cs" />
@@ -147,7 +152,6 @@
     <Compile Include="Packets\TcpConnection\TcpConnectionItem.cs" />
     <Compile Include="Packets\TcpConnection\TcpConnectionPack.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RegValueHelper.cs" />
     <Compile Include="ScreenSpy\Capturer\BitBltCapture.cs" />
     <Compile Include="ScreenSpy\Interface\ICapturer.cs" />
     <Compile Include="ScreenSpy\JpgCompression.cs" />
@@ -161,16 +165,16 @@
   <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\SiMay.Basic\SiMay.Basic.csproj">
-      <Project>{B30CD716-698A-4DA2-BD1A-C152B16993C0}</Project>
+      <Project>{8f2f35cb-d5ee-4d92-b42f-bcffbf9c9d4f}</Project>
       <Name>SiMay.Basic</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SiMay.Serialize\SiMay.Serialize.csproj">
-      <Project>{4888d6bb-46d9-4519-8758-e13e397aa226}</Project>
-      <Name>SiMay.Serialize</Name>
+    <ProjectReference Include="..\SiMay.Net.SessionProvider.Core\SiMay.Net.SessionProvider.Core.csproj">
+      <Project>{0B2B697D-DD20-4869-836C-08C848E1813F}</Project>
+      <Name>SiMay.Net.SessionProvider.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SiMay.Sockets.V4\SiMay.Sockets.V4.csproj">
-      <Project>{d181fcce-ecc7-4710-89cc-d97f94a6181b}</Project>
-      <Name>SiMay.Sockets.V4</Name>
+    <ProjectReference Include="..\SiMay.Serialize.Standard\SiMay.Serialize.Standard.csproj">
+      <Project>{9525a4aa-6731-4ab2-8cd0-addf7940fe32}</Project>
+      <Name>SiMay.Serialize.Standard</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
