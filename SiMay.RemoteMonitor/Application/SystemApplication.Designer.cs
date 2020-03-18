@@ -82,6 +82,10 @@ namespace SiMay.RemoteMonitor.Application
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.moryUse = new System.Windows.Forms.ToolStripStatusLabel();
             this.refreshTimer = new System.Windows.Forms.Timer(this.components);
+            this.tabPage5 = new System.Windows.Forms.TabPage();
+            this.UninstallList = new SiMay.RemoteMonitor.UserControls.UListView();
+            this.cmunUninstall = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tmunUninstall = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage3.SuspendLayout();
@@ -90,6 +94,8 @@ namespace SiMay.RemoteMonitor.Application
             this.munServiceList.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
+            this.tabPage5.SuspendLayout();
+            this.cmunUninstall.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -101,8 +107,9 @@ namespace SiMay.RemoteMonitor.Application
             this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Controls.Add(this.tabPage4);
+            this.tabControl1.Controls.Add(this.tabPage5);
             this.tabControl1.Location = new System.Drawing.Point(5, 23);
-            this.tabControl1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabControl1.Margin = new System.Windows.Forms.Padding(2);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(624, 435);
@@ -116,9 +123,9 @@ namespace SiMay.RemoteMonitor.Application
             this.tabPage1.Controls.Add(this.button2);
             this.tabPage1.Controls.Add(this.processList);
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
-            this.tabPage1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabPage1.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(2);
             this.tabPage1.Size = new System.Drawing.Size(616, 409);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "进程管理";
@@ -127,7 +134,7 @@ namespace SiMay.RemoteMonitor.Application
             // 
             this.button4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button4.Location = new System.Drawing.Point(401, 387);
-            this.button4.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button4.Margin = new System.Windows.Forms.Padding(2);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(66, 19);
             this.button4.TabIndex = 14;
@@ -139,7 +146,7 @@ namespace SiMay.RemoteMonitor.Application
             // 
             this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button3.Location = new System.Drawing.Point(472, 387);
-            this.button3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button3.Margin = new System.Windows.Forms.Padding(2);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(66, 19);
             this.button3.TabIndex = 13;
@@ -151,7 +158,7 @@ namespace SiMay.RemoteMonitor.Application
             // 
             this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button2.Location = new System.Drawing.Point(542, 387);
-            this.button2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button2.Margin = new System.Windows.Forms.Padding(2);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(66, 19);
             this.button2.TabIndex = 12;
@@ -169,7 +176,7 @@ namespace SiMay.RemoteMonitor.Application
             this.processList.FullRowSelect = true;
             this.processList.HideSelection = false;
             this.processList.Location = new System.Drawing.Point(10, 11);
-            this.processList.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.processList.Margin = new System.Windows.Forms.Padding(2);
             this.processList.Name = "processList";
             this.processList.Size = new System.Drawing.Size(600, 373);
             this.processList.TabIndex = 11;
@@ -182,9 +189,9 @@ namespace SiMay.RemoteMonitor.Application
             this.tabPage3.Controls.Add(this.button1);
             this.tabPage3.Controls.Add(this.sessionsListView);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
-            this.tabPage3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabPage3.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabPage3.Padding = new System.Windows.Forms.Padding(2);
             this.tabPage3.Size = new System.Drawing.Size(616, 409);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "会话管理";
@@ -194,7 +201,7 @@ namespace SiMay.RemoteMonitor.Application
             // 
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button1.Location = new System.Drawing.Point(542, 386);
-            this.button1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button1.Margin = new System.Windows.Forms.Padding(2);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(66, 19);
             this.button1.TabIndex = 13;
@@ -218,7 +225,7 @@ namespace SiMay.RemoteMonitor.Application
             this.sessionsListView.FullRowSelect = true;
             this.sessionsListView.HideSelection = false;
             this.sessionsListView.Location = new System.Drawing.Point(10, 11);
-            this.sessionsListView.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.sessionsListView.Margin = new System.Windows.Forms.Padding(2);
             this.sessionsListView.Name = "sessionsListView";
             this.sessionsListView.Size = new System.Drawing.Size(600, 371);
             this.sessionsListView.TabIndex = 12;
@@ -256,9 +263,9 @@ namespace SiMay.RemoteMonitor.Application
             this.tabPage2.BackColor = System.Drawing.SystemColors.ButtonHighlight;
             this.tabPage2.Controls.Add(this.systemInfoList);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabPage2.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(2);
             this.tabPage2.Size = new System.Drawing.Size(616, 409);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "系统信息";
@@ -276,7 +283,7 @@ namespace SiMay.RemoteMonitor.Application
             this.systemInfoList.FullRowSelect = true;
             this.systemInfoList.HideSelection = false;
             this.systemInfoList.Location = new System.Drawing.Point(4, 5);
-            this.systemInfoList.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.systemInfoList.Margin = new System.Windows.Forms.Padding(2);
             this.systemInfoList.Name = "systemInfoList";
             this.systemInfoList.Size = new System.Drawing.Size(609, 407);
             this.systemInfoList.TabIndex = 12;
@@ -298,9 +305,9 @@ namespace SiMay.RemoteMonitor.Application
             // 
             this.tabPage4.Controls.Add(this.serviceList);
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
-            this.tabPage4.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabPage4.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage4.Name = "tabPage4";
-            this.tabPage4.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabPage4.Padding = new System.Windows.Forms.Padding(2);
             this.tabPage4.Size = new System.Drawing.Size(616, 409);
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "服务信息";
@@ -320,7 +327,7 @@ namespace SiMay.RemoteMonitor.Application
             this.serviceList.FullRowSelect = true;
             this.serviceList.HideSelection = false;
             this.serviceList.Location = new System.Drawing.Point(2, 2);
-            this.serviceList.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.serviceList.Margin = new System.Windows.Forms.Padding(2);
             this.serviceList.Name = "serviceList";
             this.serviceList.Size = new System.Drawing.Size(612, 405);
             this.serviceList.TabIndex = 0;
@@ -558,6 +565,43 @@ namespace SiMay.RemoteMonitor.Application
             this.refreshTimer.Interval = 1500;
             this.refreshTimer.Tick += new System.EventHandler(this.RefreshTimer_Tick);
             // 
+            // tabPage5
+            // 
+            this.tabPage5.Controls.Add(this.UninstallList);
+            this.tabPage5.Location = new System.Drawing.Point(4, 22);
+            this.tabPage5.Name = "tabPage5";
+            this.tabPage5.Size = new System.Drawing.Size(616, 409);
+            this.tabPage5.TabIndex = 4;
+            this.tabPage5.Text = "程序信息";
+            this.tabPage5.UseVisualStyleBackColor = true;
+            // 
+            // UninstallList
+            // 
+            this.UninstallList.ContextMenuStrip = this.cmunUninstall;
+            this.UninstallList.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.UninstallList.FullRowSelect = true;
+            this.UninstallList.HideSelection = false;
+            this.UninstallList.Location = new System.Drawing.Point(0, 0);
+            this.UninstallList.Name = "UninstallList";
+            this.UninstallList.Size = new System.Drawing.Size(616, 409);
+            this.UninstallList.TabIndex = 0;
+            this.UninstallList.UseCompatibleStateImageBehavior = false;
+            this.UninstallList.UseWindowsThemStyle = true;
+            this.UninstallList.View = System.Windows.Forms.View.Details;
+            // 
+            // cmunUninstall
+            // 
+            this.cmunUninstall.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tmunUninstall});
+            this.cmunUninstall.Name = "cmunUninstall";
+            this.cmunUninstall.Size = new System.Drawing.Size(101, 26);
+            // 
+            // tmunUninstall
+            // 
+            this.tmunUninstall.Name = "tmunUninstall";
+            this.tmunUninstall.Size = new System.Drawing.Size(100, 22);
+            this.tmunUninstall.Text = "卸载";
+            // 
             // SystemApplication
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -582,6 +626,8 @@ namespace SiMay.RemoteMonitor.Application
             this.menuStrip1.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
+            this.tabPage5.ResumeLayout(false);
+            this.cmunUninstall.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -640,5 +686,9 @@ namespace SiMay.RemoteMonitor.Application
         private System.Windows.Forms.ToolStripMenuItem tmunAutomatic;
         private System.Windows.Forms.ToolStripMenuItem tmunManual;
         private System.Windows.Forms.ToolStripMenuItem tmunDisable;
+        private System.Windows.Forms.TabPage tabPage5;
+        private UListView UninstallList;
+        private System.Windows.Forms.ContextMenuStrip cmunUninstall;
+        private System.Windows.Forms.ToolStripMenuItem tmunUninstall;
     }
 }

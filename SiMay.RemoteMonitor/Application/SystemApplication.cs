@@ -62,10 +62,17 @@ namespace SiMay.RemoteMonitor.Application
             this.processList.Columns.Add("用户名称", 100);
             this.processList.Columns.Add("文件位置", 300);
 
+            this.UninstallList.Columns.Add("名称", 150);
+            this.UninstallList.Columns.Add("发布者", 150);
+            this.UninstallList.Columns.Add("安装时间", 100);
+            this.UninstallList.Columns.Add("大小", 100);
+            this.UninstallList.Columns.Add("版本", 100);
+
             this.SystemAdapterHandler.OnProcessListHandlerEvent += OnProcessListHandlerEvent;
             this.SystemAdapterHandler.OnSystemInfoHandlerEvent += OnSystemInfoHandlerEvent;
             this.SystemAdapterHandler.OnOccupyHandlerEvent += OnOccupyHandlerEvent;
             this.SystemAdapterHandler.OnSessionsEventHandler += OnSessionsEventHandler;
+            this.SystemAdapterHandler.OnUninstallListEventHandler += OnUninstallListEventHandler;
             this._title = _title.Replace("#Name#", SystemAdapterHandler.OriginName);
             this.Text = this._title;
             this.SystemAdapterHandler.GetSystemInfoItems();
@@ -74,6 +81,19 @@ namespace SiMay.RemoteMonitor.Application
 
             this.SystemAdapterHandler.OnServicesListEventHandler += OnServicesListEventHandler;
             this.SystemAdapterHandler.Service_GetList();
+            this.SystemAdapterHandler.Uninstall_GetList();
+        }
+
+
+        private void OnUninstallListEventHandler(SystemAdapterHandler adapterHandler, IEnumerable<UninstallInfo> uninstalllInfo)
+        {
+            this.UninstallList.Items.Clear();
+            var uninstalllList = new List<UninstallInfo>(uninstalllInfo);
+            foreach (var item in uninstalllList)
+            {
+                var uninstalllItem = new UninstallViewItem(item.DisplayName, item.Publisher, item.InstallDate, item.Size, item.DisplayVersion);
+                this.UninstallList.Items.Add(uninstalllItem);
+            }
         }
 
         private void OnSessionsEventHandler(SystemAdapterHandler adapterHandler, IEnumerable<Core.Packets.SysManager.SessionItem> sessions)
@@ -156,6 +176,8 @@ namespace SiMay.RemoteMonitor.Application
             this.SystemAdapterHandler.OnSystemInfoHandlerEvent -= OnSystemInfoHandlerEvent;
             this.SystemAdapterHandler.OnOccupyHandlerEvent -= OnOccupyHandlerEvent;
             this.SystemAdapterHandler.OnSessionsEventHandler -= OnSessionsEventHandler;
+            this.SystemAdapterHandler.OnServicesListEventHandler -= OnServicesListEventHandler;
+            this.SystemAdapterHandler.OnUninstallListEventHandler -= OnUninstallListEventHandler;
             this.SystemAdapterHandler.CloseSession();
         }
 
@@ -383,6 +405,18 @@ namespace SiMay.RemoteMonitor.Application
                 {
                     ServiceName = selectItem[0].Text,
                     StartType = "4"
+                });
+            }
+        }
+
+        private void tmunUninstall_Click(object sender, EventArgs e)
+        {
+            if (UninstallList.SelectedItems.Count > 0)
+            {
+                ListView.SelectedListViewItemCollection selectItem = this.UninstallList.SelectedItems;
+                this.SystemAdapterHandler.Uninstall_Un(new UninstallInfo()
+                {
+                    DisplayName = selectItem[0].Text
                 });
             }
         }

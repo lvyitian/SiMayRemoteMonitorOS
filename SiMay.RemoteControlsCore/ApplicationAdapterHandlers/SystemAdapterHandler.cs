@@ -22,6 +22,9 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
         public event Action<SystemAdapterHandler, string, string> OnOccupyHandlerEvent;
 
+        public event Action<SystemAdapterHandler, IEnumerable<UninstallInfo>> OnUninstallListEventHandler;
+
+
         [PacketHandler(MessageHead.C_SYSTEM_SYSTEMINFO)]
         private void HandlerProcessList(SessionProviderContext session)
         {
@@ -135,6 +138,21 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         public void Service_StartType_Set(ServiceItem serviceItems)
         {
             SendTo(CurrentSession, MessageHead.S_SYSTEM_SERVICE_STARTTYPE_SET, serviceItems);
+        }
+
+        [PacketHandler(MessageHead.C_SYSTEM_UNINSTALL_LIST)]
+        private void UninstallInfoHandler(SessionProviderContext session)
+        {
+            var uninstallList = GetMessageEntity<UninstallInfoPack>(session).UninstallList;
+            OnUninstallListEventHandler?.Invoke(this, uninstallList);
+        }
+        public void Uninstall_GetList()
+        {
+            SendTo(CurrentSession, MessageHead.S_SYSTEM_UNINSTALL_LIST);
+        }
+        public void Uninstall_Un(UninstallInfo uninstallInfo)
+        {
+            SendTo(CurrentSession, MessageHead.S_SYSTEM_UNINSTALL_UN, uninstallInfo);
         }
     }
 }
