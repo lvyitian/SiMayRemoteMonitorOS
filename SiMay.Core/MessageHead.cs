@@ -121,6 +121,8 @@ namespace SiMay.Core
         S_SYSTEM_SERVICE_START,                            //启动服务
         S_SYSTEM_SERVICE_RESTART,                          //重启服务
         S_SYSTEM_SERVICE_STARTTYPE_SET,                    //设置服务启动方式
+        S_SYSTEM_UNINSTALL_LIST,                           //安装程序列表
+        S_SYSTEM_UNINSTALL_UN,                             //卸载程序
 
         //接收指令
         C_SYSTEM_PROCESS_LIST = 2000,                      //进程列表
@@ -128,6 +130,7 @@ namespace SiMay.Core
         C_SYSTEM_OCCUPY_INFO,                              //系统占用率信息
         C_SYSTEM_SESSIONS,                                 //会话信息
         C_SYSTEM_SERVICE_LIST,                             //服务列表
+        C_SYSTEM_UNINSTALL_LIST,                           //安装程序列表
 
         //键盘记录---------------------------------------------------------------
         S_KEYBOARD_ONOPEN = 1000,                          //窗口打开

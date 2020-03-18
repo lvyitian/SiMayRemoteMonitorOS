@@ -419,5 +419,96 @@ namespace SiMay.ServiceCore
         {
             return (string)Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Services\" + serviceName)?.GetValue("ImagePath") ?? string.Empty;
         }
+
+        private void SendUninstallList()
+        {
+            SendTo(CurrentSession, MessageHead.C_SYSTEM_UNINSTALL_LIST, GetUninstallInfo());
+        }
+
+        [PacketHandler(MessageHead.S_SYSTEM_UNINSTALL_LIST)]
+        public void GetUninstallList(TcpSocketSaeaSession session) => this.SendUninstallList();
+
+        [PacketHandler(MessageHead.S_SYSTEM_UNINSTALL_UN)]
+        public void Uninstall_UN(TcpSocketSaeaSession session)
+        {
+            var uninstallItem = GetMessageEntity<UninstallInfo>(session);
+            try
+            {
+                Process.Start(GetUninstallInfo(uninstallItem.DisplayName).UninstallList[0].UninstallString);
+            }
+            catch { }
+            SendUninstallList();
+
+        }
+
+        private UninstallInfoPack GetUninstallInfo(string displayName = "")
+        {
+            var strRegPath = new string[] {
+                @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",
+                @"SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall"
+            };
+            var pack = new UninstallInfoPack();
+            pack.UninstallList = new UninstallInfo[] { };
+            foreach (var item in strRegPath)
+            {
+                RegistryKey regMainKey = Registry.LocalMachine.OpenSubKey(item);
+                foreach (string strMainKey in regMainKey.GetSubKeyNames())
+                {
+                    RegistryKey regCurrentKey = regMainKey.OpenSubKey(strMainKey);
+                    object objDisplayName = regCurrentKey.GetValue("DisplayName"),
+                            objInstallSource = regCurrentKey.GetValue("InstallSource"),
+                            objUninstallString = regCurrentKey.GetValue("UninstallString"),
+                            objInstallLocation = regCurrentKey.GetValue("InstallLocation"),
+                            objPublisher = regCurrentKey.GetValue("Publisher"),
+                            objDisplayVersion = regCurrentKey.GetValue("DisplayVersion"),
+                            objReleaseType = regCurrentKey.GetValue("ReleaseType"),
+                            objSize = regCurrentKey.GetValue("Size"),
+                            objInstallDate = regCurrentKey.GetValue("InstallDate");
+                    if (objDisplayName != null && objUninstallString != null)
+                    {
+                        if (displayName == string.Empty)
+                        {
+                            var info = new UninstallInfo()
+                            {
+                                DisplayName = objDisplayName.ToString(),
+                                InstallSource = objInstallSource == null ? string.Empty : objInstallSource.ToString(),
+                                UninstallString = objUninstallString == null ? string.Empty : objUninstallString.ToString(),
+                                InstallLocation = objInstallLocation == null ? string.Empty : objInstallLocation.ToString(),
+                                Publisher = objPublisher == null ? string.Empty : objPublisher.ToString(),
+                                DisplayVersion = objDisplayVersion == null ? string.Empty : objDisplayVersion.ToString(),
+                                ReleaseType = objReleaseType == null ? string.Empty : objReleaseType.ToString(),
+                                Size = objSize == null ? string.Empty : objSize.ToString(),
+                                InstallDate = objInstallDate == null ? string.Empty : objInstallDate.ToString()
+                            };
+                            List<UninstallInfo> list = pack.UninstallList.ToList();
+                            list.Add(info);
+                            pack.UninstallList = list.ToArray();
+                        }
+                        else if (objDisplayName.ToString() == displayName)
+                        {
+                            var info = new UninstallInfo()
+                            {
+                                DisplayName = objDisplayName.ToString(),
+                                InstallSource = objInstallSource == null ? string.Empty : objInstallSource.ToString(),
+                                UninstallString = objUninstallString == null ? string.Empty : objUninstallString.ToString(),
+                                InstallLocation = objInstallLocation == null ? string.Empty : objInstallLocation.ToString(),
+                                Publisher = objPublisher == null ? string.Empty : objPublisher.ToString(),
+                                DisplayVersion = objDisplayVersion == null ? string.Empty : objDisplayVersion.ToString(),
+                                ReleaseType = objReleaseType == null ? string.Empty : objReleaseType.ToString(),
+                                Size = objSize == null ? string.Empty : objSize.ToString(),
+                                InstallDate = objInstallDate == null ? string.Empty : objInstallDate.ToString()
+                            };
+                            List<UninstallInfo> list = pack.UninstallList.ToList();
+                            list.Add(info);
+                            pack.UninstallList = list.ToArray();
+                            return pack;
+                        }
+
+                    }
+
+                }
+            }
+            return pack;
+        }
     }
 }

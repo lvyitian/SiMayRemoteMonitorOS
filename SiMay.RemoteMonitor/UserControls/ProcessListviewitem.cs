@@ -164,4 +164,21 @@ namespace SiMay.RemoteMonitor.UserControls
             return "未知";
         }
     }
+
+    public class UninstallViewItem : ListViewItem
+    {
+        public UninstallViewItem(string displayName, string publisher, string installDate, string size, string displayVersion)
+        {
+            try
+            {
+                this.Text = displayName;
+                this.SubItems.Add(publisher);
+                this.SubItems.Add(DateTime.TryParse(installDate, out DateTime dt) ? DateTime.Parse(installDate).ToShortDateString() : DateTime.ParseExact(installDate, "yyyyMMdd", System.Threading.Thread.CurrentThread.CurrentCulture).ToShortDateString());
+                this.SubItems.Add(size);
+                this.SubItems.Add(displayVersion);
+            }
+            catch { }
+
+        }
+    }
 }

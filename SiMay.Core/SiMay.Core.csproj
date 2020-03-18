@@ -149,6 +149,7 @@
     <Compile Include="Packets\SysManager\SysKillPack.cs" />
     <Compile Include="Packets\SysManager\SysWindowMaxPack.cs" />
     <Compile Include="Packets\SysManager\SystemInfoPack.cs" />
+    <Compile Include="Packets\SysManager\UninstallInfo.cs" />
     <Compile Include="Packets\TcpConnection\TcpConnectionItem.cs" />
     <Compile Include="Packets\TcpConnection\TcpConnectionPack.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

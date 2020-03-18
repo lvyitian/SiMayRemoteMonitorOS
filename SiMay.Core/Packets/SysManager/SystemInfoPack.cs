@@ -30,4 +30,9 @@ namespace SiMay.Core.Packets
     {
         public ServiceItem[] ServiceList { get; set; }
     }
+
+    public class UninstallInfoPack : EntitySerializerBase
+    {
+        public UninstallInfo[] UninstallList { get; set; }
+    }
 }
