@@ -102,7 +102,7 @@
     <Compile Include="Application\FileApplication.Designer.cs">
       <DependentUpon>FileApplication.cs</DependentUpon>
     </Compile>
-    <Compile Include="Application\FileCommon\WindowsForFileStream.cs" />
+    <Compile Include="FileStream\WindowsForFileStream.cs" />
     <Compile Include="Application\ScreenMonitorChangeForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -166,8 +166,7 @@
     <Compile Include="Application\TcpConnectionApplication.designer.cs">
       <DependentUpon>TcpConnectionApplication.cs</DependentUpon>
     </Compile>
-    <Compile Include="Entitys\KeyValueItem.cs" />
-    <Compile Include="Helper\KeygenHelper.cs" />
+    <Compile Include="MainApplication\KeyValueItem.cs" />
     <Compile Include="Helper\ListViewSortHelper.cs" />
     <Compile Include="Enums\FileItemType.cs" />
     <Compile Include="Extensions\ListViewExtensions.cs" />
@@ -186,7 +185,12 @@
     <Compile Include="MainApplication\RemoteUpdateServiceForm.Designer.cs">
       <DependentUpon>RemoteUpdateServiceForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="UnconventionalApplication\RemoteUpdateApplication.cs" />
+    <Compile Include="UnconventionalApplication\RemoteUpdateApplication.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UnconventionalApplication\RemoteUpdateApplication.Designer.cs">
+      <DependentUpon>RemoteUpdateApplication.cs</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\FileListViewItem.cs" />
     <Compile Include="SysConstantsExtend.cs" />
     <Compile Include="Extensions\AppTypeExtension.cs" />
@@ -446,6 +450,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Application\SystemApplication.resx">
       <DependentUpon>SystemApplication.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UnconventionalApplication\RemoteUpdateApplication.resx">
+      <DependentUpon>RemoteUpdateApplication.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UserControls\UDesktopView.resx">
       <DependentUpon>UDesktopView.cs</DependentUpon>

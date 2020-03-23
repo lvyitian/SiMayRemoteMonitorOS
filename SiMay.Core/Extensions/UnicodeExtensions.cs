@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace SiMay.Core.Extensions
+namespace SiMay.Core
 {
 
     public static class UnicodeExtensions

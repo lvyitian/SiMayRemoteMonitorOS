@@ -59,7 +59,6 @@
     <Compile Include="Helper\RegistryKeyHelper.cs" />
     <Compile Include="Helper\RegValueHelper.cs" />
     <Compile Include="Entitys\GeoInformation.cs" />
-    <Compile Include="Entitys\RegValueData.cs" />
     <Compile Include="Entitys\ServiceOptions.cs" />
     <Compile Include="Enums\RemoteUpdateType.cs" />
     <Compile Include="Enums\StartupType.cs" />
@@ -82,7 +81,6 @@
     <Compile Include="Packets\AckPack.cs" />
     <Compile Include="Packets\Audio\AudioDeviceStatesPack.cs" />
     <Compile Include="Packets\Audio\AudioOptionsPack.cs" />
-    <Compile Include="Packets\BasePack.cs" />
     <Compile Include="Packets\DesktopRecordGetFramePack.cs" />
     <Compile Include="Packets\DesktopViewDescribePack.cs" />
     <Compile Include="Packets\DesktopViewGetFramePack.cs" />
@@ -99,6 +97,7 @@
     <Compile Include="Packets\FileManager\FileReNamePack.cs" />
     <Compile Include="Packets\FileManager\FileTextPack.cs" />
     <Compile Include="Packets\FileManager\FileUploadPack.cs" />
+    <Compile Include="Packets\FileTransmissionCreatePacket.cs" />
     <Compile Include="Packets\LoginPack.cs" />
     <Compile Include="Packets\MessagePack.cs" />
     <Compile Include="Packets\ActivedApplicationPack.cs" />
@@ -120,18 +119,9 @@
     <Compile Include="Packets\RegEdit\GetRenameRegistryValueResponsePack.cs" />
     <Compile Include="Packets\RegEdit\RegSeekerMatch.cs" />
     <Compile Include="Packets\RegEdit\RegValueData.cs" />
-    <Compile Include="Packets\Reg\RegDeleteSubKeyPack.cs" />
-    <Compile Include="Packets\Reg\RegDeleteValuePack.cs" />
-    <Compile Include="Packets\Reg\RegNewSubkeyPack.cs" />
-    <Compile Include="Packets\Reg\RegNewValuePack.cs" />
-    <Compile Include="Packets\Reg\RegOpenSubKeyPack.cs" />
-    <Compile Include="Packets\Reg\RegOperFinshPack.cs" />
-    <Compile Include="Packets\Reg\RegRootDirectorysPack.cs" />
-    <Compile Include="Packets\Reg\RegSubKeyValuePack.cs" />
-    <Compile Include="Packets\Reg\RegValueItem.cs" />
-    <Compile Include="Packets\Reg\RegValuesPack.cs" />
     <Compile Include="Packets\RemoteUpdatePack.cs" />
     <Compile Include="Packets\RemoteUpdate\DataPacket.cs" />
+    <Compile Include="Packets\InvokerResponseControllerPacket.cs" />
     <Compile Include="Packets\Screen\MonitorChangePack.cs" />
     <Compile Include="Packets\Screen\ScreenBitInfoPack.cs" />
     <Compile Include="Packets\Screen\ScreenClipoardValuePack.cs" />
@@ -147,9 +137,7 @@
     <Compile Include="Packets\SysManager\SessionManagerPack.cs" />
     <Compile Include="Packets\SysManager\ProcessInfo.cs" />
     <Compile Include="Packets\SysManager\SysKillPack.cs" />
-    <Compile Include="Packets\SysManager\SysWindowMaxPack.cs" />
     <Compile Include="Packets\SysManager\SystemInfoPack.cs" />
-    <Compile Include="Packets\TcpConnection\TcpConnectionItem.cs" />
     <Compile Include="Packets\TcpConnection\TcpConnectionPack.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScreenSpy\Capturer\BitBltCapture.cs" />

@@ -1,12 +1,11 @@
 ﻿using SiMay.Core;
-using SiMay.Core.Extensions;
 using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using static SiMay.ServiceCore.CommonWin32Api;
 
-namespace SiMay.ServiceCore.MainService
+namespace SiMay.ServiceCore
 {
 
     public class DownloadHelper

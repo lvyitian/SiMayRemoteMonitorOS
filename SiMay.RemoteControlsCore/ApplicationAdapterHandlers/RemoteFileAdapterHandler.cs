@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 using SiMay.Basic;
 using SiMay.Core;
 using SiMay.Core.PacketModelBinder.Attributes;
-using SiMay.Core.Packets;
-using SiMay.Core.Packets.FileManager;
 using SiMay.Net.SessionProvider;
 using SiMay.Serialize.Standard;
 

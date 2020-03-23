@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace SiMay.Core.Packets.FileManager
+namespace SiMay.Core
 {
     /// <summary>
     /// 文件下载

@@ -25,6 +25,8 @@ namespace SiMay.Core
 
         public const string REMOTE_VIDEO = "RemoteViedoJob";
 
-        public const string REMOTE_UPDATE = "RemoteUpdateJob";
+        public const string REMOTE_FILE_TRANSMISSION = "RemoteTransmissionJob";
+
+        public const string REMOTE_REMOTE_UPDATE = "RemoteUpdateJob";
     }
 }

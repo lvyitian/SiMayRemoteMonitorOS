@@ -1,6 +1,4 @@
-﻿using SiMay.Core.Enums;
-using SiMay.Core.ScreenSpy.Entitys;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;

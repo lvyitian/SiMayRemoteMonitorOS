@@ -1,5 +1,4 @@
-﻿using SiMay.Basic;
-using SiMay.Core.Enums;
+﻿using SiMay.Core;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -16,10 +15,12 @@ namespace SiMay.RemoteMonitor.MainApplication
 {
     public partial class RemoteUpdateServiceForm : Form
     {
-        public RemoteUpdateServiceForm()
+        private Action _surecallBack;
+        public RemoteUpdateServiceForm(Action action)
         {
             InitializeComponent();
             this.DialogResult = DialogResult.Cancel;
+            this._surecallBack = action;
         }
 
         public RemoteUpdateType UrlOrFileUpdate { get; set; }
@@ -43,17 +44,13 @@ namespace SiMay.RemoteMonitor.MainApplication
             }
             else
             {
-
                 Value = txtURL.Text;
                 UrlOrFileUpdate = RemoteUpdateType.Url;
             }
 
             if (MessageBox.Show("该操作是危险操作，请确认文件或URL是否正确，否则可能导致上线失败!", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) == DialogResult.OK)
-                this.DialogResult = DialogResult.OK;
-            else
-                return;
+                _surecallBack();
 
-            this.Close();
         }
         private void Button1_Click(object sender, EventArgs e)
         {
@@ -72,6 +69,16 @@ namespace SiMay.RemoteMonitor.MainApplication
                     txtPath.Text = Path.Combine(ofd.InitialDirectory, ofd.FileName);
                 }
             }
+        }
+
+        private void RemoteUpdateServiceForm_Load(object sender, EventArgs e)
+        {
+            this.panel1.ControlAdded += Panel1_ControlAdded;
+        }
+
+        private void Panel1_ControlAdded(object sender, ControlEventArgs e)
+        {
+            //e.Control
         }
     }
 }

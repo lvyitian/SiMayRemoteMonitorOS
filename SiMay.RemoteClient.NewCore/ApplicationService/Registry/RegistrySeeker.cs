@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.Win32;
-using SiMay.Core.Common;
-using SiMay.Core.Extensions;
-using SiMay.Core.Packets.RegEdit;
+using SiMay.Core;
 
 namespace SiMay.ServiceCore
 {

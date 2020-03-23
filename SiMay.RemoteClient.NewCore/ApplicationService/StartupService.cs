@@ -1,11 +1,6 @@
 ﻿using Microsoft.Win32;
 using SiMay.Core;
-using SiMay.Core.Common;
-using SiMay.Core.Enums;
-using SiMay.Core.Extensions;
 using SiMay.Core.PacketModelBinder.Attributes;
-using SiMay.Core.Packets.Startup;
-using SiMay.Core.Packets.Startup.Enums;
 using SiMay.ServiceCore.Attributes;
 using SiMay.Sockets.Tcp.Session;
 using System;

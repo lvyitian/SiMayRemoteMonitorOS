@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace SiMay.Core.Packets.TcpConnection
+namespace SiMay.Core
 {
     public class TcpConnectionPack : EntitySerializerBase
     {
@@ -24,5 +24,15 @@ namespace SiMay.Core.Packets.TcpConnection
         public string RemoteAddress { get; set; }
 
         public string RemotePort { get; set; }
+    }
+
+    public class TcpConnectionItem : EntitySerializerBase
+    {
+        public string ProcessName { get; set; }
+        public string LocalAddress { get; set; }
+        public string LocalPort { get; set; }
+        public string RemoteAddress { get; set; }
+        public string RemotePort { get; set; }
+        public TcpConnectionState State { get; set; }
     }
 }

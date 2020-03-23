@@ -10,7 +10,7 @@ using SiMay.Sockets.Tcp.Session;
 namespace SiMay.ServiceCore.ApplicationService
 {
     [ServiceName("远程更新服务")]
-    [ServiceKey(AppJobConstant.REMOTE_UPDATE)]
+    [ServiceKey(AppJobConstant.REMOTE_FILE_TRANSMISSION)]
     public class RemoteUpdateService : ApplicationRemoteService
     {
         public override void SessionClosed()

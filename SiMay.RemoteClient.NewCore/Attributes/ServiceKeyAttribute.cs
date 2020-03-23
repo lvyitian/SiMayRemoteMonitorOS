@@ -5,6 +5,7 @@ using System.Text;
 
 namespace SiMay.ServiceCore.Attributes
 {
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class ServiceKeyAttribute : Attribute
     {
         public string Key { get; set; }

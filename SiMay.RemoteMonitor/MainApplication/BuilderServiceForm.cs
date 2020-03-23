@@ -1,5 +1,5 @@
 ﻿using SiMay.Basic;
-using SiMay.Core.Entitys;
+using SiMay.Core;
 using SiMay.RemoteControlsCore;
 using SiMay.Serialize.Standard;
 using System;
@@ -202,7 +202,7 @@ namespace SiMay.RemoteMonitor.MainApplication
 
         private void BuildClientForm_Load(object sender, EventArgs e)
         {
-            txtAccesskey.Text = AppConfiguration.ConnectPassWord;
+            txtAccesskey.Text = AppConfiguration.AccessKey.ToString();
             string strHosts = AppConfiguration.LHostString;
 
             int index = int.Parse(AppConfiguration.SessionMode);

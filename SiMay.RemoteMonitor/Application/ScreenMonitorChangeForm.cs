@@ -1,4 +1,4 @@
-﻿using SiMay.Core.Packets;
+﻿using SiMay.Core;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

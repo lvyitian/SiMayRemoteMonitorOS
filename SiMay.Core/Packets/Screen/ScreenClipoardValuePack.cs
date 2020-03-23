@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace SiMay.Core.Packets.Screen
+namespace SiMay.Core
 {
     public class ScreenClipoardValuePack : EntitySerializerBase
     {

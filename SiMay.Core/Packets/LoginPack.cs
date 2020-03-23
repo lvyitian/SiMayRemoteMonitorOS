@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace SiMay.Core.Packets
+namespace SiMay.Core
 {
     public class LoginPack : EntitySerializerBase
     {
@@ -29,6 +29,9 @@ namespace SiMay.Core.Packets
         public int RecordWidth { get; set; }
         public int RecordSpanTime { get; set; }
 
+        /// <summary>
+        /// 插件是否加载(未开放远程载入插件功能)
+        /// </summary>
         public bool HasLoadServiceCOM { get; set; }
     }
 }

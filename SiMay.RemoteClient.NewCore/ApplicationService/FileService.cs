@@ -1,10 +1,6 @@
 ﻿using SiMay.Basic;
 using SiMay.Core;
-using SiMay.Core.Common;
-using SiMay.Core.Enums;
 using SiMay.Core.PacketModelBinder.Attributes;
-using SiMay.Core.Packets;
-using SiMay.Core.Packets.FileManager;
 using SiMay.ServiceCore.Attributes;
 using SiMay.ServiceCore.Entitys;
 using SiMay.Sockets.Tcp.Session;
@@ -13,8 +9,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
+using System.Windows.Forms;
 using static SiMay.ServiceCore.CommonWin32Api;
+using static System.Environment;
 
 namespace SiMay.ServiceCore
 {
@@ -128,7 +127,16 @@ namespace SiMay.ServiceCore
                     try
                     {
                         if (File.Exists(file))
-                            File.Copy(file, files.TargetDirectoryPath + Path.GetFileName(file));
+                        {
+                            var targetFileName = files.TargetDirectoryPath + Path.GetFileName(file);
+                            int index = 1;
+                            while (File.Exists(targetFileName))
+                            {
+                                targetFileName = files.TargetDirectoryPath + Path.GetFileName(file) + "_副本" + index;
+                                index++;
+                            }
+                            File.Copy(file, targetFileName);
+                        }
                         else if (Directory.Exists(file))
                             FileHelper.CopyDirectory(file, files.TargetDirectoryPath);
                         else
@@ -466,7 +474,7 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_FILE_EXECUTE)]
         public void ExcuteFile(TcpSocketSaeaSession session)
         {
-            var file =  GetMessageEntity<FileExcutePack>(session);
+            var file = GetMessageEntity<FileExcutePack>(session);
             try
             {
                 if (Directory.Exists(file.FilePath))
@@ -483,7 +491,6 @@ namespace SiMay.ServiceCore
             var pack = GetMessageEntity<FileRedirectionPath>(session);
             this.GetFileListHandler(Environment.GetFolderPath(pack.SpecialFolder));
         }
-
         [PacketHandler(MessageHead.S_FILE_GET_FILES)]
         public void SendFilelist(TcpSocketSaeaSession session)
         {
@@ -516,23 +523,25 @@ namespace SiMay.ServiceCore
                     })
                     .ToArray();
 
-                SendTo(CurrentSession, MessageHead.C_FILE_FILE_LIST, new FileListItemsPack()
-                {
-                    FileList = dirs.Concat(files).ToArray(),
-                    Path = path,
-                    Message = "OK",
-                    IsSccessed = true
-                });
+                SendTo(CurrentSession, MessageHead.C_FILE_FILE_LIST,
+                    new FileListItemsPack()
+                    {
+                        FileList = dirs.Concat(files).ToArray(),
+                        Path = path,
+                        Message = "OK",
+                        IsSccessed = true
+                    });
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                SendTo(CurrentSession, MessageHead.C_FILE_FILE_LIST, new FileListItemsPack()
-                {
-                    FileList = new FileItem[0],
-                    Path = path,
-                    Message = e.Message,
-                    IsSccessed = false
-                });
+                SendTo(CurrentSession, MessageHead.C_FILE_FILE_LIST,
+                    new FileListItemsPack()
+                    {
+                        FileList = new FileItem[0],
+                        Path = path,
+                        Message = ex.Message,
+                        IsSccessed = false
+                    });
             }
         }
 
@@ -555,7 +564,13 @@ namespace SiMay.ServiceCore
             {
                 try
                 {
-                    var dirs = Directory.GetDirectories(pack.TargetRoot).Select(c => new FileItem() { FileName = Path.GetFileName(c) }).ToArray();
+                    var dirs = Directory.GetDirectories(pack.TargetRoot).
+                        Select(c => new FileItem()
+                        {
+                            FileName = Path.GetFileName(c)
+                        })
+                        .ToArray();
+
                     SendTo(CurrentSession, MessageHead.C_FILE_TREE_DIRS,
                         new FileTreeDirFilePack()
                         {

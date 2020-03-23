@@ -1,4 +1,5 @@
-﻿using SiMay.ReflectCache;
+﻿using SiMay.Core;
+using SiMay.ReflectCache;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,14 +20,5 @@ namespace SiMay.ServiceCore
     public class CreateUserProcessPack : EntitySerializerBase
     {
         public int SessionId { get; set; }
-    }
-
-    public class SessionItem : EntitySerializerBase
-    {
-        public string UserName { get; set; }
-        public int SessionId { get; set; }
-        public int SessionState { get; set; }
-        public string WindowStationName { get; set; }
-        public bool HasUserProcess { get; set; }
     }
 }

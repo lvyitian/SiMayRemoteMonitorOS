@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Win32;
-using SiMay.Core.Extensions;
-using SiMay.Core.Packets.RegEdit;
 
-namespace SiMay.Core.Common
+namespace SiMay.Core
 {
     public static class RegistryKeyHelper
     {

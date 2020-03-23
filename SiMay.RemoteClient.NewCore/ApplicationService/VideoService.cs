@@ -1,11 +1,6 @@
 ﻿using SiMay.Core;
 using SiMay.Core.PacketModelBinder.Attributes;
-using SiMay.Core.PacketModelBinding;
-using SiMay.Core.Packets;
 using SiMay.ServiceCore.Attributes;
-using SiMay.ServiceCore.Extensions;
-
-using SiMay.Sockets.Tcp;
 using SiMay.Sockets.Tcp.Session;
 using System;
 using System.Drawing;

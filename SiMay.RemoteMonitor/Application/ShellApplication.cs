@@ -1,7 +1,6 @@
 ﻿using SiMay.Core;
 using SiMay.RemoteControlsCore;
 using SiMay.RemoteControlsCore.HandlerAdapters;
-using SiMay.RemoteMonitor.Attributes;
 using System;
 using System.Net;
 using System.Windows.Forms;

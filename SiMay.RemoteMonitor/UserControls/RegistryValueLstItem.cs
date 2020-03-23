@@ -1,6 +1,4 @@
-﻿using SiMay.Core.Common;
-using SiMay.Core.Extensions;
-using SiMay.Core.Packets.RegEdit;
+﻿using SiMay.Core;
 using System.Windows.Forms;
 
 namespace SiMay.RemoteMonitor.UserControls

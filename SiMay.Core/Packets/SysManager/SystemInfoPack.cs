@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace SiMay.Core.Packets
+namespace SiMay.Core
 {
     public class ProcessListPack : EntitySerializerBase
     {
@@ -25,5 +25,11 @@ namespace SiMay.Core.Packets
     {
         public string ItemName { get; set; }
         public string Value { get; set; }
+    }
+
+    public class SystemSetWindowMaxPack : EntitySerializerBase
+    {
+        public int State { get; set; }
+        public int[] Handlers { get; set; }
     }
 }

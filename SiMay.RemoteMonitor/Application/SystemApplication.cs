@@ -1,9 +1,7 @@
 ﻿using SiMay.Basic;
 using SiMay.Core;
-using SiMay.Core.Packets;
 using SiMay.RemoteControlsCore;
 using SiMay.RemoteControlsCore.HandlerAdapters;
-using SiMay.RemoteMonitor.Attributes;
 using SiMay.RemoteMonitor.UserControls;
 using System;
 using System.Collections.Generic;
@@ -73,7 +71,7 @@ namespace SiMay.RemoteMonitor.Application
             this.GetSystemInfos();
         }
 
-        private void OnSessionsEventHandler(SystemAdapterHandler adapterHandler, IEnumerable<Core.Packets.SysManager.SessionItem> sessions)
+        private void OnSessionsEventHandler(SystemAdapterHandler adapterHandler, IEnumerable<SessionItem> sessions)
         {
             this.sessionsListView.Items.Clear();
             this.sessionsListView.Items.AddRange(sessions

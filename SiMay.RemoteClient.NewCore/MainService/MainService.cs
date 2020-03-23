@@ -1,29 +1,25 @@
-﻿using SiMay.Core;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using SiMay.Core.Enums;
-using SiMay.Core.Packets;
+using System.Net;
+using System.IO;
+using System.Drawing;
+using SiMay.Basic;
+using SiMay.Core;
 using SiMay.Sockets.Tcp;
 using SiMay.Sockets.Tcp.Client;
 using SiMay.Sockets.Tcp.Session;
 using SiMay.Sockets.Tcp.TcpConfiguration;
-using SiMay.Core.PacketModelBinder.Attributes;
-using SiMay.Basic;
-using System.Net;
-using System.IO;
-using SiMay.Core.Extensions;
 using SiMay.ServiceCore.Helper;
 using SiMay.ServiceCore.Attributes;
-using System.Drawing;
 using SiMay.RemoteService.Loader.Interface;
 using SiMay.RemoteService.Loader.Entitys;
-using System.Collections.Generic;
+using SiMay.Core.PacketModelBinder.Attributes;
 
-namespace SiMay.ServiceCore.MainService
+namespace SiMay.ServiceCore
 {
     public class MainService : MainApplicationService, IAppMainService
     {
@@ -37,7 +33,7 @@ namespace SiMay.ServiceCore.MainService
         /// </summary>
         private const int STATE_DISCONNECT = 0;
 
-        private int _sessionKeepSign = STATE_DISCONNECT;//主连接状态
+        private volatile int _sessionKeepSign = STATE_DISCONNECT;//主连接状态
 
         private bool _screenViewIsAction = false;
         private int _screen_record_height;
@@ -121,7 +117,7 @@ namespace SiMay.ServiceCore.MainService
             )
         {
             _clientAgent = clientAgent;
-            _sessionKeepSign = 1;//主连接状态
+            _sessionKeepSign = STATE_NORMAL;//主连接状态
             this.SetSession(session);
 
             session.AppTokens = new object[2]
@@ -318,13 +314,14 @@ namespace SiMay.ServiceCore.MainService
 
             //获取当前消息发送源主控端标识
             long accessId = this.GetAccessId(session);
-            var context = SysUtil.ControlTypes.FirstOrDefault(x => x.ServiceKey.Equals(key));
+            var context = SysUtil.APPServiceTypes.FirstOrDefault(x => x.ServiceKey.Equals(key));
             if (context != null)
             {
                 var serviceName = context.AppServiceType.GetCustomAttribute<ServiceNameAttribute>(true);
                 SystemMessageNotify.ShowTip($"正在进行远程操作:{(serviceName.IsNull() ? context.ServiceKey : serviceName.Name) }");
                 var appService = Activator.CreateInstance(context.AppServiceType, null) as ApplicationRemoteService;
                 appService.AppServiceKey = context.ServiceKey;
+                appService.Self = this;
                 appService.AccessId = accessId;
                 this.PostTaskToQueue(appService);
             }

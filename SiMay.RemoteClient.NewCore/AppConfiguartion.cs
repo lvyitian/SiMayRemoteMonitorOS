@@ -1,5 +1,4 @@
 ﻿using SiMay.Core;
-using SiMay.Core.AppConfig;
 using System;
 using System.Collections.Generic;
 using System.Linq;

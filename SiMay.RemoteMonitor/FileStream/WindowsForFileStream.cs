@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SiMay.RemoteMonitor.Application.FileCommon
+namespace SiMay.RemoteMonitor
 {
     public class WindowsForFileStream : IFileStream
     {

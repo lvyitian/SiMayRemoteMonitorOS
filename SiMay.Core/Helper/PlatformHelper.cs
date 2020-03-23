@@ -2,7 +2,7 @@
 using System.Management;
 using System.Text.RegularExpressions;
 
-namespace SiMay.Core.Common
+namespace SiMay.Core
 {
     public static class PlatformHelper
     {

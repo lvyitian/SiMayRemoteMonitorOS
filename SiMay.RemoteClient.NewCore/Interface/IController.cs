@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace SiMay.Core.Packets
+namespace SiMay.ServiceCore
 {
-    public class BasePacket
+    public interface IController
     {
     }
 }

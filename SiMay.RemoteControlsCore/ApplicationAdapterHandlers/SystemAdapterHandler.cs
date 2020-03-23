@@ -100,7 +100,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         private void SetProcessWindowState(int state, IEnumerable<int> pids)
         {
             SendTo(CurrentSession, MessageHead.S_SYSTEM_MAXIMIZE,
-                new SysWindowMaxPack()
+                new SystemSetWindowMaxPack()
                 {
                     State = state,
                     Handlers = pids.ToArray()

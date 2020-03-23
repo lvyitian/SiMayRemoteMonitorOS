@@ -12,7 +12,9 @@ namespace SiMay.Core
     {
         S_GLOBAL_ONCLOSE = 0,                              //关闭连接通道
         S_GLOBAL_OK,                                       //确认标志
+        S_GLOBAL_CALL_CONTROLLER,                          //调用控制子程序
         C_GLOBAL_CONNECT = 1000,                           //连接确认包，带连接密码
+        C_GLOBAL_CONTROLLER_RESULT,                        //控制子程序返回值
 
 
         //主窗体------------------------------------------------------------
@@ -194,9 +196,10 @@ namespace SiMay.Core
         C_STARTUP_LIST = 2000,                             //启动项列表
         C_STARTUP_OPER_RESPONSE,                           //操作结果
 
-        C_REMOTE_UPDATE_READY = 2000,                      //远程就绪
-        C_REMOTE_UPDATE_NEXT_DATA,                         //获取下一个文件数据
+        S_FILETRAN_CREATE_INOFO = 1000,                    //远程创建文件
+        S_FILETRAN_NEXT_DATA,                              //获取下一个文件数据
         
-        S_REMOTE_UPDATE_DATA,                              //文件数据
+        C_FILETRAN_GET_DATA = 1000,                        //文件数据
+        C_FILETRAN_TRAN_RESULT                             //传输结果
     }
 }

@@ -117,7 +117,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApplicationService\FileTransmissionService.cs" />
     <Compile Include="ApplicationService\RemoteUpdateService.cs" />
+    <Compile Include="Attributes\Action.cs" />
     <Compile Include="Attributes\ServiceName.cs" />
     <Compile Include="Attributes\ServiceKeyAttribute.cs" />
     <Compile Include="ApplicationService\RegistryEditorService.cs" />
@@ -125,9 +127,12 @@
     <Compile Include="ApplicationService\Registry\RegistrySeeker.cs" />
     <Compile Include="ApplicationService\StartupService.cs" />
     <Compile Include="ApplicationService\TcpConnectionService.cs" />
+    <Compile Include="Controller\UpdateController.cs" />
     <Compile Include="Entitys\EventList.cs" />
+    <Compile Include="Helper\ControllerModelHelper.cs" />
     <Compile Include="Helper\ImageExtensionHelper.cs" />
     <Compile Include="Helper\ServiceInstallerHelper.cs" />
+    <Compile Include="Interface\IController.cs" />
     <Compile Include="MainService\SystemSessionHelper.cs" />
     <Compile Include="ApplicationService\AForgeViedo.cs" />
     <Compile Include="AppConfiguartion.cs" />

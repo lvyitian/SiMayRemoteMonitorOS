@@ -1,11 +1,8 @@
 ﻿using SiMay.Core;
-using SiMay.RemoteMonitor.Attributes;
 using System;
 using System.Drawing;
 using System.IO;
 using SiMay.Basic;
-using SiMay.Core.Enums;
-using SiMay.Core.Packets;
 using System.Windows.Forms;
 using SiMay.RemoteControlsCore;
 using SiMay.RemoteControlsCore.Enum;
@@ -17,7 +14,6 @@ using System.Diagnostics;
 using Accord.Video.FFMPEG;
 using System.Threading;
 using System.Threading.Tasks;
-using SiMay.Core.ScreenSpy.Entitys;
 
 namespace SiMay.RemoteMonitor.Application
 {

@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SiMay.Basic;
 
-namespace SiMay.Core.Helper
+namespace SiMay.Core
 {
     public class FileTransmissionHelper
     {

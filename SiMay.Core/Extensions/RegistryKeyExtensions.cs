@@ -4,7 +4,7 @@ using System.Linq;
 using Microsoft.Win32;
 using SiMay.Core;
 
-namespace SiMay.Core.Extensions
+namespace SiMay.Core
 {
     public static class RegistryKeyExtensions
     {

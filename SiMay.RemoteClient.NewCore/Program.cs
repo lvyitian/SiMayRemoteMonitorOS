@@ -6,19 +6,11 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.IO;
 using SiMay.Core;
-using System.Net.Sockets;
-using System.Diagnostics;
-using SiMay.Sockets.Tcp.Client;
-using SiMay.Sockets.Tcp;
-using SiMay.Sockets.Delegate;
 using System.Text;
-using SiMay.Core.Entitys;
-using SiMay.Serialize;
 using SiMay.Basic;
 using System.Linq;
 using System.Reflection;
 using System.ServiceProcess;
-using SiMay.ServiceCore.MainService;
 using SiMay.Serialize.Standard;
 
 namespace SiMay.ServiceCore
@@ -83,7 +75,7 @@ namespace SiMay.ServiceCore
                     AccessKey = 5200,
                     ServiceVersion = "正式6.0",
                     RunTimeText = DateTime.Now.ToString(),
-                    UniqueId = "AAAAAAAAAAAAAAA11111111",
+                    UniqueId = "AAAAAAAAAAAAAAA11111111" + $"_{Environment.MachineName}",
                     ServiceName = "SiMayService",
                     ServiceDisplayName = "SiMay远程被控服务",
                     InstallService = false
@@ -145,7 +137,7 @@ namespace SiMay.ServiceCore
                 Application.ThreadException += Application_ThreadException;
                 try
                 {
-                    new MainService.MainService(startParameter);
+                    new MainService(startParameter);
                 }
                 catch (Exception ex)
                 {

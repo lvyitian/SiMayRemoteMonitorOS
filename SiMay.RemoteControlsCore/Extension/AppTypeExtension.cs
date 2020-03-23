@@ -19,6 +19,12 @@ namespace SiMay.RemoteControlsCore
             return attr.ApplicationKey;
         }
 
+        public static bool IsUnconventionalApp(this Type type)
+        {
+            var attr = type.GetCustomAttribute<UnconventionalAppAttribute>(true);
+            return attr != null;
+        }
+
         public static int GetRank(this Type type)
         {
             var attr = type.GetCustomAttribute<ApplicationAttribute>(true);

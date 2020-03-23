@@ -1,12 +1,11 @@
-﻿using SiMay.Core.Entitys;
-using System;
+﻿using System;
 using System.IO;
 using System.Net;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Xml;
 
-namespace SiMay.Core.Common
+namespace SiMay.Core
 {
     public static class GeoLocationHelper
     {

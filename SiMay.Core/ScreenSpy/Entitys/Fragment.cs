@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace SiMay.Core.ScreenSpy.Entitys
+namespace SiMay.Core
 {
     public class Fragment
     {

@@ -1,11 +1,10 @@
-﻿using SiMay.RemoteMonitor.Attributes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SiMay.Basic;
 
-namespace SiMay.RemoteMonitor.Extensions
+namespace SiMay.RemoteMonitor
 {
     public static class AppTypeExtension
     {

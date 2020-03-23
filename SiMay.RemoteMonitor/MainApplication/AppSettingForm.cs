@@ -1,7 +1,5 @@
 ﻿using SiMay.Basic;
 using SiMay.RemoteControlsCore;
-using SiMay.RemoteMonitor.Entitys;
-using SiMay.RemoteMonitor.Extensions;
 using System;
 using System.Linq;
 using System.Windows.Forms;
@@ -19,7 +17,7 @@ namespace SiMay.RemoteMonitor.MainApplication
 
         private void save_Click(object sender, EventArgs e)
         {
-            if (ip.Text == "" || port.Text == "" || connectLimitCount.Text == "" || conPwd.Text == "")
+            if (ip.Text == "" || port.Text == "" || connectLimitCount.Text == "" || accessKey.Text == "")
             {
                 MessageBoxHelper.ShowBoxExclamation("请正确完整填写设置,否则可能导致客户端上线失败!");
                 return;
@@ -28,11 +26,10 @@ namespace SiMay.RemoteMonitor.MainApplication
             AppConfiguration.IPAddress = ip.Text;
             AppConfiguration.Port = int.Parse(port.Text);
             AppConfiguration.MaxConnectCount = int.Parse(connectLimitCount.Text);
-            AppConfiguration.ConnectPassWord = conPwd.Text;
             AppConfiguration.DbClickViewExc = (funComboBox.Items[funComboBox.SelectedIndex] as KeyValueItem).Value;
             AppConfiguration.WindowMaximize = maximizeCheckBox.Checked;
             AppConfiguration.LockPassWord = pwdTextBox.Text;
-            AppConfiguration.AccessKey = accessKey.Text;
+            AppConfiguration.AccessKey = long.Parse(accessKey.Text);
             AppConfiguration.SessionMode = sessionModeList.SelectedIndex.ToString();
             AppConfiguration.ServiceIPAddress = txtservice_address.Text;
             AppConfiguration.ServicePort = int.Parse(txtservice_port.Text);
@@ -63,14 +60,13 @@ namespace SiMay.RemoteMonitor.MainApplication
             });
 
             if (funComboBox.SelectedIndex == -1)
-                funComboBox.Text = SysUtil.ApplicationTypes.First().Type.GetApplicationName();
+                funComboBox.Text = SysUtil.ApplicationTypes.First(c => !c.IsUnconventionalApp).Type.GetApplicationName();
 
             ip.Text = AppConfiguration.IPAddress;
-            conPwd.Text = AppConfiguration.ConnectPassWord;
             port.Text = AppConfiguration.Port.ToString();
             connectLimitCount.Text = AppConfiguration.MaxConnectCount.ToString();
             pwdTextBox.Text = AppConfiguration.LockPassWord;
-            accessKey.Text = AppConfiguration.AccessKey;
+            accessKey.Text = AppConfiguration.AccessKey.ToString();
             txtservice_address.Text = AppConfiguration.ServiceIPAddress;
             txtservice_port.Text = AppConfiguration.ServicePort.ToString();
             txtAccessId.Text = AppConfiguration.AccessId.ToString();

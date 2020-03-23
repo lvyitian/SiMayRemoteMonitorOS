@@ -103,10 +103,7 @@ namespace SiMay.Core.ScreenSpy
                         CurrentFrame = _originBitmap;
                 }
             }
-            catch (Exception ex)
-            {
-                LogHelper.WriteErrorByCurrentMethod(ex);
-            }
+            catch { }
         }
 
         private Rectangle GetScreenRectangle(Screen screen)

@@ -1,6 +1,5 @@
 ﻿using SiMay.Basic;
 using SiMay.Core;
-using SiMay.Core.AppConfig;
 using System.Collections.Generic;
 using System;
 using System.IO;
@@ -146,10 +145,10 @@ namespace SiMay.RemoteControlsCore
             get { return SysConfig.GetConfig("SessionMode"); }
             set { SysConfig.SetConfig("SessionMode", value); }
         }
-        public static string AccessKey
+        public static long AccessKey
         {
-            get { return SysConfig.GetConfig("AccessKey"); }
-            set { SysConfig.SetConfig("AccessKey", value); }
+            get { return long.Parse(SysConfig.GetConfig("AccessKey")); }
+            set { SysConfig.SetConfig("AccessKey", value.ToString()); }
         }
 
         public static string ServiceIPAddress

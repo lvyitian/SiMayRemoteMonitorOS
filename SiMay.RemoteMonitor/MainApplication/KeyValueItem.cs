@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SiMay.RemoteMonitor.Entitys
+namespace SiMay.RemoteMonitor
 {
     public class KeyValueItem
     {

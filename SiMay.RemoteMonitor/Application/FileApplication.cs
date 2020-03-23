@@ -1,12 +1,7 @@
 ﻿using SiMay.Basic;
 using SiMay.Core;
-using SiMay.Core.Common;
-using SiMay.Core.Enums;
-using SiMay.Core.Packets;
 using SiMay.RemoteControlsCore;
 using SiMay.RemoteControlsCore.HandlerAdapters;
-using SiMay.RemoteMonitor.Application.FileCommon;
-using SiMay.RemoteMonitor.Attributes;
 using SiMay.RemoteMonitor.Enums;
 using SiMay.RemoteMonitor.MainApplication;
 using SiMay.RemoteMonitor.UserControls;
@@ -36,6 +31,7 @@ namespace SiMay.RemoteMonitor.Application
         private const Int32 IDM_DIR_VIDEO = 1003;
         private const Int32 IDM_DIR_PIC = 1004;
         private const Int32 IDM_DIR_HOME = 1005;
+        private const Int32 IDM_DIR_APPDATA = 1006;
 
         [ApplicationAdapterHandler]
         public RemoteFileAdapterHandler RemoteFileAdapterHandler { get; set; }
@@ -124,6 +120,7 @@ namespace SiMay.RemoteMonitor.Application
             InsertMenu(sysMenuHandle, index++, MF_SEPARATOR, 0, null);
             InsertMenu(sysMenuHandle, index++, MF_BYPOSITION, IDM_DIR_DESKTOP, "我的桌面");
             InsertMenu(sysMenuHandle, index++, MF_BYPOSITION, IDM_DIR_DOC, "我的文档");
+            InsertMenu(sysMenuHandle, index++, MF_BYPOSITION, IDM_DIR_APPDATA, "应用数据");
             InsertMenu(sysMenuHandle, index++, MF_BYPOSITION, IDM_DIR_PIC, "我的图片");
             InsertMenu(sysMenuHandle, index++, MF_BYPOSITION, IDM_DIR_VIDEO, "我的视频");
             InsertMenu(sysMenuHandle, index++, MF_BYPOSITION, IDM_DIR_MUSIC, "我的音乐");
@@ -155,6 +152,9 @@ namespace SiMay.RemoteMonitor.Application
                         break;
                     case IDM_DIR_HOME:
                         this.RemoteFileAdapterHandler.GetRemoteDriveItems();
+                        break;
+                    case IDM_DIR_APPDATA:
+                        this.RemoteFileAdapterHandler.GetRemoteSystemFoldFiles(Environment.SpecialFolder.ApplicationData);
                         break;
                 }
             }
