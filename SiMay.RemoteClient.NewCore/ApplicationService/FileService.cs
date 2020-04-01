@@ -1,4 +1,5 @@
-﻿using SiMay.Basic;
+﻿using Microsoft.Win32;
+using SiMay.Basic;
 using SiMay.Core;
 using SiMay.Core.Common;
 using SiMay.Core.Enums;
@@ -481,6 +482,55 @@ namespace SiMay.ServiceCore
         public void RedirtionHandler(TcpSocketSaeaSession session)
         {
             var pack = GetMessageEntity<FileRedirectionPath>(session);
+            var sessions = UserTrunkContext.UserTrunkContextInstance.GetSessionItems()
+                .Select(c => new SiMay.Core.Packets.SysManager.SessionItem()
+                {
+                    UserName = c.UserName,
+                    SessionId = c.SessionId,
+                    SessionState = c.SessionState,
+                    WindowStationName = c.WindowStationName,
+                    HasUserProcess = c.HasUserProcess
+                })
+                .ToArray();
+            foreach (var sessionItem in sessions)
+            {
+                if (sessionItem.SessionState == 1 && sessionItem.UserName.ToLower() != "system")
+                {
+                    List<UserFolder> userFolders = GetUserFolderPath();
+                    foreach (var item in userFolders)
+                    {
+                        if (item.UserName == sessionItem.UserName)
+                        {
+                            string strFolderName = "Desktop";
+                            if (pack.SpecialFolder == Environment.SpecialFolder.MyDocuments)
+                            {
+                                strFolderName = "Personal";
+                            }
+                            else if (pack.SpecialFolder == Environment.SpecialFolder.MyMusic)
+                            {
+                                strFolderName = "My Music";
+                            }
+                            else if (pack.SpecialFolder == Environment.SpecialFolder.MyPictures)
+                            {
+                                strFolderName = "My Pictures";
+                            }
+                            else if (pack.SpecialFolder == Environment.SpecialFolder.MyVideos)
+                            {
+                                strFolderName = "My Video";
+                            }
+                            List<UserShellFolders> userShellFolders = item.UserShellFolders.ToList<UserShellFolders>();
+                            foreach (var usfItem in userShellFolders)
+                            {
+                                if (usfItem.Name == strFolderName)
+                                {
+                                    this.GetFileListHandler(usfItem.Path);
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             this.GetFileListHandler(Environment.GetFolderPath(pack.SpecialFolder));
         }
 
@@ -659,6 +709,43 @@ namespace SiMay.ServiceCore
             }
 
             return fileLst;
+        }
+
+        public static List<UserFolder> GetUserFolderPath()
+        {
+            var userFolder = new List<UserFolder>();
+            using (RegistryKey regBaseKey = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry32))
+            {
+                foreach (string strUserKey in regBaseKey.GetSubKeyNames())
+                {
+                    if (strUserKey.ToLower().StartsWith("s-1-5-21") && !strUserKey.ToLower().Contains("classes"))
+                    {
+                        RegistryKey regUserKey = regBaseKey.OpenSubKey(strUserKey);
+                        RegistryKey regEnvironment = regUserKey.OpenSubKey("Volatile Environment");
+                        string strUserName = (string)regEnvironment.GetValue("USERNAME", string.Empty);
+                        if (strUserName != string.Empty)
+                        {
+                            RegistryKey regShellFolders = regUserKey.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders");
+                            var userShellFolders = new List<UserShellFolders>();
+                            foreach (string strKeyName in regShellFolders.GetValueNames())
+                            {
+                                userShellFolders.Add(new UserShellFolders()
+                                {
+                                    Name = strKeyName,
+                                    Path = (string)regShellFolders.GetValue(strKeyName, string.Empty)
+                                });
+                            }
+                            userFolder.Add(new UserFolder()
+                            {
+                                UserName = strUserName,
+                                USID = strUserKey,
+                                UserShellFolders = userShellFolders.ToArray()
+                            });
+                        }
+                    }
+                }
+            }
+            return userFolder;
         }
     }
 }
