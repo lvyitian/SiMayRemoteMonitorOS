@@ -152,6 +152,7 @@
     <Compile Include="Packets\SysManager\UninstallInfo.cs" />
     <Compile Include="Packets\TcpConnection\TcpConnectionItem.cs" />
     <Compile Include="Packets\TcpConnection\TcpConnectionPack.cs" />
+    <Compile Include="Packets\UserFolder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScreenSpy\Capturer\BitBltCapture.cs" />
     <Compile Include="ScreenSpy\Interface\ICapturer.cs" />
