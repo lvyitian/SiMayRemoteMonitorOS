@@ -482,55 +482,25 @@ namespace SiMay.ServiceCore
         public void RedirtionHandler(TcpSocketSaeaSession session)
         {
             var pack = GetMessageEntity<FileRedirectionPath>(session);
-            var sessions = UserTrunkContext.UserTrunkContextInstance.GetSessionItems()
-                .Select(c => new SiMay.Core.Packets.SysManager.SessionItem()
-                {
-                    UserName = c.UserName,
-                    SessionId = c.SessionId,
-                    SessionState = c.SessionState,
-                    WindowStationName = c.WindowStationName,
-                    HasUserProcess = c.HasUserProcess
-                })
-                .ToArray();
-            foreach (var sessionItem in sessions)
+            try
             {
-                if (sessionItem.HasUserProcess && sessionItem.UserName.ToLower() != "system")
-                {
-                    List<UserFolder> userFolders = GetUserFolderPath();
-                    foreach (var item in userFolders)
-                    {
-                        if (item.UserName == sessionItem.UserName)
-                        {
-                            string strFolderName = "Desktop";
-                            if (pack.SpecialFolder == Environment.SpecialFolder.MyDocuments)
-                            {
-                                strFolderName = "Personal";
-                            }
-                            else if (pack.SpecialFolder == Environment.SpecialFolder.MyMusic)
-                            {
-                                strFolderName = "My Music";
-                            }
-                            else if (pack.SpecialFolder == Environment.SpecialFolder.MyPictures)
-                            {
-                                strFolderName = "My Pictures";
-                            }
-                            else if (pack.SpecialFolder == Environment.SpecialFolder.MyVideos)
-                            {
-                                strFolderName = "My Video";
-                            }
-                            List<UserShellFolders> userShellFolders = item.UserShellFolders.ToList<UserShellFolders>();
-                            foreach (var usfItem in userShellFolders)
-                            {
-                                if (usfItem.Name == strFolderName)
-                                {
-                                    this.GetFileListHandler(usfItem.Path);
-                                    return;
-                                }
-                            }
-                        }
-                    }
-                }
+                var userShellFolderPath = GetUserFolderPath()
+                    .Where(c => c.UserName == UserTrunkContext.UserTrunkContextInstance.GetSessionItems()
+                                              .Select(c => new Core.Packets.SysManager.SessionItem()
+                                              {
+                                                  UserName = c.UserName,
+                                                  HasUserProcess = c.HasUserProcess
+                                              })
+                                              .Where(c => c.HasUserProcess == true && c.UserName.ToLower() != "system")
+                                              .ToArray()[0].UserName)
+                    .ToArray()[0].UserShellFolders
+                        .Where(s => s.Name == FolderName(pack.SpecialFolder))
+                        .ToArray()[0].Path;
+                
+                this.GetFileListHandler(userShellFolderPath);
+                return;
             }
+            catch (Exception ex) { LogHelper.WriteErrorByCurrentMethod(ex); }
             this.GetFileListHandler(Environment.GetFolderPath(pack.SpecialFolder));
         }
 
@@ -710,7 +680,59 @@ namespace SiMay.ServiceCore
 
             return fileLst;
         }
-
+        public static string FolderName(Environment.SpecialFolder specialFolder)
+        {
+            return specialFolder switch
+            {
+                Environment.SpecialFolder.ApplicationData => "AppData",
+                Environment.SpecialFolder.CommonApplicationData => "",
+                Environment.SpecialFolder.LocalApplicationData => "Local AppData",
+                Environment.SpecialFolder.Cookies => "Cookies",
+                Environment.SpecialFolder.Desktop => "Desktop",
+                Environment.SpecialFolder.Favorites => "Favorites",
+                Environment.SpecialFolder.History => "History",
+                Environment.SpecialFolder.InternetCache => "Cache",
+                Environment.SpecialFolder.Programs => "",
+                Environment.SpecialFolder.MyComputer => "",
+                Environment.SpecialFolder.MyMusic => "My Music",
+                Environment.SpecialFolder.MyPictures => "My Pictures",
+                Environment.SpecialFolder.MyVideos => "My Video",
+                Environment.SpecialFolder.Recent => "Recent",
+                Environment.SpecialFolder.SendTo => "SendTo",
+                Environment.SpecialFolder.StartMenu => "Start Menu",
+                Environment.SpecialFolder.Startup => "Startup",
+                Environment.SpecialFolder.System => "",
+                Environment.SpecialFolder.Templates => "Templates",
+                Environment.SpecialFolder.DesktopDirectory => "Desktop",
+                Environment.SpecialFolder.MyDocuments => "Personal",
+                Environment.SpecialFolder.ProgramFiles => "",
+                Environment.SpecialFolder.CommonProgramFiles => "",
+                Environment.SpecialFolder.AdminTools => "",
+                Environment.SpecialFolder.CDBurning => "",
+                Environment.SpecialFolder.CommonAdminTools => "",
+                Environment.SpecialFolder.CommonDocuments => "",
+                Environment.SpecialFolder.CommonMusic => "",
+                Environment.SpecialFolder.CommonOemLinks => "",
+                Environment.SpecialFolder.CommonPictures => "",
+                Environment.SpecialFolder.CommonStartMenu => "",
+                Environment.SpecialFolder.CommonPrograms => "",
+                Environment.SpecialFolder.CommonStartup => "",
+                Environment.SpecialFolder.CommonDesktopDirectory => "",
+                Environment.SpecialFolder.CommonTemplates => "",
+                Environment.SpecialFolder.CommonVideos => "",
+                Environment.SpecialFolder.Fonts => "",
+                Environment.SpecialFolder.NetworkShortcuts => "",
+                Environment.SpecialFolder.PrinterShortcuts => "",
+                Environment.SpecialFolder.UserProfile => "",
+                Environment.SpecialFolder.CommonProgramFilesX86 => "",
+                Environment.SpecialFolder.ProgramFilesX86 => "",
+                Environment.SpecialFolder.Resources => "",
+                Environment.SpecialFolder.LocalizedResources => "",
+                Environment.SpecialFolder.SystemX86 => "",
+                Environment.SpecialFolder.Windows => "",
+                _ => "",
+            };
+        }
         public static List<UserFolder> GetUserFolderPath()
         {
             var userFolder = new List<UserFolder>();
