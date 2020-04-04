@@ -494,7 +494,7 @@ namespace SiMay.ServiceCore
                 .ToArray();
             foreach (var sessionItem in sessions)
             {
-                if (sessionItem.SessionState == 1 && sessionItem.UserName.ToLower() != "system")
+                if (sessionItem.HasUserProcess && sessionItem.UserName.ToLower() != "system")
                 {
                     List<UserFolder> userFolders = GetUserFolderPath();
                     foreach (var item in userFolders)
