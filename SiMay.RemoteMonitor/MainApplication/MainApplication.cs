@@ -925,7 +925,7 @@ namespace SiMay.RemoteMonitor.MainApplication
 
                     this.GetSelectedListItem().ForEach(c =>
                     {
-                        this._appMainAdapterHandler.RemoteActiveService(c.SessionSyncContext,AppJobConstant.);
+                        this._appMainAdapterHandler.RemoteActiveService(c.SessionSyncContext,AppJobConstant.REMOTE_REMOTE_UPDATE);
                     }));
             }
             _serviceUpdateDialog.TopMost = true;

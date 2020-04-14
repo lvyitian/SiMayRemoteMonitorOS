@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
 using SiMay.Core;
-using SiMay.Core.Common;
-using SiMay.Core.Packets.RegEdit;
 
 namespace SiMay.RemoteMonitor.Application
 {

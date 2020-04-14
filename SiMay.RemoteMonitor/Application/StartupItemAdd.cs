@@ -1,6 +1,4 @@
-﻿using SiMay.Core.Common;
-using SiMay.Core.Enums;
-using SiMay.Core.Packets.Startup;
+﻿using SiMay.Core;
 using System;
 using System.IO;
 using System.Windows.Forms;

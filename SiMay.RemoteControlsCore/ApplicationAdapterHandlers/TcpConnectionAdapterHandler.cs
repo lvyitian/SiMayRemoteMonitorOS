@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using SiMay.Core;
 using SiMay.Core.PacketModelBinder.Attributes;
 using SiMay.Core.PacketModelBinding;
-using SiMay.Core.Packets.TcpConnection;
 using SiMay.Net.SessionProvider;
 
 namespace SiMay.RemoteControlsCore.HandlerAdapters

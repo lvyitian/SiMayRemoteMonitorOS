@@ -1,5 +1,5 @@
-﻿using SiMay.Core.Common;
-using SiMay.Basic;
+﻿using SiMay.Basic;
+using SiMay.Core;
 using SiMay.RemoteMonitor.Enums;
 using System;
 using System.Collections.Generic;

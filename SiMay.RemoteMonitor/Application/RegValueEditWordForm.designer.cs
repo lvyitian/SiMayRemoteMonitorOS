@@ -1,4 +1,4 @@
-﻿using SiMay.Core.Enums;
+﻿using SiMay.Core;
 using SiMay.RemoteMonitor.UserControls;
 
 namespace SiMay.RemoteMonitor.Application
@@ -145,7 +145,7 @@ namespace SiMay.RemoteMonitor.Application
             this.valueDataTxtBox.Size = new System.Drawing.Size(161, 21);
             this.valueDataTxtBox.TabIndex = 0;
             this.valueDataTxtBox.Text = "0";
-            this.valueDataTxtBox.Type = SiMay.Core.Enums.WordType.DWORD;
+            this.valueDataTxtBox.Type = WordType.DWORD;
             // 
             // RegValueEditWordForm
             // 

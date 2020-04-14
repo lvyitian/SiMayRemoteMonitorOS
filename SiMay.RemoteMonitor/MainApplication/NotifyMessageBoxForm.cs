@@ -2,7 +2,6 @@
 using System.Windows.Forms;
 using SiMay.Basic;
 using SiMay.Core;
-using SiMay.Core.Enums;
 
 namespace SiMay.RemoteMonitor.MainApplication
 {

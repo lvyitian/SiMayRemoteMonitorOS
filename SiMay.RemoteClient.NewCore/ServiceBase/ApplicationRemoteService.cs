@@ -1,6 +1,7 @@
 ﻿using SiMay.Basic;
 using SiMay.Core;
 using SiMay.Core.PacketModelBinder.Attributes;
+using SiMay.Serialize.Standard;
 using SiMay.Sockets.Tcp.Session;
 using System;
 using System.Collections.Generic;
@@ -38,10 +39,14 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_GLOBAL_CALL_CONTROLLER)]
         public void InvokeCustomeControllerHandler(TcpSocketSaeaSession session)
         {
-            var callParameterPacket = GetMessageEntity<InvokerResponseControllerPacket>(CurrentSession);
+            var callParameterPacket = GetMessageEntity<InvokerControllerPacket>(CurrentSession);
             var result = ControllerModelHelper.Invoker(callParameterPacket.ControllerRoute, callParameterPacket.DataPacketTypeFullName, callParameterPacket.PacketData);
             if (!result.IsNull())
-                SendTo(CurrentSession, MessageHead.C_GLOBAL_CONTROLLER_RESULT, result);
+                SendTo(CurrentSession, MessageHead.C_GLOBAL_CONTROLLER_RESULT, new InvokerResponsePacket()
+                {
+                    ControllerRoute = callParameterPacket.ControllerRoute,
+                    PacketData = PacketSerializeHelper.SerializePacket(result)
+                });
         }
 
         [PacketHandler(MessageHead.S_GLOBAL_OK)]

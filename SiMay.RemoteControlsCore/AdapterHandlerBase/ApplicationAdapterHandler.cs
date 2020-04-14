@@ -69,7 +69,7 @@ namespace SiMay.RemoteControlsCore
 
         public void InvokerController(string route, object packet)
             => SendTo(CurrentSession, MessageHead.S_GLOBAL_CALL_CONTROLLER,
-                new InvokerResponseControllerPacket()
+                new InvokerControllerPacket()
                 {
                     ControllerRoute = route,
                     DataPacketTypeFullName = packet.GetType().FullName,

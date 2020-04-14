@@ -17,7 +17,7 @@ namespace SiMay.ServiceCore
             var controllerName = route.Split('/')[0];
             var targetMethodName = route.Split('/')[1];
 
-            IList<object> parameters = new List<object>();
+            var parameters = new List<object>();
             if (packetTypeFullName.IsNullOrEmpty())
             {
                 var type = Type.GetType(packetTypeFullName);

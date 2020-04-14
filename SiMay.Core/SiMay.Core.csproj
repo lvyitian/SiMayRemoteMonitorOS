@@ -121,7 +121,7 @@
     <Compile Include="Packets\RegEdit\RegValueData.cs" />
     <Compile Include="Packets\RemoteUpdatePack.cs" />
     <Compile Include="Packets\RemoteUpdate\DataPacket.cs" />
-    <Compile Include="Packets\InvokerResponseControllerPacket.cs" />
+    <Compile Include="Packets\InvokerControllerPacket.cs" />
     <Compile Include="Packets\Screen\MonitorChangePack.cs" />
     <Compile Include="Packets\Screen\ScreenBitInfoPack.cs" />
     <Compile Include="Packets\Screen\ScreenClipoardValuePack.cs" />

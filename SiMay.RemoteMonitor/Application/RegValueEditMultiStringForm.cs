@@ -1,5 +1,4 @@
 ﻿using SiMay.Core;
-using SiMay.Core.Packets.RegEdit;
 using System;
 using System.Windows.Forms;
 

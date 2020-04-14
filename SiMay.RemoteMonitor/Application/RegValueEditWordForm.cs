@@ -2,8 +2,6 @@
 using System.Windows.Forms;
 using Microsoft.Win32;
 using SiMay.Core;
-using SiMay.Core.Enums;
-using SiMay.Core.Packets.RegEdit;
 
 namespace SiMay.RemoteMonitor.Application
 {

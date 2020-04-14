@@ -1,7 +1,7 @@
-﻿using System;
+﻿using SiMay.Core;
+using System;
 using System.Globalization;
 using System.Windows.Forms;
-using SiMay.Core.Enums;
 
 namespace SiMay.RemoteMonitor.UserControls
 {
