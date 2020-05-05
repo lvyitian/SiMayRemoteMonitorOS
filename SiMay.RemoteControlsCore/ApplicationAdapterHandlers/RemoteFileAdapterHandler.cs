@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using SiMay.Basic;
 using SiMay.Core;
-using SiMay.Core.PacketModelBinder.Attributes;
 using SiMay.Net.SessionProvider;
 using SiMay.Serialize.Standard;
 

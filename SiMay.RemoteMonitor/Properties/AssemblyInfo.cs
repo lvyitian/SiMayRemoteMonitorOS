@@ -32,17 +32,5 @@ using System.Runtime.InteropServices;
 // 可以指定所有这些值，也可以使用“生成号”和“修订号”的默认值，
 // 方法是按如下所示使用“*”: 
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("6.0.1.4")]
-[assembly: AssemblyFileVersion("6.0.1.4")]
-//6.0.0.1
-//重构中间服务，通讯协议升级
-//支持多主控端同时实时控制被控服务
-
-//6.0.0.2~3 主要针对稳定性的更新
-//修复二进制序列化问题
-//修复文件传输问题
-//修复屏幕视图同步问题
-
-//6.0.1.4 2020/3/15更新
-//修复守护服务不会重启被控服务问题
-//远程批量更新
+[assembly: AssemblyVersion("6.0.0.2")]
+[assembly: AssemblyFileVersion("6.0.0.2")]

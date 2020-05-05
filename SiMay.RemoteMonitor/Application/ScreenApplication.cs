@@ -1,4 +1,5 @@
 ﻿using SiMay.Core;
+using SiMay.RemoteMonitor.Attributes;
 using System;
 using System.Drawing;
 using System.IO;
@@ -14,6 +15,7 @@ using System.Diagnostics;
 using Accord.Video.FFMPEG;
 using System.Threading;
 using System.Threading.Tasks;
+using SiMay.Platform.Windows;
 
 namespace SiMay.RemoteMonitor.Application
 {

@@ -1,4 +1,5 @@
-﻿using SiMay.Core;
+﻿using SiMay.Platform.Windows;
+using SiMay.RemoteMonitor;
 using System;
 using System.Windows.Forms;
 

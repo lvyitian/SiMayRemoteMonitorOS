@@ -81,11 +81,20 @@
       <HintPath>..\packages\Accord.Video.FFMPEG.3.8.0\lib\net46\Accord.Video.FFMPEG.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Win32.Registry, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Win32.Registry.4.7.0\lib\net461\Microsoft.Win32.Registry.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Design" />
     <Reference Include="System.Management" />
     <Reference Include="System.Net" />
+    <Reference Include="System.Security.AccessControl, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.AccessControl.4.7.0\lib\net461\System.Security.AccessControl.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Principal.Windows, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Principal.Windows.4.7.0\lib\net461\System.Security.Principal.Windows.dll</HintPath>
+    </Reference>
     <Reference Include="System.Transactions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -102,7 +111,7 @@
     <Compile Include="Application\FileApplication.Designer.cs">
       <DependentUpon>FileApplication.cs</DependentUpon>
     </Compile>
-    <Compile Include="FileStream\WindowsForFileStream.cs" />
+    <Compile Include="Application\FileCommon\WindowsForFileStream.cs" />
     <Compile Include="Application\ScreenMonitorChangeForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -166,7 +175,8 @@
     <Compile Include="Application\TcpConnectionApplication.designer.cs">
       <DependentUpon>TcpConnectionApplication.cs</DependentUpon>
     </Compile>
-    <Compile Include="MainApplication\KeyValueItem.cs" />
+    <Compile Include="Entitys\KeyValueItem.cs" />
+    <Compile Include="Helper\KeygenHelper.cs" />
     <Compile Include="Helper\ListViewSortHelper.cs" />
     <Compile Include="Enums\FileItemType.cs" />
     <Compile Include="Extensions\ListViewExtensions.cs" />
@@ -185,12 +195,8 @@
     <Compile Include="MainApplication\RemoteUpdateServiceForm.Designer.cs">
       <DependentUpon>RemoteUpdateServiceForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="UnconventionalApplication\RemoteUpdateApplication.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="UnconventionalApplication\RemoteUpdateApplication.Designer.cs">
-      <DependentUpon>RemoteUpdateApplication.cs</DependentUpon>
-    </Compile>
+    <Compile Include="SystemConfig.cs" />
+    <Compile Include="UnconventionalApplication\RemoteUpdateApplication.cs" />
     <Compile Include="UserControls\FileListViewItem.cs" />
     <Compile Include="SysConstantsExtend.cs" />
     <Compile Include="Extensions\AppTypeExtension.cs" />
@@ -451,9 +457,6 @@
     <EmbeddedResource Include="Application\SystemApplication.resx">
       <DependentUpon>SystemApplication.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UnconventionalApplication\RemoteUpdateApplication.resx">
-      <DependentUpon>RemoteUpdateApplication.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="UserControls\UDesktopView.resx">
       <DependentUpon>UDesktopView.cs</DependentUpon>
     </EmbeddedResource>
@@ -524,13 +527,17 @@
       <Project>{8f2f35cb-d5ee-4d92-b42f-bcffbf9c9d4f}</Project>
       <Name>SiMay.Basic</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SiMay.Core\SiMay.Core.csproj">
-      <Project>{1aadc6f7-6ff9-4c68-8a26-e507f22b9060}</Project>
-      <Name>SiMay.Core</Name>
+    <ProjectReference Include="..\SiMay.Core.Standard\SiMay.Core.Standard.csproj">
+      <Project>{48F71FA4-BDA3-4B2D-BC07-9F24CB9A6FB5}</Project>
+      <Name>SiMay.Core.Standard</Name>
     </ProjectReference>
     <ProjectReference Include="..\SiMay.Net.SessionProvider\SiMay.Net.SessionProvider.csproj">
       <Project>{71283236-56cb-481e-a644-b7f9af9efdf9}</Project>
       <Name>SiMay.Net.SessionProvider</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SiMay.Platform.Windows\SiMay.Platform.Windows.csproj">
+      <Project>{b8b6a5bd-5349-4114-b93c-c1a3fd028f66}</Project>
+      <Name>SiMay.Platform.Windows</Name>
     </ProjectReference>
     <ProjectReference Include="..\SiMay.RemoteControlsCore\SiMay.RemoteControlsCore.csproj">
       <Project>{44dfa13c-03c3-4f07-9d78-30f981bfabc5}</Project>

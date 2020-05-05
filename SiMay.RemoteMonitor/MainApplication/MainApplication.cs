@@ -4,7 +4,6 @@ using SiMay.Net.SessionProvider;
 using SiMay.RemoteControlsCore;
 using SiMay.RemoteMonitor.Extensions;
 using SiMay.RemoteMonitor.Properties;
-using SiMay.RemoteMonitor.UnconventionalApplication;
 using SiMay.RemoteMonitor.UserControls;
 using System;
 using System.Collections.Generic;
@@ -41,13 +40,12 @@ namespace SiMay.RemoteMonitor.MainApplication
         private Color _closeScreenColor = Color.FromArgb(127, 175, 219);
         private ImageList _imgList;
 
-        private RemoteUpdateServiceForm _serviceUpdateDialog;
-        private MainApplicationAdapterHandler _appMainAdapterHandler = new MainApplicationAdapterHandler();
+        private MainApplicationAdapterHandler _appMainAdapterHandler = new MainApplicationAdapterHandler(new SystemAppConfig());
         private void MainApplication_Load(object sender, EventArgs e)
         {
             this.ViewOnAdaptiveHandler();
             this.OnLoadConfiguration();
-            this.RegisterMessageHandler();
+            this.RegisterMessageHandler(); 
         }
 
         /// <summary>
@@ -257,12 +255,9 @@ namespace SiMay.RemoteMonitor.MainApplication
             this._appMainAdapterHandler.StartApp();
         }
 
-        private bool OnApplicationCreatedEventHandler(IApplication app)
+        private void OnApplicationCreatedEventHandler(IApplication app)
         {
-            if (app is RemoteUpdateApplication remoteUpdateApplication)
-                remoteUpdateApplication.SetParameter(_serviceUpdateDialog.updateList);
 
-            return true;
         }
 
         private void OnLoginUpdateHandlerEvent(SessionSyncContext syncContext)
@@ -358,10 +353,9 @@ namespace SiMay.RemoteMonitor.MainApplication
                     break;
                 case ProxyProviderNotify.LogOut:
                     if (MessageBox.Show($"{arg.ConvertTo<LogOutEventArgs>().Message},本次连接已自动关闭,是否重新连接?", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly) == DialogResult.OK)
-                        this._appMainAdapterHandler.StartService();
-                    break;
-                case ProxyProviderNotify.LogInput:
-                    this.WriteRuninglog(arg.ConvertTo<LogInputEventArg>().Message, "error");
+                    {
+                        this._appMainAdapterHandler.StartApp();
+                    }
                     break;
             }
         }
@@ -919,17 +913,16 @@ namespace SiMay.RemoteMonitor.MainApplication
 
         private void UpdateClient_Click(object sender, EventArgs e)
         {
-            if (_serviceUpdateDialog.IsNull())
+            using (var dlg = new RemoteUpdateServiceForm())
             {
-                _serviceUpdateDialog = new RemoteUpdateServiceForm(() =>
-
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
                     this.GetSelectedListItem().ForEach(c =>
                     {
-                        this._appMainAdapterHandler.RemoteActiveService(c.SessionSyncContext,AppJobConstant.REMOTE_REMOTE_UPDATE);
-                    }));
+                        this._appMainAdapterHandler.RemoteServiceUpdate(c.SessionSyncContext, dlg.UrlOrFileUpdate, File.ReadAllBytes(dlg.Value), dlg.Value);
+                    });
+                }
             }
-            _serviceUpdateDialog.TopMost = true;
-            _serviceUpdateDialog.Show();
         }
 
         private void ToolStripMenuItem8_Click(object sender, EventArgs e)

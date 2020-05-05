@@ -1,7 +1,6 @@
 ﻿using Microsoft.VisualBasic.Devices;
 using SiMay.Basic;
 using SiMay.Core;
-using SiMay.Core.PacketModelBinder.Attributes;
 using SiMay.ServiceCore.Attributes;
 using SiMay.ServiceCore.Helper;
 using SiMay.Sockets.Tcp.Session;
@@ -49,7 +48,7 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_SYSTEM_MAXIMIZE)]
         public void SetWindowState(TcpSocketSaeaSession session)
         {
-            var pack = GetMessageEntity<SystemSetWindowMaxPack>(session);
+            var pack = GetMessageEntity<SysWindowMaxPack>(session);
             int[] handlers = pack.Handlers;
             int state = pack.State;
 
@@ -83,9 +82,8 @@ namespace SiMay.ServiceCore
 
         private void SendSessionItem()
         {
-            var sessions = UserTrunkContext.UserTrunkContextInstance
-                .GetSessionItems()
-                .Select(c => new SessionItem()
+            var sessions = UserTrunkContext.UserTrunkContextInstance.GetSessionItems()
+                .Select(c => new  Core.SessionItem()
                 {
                     UserName = c.UserName,
                     SessionId = c.SessionId,

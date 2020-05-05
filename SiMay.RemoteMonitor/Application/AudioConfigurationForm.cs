@@ -1,4 +1,5 @@
 ﻿using SiMay.RemoteControlsCore;
+using SiMay.RemoteMonitor.Attributes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 
-namespace SiMay.ServiceCore
+namespace SiMay.ServiceCore.MainService
 {
     public class ServiceTaskQueue : ConcurrentQueue<ApplicationRemoteService>
     {

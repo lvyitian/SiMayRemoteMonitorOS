@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using SiMay.Basic;
 using SiMay.Sockets.Tcp;
 using SiMay.Sockets.Tcp.Client;
@@ -132,7 +133,28 @@ namespace SiMay.Net.SessionProvider.Providers
         }
 
         private void ProxyMainConnectionSessionNotify(TcpProxyApplicationConnectionContext proxyContext, TcpSessionNotify type)
-            => this.SessionNotify(proxyContext, type);
+        {
+            this.SessionNotify(proxyContext, type);
+
+            //switch (type)
+            //{
+            //    case TcpSessionNotify.OnConnected:
+            //        this.SessionNotify(proxyContext, TcpSessionNotify.OnConnected);
+            //        break;
+            //    case TcpSessionNotify.OnSend:
+            //        this.SessionNotify(proxyContext, TcpSessionNotify.OnSend);
+            //        break;
+            //    case TcpSessionNotify.OnDataReceiveing:
+            //        this.SessionNotify(proxyContext, TcpSessionNotify.OnDataReceiveing);
+            //        break;
+            //    case TcpSessionNotify.OnDataReceived:
+            //        this.SessionNotify(proxyContext, TcpSessionNotify.OnDataReceived);
+            //        break;
+            //    case TcpSessionNotify.OnClosed:
+            //        this.SessionNotify(proxyContext, TcpSessionNotify.OnClosed);
+            //        break;
+            //}
+        }
 
         private void OnSend(TcpSocketSaeaSession session)
         {
@@ -200,7 +222,6 @@ namespace SiMay.Net.SessionProvider.Providers
                     timer.Interval = 5000;
                     timer.Elapsed += (s, e) =>
                     {
-                        this.ProxyProviderNotify(Net.SessionProvider.ProxyProviderNotify.LogInput, new LogInputEventArg("中间会话代理服务器连接失败，正在尝试重新连接.."));
                         this._clientAgent.ConnectToServer(ApplicationConfiguartion.Options.ServiceIPEndPoint);
 
                         timer.Stop();

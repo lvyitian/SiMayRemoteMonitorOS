@@ -408,8 +408,8 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.splitContainer);
-            this.splitContainer1.Size = new System.Drawing.Size(1376, 786);
-            this.splitContainer1.SplitterDistance = 567;
+            this.splitContainer1.Size = new System.Drawing.Size(1476, 825);
+            this.splitContainer1.SplitterDistance = 596;
             this.splitContainer1.SplitterWidth = 1;
             this.splitContainer1.TabIndex = 7;
             // 
@@ -421,7 +421,7 @@
             this.desktopViewLayout.Location = new System.Drawing.Point(0, 0);
             this.desktopViewLayout.Margin = new System.Windows.Forms.Padding(0);
             this.desktopViewLayout.Name = "desktopViewLayout";
-            this.desktopViewLayout.Size = new System.Drawing.Size(1376, 537);
+            this.desktopViewLayout.Size = new System.Drawing.Size(1476, 566);
             this.desktopViewLayout.TabIndex = 3;
             this.desktopViewLayout.Resize += new System.EventHandler(this.desktopViewLayout_Resize);
             // 
@@ -440,17 +440,17 @@
             this.panel1.Controls.Add(this.label1);
             this.panel1.Controls.Add(this.rowtrackBar);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(0, 537);
+            this.panel1.Location = new System.Drawing.Point(0, 566);
             this.panel1.Margin = new System.Windows.Forms.Padding(4);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1376, 30);
+            this.panel1.Size = new System.Drawing.Size(1476, 30);
             this.panel1.TabIndex = 4;
             // 
             // linkLabel2
             // 
             this.linkLabel2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.linkLabel2.AutoSize = true;
-            this.linkLabel2.Location = new System.Drawing.Point(1297, 8);
+            this.linkLabel2.Location = new System.Drawing.Point(1397, 8);
             this.linkLabel2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.linkLabel2.Name = "linkLabel2";
             this.linkLabel2.Size = new System.Drawing.Size(67, 15);
@@ -463,7 +463,7 @@
             // 
             this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(623, 8);
+            this.label3.Location = new System.Drawing.Point(723, 8);
             this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(45, 15);
@@ -478,7 +478,7 @@
             this.groupBox.FormattingEnabled = true;
             this.groupBox.Items.AddRange(new object[] {
             "全部"});
-            this.groupBox.Location = new System.Drawing.Point(671, 4);
+            this.groupBox.Location = new System.Drawing.Point(771, 4);
             this.groupBox.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox.Name = "groupBox";
             this.groupBox.Size = new System.Drawing.Size(152, 23);
@@ -511,7 +511,7 @@
             // 
             this.viewColumn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.viewColumn.AutoSize = true;
-            this.viewColumn.Location = new System.Drawing.Point(1184, 8);
+            this.viewColumn.Location = new System.Drawing.Point(1284, 8);
             this.viewColumn.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.viewColumn.Name = "viewColumn";
             this.viewColumn.Size = new System.Drawing.Size(15, 15);
@@ -522,7 +522,7 @@
             // 
             this.fsd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.fsd.AutoSize = true;
-            this.fsd.Location = new System.Drawing.Point(831, 8);
+            this.fsd.Location = new System.Drawing.Point(931, 8);
             this.fsd.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.fsd.Name = "fsd";
             this.fsd.Size = new System.Drawing.Size(60, 15);
@@ -533,7 +533,7 @@
             // 
             this.viewRow.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.viewRow.AutoSize = true;
-            this.viewRow.Location = new System.Drawing.Point(988, 8);
+            this.viewRow.Location = new System.Drawing.Point(1088, 8);
             this.viewRow.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.viewRow.Name = "viewRow";
             this.viewRow.Size = new System.Drawing.Size(15, 15);
@@ -544,7 +544,7 @@
             // 
             this.columntrackBar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.columntrackBar.AutoSize = false;
-            this.columntrackBar.Location = new System.Drawing.Point(901, 6);
+            this.columntrackBar.Location = new System.Drawing.Point(1001, 6);
             this.columntrackBar.Margin = new System.Windows.Forms.Padding(4);
             this.columntrackBar.Maximum = 50;
             this.columntrackBar.Minimum = 1;
@@ -559,7 +559,7 @@
             // 
             this.linkLabel1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.linkLabel1.AutoSize = true;
-            this.linkLabel1.Location = new System.Drawing.Point(1217, 8);
+            this.linkLabel1.Location = new System.Drawing.Point(1317, 8);
             this.linkLabel1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.linkLabel1.Name = "linkLabel1";
             this.linkLabel1.Size = new System.Drawing.Size(67, 15);
@@ -572,7 +572,7 @@
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(1019, 8);
+            this.label1.Location = new System.Drawing.Point(1119, 8);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(60, 15);
@@ -583,7 +583,7 @@
             // 
             this.rowtrackBar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.rowtrackBar.AutoSize = false;
-            this.rowtrackBar.Location = new System.Drawing.Point(1087, 6);
+            this.rowtrackBar.Location = new System.Drawing.Point(1187, 6);
             this.rowtrackBar.Margin = new System.Windows.Forms.Padding(4);
             this.rowtrackBar.Maximum = 50;
             this.rowtrackBar.Minimum = 1;
@@ -608,8 +608,8 @@
             // splitContainer.Panel2
             // 
             this.splitContainer.Panel2.Controls.Add(this.tabControl1);
-            this.splitContainer.Size = new System.Drawing.Size(1376, 218);
-            this.splitContainer.SplitterDistance = 341;
+            this.splitContainer.Size = new System.Drawing.Size(1476, 228);
+            this.splitContainer.SplitterDistance = 366;
             this.splitContainer.SplitterWidth = 1;
             this.splitContainer.TabIndex = 0;
             // 
@@ -622,7 +622,7 @@
             this.tabControl2.Margin = new System.Windows.Forms.Padding(4);
             this.tabControl2.Name = "tabControl2";
             this.tabControl2.SelectedIndex = 0;
-            this.tabControl2.Size = new System.Drawing.Size(341, 218);
+            this.tabControl2.Size = new System.Drawing.Size(366, 228);
             this.tabControl2.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             this.tabControl2.TabIndex = 1;
             // 
@@ -633,7 +633,7 @@
             this.tabPage2.Margin = new System.Windows.Forms.Padding(4);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(4);
-            this.tabPage2.Size = new System.Drawing.Size(333, 189);
+            this.tabPage2.Size = new System.Drawing.Size(358, 199);
             this.tabPage2.TabIndex = 2;
             this.tabPage2.Text = "运行日志";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -648,7 +648,7 @@
             this.logList.Location = new System.Drawing.Point(4, 4);
             this.logList.Margin = new System.Windows.Forms.Padding(4);
             this.logList.Name = "logList";
-            this.logList.Size = new System.Drawing.Size(325, 181);
+            this.logList.Size = new System.Drawing.Size(350, 191);
             this.logList.TabIndex = 0;
             this.logList.UseCompatibleStateImageBehavior = false;
             this.logList.UseWindowsThemStyle = true;
@@ -664,7 +664,7 @@
             this.tabControl1.Margin = new System.Windows.Forms.Padding(4);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(1034, 218);
+            this.tabControl1.Size = new System.Drawing.Size(1109, 228);
             this.tabControl1.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             this.tabControl1.TabIndex = 0;
             // 
@@ -675,7 +675,7 @@
             this.tabPage1.Margin = new System.Windows.Forms.Padding(4);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(4);
-            this.tabPage1.Size = new System.Drawing.Size(1026, 189);
+            this.tabPage1.Size = new System.Drawing.Size(1101, 199);
             this.tabPage1.TabIndex = 2;
             this.tabPage1.Text = "在线列表";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -691,7 +691,7 @@
             this.servicesOnlineList.Location = new System.Drawing.Point(4, 4);
             this.servicesOnlineList.Margin = new System.Windows.Forms.Padding(4);
             this.servicesOnlineList.Name = "servicesOnlineList";
-            this.servicesOnlineList.Size = new System.Drawing.Size(1018, 181);
+            this.servicesOnlineList.Size = new System.Drawing.Size(1093, 191);
             this.servicesOnlineList.TabIndex = 0;
             this.servicesOnlineList.UseCompatibleStateImageBehavior = false;
             this.servicesOnlineList.UseWindowsThemStyle = false;
@@ -715,11 +715,11 @@
             this.stripPort,
             this.toolStripStatusLabel6,
             this.stripConnectedNum});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 873);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 912);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 19, 0);
             this.statusStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.ManagerRenderMode;
-            this.statusStrip1.Size = new System.Drawing.Size(1376, 30);
+            this.statusStrip1.Size = new System.Drawing.Size(1476, 30);
             this.statusStrip1.TabIndex = 2;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -740,7 +740,7 @@
             // toolStripStatusLabel5
             // 
             this.toolStripStatusLabel5.Name = "toolStripStatusLabel5";
-            this.toolStripStatusLabel5.Size = new System.Drawing.Size(773, 24);
+            this.toolStripStatusLabel5.Size = new System.Drawing.Size(873, 24);
             this.toolStripStatusLabel5.Spring = true;
             // 
             // toolStripStatusLabel2
@@ -824,7 +824,7 @@
             this.toolStripButton8});
             this.toolStrip1.Location = new System.Drawing.Point(0, 28);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(1376, 59);
+            this.toolStrip1.Size = new System.Drawing.Size(1476, 59);
             this.toolStrip1.TabIndex = 6;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -912,7 +912,7 @@
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(5, 2, 0, 2);
             this.menuStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.menuStrip1.Size = new System.Drawing.Size(1376, 28);
+            this.menuStrip1.Size = new System.Drawing.Size(1476, 28);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -1004,7 +1004,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1376, 903);
+            this.ClientSize = new System.Drawing.Size(1476, 942);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.toolStrip1);

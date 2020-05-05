@@ -1,4 +1,5 @@
-﻿using SiMay.Core;
+﻿using SiMay.Platform.Windows;
+using SiMay.RemoteMonitor.Entitys;
 using System;
 using System.Collections.Generic;
 using System.Linq;

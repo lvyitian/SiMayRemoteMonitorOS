@@ -1,8 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>netcoreapp3.1</TargetFramework>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="SuperSocket.WebSocket" Version="1.6.6.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\SiMay.Basic\SiMay.Basic.csproj" />
+		<ProjectReference Include="..\SiMay.RemoteControlsCore\SiMay.RemoteControlsCore.csproj" />
+	</ItemGroup>
 
 </Project>

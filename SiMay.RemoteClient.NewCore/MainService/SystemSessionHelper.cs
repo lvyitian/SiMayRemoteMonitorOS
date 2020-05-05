@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace SiMay.ServiceCore
+namespace SiMay.ServiceCore.MainService
 {
     public class SystemSessionHelper
     {

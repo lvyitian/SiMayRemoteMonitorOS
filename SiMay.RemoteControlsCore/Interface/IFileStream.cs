@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace SiMay.RemoteControlsCore
 {
     /// <summary>
-    /// 文件流接口
+    /// 文件流接口(解耦各种实现方式)
     /// </summary>
     public interface IFileStream
     {

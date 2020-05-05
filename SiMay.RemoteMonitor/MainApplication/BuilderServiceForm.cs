@@ -202,7 +202,7 @@ namespace SiMay.RemoteMonitor.MainApplication
 
         private void BuildClientForm_Load(object sender, EventArgs e)
         {
-            txtAccesskey.Text = AppConfiguration.AccessKey.ToString();
+            txtAccesskey.Text = AppConfiguration.ConnectPassWord;
             string strHosts = AppConfiguration.LHostString;
 
             int index = int.Parse(AppConfiguration.SessionMode);

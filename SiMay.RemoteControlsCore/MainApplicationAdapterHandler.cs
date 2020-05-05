@@ -1,6 +1,5 @@
 ﻿using SiMay.Basic;
 using SiMay.Core;
-using SiMay.Core.PacketModelBinder.Attributes;
 using SiMay.Net.SessionProvider;
 using SiMay.Net.SessionProvider.Providers;
 using SiMay.Sockets.Tcp;
@@ -57,7 +56,7 @@ namespace SiMay.RemoteControlsCore
         /// <summary>
         /// 当应用被创建
         /// </summary>
-        public event Func<IApplication, bool> OnApplicationCreatedEventHandler;
+        public event Action<IApplication> OnApplicationCreatedEventHandler;
 
 
         /// <summary>
@@ -96,21 +95,21 @@ namespace SiMay.RemoteControlsCore
         /// </summary>
         private bool _launch;
 
-        public void StartApp()
+        public MainApplicationAdapterHandler(AbstractAppConfigBase config)
         {
             if (_launch)
                 return;
 
             _launch = true;
 
-            ThreadHelper.CreateThread(ApplicationResetThread, true);
+            AppConfiguration.SysConfig = config;
 
-            this.StartService();
+            ThreadHelper.CreateThread(ApplicationResetThread, true);
         }
 
-        public void StartService()
+        public void StartApp()
         {
-            var providerType = int.Parse(AppConfiguration.SessionMode).ConvertTo<SessionProviderType>();
+            var providerType = int.Parse(AppConfiguration.SessionMode).ConvertTo<SessionProviderType>(); 
 
             string ip = providerType == SessionProviderType.TcpServiceSession
                 ? AppConfiguration.IPAddress
@@ -131,16 +130,16 @@ namespace SiMay.RemoteControlsCore
                 AccessId = AppConfiguration.UseAccessId,//暂时使用UTC时间作为主控端标识
                 MainAppAccessKey = AppConfiguration.MainAppAccessKey,
                 MaxPacketSize = 1024 * 1024 * 2,
-                AccessKey = AppConfiguration.AccessKey,
+                AccessKey = long.Parse(AppConfiguration.AccessKey),
                 SessionProviderType = providerType
             };
 
             if (providerType == SessionProviderType.TcpServiceSession)
             {
                 if (StartServiceProvider(providerOptions))
-                    this.OnLogHandlerEvent?.Invoke($"SiMay远程监控管理系统端口 {port.ToString()} 监听成功!", LogSeverityLevel.Information);
+                    this.OnLogHandlerEvent?.Invoke($"SiMay远程监控管理系统端口 {port} 监听成功!", LogSeverityLevel.Information);
                 else
-                    this.OnLogHandlerEvent?.Invoke($"SiMay远程监控管理系统端口 {port.ToString()} 启动失败,请检查配置!", LogSeverityLevel.Warning);
+                    this.OnLogHandlerEvent?.Invoke($"SiMay远程监控管理系统端口 {port} 启动失败,请检查配置!", LogSeverityLevel.Warning);
             }
             else
             {
@@ -276,7 +275,7 @@ namespace SiMay.RemoteControlsCore
         {
             var ack = GetMessageEntity<AckPack>(session);
             long accessKey = ack.AccessKey;
-            if (accessKey != AppConfiguration.AccessKey)
+            if (accessKey != int.Parse(AppConfiguration.ConnectPassWord))
             {
                 session.SessionClose();
                 return;
@@ -304,7 +303,7 @@ namespace SiMay.RemoteControlsCore
                     string id = task.AdapterHandler.IdentifyId.Split('|')[0];
                     var syncContext = SessionSyncContexts.FirstOrDefault(x => x.KeyDictions[SysConstants.IdentifyId].ConvertTo<string>() == id);
 
-                    //LogHelper.WriteErrorByCurrentMethod("beigin Reset--{0},{1},{2}".FormatTo(task.AdapterHandler.ApplicationKey, task.AdapterHandler.IdentifyId, id));
+                    LogHelper.WriteErrorByCurrentMethod("beigin Reset--{0},{1},{2}".FormatTo(task.AdapterHandler.ApplicationKey, task.AdapterHandler.IdentifyId, id));
 
                     if (!syncContext.IsNull())
                     {
@@ -320,7 +319,7 @@ namespace SiMay.RemoteControlsCore
                                 ApplicationKey = task.AdapterHandler.ApplicationKey
                             });
 
-                        //LogHelper.WriteErrorByCurrentMethod("send reset command--{0},{1},{2}".FormatTo(task.AdapterHandler.ApplicationKey, task.AdapterHandler.IdentifyId, id));
+                        LogHelper.WriteErrorByCurrentMethod("send reset command--{0},{1},{2}".FormatTo(task.AdapterHandler.ApplicationKey, task.AdapterHandler.IdentifyId, id));
                     }
                 }
                 Thread.Sleep(5000);
@@ -334,7 +333,7 @@ namespace SiMay.RemoteControlsCore
         public void AddSuspendTaskContext(SuspendTaskContext context)
         {
             _suspendTaskContexts.Add(context);
-            //LogHelper.WriteErrorByCurrentMethod("Session Close--{0},{1}".FormatTo(context.AdapterHandler.ApplicationKey, context.AdapterHandler.IdentifyId));
+            LogHelper.WriteErrorByCurrentMethod("Session Close--{0},{1}".FormatTo(context.AdapterHandler.ApplicationKey, context.AdapterHandler.IdentifyId));
         }
 
         /// <summary>
@@ -362,7 +361,7 @@ namespace SiMay.RemoteControlsCore
             if (task != null)
             {
                 _suspendTaskContexts.Remove(task);
-                //LogHelper.WriteErrorByCurrentMethod("ResetTask Remove--{0},{1}".FormatTo(task.AdapterHandler.ApplicationKey, task.AdapterHandler.IdentifyId));
+                LogHelper.WriteErrorByCurrentMethod("ResetTask Remove--{0},{1}".FormatTo(task.AdapterHandler.ApplicationKey, task.AdapterHandler.IdentifyId));
             }
             else
                 return false;
@@ -400,6 +399,7 @@ namespace SiMay.RemoteControlsCore
                 var tokens = session.AppTokens;
                 tokens[SysConstants.INDEX_WORKTYPE] = ConnectionWorkType.WORKCON;
                 tokens[SysConstants.INDEX_WORKER] = task.AdapterHandler;
+                task.AdapterHandler.OriginName = originName;
                 task.AdapterHandler.SetSession(session);
                 task.AdapterHandler.ContinueTask(session);//继续任务
 
@@ -428,16 +428,13 @@ namespace SiMay.RemoteControlsCore
                         .Single(c => !c.GetCustomAttribute<ApplicationAdapterHandlerAttribute>(true).IsNull());
                     handlerFieder.SetValue(app, appHandlerBase);
 
-                    if (this.OnApplicationCreatedEventHandler.Invoke(app))
-                    {
+                    this.OnApplicationCreatedEventHandler?.Invoke(app);
 
-                        //app.HandlerAdapter = handlerBase;
-                        app.Start();
+                    //app.HandlerAdapter = handlerBase;
+                    app.Start();
 
-                        session.AppTokens[SysConstants.INDEX_WORKTYPE] = ConnectionWorkType.WORKCON;
-                        session.AppTokens[SysConstants.INDEX_WORKER] = appHandlerBase;
-                    }
-                    else appHandlerBase.CloseSession();
+                    session.AppTokens[SysConstants.INDEX_WORKTYPE] = ConnectionWorkType.WORKCON;
+                    session.AppTokens[SysConstants.INDEX_WORKER] = appHandlerBase;
                 }
                 else
                 {
@@ -670,7 +667,7 @@ namespace SiMay.RemoteControlsCore
                     var syncContext = arguments[SysConstants.INDEX_WORKER].ConvertTo<SessionSyncContext>();
                     SessionSyncContexts.Remove(syncContext);
 
-                    if (syncContext.KeyDictions.ContainsKey(SysConstants.DesktopView) && syncContext.KeyDictions[SysConstants.DesktopView] != null)
+                    if (syncContext.KeyDictions.ContainsKey(SysConstants.DesktopView) && !syncContext.KeyDictions[SysConstants.DesktopView].IsNull())
                     {
                         var view = syncContext.KeyDictions[SysConstants.DesktopView].ConvertTo<IDesktopView>();
                         view.CloseDesktopView();

@@ -13,11 +13,7 @@ namespace SiMay.RemoteControlsCore
         public class ApplicationItem
         {
             public int Rank { get; set; }
-
             public string ApplicationKey { get; set; }
-
-            public bool IsUnconventionalApp { get; set; }
-
             public Type Type { get; set; }
         }
         public static IReadOnlyList<ApplicationItem> ApplicationTypes { get; private set; }
@@ -32,7 +28,6 @@ namespace SiMay.RemoteControlsCore
                 {
                     Rank = t.GetRank(),
                     ApplicationKey = t.GetApplicationKey() ?? throw new Exception(t.Name + ":The AppKey cannot be empty!"),
-                    IsUnconventionalApp = t.IsUnconventionalApp(),
                     Type = t
                 })
                 .ToList();

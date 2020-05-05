@@ -202,9 +202,5 @@ namespace SiMay.ServiceCore
             TcpTableOwnerModuleConnections,
             TcpTableOwnerModuleAll
         }
-
-        [DllImport("shell32.dll")]
-        public static extern bool SHGetSpecialFolderPath(IntPtr hwndOwner, [Out] StringBuilder lpszPath, int nFolder, bool fCreate);
-
     }
 }

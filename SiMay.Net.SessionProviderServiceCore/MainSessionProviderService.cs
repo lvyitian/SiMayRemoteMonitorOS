@@ -59,33 +59,26 @@ namespace SiMay.Net.SessionProviderServiceCore
 
                 void NotifyProc(object @object)
                 {
-                    try
+                    switch (notify)
                     {
-                        switch (notify)
-                        {
-                            case TcpSessionNotify.OnConnected:
+                        case TcpSessionNotify.OnConnected:
 
-                                ApportionDispatcher apportionDispatcher = new ApportionDispatcher();
-                                apportionDispatcher.ApportionTypeHandlerEvent += ApportionTypeHandlerEvent;
-                                apportionDispatcher.LogOutputEventHandler += ApportionDispatcher_LogOutputEventHandler;
-                                apportionDispatcher.SetSession(session);
+                            ApportionDispatcher apportionDispatcher = new ApportionDispatcher();
+                            apportionDispatcher.ApportionTypeHandlerEvent += ApportionTypeHandlerEvent;
+                            apportionDispatcher.LogOutputEventHandler += ApportionDispatcher_LogOutputEventHandler;
+                            apportionDispatcher.SetSession(session);
 
-                                break;
-                            case TcpSessionNotify.OnSend:
-                                break;
-                            case TcpSessionNotify.OnDataReceiveing:
-                                this.OnDataReceiveingHandler(session);
-                                break;
-                            case TcpSessionNotify.OnClosed:
-                                this.OnClosedHandler(session);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        LogHelper.WriteErrorByCurrentMethod(ex);
+                            break;
+                        case TcpSessionNotify.OnSend:
+                            break;
+                        case TcpSessionNotify.OnDataReceiveing:
+                            this.OnDataReceiveingHandler(session);
+                            break;
+                        case TcpSessionNotify.OnClosed:
+                            this.OnClosedHandler(session);
+                            break;
+                        default:
+                            break;
                     }
                 }
             });
@@ -219,7 +212,7 @@ namespace SiMay.Net.SessionProviderServiceCore
                         Message = "已有相同Id的主控端登陆，你已被登出"
                     });
                 aboutOfCloseDispatcher.SendTo(data);
-                aboutOfCloseDispatcher.CloseSession();//调用后底层会同步触发Closed事件释放连接的占用资源
+                aboutOfCloseDispatcher.CloseSession();//调用后底层会触发Closed事件
 
                 this.LogOutputEventHandler?.Invoke(LogOutLevelType.Debug, $"有相同Id:{accessId}的主控端登陆!");
             }

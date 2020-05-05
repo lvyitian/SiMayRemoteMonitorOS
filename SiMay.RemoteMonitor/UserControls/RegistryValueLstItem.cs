@@ -1,4 +1,5 @@
 ﻿using SiMay.Core;
+using SiMay.Platform.Windows;
 using System.Windows.Forms;
 
 namespace SiMay.RemoteMonitor.UserControls

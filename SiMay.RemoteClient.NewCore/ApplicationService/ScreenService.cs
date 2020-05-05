@@ -1,6 +1,4 @@
 ﻿using SiMay.Core;
-using SiMay.Core.PacketModelBinder.Attributes;
-using SiMay.Core.ScreenSpy;
 using SiMay.ServiceCore.Attributes;
 using SiMay.Sockets.Tcp.Session;
 using System.Drawing;
@@ -9,6 +7,8 @@ using System.Windows.Forms;
 using static SiMay.ServiceCore.CommonWin32Api;
 using SiMay.ServiceCore.Win32;
 using System.Linq;
+using SiMay.Platform;
+using SiMay.Platform.Windows;
 
 namespace SiMay.ServiceCore
 {
@@ -45,7 +45,7 @@ namespace SiMay.ServiceCore
             wallpaper = new string('\0', 260);
             User32.SystemParametersInfo(0x73, 260, wallpaper, 0);
             wallpaper = wallpaper.Substring(0, wallpaper.IndexOf('\0'));
-            User32.SystemParametersInfo(User32.SPI_SETDESKWALLPAPER, 0, "", 0);
+            User32.SystemParametersInfo(User32.SPI_SETDESKWALLPAPER, 0, string.Empty, 0);
         }
 
 
@@ -169,7 +169,7 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_SCREEN_SETQTY)]
         public void SetImageQuality(TcpSocketSaeaSession session)
         {
-            var pack =  GetMessageEntity<ScreenSetQtyPack>(session);
+            var pack = GetMessageEntity<ScreenSetQtyPack>(session);
             _spy.SetImageQuality = pack.Quality;
         }
 
@@ -197,7 +197,7 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_SCREEN_MOUSEKEYEVENT)]
         public void MouseKeyEvent(TcpSocketSaeaSession session)
         {
-            var @event =GetMessageEntity<ScreenKeyPack>(session);
+            var @event = GetMessageEntity<ScreenKeyPack>(session);
             Screen[] allScreens = Screen.AllScreens;
             int offsetX = allScreens[_spy.Capturer.SelectedScreen].Bounds.X;
             int offsetY = allScreens[_spy.Capturer.SelectedScreen].Bounds.Y;

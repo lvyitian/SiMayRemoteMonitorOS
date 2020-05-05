@@ -1,6 +1,6 @@
-﻿using System;
+﻿using SiMay.Platform.Windows;
+using System;
 using System.Windows.Forms;
-using SiMay.Core;
 
 namespace SiMay.RemoteMonitor.Application
 {

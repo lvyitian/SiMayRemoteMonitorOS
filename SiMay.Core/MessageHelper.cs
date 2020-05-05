@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using SiMay.Core.Extensions;
 using static SiMay.Serialize.Standard.PacketSerializeHelper;
 
 namespace SiMay.Core

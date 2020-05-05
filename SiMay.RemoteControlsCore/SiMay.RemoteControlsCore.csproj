@@ -36,9 +36,18 @@
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Win32.Registry, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Win32.Registry.4.7.0\lib\net461\Microsoft.Win32.Registry.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Security.AccessControl, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.AccessControl.4.7.0\lib\net461\System.Security.AccessControl.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Principal.Windows, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Principal.Windows.4.7.0\lib\net461\System.Security.Principal.Windows.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -49,8 +58,7 @@
     <Compile Include="AdapterHandlerBase\MainApplicationAdapterHandler.cs" />
     <Compile Include="AdapterHandlerBase\ApplicationProtocolAdapterHandler.cs" />
     <Compile Include="AppConfiguration.cs" />
-    <Compile Include="ApplicationAdapterHandlers\FileTransmissionAdapterHandler.cs" />
-    <Compile Include="Attributes\UnconventionalApp.cs" />
+    <Compile Include="ApplicationAdapterHandlers\RemoteUpdateAdapterHandler.cs" />
     <Compile Include="MainApplicationAdapterHandler.cs" />
     <Compile Include="Attributes\Application.cs" />
     <Compile Include="Attributes\ApplicationAdapterHandler.cs" />
@@ -90,13 +98,17 @@
       <Project>{8F2F35CB-D5EE-4D92-B42F-BCFFBF9C9D4F}</Project>
       <Name>SiMay.Basic</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SiMay.Core\SiMay.Core.csproj">
-      <Project>{1AADC6F7-6FF9-4C68-8A26-E507F22B9060}</Project>
-      <Name>SiMay.Core</Name>
+    <ProjectReference Include="..\SiMay.Core.Standard\SiMay.Core.Standard.csproj">
+      <Project>{48f71fa4-bda3-4b2d-bc07-9f24cb9a6fb5}</Project>
+      <Name>SiMay.Core.Standard</Name>
     </ProjectReference>
     <ProjectReference Include="..\SiMay.Net.SessionProvider\SiMay.Net.SessionProvider.csproj">
       <Project>{71283236-56CB-481E-A644-B7F9AF9EFDF9}</Project>
       <Name>SiMay.Net.SessionProvider</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SiMay.Platform.Windows\SiMay.Platform.Windows.csproj">
+      <Project>{B8B6A5BD-5349-4114-B93C-C1A3FD028F66}</Project>
+      <Name>SiMay.Platform.Windows</Name>
     </ProjectReference>
     <ProjectReference Include="..\SiMay.Serialize.Standard\SiMay.Serialize.Standard.csproj">
       <Project>{9525A4AA-6731-4AB2-8CD0-ADDF7940FE32}</Project>
@@ -107,6 +119,8 @@
       <Name>SiMay.Sockets.Standard</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

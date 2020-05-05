@@ -1,7 +1,5 @@
 ﻿using SiMay.Basic;
 using SiMay.Core;
-using SiMay.Core.PacketModelBinder.Attributes;
-using SiMay.Core.PacketModelBinding;
 using SiMay.Sockets.Tcp;
 using SiMay.Sockets.Tcp.Client;
 using SiMay.Sockets.Tcp.Session;

@@ -1,7 +1,4 @@
-﻿using SiMay.Basic;
-using SiMay.Core;
-using SiMay.Core.PacketModelBinder.Attributes;
-using SiMay.Serialize.Standard;
+﻿using SiMay.Core;
 using SiMay.Sockets.Tcp.Session;
 using System;
 using System.Collections.Generic;
@@ -17,11 +14,6 @@ namespace SiMay.ServiceCore
     public abstract class ApplicationRemoteService : ApplicationProtocolService
     {
         /// <summary>
-        /// 主服务
-        /// </summary>
-        public MainService Self { get; set; }
-
-        /// <summary>
         /// 当前连接的主控端标识
         /// </summary>
         public long AccessId { get; set; }
@@ -35,19 +27,6 @@ namespace SiMay.ServiceCore
         /// 当前会话是否已关闭
         /// </summary>
         public bool WhetherClosed { get; set; } = false;
-
-        [PacketHandler(MessageHead.S_GLOBAL_CALL_CONTROLLER)]
-        public void InvokeCustomeControllerHandler(TcpSocketSaeaSession session)
-        {
-            var callParameterPacket = GetMessageEntity<InvokerControllerPacket>(CurrentSession);
-            var result = ControllerModelHelper.Invoker(callParameterPacket.ControllerRoute, callParameterPacket.DataPacketTypeFullName, callParameterPacket.PacketData);
-            if (!result.IsNull())
-                SendTo(CurrentSession, MessageHead.C_GLOBAL_CONTROLLER_RESULT, new InvokerResponsePacket()
-                {
-                    ControllerRoute = callParameterPacket.ControllerRoute,
-                    PacketData = PacketSerializeHelper.SerializePacket(result)
-                });
-        }
 
         [PacketHandler(MessageHead.S_GLOBAL_OK)]
         public void InitializeCompleted(TcpSocketSaeaSession session)

@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SiMay.Basic\SiMay.Basic.csproj" />
-    <ProjectReference Include="..\SiMay.Core\SiMay.Core.csproj" />
+    <ProjectReference Include="..\SiMay.Core.Standard\SiMay.Core.Standard.csproj" />
     <ProjectReference Include="..\SiMay.Net.SessionProvider.Core\SiMay.Net.SessionProvider.Core.csproj" />
     <ProjectReference Include="..\SiMay.Serialize.Standard\SiMay.Serialize.Standard.csproj" />
     <ProjectReference Include="..\SiMay.Sockets.Standard\SiMay.Sockets.Standard.csproj" />

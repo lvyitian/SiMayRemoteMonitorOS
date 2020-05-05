@@ -1,15 +1,14 @@
 ﻿using SiMay.Basic;
-using SiMay.Core;
 using System.Collections.Generic;
 using System;
 using System.IO;
+using SiMay.Core;
 
 namespace SiMay.RemoteControlsCore
 {
-
-    public class ManagerAppConfig : AbstractAppConfigBase
+    public abstract class DefaultConfigBase : AbstractAppConfigBase
     {
-        Dictionary<string, string> _defaultConfig = new Dictionary<string, string>()
+        private Dictionary<string, string> _defaultConfig = new Dictionary<string, string>()
         {
             { "IPAddress" ,"0.0.0.0" },
             { "Port" , "5200" },
@@ -37,31 +36,32 @@ namespace SiMay.RemoteControlsCore
             { "AccessKey", "5200" }
         };
 
-        string _filePath = Path.Combine(Environment.CurrentDirectory, "SiMayConfig.ini");
-
         public override string GetConfig(string key)
         {
             if (!AppConfig.ContainsKey(key) && _defaultConfig.ContainsKey(key))
-                AppConfig[key] = IniConfigHelper.GetValue("SiMayConfig", key, _defaultConfig[key], _filePath);
+                AppConfig[key] = Read(key).IsNullOrEmpty() ? _defaultConfig[key] : Read(key);
 
             string val;
             if (AppConfig.TryGetValue(key, out val))
                 return val;
             else
-                return null;
+                return default;
         }
+
+        protected abstract string Read(string key);
+
+        protected abstract void Save(string key, string value);
 
         public override bool SetConfig(string key, string value)
         {
             AppConfig[key] = value;
-            IniConfigHelper.SetValue("SiMayConfig", key, value, _filePath);
+            Save(key, value);
             return true;
         }
     }
     public class AppConfiguration
     {
-
-        public static AbstractAppConfigBase SysConfig { get; } = new ManagerAppConfig();
+        public static AbstractAppConfigBase SysConfig { get; set; }
 
         public static string IPAddress
         {
@@ -145,10 +145,10 @@ namespace SiMay.RemoteControlsCore
             get { return SysConfig.GetConfig("SessionMode"); }
             set { SysConfig.SetConfig("SessionMode", value); }
         }
-        public static long AccessKey
+        public static string AccessKey
         {
-            get { return long.Parse(SysConfig.GetConfig("AccessKey")); }
-            set { SysConfig.SetConfig("AccessKey", value.ToString()); }
+            get { return SysConfig.GetConfig("AccessKey"); }
+            set { SysConfig.SetConfig("AccessKey", value); }
         }
 
         public static string ServiceIPAddress

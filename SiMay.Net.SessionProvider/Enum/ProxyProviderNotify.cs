@@ -12,9 +12,6 @@ namespace SiMay.Net.SessionProvider
         AccessIdOrKeyWrong,
 
         [Description("登出")]
-        LogOut,
-
-        [Description("日志")]
-        LogInput
+        LogOut
     }
 }

@@ -35,6 +35,8 @@
             this.label2 = new System.Windows.Forms.Label();
             this.ip = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.conPwd = new System.Windows.Forms.TextBox();
+            this.label5 = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
             this.funComboBox = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
@@ -50,6 +52,8 @@
             this.label12 = new System.Windows.Forms.Label();
             this.txtservice_address = new System.Windows.Forms.TextBox();
             this.label10 = new System.Windows.Forms.Label();
+            this.accessKey = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.pwdTextBox = new System.Windows.Forms.TextBox();
             this.label8 = new System.Windows.Forms.Label();
@@ -59,8 +63,6 @@
             this.sessionModeList = new System.Windows.Forms.ComboBox();
             this.label14 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.accessKey = new System.Windows.Forms.TextBox();
-            this.label11 = new System.Windows.Forms.Label();
             this.panel2.SuspendLayout();
             this.panel4.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -132,6 +134,26 @@
             this.label1.TabIndex = 8;
             this.label1.Text = "服务器地址:";
             // 
+            // conPwd
+            // 
+            this.conPwd.Location = new System.Drawing.Point(247, 135);
+            this.conPwd.Margin = new System.Windows.Forms.Padding(4);
+            this.conPwd.MaxLength = 6;
+            this.conPwd.Name = "conPwd";
+            this.conPwd.Size = new System.Drawing.Size(152, 25);
+            this.conPwd.TabIndex = 17;
+            this.conPwd.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.conPwd_KeyPress);
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(159, 139);
+            this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(75, 15);
+            this.label5.TabIndex = 16;
+            this.label5.Text = "连接密码:";
+            // 
             // button1
             // 
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -178,8 +200,6 @@
             // 
             // panel2
             // 
-            this.panel2.Controls.Add(this.accessKey);
-            this.panel2.Controls.Add(this.label11);
             this.panel2.Controls.Add(this.enableAnonymous);
             this.panel2.Controls.Add(this.txtAccessId);
             this.panel2.Controls.Add(this.label16);
@@ -190,6 +210,8 @@
             this.panel2.Controls.Add(this.label12);
             this.panel2.Controls.Add(this.txtservice_address);
             this.panel2.Controls.Add(this.label10);
+            this.panel2.Controls.Add(this.accessKey);
+            this.panel2.Controls.Add(this.label11);
             this.panel2.Controls.Add(this.label9);
             this.panel2.Controls.Add(this.pwdTextBox);
             this.panel2.Controls.Add(this.label8);
@@ -200,10 +222,12 @@
             this.panel2.Controls.Add(this.label3);
             this.panel2.Controls.Add(this.funComboBox);
             this.panel2.Controls.Add(this.port);
+            this.panel2.Controls.Add(this.conPwd);
             this.panel2.Controls.Add(this.label1);
             this.panel2.Controls.Add(this.label4);
             this.panel2.Controls.Add(this.connectLimitCount);
             this.panel2.Controls.Add(this.label2);
+            this.panel2.Controls.Add(this.label5);
             this.panel2.Location = new System.Drawing.Point(43, 2);
             this.panel2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panel2.Name = "panel2";
@@ -241,7 +265,7 @@
             // 
             // txtMainAppAccessKey
             // 
-            this.txtMainAppAccessKey.Location = new System.Drawing.Point(247, 476);
+            this.txtMainAppAccessKey.Location = new System.Drawing.Point(247, 503);
             this.txtMainAppAccessKey.Margin = new System.Windows.Forms.Padding(4);
             this.txtMainAppAccessKey.Name = "txtMainAppAccessKey";
             this.txtMainAppAccessKey.Size = new System.Drawing.Size(152, 25);
@@ -250,7 +274,7 @@
             // label15
             // 
             this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(96, 480);
+            this.label15.Location = new System.Drawing.Point(96, 506);
             this.label15.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(143, 15);
@@ -303,6 +327,24 @@
             this.label10.TabIndex = 36;
             this.label10.Text = "服务器地址:";
             // 
+            // accessKey
+            // 
+            this.accessKey.Location = new System.Drawing.Point(247, 470);
+            this.accessKey.Margin = new System.Windows.Forms.Padding(4);
+            this.accessKey.Name = "accessKey";
+            this.accessKey.Size = new System.Drawing.Size(152, 25);
+            this.accessKey.TabIndex = 35;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(151, 474);
+            this.label11.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(87, 15);
+            this.label11.TabIndex = 34;
+            this.label11.Text = "AccessKey:";
+            // 
             // label9
             // 
             this.label9.AutoSize = true;
@@ -315,7 +357,7 @@
             // 
             // pwdTextBox
             // 
-            this.pwdTextBox.Location = new System.Drawing.Point(247, 565);
+            this.pwdTextBox.Location = new System.Drawing.Point(247, 594);
             this.pwdTextBox.Margin = new System.Windows.Forms.Padding(4);
             this.pwdTextBox.Name = "pwdTextBox";
             this.pwdTextBox.Size = new System.Drawing.Size(152, 25);
@@ -325,7 +367,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(134, 570);
+            this.label8.Location = new System.Drawing.Point(127, 597);
             this.label8.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(105, 15);
@@ -336,7 +378,7 @@
             // 
             this.label7.AutoSize = true;
             this.label7.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label7.Location = new System.Drawing.Point(143, 526);
+            this.label7.Location = new System.Drawing.Point(143, 555);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(71, 15);
             this.label7.TabIndex = 28;
@@ -400,24 +442,6 @@
             this.panel1.Size = new System.Drawing.Size(671, 375);
             this.panel1.TabIndex = 29;
             // 
-            // accessKey
-            // 
-            this.accessKey.Location = new System.Drawing.Point(247, 134);
-            this.accessKey.Margin = new System.Windows.Forms.Padding(4);
-            this.accessKey.Name = "accessKey";
-            this.accessKey.Size = new System.Drawing.Size(152, 25);
-            this.accessKey.TabIndex = 47;
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(146, 138);
-            this.label11.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(87, 15);
-            this.label11.TabIndex = 46;
-            this.label11.Text = "AccessKey:";
-            // 
             // AppSettingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
@@ -450,6 +474,8 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox ip;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox conPwd;
+        private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.ComboBox funComboBox;
         private System.Windows.Forms.Label label4;
@@ -462,6 +488,8 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.TextBox accessKey;
+        private System.Windows.Forms.Label label11;
         private System.Windows.Forms.ComboBox sessionModeList;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.TextBox txtservice_port;
@@ -474,7 +502,5 @@
         private System.Windows.Forms.Label label16;
         private System.Windows.Forms.TextBox txtMainAppAccessKey;
         private System.Windows.Forms.Label label15;
-        private System.Windows.Forms.TextBox accessKey;
-        private System.Windows.Forms.Label label11;
     }
 }

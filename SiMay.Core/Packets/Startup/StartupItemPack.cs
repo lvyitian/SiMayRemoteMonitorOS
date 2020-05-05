@@ -1,10 +1,11 @@
-﻿using SiMay.ReflectCache;
+﻿using SiMay.Core.Enums;
+using SiMay.ReflectCache;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace SiMay.Core
+namespace SiMay.Core.Packets.Startup
 {
     public class StartupItemsPack : EntitySerializerBase
     {

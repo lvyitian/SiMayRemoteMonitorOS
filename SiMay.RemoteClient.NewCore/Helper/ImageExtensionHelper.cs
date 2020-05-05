@@ -1,4 +1,5 @@
-﻿using SiMay.Core.ScreenSpy;
+﻿
+using SiMay.Platform.Windows;
 using SiMay.ServiceCore.Win32;
 using System.Drawing;
 using System.IO;

@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 using Microsoft.Win32;
 using SiMay.Core;
+using SiMay.Platform.Windows;
 
 namespace SiMay.RemoteMonitor.Application
 {

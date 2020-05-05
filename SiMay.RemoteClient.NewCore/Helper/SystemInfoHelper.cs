@@ -1,7 +1,7 @@
 ﻿using AForge.Video.DirectShow;
-using Microsoft.VisualBasic.Devices;
 using Microsoft.Win32;
 using SiMay.Core;
+using SiMay.Platform.Windows;
 using System;
 using System.IO;
 using System.Linq;
@@ -66,12 +66,12 @@ namespace SiMay.ServiceCore.Helper
         }
         public static bool ExistRecordDevice()
         {
-            return WindSound.Win32.waveInGetNumDevs() > 0 ? true : false;
+            return SiMay.Platform.Windows.Win32.waveInGetNumDevs() > 0 ? true : false;
         }
 
         public static bool ExistPlayDevice()
         {
-            return WindSound.Win32.waveOutGetNumDevs() > 0 ? true : false;
+            return SiMay.Platform.Windows.Win32.waveOutGetNumDevs() > 0 ? true : false;
         }
 
         //public static string GetLocalIPV4()

@@ -3,6 +3,7 @@ using SiMay.Basic;
 using SiMay.Core;
 using SiMay.RemoteControlsCore;
 using SiMay.RemoteControlsCore.HandlerAdapters;
+using SiMay.RemoteMonitor.Attributes;
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;

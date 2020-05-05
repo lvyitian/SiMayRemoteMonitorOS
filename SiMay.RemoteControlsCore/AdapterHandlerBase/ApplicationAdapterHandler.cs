@@ -1,7 +1,5 @@
 ﻿using SiMay.Core;
-using SiMay.Core.PacketModelBinding;
 using SiMay.Net.SessionProvider;
-using SiMay.Serialize.Standard;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -66,15 +64,6 @@ namespace SiMay.RemoteControlsCore
         /// <param name="session"></param>
         public virtual void SessionClosed(SessionProviderContext session)
             => App.SessionClose(this);
-
-        public void InvokerController(string route, object packet)
-            => SendTo(CurrentSession, MessageHead.S_GLOBAL_CALL_CONTROLLER,
-                new InvokerControllerPacket()
-                {
-                    ControllerRoute = route,
-                    DataPacketTypeFullName = packet.GetType().FullName,
-                    PacketData = PacketSerializeHelper.SerializePacket(packet)
-                });
 
         public virtual void CloseSession()
         {

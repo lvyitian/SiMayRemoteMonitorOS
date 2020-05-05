@@ -5,8 +5,10 @@ using System.Linq;
 using System.Windows.Forms;
 using Microsoft.Win32;
 using SiMay.Core;
+using SiMay.Platform.Windows;
 using SiMay.RemoteControlsCore;
 using SiMay.RemoteControlsCore.HandlerAdapters;
+using SiMay.RemoteMonitor.Attributes;
 using SiMay.RemoteMonitor.UserControls;
 
 namespace SiMay.RemoteMonitor.Application

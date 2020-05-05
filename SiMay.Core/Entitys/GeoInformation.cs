@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 
-namespace SiMay.Core
+namespace SiMay.Core.Entitys
 {
     [DataContract]
     public class GeoInformation

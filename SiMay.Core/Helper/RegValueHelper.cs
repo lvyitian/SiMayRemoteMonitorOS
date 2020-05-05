@@ -1,8 +1,9 @@
 ﻿using Microsoft.Win32;
 using SiMay.Core;
+using SiMay.Core.Packets.RegEdit;
 using System;
 
-namespace SiMay.Core
+namespace SiMay.Core.Common
 {
     public class RegValueHelper
     {

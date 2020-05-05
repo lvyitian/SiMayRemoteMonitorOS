@@ -1,6 +1,5 @@
 ﻿using SiMay.Basic;
 using SiMay.Core;
-using SiMay.Core.PacketModelBinding;
 using SiMay.Net.SessionProvider;
 using System;
 using System.Collections.Generic;

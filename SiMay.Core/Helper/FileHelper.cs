@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace SiMay.Core
+namespace SiMay.Core.Common
 {
     public class FileHelper
     {

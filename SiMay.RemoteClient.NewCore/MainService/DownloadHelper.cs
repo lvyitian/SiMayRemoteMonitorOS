@@ -5,7 +5,7 @@ using System.Threading;
 using System.Windows.Forms;
 using static SiMay.ServiceCore.CommonWin32Api;
 
-namespace SiMay.ServiceCore
+namespace SiMay.ServiceCore.MainService
 {
 
     public class DownloadHelper

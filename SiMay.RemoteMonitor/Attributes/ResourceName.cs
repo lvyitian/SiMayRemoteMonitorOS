@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SiMay.RemoteMonitor
+namespace SiMay.RemoteMonitor.Attributes
 {
     /// <summary>
     /// 应用图片资源名称

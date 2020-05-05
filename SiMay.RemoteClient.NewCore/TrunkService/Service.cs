@@ -1,7 +1,5 @@
 ﻿using SiMay.Basic;
 using SiMay.Core;
-using SiMay.Core.PacketModelBinder.Attributes;
-using SiMay.Core.PacketModelBinding;
 using SiMay.ServiceCore.Win32;
 using SiMay.Sockets.Tcp;
 using SiMay.Sockets.Tcp.Session;
@@ -115,9 +113,9 @@ namespace SiMay.ServiceCore
                             LogHelper.DebugWriteLog("!Actived:" + token.SessionId);
                             if ((int)(DateTime.Now - token.LastActiveTime).TotalSeconds > 5)//如果用户进程5秒内未重新激活
                             {
-                                bool completedInner = this.CreateProcessAsUser((uint)token.SessionId);//可能用户进程已结束，重新启动用户进程
-                                LogHelper.DebugWriteLog("Restart ProcessAsUser:" + completedInner);
-                                if (!completedInner || !Win32Interop.EnumerateSessions().Any(c => c.SessionID == token.SessionId))
+                                bool completed = this.CreateProcessAsUser((uint)token.SessionId);//可能用户进程已结束，重新启动用户进程
+                                LogHelper.DebugWriteLog("Restart ProcessAsUser:" + completed);
+                                if (!completed && !Win32Interop.EnumerateSessions().Any(c => c.SessionID == token.SessionId))
                                 {
                                     _userProcessSessionIdList.RemoveAt(i);//如果重启失败移除会话信息，可能会话已注销
                                     i--;

@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.Win32;
-using SiMay.Core;
+using SiMay.Platform.Windows;
 
 namespace SiMay.ServiceCore
 {

@@ -4,8 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SiMay.Core;
-using SiMay.Core.PacketModelBinder.Attributes;
-using SiMay.Core.PacketModelBinding;
 using SiMay.Net.SessionProvider;
 
 namespace SiMay.RemoteControlsCore.HandlerAdapters
@@ -98,7 +96,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         private void SetProcessWindowState(int state, IEnumerable<int> pids)
         {
             SendTo(CurrentSession, MessageHead.S_SYSTEM_MAXIMIZE,
-                new SystemSetWindowMaxPack()
+                new SysWindowMaxPack()
                 {
                     State = state,
                     Handlers = pids.ToArray()
