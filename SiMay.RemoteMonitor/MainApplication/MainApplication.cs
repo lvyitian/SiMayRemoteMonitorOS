@@ -45,7 +45,7 @@ namespace SiMay.RemoteMonitor.MainApplication
         {
             this.ViewOnAdaptiveHandler();
             this.OnLoadConfiguration();
-            this.RegisterMessageHandler(); 
+            this.RegisterMessageHandler();
         }
 
         /// <summary>
@@ -324,10 +324,14 @@ namespace SiMay.RemoteMonitor.MainApplication
         {
             var view = new UDesktopView(syncContext)
             {
+                Owner = _appMainAdapterHandler,
                 Height = this._viewCarouselContext.ViewHeight,
                 Width = this._viewCarouselContext.ViewWidth
             };
             view.OnDoubleClickEvent += DesktopViewDbClick;
+
+            this._appMainAdapterHandler.GetDesktopViewFrame(syncContext);
+
             this.desktopViewLayout.Controls.Add(view);
 
             return view;

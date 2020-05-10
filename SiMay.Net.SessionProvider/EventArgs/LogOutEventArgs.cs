@@ -8,5 +8,10 @@ namespace SiMay.Net.SessionProvider
     {
         public string Message { get; private set; }
         public LogOutEventArgs(string message) => Message = message;
+
+        public override string ToString()
+        {
+            return Message;
+        }
     }
 }

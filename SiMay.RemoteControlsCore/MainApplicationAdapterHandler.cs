@@ -109,7 +109,7 @@ namespace SiMay.RemoteControlsCore
 
         public void StartApp()
         {
-            var providerType = int.Parse(AppConfiguration.SessionMode).ConvertTo<SessionProviderType>(); 
+            var providerType = int.Parse(AppConfiguration.SessionMode).ConvertTo<SessionProviderType>();
 
             string ip = providerType == SessionProviderType.TcpServiceSession
                 ? AppConfiguration.IPAddress
@@ -330,7 +330,7 @@ namespace SiMay.RemoteControlsCore
         /// 加入重连线程
         /// </summary>
         /// <param name="context"></param>
-        public void AddSuspendTaskContext(SuspendTaskContext context)
+        private void AddSuspendTaskContext(SuspendTaskContext context)
         {
             _suspendTaskContexts.Add(context);
             LogHelper.WriteErrorByCurrentMethod("Session Close--{0},{1}".FormatTo(context.AdapterHandler.ApplicationKey, context.AdapterHandler.IdentifyId));
@@ -341,7 +341,7 @@ namespace SiMay.RemoteControlsCore
         /// </summary>
         /// <param name="identifyId"></param>
         /// <returns></returns>
-        public SuspendTaskContext FindOfSuspendTaskContext(string identifyId)
+        private SuspendTaskContext FindOfSuspendTaskContext(string identifyId)
         {
             var task = _suspendTaskContexts
                 .Where(x => x.AdapterHandler.IdentifyId.Split('|').FirstOrDefault() == identifyId)
@@ -355,7 +355,7 @@ namespace SiMay.RemoteControlsCore
         /// </summary>
         /// <param name="identifyId"></param>
         /// <returns></returns>
-        public bool RemoveSuspendTaskContext(string identifyId)
+        private bool RemoveSuspendTaskContext(string identifyId)
         {
             var task = _suspendTaskContexts.Where(x => x.AdapterHandler.IdentifyId.Split('|').FirstOrDefault().Equals(identifyId)).FirstOrDefault();
             if (task != null)
@@ -498,12 +498,13 @@ namespace SiMay.RemoteControlsCore
         {
             var describePack = GetMessageEntity<DesktopViewDescribePack>(session);
             var syncContext = session.AppTokens[SysConstants.INDEX_WORKER].ConvertTo<SessionSyncContext>();
+            syncContext.KeyDictions[SysConstants.MachineName] = describePack.MachineName;
+            syncContext.KeyDictions[SysConstants.Remark] = describePack.RemarkInformation;//临时特殊处理给web监控视图墙
             var view = this.OnCreateDesktopViewHandlerEvent?.Invoke(syncContext);
             if (view.IsNull())
                 return;
             view.Caption = describePack.MachineName + "-(" + describePack.RemarkInformation + ")";
             syncContext.KeyDictions[SysConstants.DesktopView] = view;
-            this.GetViewFrame(session, view);
         }
 
 
@@ -526,18 +527,21 @@ namespace SiMay.RemoteControlsCore
                 using (var ms = new MemoryStream(frameData.ViewData))
                     view.PlayerDekstopView(Image.FromStream(ms));
             }
-            this.GetViewFrame(session, view);
         }
 
-        private void GetViewFrame(SessionProviderContext session, IDesktopView view)
+        public void GetDesktopViewFrame(SessionSyncContext syncContext)
         {
-            SendTo(session, MessageHead.S_MAIN_DESKTOPVIEW_GETFRAME,
+            if (!syncContext.KeyDictions.ContainsKey(SysConstants.DesktopView) ||
+                syncContext.KeyDictions[SysConstants.DesktopView].IsNull())
+                return;
+
+            var view = syncContext.KeyDictions.GetValue(SysConstants.DesktopView).ConvertTo<IDesktopView>();
+            SendTo(view.SessionSyncContext.Session, MessageHead.S_MAIN_DESKTOPVIEW_GETFRAME,
                 new DesktopViewGetFramePack()
                 {
                     Height = view.Height,
                     Width = view.Width,
-                    TimeSpan = this.ViewRefreshInterval,
-                    InVisbleArea = view.InVisbleArea
+                    TimeSpan = this.ViewRefreshInterval
                 });
         }
 
@@ -696,6 +700,11 @@ namespace SiMay.RemoteControlsCore
             HasComWithSendTo(syncContext.Session, MessageHead.S_MAIN_RELOADER);
         }
 
+        public void RegetLoginInformation(SessionSyncContext syncContext)
+        {
+            HasComWithSendTo(syncContext.Session, MessageHead.S_GLOBAL_OK);
+        }
+
         /// <summary>
         /// 安装服务
         /// </summary>
@@ -745,9 +754,9 @@ namespace SiMay.RemoteControlsCore
         /// 打开桌面视图
         /// </summary>
         /// <param name="syncContext"></param>
-        public void RemoteOpenDesktopView(SessionSyncContext syncContext)
+        public void RemoteOpenDesktopView(SessionSyncContext syncContext, bool compel = false)
         {
-            HasComWithSendTo(syncContext.Session, MessageHead.S_MAIN_CREATE_DESKTOPVIEW, new byte[] { 1 });
+            HasComWithSendTo(syncContext.Session, MessageHead.S_MAIN_CREATE_DESKTOPVIEW, new byte[] { (byte)(compel ? 0 : 1) });
         }
 
         /// <summary>

@@ -14,10 +14,13 @@ namespace SiMay.RemoteMonitor.UserControls
     {
         public delegate void OnDoubleClickEventHnadler(SessionSyncContext sessionSync);
         public event OnDoubleClickEventHnadler OnDoubleClickEvent;
+
+        public MainApplicationAdapterHandler Owner { get; set; }
+
+
         public UDesktopView(SessionSyncContext syncContext)
         {
             SessionSyncContext = syncContext;
-            
             InitializeComponent();
         }
 
@@ -34,7 +37,6 @@ namespace SiMay.RemoteMonitor.UserControls
         }
 
         public SessionSyncContext SessionSyncContext { get; set; }
-        public bool InVisbleArea { get; set; } = true;
 
         private void img_DoubleClick(object sender, EventArgs e)
         {
@@ -67,6 +69,8 @@ namespace SiMay.RemoteMonitor.UserControls
 
             img.Image?.Dispose();
             img.Image = image;
+
+            Owner.GetDesktopViewFrame(SessionSyncContext);
         }
 
         public void CloseDesktopView()

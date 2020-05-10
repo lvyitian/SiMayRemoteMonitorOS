@@ -23,14 +23,13 @@ namespace SiMay.RemoteControlsCore
         string Caption { get; set; }
 
         /// <summary>
-        /// 是否在可播放区域
-        /// </summary>
-        bool InVisbleArea { get; set; }
-
-        /// <summary>
         /// 会话同步上下文
         /// </summary>
         SessionSyncContext SessionSyncContext { get; set; }
+
+
+        MainApplicationAdapterHandler Owner { get; set; }
+
         /// <summary>
         /// 展示视图
         /// </summary>

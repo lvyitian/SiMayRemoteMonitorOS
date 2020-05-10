@@ -139,25 +139,21 @@
 
         var logOut = 0;//如果为1则表示不再重连
 
-        var id = "";
+        var id = "";//长按选中的视图id
 
         var B_LOGIN = 1000;
-        var B_DESKTOPVIEW_PULL = 1001;
-        var B_RESET_REMARK = 1002;
-        var B_OPEN_DESKTOPVIEW = 1003;
-        var B_CLOSE_DESKTOPVIEW = 1004;
-        var B_MESSAGEBOX = 1005;
-        var B_SESSION_MANAGER = 1006;
-        var B_OPEN_URL = 1007;
-        var B_DOWNLOAD_EX = 1008;
-        var B_UNSTALLER = 1009;
+        var B_DESKTOP_VIEW_GETFRAME = 1001;
+        var B_MESSAGEBOX = 1002;
+        var B_RESET_REMARK = 1003;
+        var B_SYS_SESSION = 1004;
+        var B_OPEN_URL = 1005;
+        var B_EXEC_DOWNLOAD = 1006;
 
-        var LOGIN_PACK = 2000;
-        var SESSION_CLOSE = 2001;
+        var LOGIN_SESSION = 2000;
+        var CLOSE_SESSION = 2001;
         var MANAGER_LOGOUT = 2002;
         var DESKTOPVIEW_IMG = 2003;
-        var MANAGER_CHANNEL_LOGOUT = 2004;
-        var KEY_WRONG = 2005;
+        var KEY_WRONG = 2004;
 
         var ws = new WebSocket("ws://47.106.150.2:523/echo");
 
@@ -186,11 +182,11 @@
         // 接收服务端数据时触发事件
         ws.onmessage = function (evt) {
             var pack = JSON.parse(evt.data);
-            switch (pack.Msg) {
-                case LOGIN_PACK:
+            switch (pack.code) {
+                case LOGIN_SESSION:
                     CreateDesktopView(pack);
                     break;
-                case SESSION_CLOSE:
+                case CLOSE_SESSION:
                     RemoveDesktopView(pack);
                     break;
                 case MANAGER_LOGOUT:
@@ -199,12 +195,8 @@
                 case DESKTOPVIEW_IMG:
                     ProcessImage(pack);
                     break;
-                case MANAGER_CHANNEL_LOGOUT:
-                    ProcessManagerChannelLogout();
-                    break;
                 case KEY_WRONG:
                     IdOrPasswordWrong();
-
                     break;
                 default:
                     break;
@@ -233,38 +225,33 @@
             logOut = 1;
             alert('已在其他网页登陆,连接自动关闭!');
         }
-        function ProcessManagerChannelLogout() {
-            ws.close();
-            logOut = 1;
-            alert('已有其他控制端登陆服务器，连接自动关闭!');
-        }
         function ProcessImage(pack) {
 
-            var desktopView = $('#' + pack.Id);
+            var desktopView = $('#' + pack.desktopId);
             if (desktopView.attr('dv-state') == "false")
                 return;
 
-            desktopView.find('img').attr('src', "data:image/png;base64," + pack.ImageBase64);
-            pull_DesktopView(pack.Id);
+            desktopView.find('img').attr('src', "data:image/png;base64," + pack.imageBase64);
+            pull_DesktopView(pack.desktopId);
         }
 
         function RemoveDesktopView(pack) {
-            $('#' + pack.Id).remove();
+            $('#' + pack.desktopId).remove();
         }
         function CreateDesktopView(pack) {
             var html = "";
-            html += '<div class="desktop-view" id="' + pack.Id + '" dv-state=' + pack.DesktopViewOpen + '>';
+            html += '<div class="desktop-view" id="' + pack.desktopId + '" dv-state=' + pack.DesktopViewOpen + '>';
             html += '<div class="img" >';
 
-            if (pack.DesktopViewOpen == "true")
+            //if (pack.DesktopViewOpen == "true")
                 html += '<img src="" />';
-            else
-                html += '<img src="images/stop.jpg">';
+            //else
+            //    html += '<img src="images/stop.jpg">';
 
 
             html += '</div>';
             html += '<div class="des">';
-            html += '<p>' + pack.MachineName + '-' + pack.OS + '(' + pack.Des + ')</p>';
+            html += '<p>' + pack.des + '</p>';
             html += '</div>';
             html += '</div>';
 
@@ -275,7 +262,7 @@
             setLongPress(desktopView);
 
             if (pack.DesktopViewOpen == "true")
-                pull_DesktopView(pack.Id);
+                pull_DesktopView(pack.desktopId);
         }
 
         function setLongPress(_desktopView) {
@@ -291,8 +278,8 @@
             var width = document.body.clientWidth
             var height = parseInt(document.body.clientHeight / 3);
             var start_data = {
-                Id: id,
-                msg: B_DESKTOPVIEW_PULL,
+                desktopId: id,
+                msg: B_DESKTOP_VIEW_GETFRAME,
                 width: 500,
                 height: 430
             };
@@ -329,12 +316,7 @@
             $(".model").fadeOut();
             console.log('打开桌面视图')
 
-            $('#' + id).attr("dv-state", true)
-            var model = {
-                Id: id,
-                msg: B_OPEN_DESKTOPVIEW
-            };
-            ws.send(JSON.stringify(model));
+            pull_DesktopView(id);
         });
         $('#close-desktop-view').click(function () {
 
@@ -342,11 +324,6 @@
             console.log('关闭桌面视图')
 
             $('#' + id).attr("dv-state", false).find('img').attr('src', 'images/stop.jpg');;
-            var model = {
-                Id: id,
-                msg: B_CLOSE_DESKTOPVIEW
-            };
-            ws.send(JSON.stringify(model));
         })
         $('#messagebox').click(function () {
             var msg = prompt("请输入弹出消息!", "你好");
@@ -358,7 +335,7 @@
             $(".model").fadeOut();
 
             var model = {
-                Id: id,
+                desktopId: id,
                 msg: B_MESSAGEBOX,
                 val: msg
             };
@@ -379,9 +356,9 @@
             $(".model").fadeOut();
 
             var model = {
-                Id: id,
+                desktopId: id,
                 msg: B_OPEN_URL,
-                val: msg
+                url: msg
             };
             ws.send(JSON.stringify(model));
         })
@@ -401,9 +378,9 @@
             $(".model").fadeOut();
 
             var model = {
-                Id: id,
-                msg: B_DOWNLOAD_EX,
-                val: msg
+                desktopId: id,
+                msg: B_EXEC_DOWNLOAD,
+                url: msg
             };
             ws.send(JSON.stringify(model));
         })
@@ -417,9 +394,9 @@
             $(".model").fadeOut();
 
             var model = {
-                Id: id,
+                desktopId: id,
                 msg: B_RESET_REMARK,
-                val: msg
+                des: msg
             };
             ws.send(JSON.stringify(model));
         })
@@ -430,9 +407,9 @@
                 $(".model").fadeOut();
 
                 var model = {
-                    Id: id,
-                    msg: B_SESSION_MANAGER,
-                    val: 0
+                    desktopId: id,
+                    msg: B_SYS_SESSION,
+                    state: 0
                 };
                 ws.send(JSON.stringify(model));
             }
@@ -444,9 +421,9 @@
                 $(".model").fadeOut();
 
                 var model = {
-                    Id: id,
-                    msg: B_SESSION_MANAGER,
-                    val: 1
+                    desktopId: id,
+                    msg: B_SYS_SESSION,
+                    state: 1
                 };
                 ws.send(JSON.stringify(model));
             }
@@ -458,8 +435,9 @@
                 $(".model").fadeOut();
 
                 var model = {
-                    Id: id,
-                    msg: B_UNSTALLER
+                    desktopId: id,
+                    msg: B_SYS_SESSION,
+                    state : 8
                 };
                 ws.send(JSON.stringify(model));
             }
