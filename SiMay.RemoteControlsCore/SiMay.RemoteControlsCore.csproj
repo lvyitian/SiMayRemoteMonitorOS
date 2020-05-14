@@ -77,7 +77,6 @@
     <Compile Include="ApplicationAdapterHandlers\AudioAdapterHandler.cs" />
     <Compile Include="ApplicationAdapterHandlers\FileCommon\AwaitAutoResetEvent.cs" />
     <Compile Include="ApplicationAdapterHandlers\KeyboardAdapterHandler.cs" />
-    <Compile Include="ApplicationAdapterHandlers\RegistryEditorAdapterHandler.cs" />
     <Compile Include="ApplicationAdapterHandlers\RemoteFileAdapterHandler.cs" />
     <Compile Include="ApplicationAdapterHandlers\RemoteScreenAdapterHandler.cs" />
     <Compile Include="ApplicationAdapterHandlers\ShellAdapterHandler.cs" />

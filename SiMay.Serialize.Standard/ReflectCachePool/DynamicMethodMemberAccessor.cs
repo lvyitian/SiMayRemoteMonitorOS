@@ -12,9 +12,21 @@ namespace SiMay.ReflectCache
         static DynamicMethodMemberAccessor()
         {
             //预加载所有数据实体
-            var currentDomainTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(c => c.GetTypes());
+                var currentDomainTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(c => c.GetTypes());
             foreach (var type in currentDomainTypes.Where(c => c.IsSubclassOf(typeof(EntitySerializerBase))))
-                classAccessors.Add(type, CreateMemberAccessor(type));
+
+            {
+                try
+                {
+                    classAccessors.Add(type, CreateMemberAccessor(type));
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+            }
+
 
         }
         public static IMemberAccessor FindClassAccessor(Type instanceType)

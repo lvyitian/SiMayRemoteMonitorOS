@@ -32,7 +32,7 @@ namespace SiMay.Core
             {
                 RegistryKey key = Registry.CurrentUser;
                 RegistryKey software = key.OpenSubKey("SYSTEM\\SoftWare\\SiMayService");
-                value = software.GetValue(node).ToString();
+                value = software.GetValue(node)?.ToString();
             }
             catch { }
 

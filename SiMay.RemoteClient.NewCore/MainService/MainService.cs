@@ -492,7 +492,7 @@ namespace SiMay.ServiceCore.MainService
                     new DesktopViewFramePack()
                     {
                         InVisbleArea = getframe.InVisbleArea,
-                        ViewData = getframe.InVisbleArea ? ImageExtensionHelper.CaptureNoCursorToBytes(new Size(getframe.Width, getframe.Height)) : new byte[0]
+                        ViewData = ImageExtensionHelper.CaptureNoCursorToBytes(new Size(getframe.Width, getframe.Height))
                     });
             }, new object[] { GetAccessId(session), GetMessageEntity<DesktopViewGetFramePack>(session) });
         }

@@ -63,16 +63,16 @@ namespace SiMay.ServiceCore
             {
                 var startParameter = new StartParameterEx()
                 {
-                    Host = "94.191.115.121",
+                    Host = "127.0.0.1",
                     //Port = 520,
-                    Port = 522,
+                    Port = 5200,
                     GroupName = "默认分组",
                     RemarkInformation = "SiMayService",
                     IsHide = false,
                     IsMutex = false,
                     IsAutoStart = false,
-                    //SessionMode = 0,
-                    SessionMode = 1,
+                    SessionMode = 0,
+                    //SessionMode = 1,
                     AccessKey = 5200,
                     ServiceVersion = "正式6.0",
                     RunTimeText = DateTime.Now.ToString(),

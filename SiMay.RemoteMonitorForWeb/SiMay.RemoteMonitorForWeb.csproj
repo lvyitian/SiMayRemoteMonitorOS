@@ -11,8 +11,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\SiMay.Basic\SiMay.Basic.csproj" />
-		<ProjectReference Include="..\SiMay.RemoteControlsCore\SiMay.RemoteControlsCore.csproj" />
+	  <ProjectReference Include="..\SiMay.RemoteControls.Core\SiMay.RemoteControls.Core.csproj" />
 	</ItemGroup>
 
 </Project>

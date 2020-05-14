@@ -155,7 +155,7 @@
         var DESKTOPVIEW_IMG = 2003;
         var KEY_WRONG = 2004;
 
-        var ws = new WebSocket("ws://47.106.150.2:523/echo");
+        var ws = new WebSocket("ws://127.0.0.1:522/echo");
 
         // 建立 web socket 连接成功触发事件
         ws.onopen = function () {
@@ -240,13 +240,13 @@
         }
         function CreateDesktopView(pack) {
             var html = "";
-            html += '<div class="desktop-view" id="' + pack.desktopId + '" dv-state=' + pack.DesktopViewOpen + '>';
+            html += '<div class="desktop-view" id="' + pack.desktopId + '" dv-state=' + pack.open + '>';
             html += '<div class="img" >';
 
-            //if (pack.DesktopViewOpen == "true")
+            if (pack.open == true)
                 html += '<img src="" />';
-            //else
-            //    html += '<img src="images/stop.jpg">';
+            else
+                html += '<img src="images/stop.jpg">';
 
 
             html += '</div>';
@@ -261,7 +261,7 @@
             var desktopView = dvs.eq(dvs.length - 1);
             setLongPress(desktopView);
 
-            if (pack.DesktopViewOpen == "true")
+            if (pack.open == true)
                 pull_DesktopView(pack.desktopId);
         }
 
@@ -315,6 +315,8 @@
 
             $(".model").fadeOut();
             console.log('打开桌面视图')
+
+            $('#' + id).attr("dv-state", true);
 
             pull_DesktopView(id);
         });
@@ -437,7 +439,7 @@
                 var model = {
                     desktopId: id,
                     msg: B_SYS_SESSION,
-                    state : 8
+                    state : 6
                 };
                 ws.send(JSON.stringify(model));
             }

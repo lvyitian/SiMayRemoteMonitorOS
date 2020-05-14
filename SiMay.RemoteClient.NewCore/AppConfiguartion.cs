@@ -91,7 +91,7 @@ namespace SiMay.ServiceCore
             {
                 try
                 {
-                    return bool.Parse(SysConfigs.GetConfig("isOpenScreenView"));
+                    return bool.Parse(SysConfigs.GetConfig("isOpenScreenView") ?? "false");
                 }
                 catch
                 {
@@ -110,7 +110,7 @@ namespace SiMay.ServiceCore
             {
                 try
                 {
-                    return bool.Parse(SysConfigs.GetConfig("IsScreenRecord"));
+                    return bool.Parse(SysConfigs.GetConfig("IsScreenRecord") ?? "false");
                 }
                 catch
                 {
@@ -129,7 +129,7 @@ namespace SiMay.ServiceCore
             {
                 try
                 {
-                    return int.Parse(SysConfigs.GetConfig("ScreenRecordHeight"));
+                    return int.Parse(SysConfigs.GetConfig("ScreenRecordHeight") ?? "0");
                 }
                 catch
                 {
@@ -147,7 +147,7 @@ namespace SiMay.ServiceCore
             {
                 try
                 {
-                    return int.Parse(SysConfigs.GetConfig("ScreenRecordWidth"));
+                    return int.Parse(SysConfigs.GetConfig("ScreenRecordWidth") ?? "0");
                 }
                 catch
                 {
@@ -165,7 +165,7 @@ namespace SiMay.ServiceCore
             {
                 try
                 {
-                    return int.Parse(SysConfigs.GetConfig("ScreenRecordSpanTime"));
+                    return int.Parse(SysConfigs.GetConfig("ScreenRecordSpanTime") ?? "0");
                 }
                 catch
                 {
@@ -185,7 +185,7 @@ namespace SiMay.ServiceCore
             {
                 try
                 {
-                    return bool.Parse(SysConfigs.GetConfig("Offlinekeyboard"));
+                    return bool.Parse(SysConfigs.GetConfig("Offlinekeyboard") ?? "false");
                 }
                 catch
                 {
@@ -214,7 +214,7 @@ namespace SiMay.ServiceCore
             }
             set
             {
-                SysConfigs.SetConfig("HasSystemAuthority", value.ToString()) ;
+                SysConfigs.SetConfig("HasSystemAuthority", value.ToString());
             }
         }
     }
