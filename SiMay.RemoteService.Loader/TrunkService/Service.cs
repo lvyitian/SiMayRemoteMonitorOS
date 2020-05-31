@@ -1,6 +1,7 @@
 ﻿using SiMay.Basic;
 using SiMay.Core;
-using SiMay.ServiceCore.Win32;
+using SiMay.ModelBinder;
+using SiMay.Platform.Windows;
 using SiMay.Sockets.Tcp;
 using SiMay.Sockets.Tcp.Session;
 using SiMay.Sockets.Tcp.TcpConfiguration;
@@ -17,7 +18,7 @@ using System.ServiceProcess;
 using System.Text;
 using System.Threading;
 
-namespace SiMay.ServiceCore
+namespace SiMay.RemoteService.Loader
 {
     public partial class Service : ServiceBase
     {
@@ -48,7 +49,6 @@ namespace SiMay.ServiceCore
                 switch (notity)
                 {
                     case TcpSessionNotify.OnConnected:
-                        LogHelper.DebugWriteLog("OnConnected");
                         break;
                     case TcpSessionNotify.OnSend:
                         break;
@@ -78,14 +78,14 @@ namespace SiMay.ServiceCore
                 }
                 catch (Exception ex)
                 {
-                    LogHelper.WriteErrorByCurrentMethod("trunkService open listen exception:" + ex.Message);
+                    //LogHelper.WriteErrorByCurrentMethod("trunkService open listen exception:" + ex.Message);
                 }
                 completed = false;
                 Thread.Sleep(1000);
             }
             if (!completed)
             {
-                LogHelper.WriteErrorByCurrentMethod("listen all tcp port not completed，please check!");
+                //LogHelper.WriteErrorByCurrentMethod("listen all tcp port not completed，please check!");
                 Environment.Exit(0);//监听所有端口失败
             }
 
@@ -110,11 +110,11 @@ namespace SiMay.ServiceCore
                             var token = _userProcessSessionIdList[i];
                             if (token.Actived)
                                 continue;
-                            LogHelper.DebugWriteLog("!Actived:" + token.SessionId);
+                            //LogHelper.DebugWriteLog("!Actived:" + token.SessionId);
                             if ((int)(DateTime.Now - token.LastActiveTime).TotalSeconds > 5)//如果用户进程5秒内未重新激活
                             {
                                 bool completed = this.CreateProcessAsUser((uint)token.SessionId);//可能用户进程已结束，重新启动用户进程
-                                LogHelper.DebugWriteLog("Restart ProcessAsUser:" + completed);
+                                //LogHelper.DebugWriteLog("Restart ProcessAsUser:" + completed);
                                 if (!completed && !Win32Interop.EnumerateSessions().Any(c => c.SessionID == token.SessionId))
                                 {
                                     _userProcessSessionIdList.RemoveAt(i);//如果重启失败移除会话信息，可能会话已注销
@@ -123,7 +123,7 @@ namespace SiMay.ServiceCore
                                     {
                                         var activeSessionId = Kernel32.WTSGetActiveConsoleSessionId();//获取活动会话
                                         var isOk = this.CreateProcessAsUser(activeSessionId, true);
-                                        LogHelper.DebugWriteLog("Restart ProcessAsUser activeSessionId:" + activeSessionId + " status:" + isOk);
+                                        //LogHelper.DebugWriteLog("Restart ProcessAsUser activeSessionId:" + activeSessionId + " status:" + isOk);
                                     }
                                     continue;
                                 }
@@ -155,9 +155,8 @@ namespace SiMay.ServiceCore
         [PacketHandler(TrunkMessageHead.S_Active)]
         private void ActiveHandler(TcpSocketSaeaSession session)
         {
-
             var sessionId = session.CompletedBuffer.GetMessageEntity<ActivePack>().SessionId;
-            LogHelper.DebugWriteLog("ActiveHandler:" + sessionId);
+            //LogHelper.DebugWriteLog("ActiveHandler:" + sessionId);
             session.AppTokens = new object[] {
                 sessionId
             };
@@ -174,7 +173,7 @@ namespace SiMay.ServiceCore
         {
             if (session.AppTokens == null && session.AppTokens.Length == 0)
                 return;
-            LogHelper.DebugWriteLog("SessionClosedHandler");
+            //LogHelper.DebugWriteLog("SessionClosedHandler");
             var sessionId = (int)session.AppTokens[0];
 
             lock (_lock)
@@ -184,7 +183,7 @@ namespace SiMay.ServiceCore
                     return;//已主动退出
                 token.Actived = false;//当连接意外离线时 
                 token.LastActiveTime = DateTime.Now;
-                LogHelper.DebugWriteLog("连接意外断开");
+                //LogHelper.DebugWriteLog("连接意外断开");
             }
         }
 
@@ -204,7 +203,7 @@ namespace SiMay.ServiceCore
         [PacketHandler(TrunkMessageHead.S_SendSas)]
         private void SendSasHandler(TcpSocketSaeaSession session)
         {
-            LogHelper.DebugWriteLog("SendSasHandler");
+            //LogHelper.DebugWriteLog("SendSasHandler");
             User32.SendSAS(false);
         }
 
@@ -223,7 +222,7 @@ namespace SiMay.ServiceCore
 
                 if (_userProcessSessionIdList.Count <= 0)//主动退出
                 {
-                    LogHelper.DebugWriteLog("InitiativeExitHandler");
+                    //LogHelper.DebugWriteLog("InitiativeExitHandler");
                     _isRun = false;
                     Environment.Exit(0);
                 }
@@ -244,7 +243,7 @@ namespace SiMay.ServiceCore
                         HasUserProcess = _userProcessSessionIdList.FindIndex(i => i.SessionId == c.SessionID) > -1 ? true : false
                     })
                     .ToArray();
-                LogHelper.DebugWriteLog("Session-Count:" + sessions.Count());
+                //LogHelper.DebugWriteLog("Session-Count:" + sessions.Count());
                 var data = MessageHelper.CopyMessageHeadTo(TrunkMessageHead.C_SessionItems,
                     new SessionStatusPack()
                     {
@@ -257,7 +256,7 @@ namespace SiMay.ServiceCore
         {
             try
             {
-                Process[] process = Process.GetProcesses();
+                var process = Process.GetProcesses();
                 foreach (Process pro in process)
                 {
                     if (pro.ProcessName.Equals(Process.GetCurrentProcess().ProcessName, StringComparison.OrdinalIgnoreCase) && pro.Id != Process.GetCurrentProcess().Id)

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace SiMay.Core
+namespace SiMay.ModelBinder
 {
     public class PacketModelBinder<TSession,TMessageHead>
     {

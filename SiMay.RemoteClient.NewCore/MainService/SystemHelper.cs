@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using SiMay.Core;
+using SiMay.Platform.Windows;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -11,7 +12,7 @@ using System.Windows.Forms;
 
 namespace SiMay.ServiceCore.MainService
 {
-    public class SystemSessionHelper
+    public class SystemHelper
     {
         /// <summary>
         /// 关机
@@ -64,30 +65,30 @@ namespace SiMay.ServiceCore.MainService
             switch (status)
             {
                 case SHUTDOWN:
-                    Process.Start("cmd.exe", "/c shutdown -s -t 0");
+                    SystemSessionHelper.Shutdown();
                     break;
 
                 case REBOOT:
-                    Process.Start("cmd.exe", "/c shutdown -r -t 0");
+                    SystemSessionHelper.Reboot();
                     break;
                 case REG_ACTION:
-                    SetAutoRun(true);
+                    SystemSessionHelper.SetAutoRun(true);
                     break;
 
                 case REG_CANCEL_Action:
-                    SetAutoRun(false);
+                    SystemSessionHelper.SetAutoRun(false);
                     break;
 
                 case ATTRIB_HIDE:
-                    SetExecutingFileHide(true);
+                    SystemSessionHelper.FileHide(true);
                     break;
                 case ATTRIB_SHOW:
-                    SetExecutingFileHide(false);
+                    SystemSessionHelper.FileHide(false);
                     break;
                 case UNSTALL:
                     UserTrunkContext.UserTrunkContextInstance?.InitiativeExit();
                     Thread.Sleep(100);//等待服务响应
-                    UnInstall();
+                    SystemSessionHelper.UnInstall();
                     break;
                 case INSTALL_SERVICE:
                     InstallAutoStartService();
@@ -98,38 +99,6 @@ namespace SiMay.ServiceCore.MainService
             }
         }
 
-        //设置自启动
-        public static void SetAutoRun(bool isRun)
-        {
-            try
-            {
-                RegistryKey keys;
-
-                //win8~10启动键位于currenUser内
-                if ((Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor == 2)
-                    || (Environment.OSVersion.Version.Major == 10 && Environment.OSVersion.Version.Minor == 0))
-                {
-                    keys = Registry.CurrentUser;
-                }
-                else
-                    keys = Registry.LocalMachine;
-
-                if (isRun)
-                {
-                    RegistryKey key = keys.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVerSion\\Run", true);
-                    if (key != null) key.SetValue("SiMayServiceEx", Application.ExecutablePath);
-                }
-                else
-                {
-                    RegistryKey key = keys.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVerSion\\Run", true);
-                    if (key != null) key.DeleteValue("SiMayServiceEx");
-                }
-            }
-            catch
-            {
-
-            }
-        }
 
         public static void InstallAutoStartService()
         {
@@ -160,24 +129,6 @@ namespace SiMay.ServiceCore.MainService
                 SystemMessageNotify.ShowTip("SiMay远程控制被控服务卸载失败!");
                 LogHelper.DebugWriteLog("Service UnInstall Not Completed!!");
             }
-        }
-
-        public static void UnInstall()
-        {
-            Environment.Exit(0);
-        }
-
-        public static void SetExecutingFileHide(bool isHide)
-        {
-            try
-            {
-                if (isHide)
-                    File.SetAttributes(Application.ExecutablePath,
-                    FileAttributes.Hidden | FileAttributes.System);
-                else
-                    File.SetAttributes(Application.ExecutablePath, ~FileAttributes.Hidden);
-            }
-            catch { }
         }
     }
 }

@@ -1,5 +1,5 @@
-﻿using SiMay.Basic;
-using SiMay.Core;
+﻿using SiMay.Core;
+using SiMay.ModelBinder;
 using SiMay.Sockets.Tcp;
 using SiMay.Sockets.Tcp.Client;
 using SiMay.Sockets.Tcp.Session;
@@ -11,7 +11,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 
-namespace SiMay.ServiceCore
+namespace SiMay.RemoteService.Loader
 {
     public class UserTrunkContext
     {
@@ -47,7 +47,7 @@ namespace SiMay.ServiceCore
         private string GetValueParse(string[] args, string name)
         {
             var paramText = args.FirstOrDefault(c => c.Contains(name));
-            if (paramText.IsNullOrEmpty())
+            if (string.IsNullOrEmpty(paramText))
                 return null;
             var paramSplits = paramText.Split(':');
             if (paramSplits.Length > 1)
@@ -65,7 +65,6 @@ namespace SiMay.ServiceCore
                 switch (notity)
                 {
                     case TcpSessionNotify.OnConnected:
-                        LogHelper.DebugWriteLog("InitConntectTrunkService:OnClosed");
                         _trunkTcpSession = session;
                         SendActiveFlag();
                         break;
@@ -77,7 +76,6 @@ namespace SiMay.ServiceCore
                         _handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<TrunkMessageHead>(), this);
                         break;
                     case TcpSessionNotify.OnClosed:
-                        LogHelper.DebugWriteLog("InitConntectTrunkService:OnClosed");
                         _trunkTcpSession = null;
                         _autoReset.Set();
                         SessionCloseHandler();
@@ -107,14 +105,12 @@ namespace SiMay.ServiceCore
         [PacketHandler(TrunkMessageHead.C_SessionItems)]
         private void SessionItemsHandler(TcpSocketSaeaSession session)
         {
-            LogHelper.DebugWriteLog("C_SessionItems:SessionItemsHandler");
             Thread.Sleep(100);//延迟一会，防止WaitOne之前Set
             _autoReset.Set();
         }
 
         public SessionItem[] GetSessionItems()
         {
-            LogHelper.DebugWriteLog("GetSessionItems--1");
             var data = MessageHelper.CopyMessageHeadTo(TrunkMessageHead.S_EnumerateSessions);
             Send(data);
             _autoReset.WaitOne();
@@ -122,7 +118,6 @@ namespace SiMay.ServiceCore
                 return new SessionItem[0];
 
             var sessionItems = _trunkTcpSession.CompletedBuffer.GetMessageEntity<SessionStatusPack>();
-            LogHelper.DebugWriteLog("GetSessionItems");
             return sessionItems.Sessions;
         }
 

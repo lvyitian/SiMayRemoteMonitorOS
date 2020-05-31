@@ -5,7 +5,7 @@ using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace SiMay.ServiceCore
+namespace SiMay.Platform.Windows
 {
     public static class CommonWin32Api
     {
@@ -146,14 +146,14 @@ namespace SiMay.ServiceCore
 
 
         [DllImport("iphlpapi.dll", SetLastError = true)]
-        internal static extern uint GetExtendedTcpTable(IntPtr pTcpTable, ref int dwOutBufLen, bool sort, int ipVersion,
+        public static extern uint GetExtendedTcpTable(IntPtr pTcpTable, ref int dwOutBufLen, bool sort, int ipVersion,
             TcpTableClass tblClass, uint reserved = 0);
 
         [DllImport("iphlpapi.dll")]
-        internal static extern int SetTcpEntry(IntPtr pTcprow);
+        public static extern int SetTcpEntry(IntPtr pTcprow);
 
         [StructLayout(LayoutKind.Sequential)]
-        internal struct MibTcprowOwnerPid
+        public struct MibTcprowOwnerPid
         {
             public uint state;
             public uint localAddr;
@@ -184,13 +184,13 @@ namespace SiMay.ServiceCore
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        internal struct MibTcptableOwnerPid
+        public struct MibTcptableOwnerPid
         {
             public uint dwNumEntries;
             private readonly MibTcprowOwnerPid table;
         }
 
-        internal enum TcpTableClass
+        public enum TcpTableClass
         {
             TcpTableBasicListener,
             TcpTableBasicConnections,

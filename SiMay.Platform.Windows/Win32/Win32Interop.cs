@@ -1,14 +1,13 @@
-﻿using SiMay.ServiceCore.Win32;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using static SiMay.ServiceCore.Win32.ADVAPI32;
-using static SiMay.ServiceCore.Win32.User32;
+using static SiMay.Platform.Windows.ADVAPI32;
+using static SiMay.Platform.Windows.User32;
 
-namespace SiMay.ServiceCore.Win32
+namespace SiMay.Platform.Windows
 {
     public class Win32Interop
     {

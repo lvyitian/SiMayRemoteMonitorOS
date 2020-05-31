@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using SiMay.Basic;
 using SiMay.Core;
 using SiMay.Net.SessionProvider;
+using SiMay.ModelBinder;
 using SiMay.Serialize.Standard;
 
 namespace SiMay.RemoteControlsCore.HandlerAdapters

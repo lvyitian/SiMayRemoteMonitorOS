@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security;
 
-namespace SiMay.ServiceCore.Win32
+namespace SiMay.Platform.Windows
 {
     public static class ADVAPI32
     {

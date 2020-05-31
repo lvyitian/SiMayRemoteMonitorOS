@@ -1,4 +1,5 @@
 ﻿using SiMay.Core;
+using SiMay.ModelBinder;
 using SiMay.ServiceCore.Attributes;
 using SiMay.Sockets.Tcp.Session;
 using System;
@@ -6,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using CommonWin32Api = SiMay.Platform.Windows.CommonWin32Api;
 
 namespace SiMay.ServiceCore
 {

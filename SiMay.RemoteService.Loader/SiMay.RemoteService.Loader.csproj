@@ -55,7 +55,6 @@
       <HintPath>..\packages\Costura.Fody.1.6.1\lib\portable-net+sl+win+wpa+wp\Costura.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Management" />
@@ -67,6 +66,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SiMay.Core\Entitys\ServiceOptions.cs">
+      <Link>Entitys\ServiceOptions.cs</Link>
+    </Compile>
     <Compile Include="AppConfiguartion.cs" />
     <Compile Include="CommonHelper.cs" />
     <Compile Include="Entitys\StartParameter.cs" />
@@ -75,7 +77,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegValueHelper.cs" />
-    <Compile Include="SystemInforUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -86,6 +87,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SiMay.Serialize.Standard\SiMay.Serialize.Standard.csproj">
+      <Project>{9525a4aa-6731-4ab2-8cd0-addf7940fe32}</Project>
+      <Name>SiMay.Serialize.Standard</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SiMay.Sockets.Standard\SiMay.Sockets.Standard.csproj">
       <Project>{866f8fe0-ee58-4d38-8be7-cbdd19dd1b40}</Project>
       <Name>SiMay.Sockets.Standard</Name>

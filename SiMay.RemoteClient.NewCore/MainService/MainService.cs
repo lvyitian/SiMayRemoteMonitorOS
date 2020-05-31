@@ -70,10 +70,10 @@ namespace SiMay.ServiceCore.MainService
             AppConfiguartion.IdentifyId = startParameter.UniqueId;
 
             if (AppConfiguartion.IsHideExcutingFile)
-                SystemSessionHelper.SetExecutingFileHide(true);
+                SystemHelper.SetExecutingFileHide(true);
 
             if (AppConfiguartion.IsAutoRun)
-                SystemSessionHelper.SetAutoRun(true);
+                SystemHelper.SetAutoRun(true);
 
             _screen_record_height = AppConfiguartion.ScreenRecordHeight;
             _screen_record_width = AppConfiguartion.ScreenRecordWidth;
@@ -343,7 +343,7 @@ namespace SiMay.ServiceCore.MainService
         [PacketHandler(MessageHead.S_MAIN_SESSION)]
         private void SetSystemSession(TcpSocketSaeaSession session)
         {
-            SystemSessionHelper.SetSessionStatus(GetMessage(session)[0]);
+            SystemHelper.SetSessionStatus(GetMessage(session)[0]);
         }
 
         [PacketHandler(MessageHead.S_MAIN_RELOADER)]

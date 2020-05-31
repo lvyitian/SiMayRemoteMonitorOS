@@ -39,9 +39,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SiMay.Core.Standard", "SiMa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiMay.Platform.Windows", "SiMay.Platform.Windows\SiMay.Platform.Windows.csproj", "{B8B6A5BD-5349-4114-B93C-C1A3FD028F66}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiMay.RemoteControls.Core", "SiMay.RemoteControls.Core\SiMay.RemoteControls.Core.csproj", "{8F5633D0-ADF1-4623-9BB0-2BEC910DFB45}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SiMay.RemoteControls.Core", "SiMay.RemoteControls.Core\SiMay.RemoteControls.Core.csproj", "{8F5633D0-ADF1-4623-9BB0-2BEC910DFB45}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiMay.RemoteMonitorFor.Web", "SiMay.RemoteMonitorFor.Web\SiMay.RemoteMonitorFor.Web.csproj", "{218F5344-00FC-4428-82CE-7C4B79F04A4F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiMay.ModelBinder", "SiMay.ModelBinder\SiMay.ModelBinder.csproj", "{3547C677-4535-40BF-8185-F990C8B0D00F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -222,6 +224,18 @@ Global
 		{218F5344-00FC-4428-82CE-7C4B79F04A4F}.Release|x64.Build.0 = Release|Any CPU
 		{218F5344-00FC-4428-82CE-7C4B79F04A4F}.Release|x86.ActiveCfg = Release|Any CPU
 		{218F5344-00FC-4428-82CE-7C4B79F04A4F}.Release|x86.Build.0 = Release|Any CPU
+		{3547C677-4535-40BF-8185-F990C8B0D00F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3547C677-4535-40BF-8185-F990C8B0D00F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3547C677-4535-40BF-8185-F990C8B0D00F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3547C677-4535-40BF-8185-F990C8B0D00F}.Debug|x64.Build.0 = Debug|Any CPU
+		{3547C677-4535-40BF-8185-F990C8B0D00F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3547C677-4535-40BF-8185-F990C8B0D00F}.Debug|x86.Build.0 = Debug|Any CPU
+		{3547C677-4535-40BF-8185-F990C8B0D00F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3547C677-4535-40BF-8185-F990C8B0D00F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3547C677-4535-40BF-8185-F990C8B0D00F}.Release|x64.ActiveCfg = Release|Any CPU
+		{3547C677-4535-40BF-8185-F990C8B0D00F}.Release|x64.Build.0 = Release|Any CPU
+		{3547C677-4535-40BF-8185-F990C8B0D00F}.Release|x86.ActiveCfg = Release|Any CPU
+		{3547C677-4535-40BF-8185-F990C8B0D00F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -241,6 +255,7 @@ Global
 		{B8B6A5BD-5349-4114-B93C-C1A3FD028F66} = {04BD2EEA-6BA3-47AD-A7F4-67D54E304498}
 		{8F5633D0-ADF1-4623-9BB0-2BEC910DFB45} = {A86A6BBD-1122-4993-B472-6A0265E5F2A1}
 		{218F5344-00FC-4428-82CE-7C4B79F04A4F} = {A86A6BBD-1122-4993-B472-6A0265E5F2A1}
+		{3547C677-4535-40BF-8185-F990C8B0D00F} = {5E72F9F6-8DB0-4727-92F3-D05A3CC0348E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A0BD3F74-AC23-4649-932F-ECB61CF9EED6}

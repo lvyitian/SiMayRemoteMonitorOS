@@ -1,5 +1,6 @@
 ﻿using SiMay.Basic;
 using SiMay.Core;
+using SiMay.ModelBinder;
 using SiMay.Net.SessionProvider;
 using SiMay.Net.SessionProvider.Providers;
 using SiMay.Sockets.Tcp;

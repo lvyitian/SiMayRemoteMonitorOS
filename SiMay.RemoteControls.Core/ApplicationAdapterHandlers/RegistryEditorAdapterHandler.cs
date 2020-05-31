@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using SiMay.Core;
 using SiMay.Net.SessionProvider;
+using SiMay.ModelBinder;
 using SiMay.Platform.Windows;
 
 namespace SiMay.RemoteControlsCore.HandlerAdapters

@@ -1,4 +1,4 @@
-﻿namespace SiMay.ServiceCore
+﻿namespace SiMay.RemoteService.Loader
 {
     partial class Service
     {

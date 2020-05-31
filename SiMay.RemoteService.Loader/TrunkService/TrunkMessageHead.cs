@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace SiMay.ServiceCore
+namespace SiMay.RemoteService.Loader
 {
     public enum TrunkMessageHead : Int16
     {
