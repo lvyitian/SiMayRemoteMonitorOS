@@ -1,4 +1,5 @@
 ﻿using SiMay.Core;
+using SiMay.ModelBinder;
 using SiMay.ServiceCore.Attributes;
 using SiMay.Sockets.Tcp.Session;
 

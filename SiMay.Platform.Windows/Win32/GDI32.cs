@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SiMay.ServiceCore.Win32
+namespace SiMay.Platform.Windows
 {
     public static class GDI32
     {

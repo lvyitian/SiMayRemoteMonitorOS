@@ -104,7 +104,7 @@ namespace SiMay.Core
                 var entity = DeserializePacket<T>(GetMessagePayload(data));
                 return entity;
             }
-            catch (Exception e)
+            catch
             {
                 //File.WriteAllBytes(Path.Combine(Environment.CurrentDirectory, $"{typeof(T).FullName}_{DateTime.Now.ToFileTime()}"), data);
             }

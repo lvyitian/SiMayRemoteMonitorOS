@@ -1,5 +1,6 @@
 ﻿using SiMay.Basic;
 using SiMay.Core;
+using SiMay.ModelBinder;
 using SiMay.Platform.Windows;
 using SiMay.ServiceCore.Attributes;
 using SiMay.ServiceCore.Entitys;
@@ -10,7 +11,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using static SiMay.ServiceCore.CommonWin32Api;
+using static SiMay.Platform.Windows.CommonWin32Api;
 
 namespace SiMay.ServiceCore
 {

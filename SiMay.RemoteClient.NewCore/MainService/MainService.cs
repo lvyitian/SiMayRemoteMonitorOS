@@ -167,7 +167,8 @@ namespace SiMay.ServiceCore.MainService
                 {
                     AccessId = accessId,//当前主控端标识
                     AccessKey = AppConfiguartion.AccessKey,
-                    Type = (byte)type
+                    Type = (byte)type,
+                    AssemblyLoad = true
                 });
         }
 

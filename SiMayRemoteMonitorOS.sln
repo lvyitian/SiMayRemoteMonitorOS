@@ -45,6 +45,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiMay.RemoteMonitorFor.Web"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiMay.ModelBinder", "SiMay.ModelBinder\SiMay.ModelBinder.csproj", "{3547C677-4535-40BF-8185-F990C8B0D00F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SiMay.UnitTest", "SiMay.UnitTest", "{55773480-7191-4C0C-BBF8-985D62DBE101}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

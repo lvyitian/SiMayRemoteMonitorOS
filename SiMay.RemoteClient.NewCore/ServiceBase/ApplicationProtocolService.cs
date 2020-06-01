@@ -1,5 +1,6 @@
 ﻿using SiMay.Basic;
 using SiMay.Core;
+using SiMay.ModelBinder;
 using SiMay.Sockets.Tcp.Session;
 using System;
 using System.Collections.Generic;

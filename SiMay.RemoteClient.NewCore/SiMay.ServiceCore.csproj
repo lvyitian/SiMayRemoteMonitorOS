@@ -161,24 +161,7 @@
     <Compile Include="Interface\IApplicationService.cs" />
     <Compile Include="Helper\RegValueHelper.cs" />
     <Compile Include="ServiceBase\MainApplicationService.cs" />
-    <Compile Include="TrunkService\Packet\PacketEntity.cs" />
-    <Compile Include="TrunkService\Service.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="TrunkService\Service.designer.cs">
-      <DependentUpon>Service.cs</DependentUpon>
-    </Compile>
     <Compile Include="SysUtil.cs" />
-    <Compile Include="TrunkService\TrunkMessageHead.cs" />
-    <Compile Include="TrunkService\UserTrunkContext.cs" />
-    <Compile Include="Win32\CommonWin32Api.cs" />
-    <Compile Include="Win32\ADVAPI32.cs" />
-    <Compile Include="Win32\GDI32.cs" />
-    <Compile Include="Win32\Kernel32.cs" />
-    <Compile Include="Win32\SECUR32.cs" />
-    <Compile Include="Win32\User32.cs" />
-    <Compile Include="Win32\Win32Interop.cs" />
-    <Compile Include="Win32\WTSAPI32.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -227,6 +210,10 @@
     <ProjectReference Include="..\SiMay.Core.Standard\SiMay.Core.Standard.csproj">
       <Project>{48F71FA4-BDA3-4B2D-BC07-9F24CB9A6FB5}</Project>
       <Name>SiMay.Core.Standard</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SiMay.ModelBinder\SiMay.ModelBinder.csproj">
+      <Project>{3547c677-4535-40bf-8185-f990c8b0d00f}</Project>
+      <Name>SiMay.ModelBinder</Name>
     </ProjectReference>
     <ProjectReference Include="..\SiMay.Platform.Windows\SiMay.Platform.Windows.csproj">
       <Project>{B8B6A5BD-5349-4114-B93C-C1A3FD028F66}</Project>

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace SiMay.ServiceCore.Win32
+namespace SiMay.Platform.Windows
 {
     public static class Kernel32
     {

@@ -5,7 +5,7 @@ using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace SiMay.ServiceCore.Win32
+namespace SiMay.Platform.Windows
 {
     public static class User32
     {

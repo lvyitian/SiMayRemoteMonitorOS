@@ -1,6 +1,8 @@
 ﻿using Microsoft.VisualBasic.Devices;
 using SiMay.Basic;
 using SiMay.Core;
+using SiMay.ModelBinder;
+using SiMay.RemoteService.Loader;
 using SiMay.ServiceCore.Attributes;
 using SiMay.ServiceCore.Helper;
 using SiMay.Sockets.Tcp.Session;
@@ -9,7 +11,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
-using static SiMay.ServiceCore.CommonWin32Api;
+using static SiMay.Platform.Windows.CommonWin32Api;
 
 namespace SiMay.ServiceCore
 {

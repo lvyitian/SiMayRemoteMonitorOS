@@ -12,6 +12,8 @@ namespace SiMay.Core
     {
         S_GLOBAL_ONCLOSE = 0,                              //关闭连接通道
         S_GLOBAL_OK,                                       //确认标志
+        S_GLOBAL_PLUGIN,                                   //插件文件
+
         C_GLOBAL_CONNECT = 1000,                           //连接确认包，带连接密码
 
 
@@ -30,7 +32,6 @@ namespace SiMay.Core
         S_MAIN_DESKTOPRECORD_GETFRAME,                     //获取下一帧屏幕记录数据
         S_MAIN_GROUP,                                      //分组
         S_MAIN_UPDATE,                                     //远程更新
-        S_MAIN_PLUGIN_FILES,                               //插件文件
         S_MAIN_RELOADER,                                   //重新载入服务端程序(重启进程)
         S_MAIN_INSTANLL_SERVICE,                           //服务安装
         S_MAIN_UNINSTANLL_SERVICE,                         //卸载服务

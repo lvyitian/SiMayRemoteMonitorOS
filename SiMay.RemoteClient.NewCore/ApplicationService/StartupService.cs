@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using SiMay.Core;
+using SiMay.ModelBinder;
 using SiMay.Platform.Windows;
 using SiMay.ServiceCore.Attributes;
 using SiMay.Sockets.Tcp.Session;

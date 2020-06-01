@@ -1,4 +1,5 @@
-﻿using SiMay.Platform.Windows;
+﻿using SiMay.Basic;
+using SiMay.Platform.Windows;
 using SiMay.Serialize.Standard;
 using SiMay.Sockets.Tcp;
 using SiMay.Sockets.Tcp.Client;
@@ -10,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.ServiceProcess;
 using System.Text;
 using System.Threading;
@@ -30,24 +32,29 @@ namespace SiMay.RemoteService.Loader
         /// </summary>
         private const string SERVICE_USER_START = "-user";
 
-        private const byte CONNECT_MAIN = 0;
-        private const byte CONNECT_WORK = 1;
+        /// <summary>
+        /// 插件数据
+        /// </summary>
+        private const short S_GLOBAL_PLUGIN = 2;
 
-        private const short S_GLOBAL_OK = 1;
-        private const short C_GLOBAL_CONNECT = 1000;
+        /// <summary>
+        /// 主服务连接类型
+        /// </summary>
+        private const byte MAIN_CONNECT = 0;
 
-        private const short S_MAIN_PLUGIN_FILES = 1014;
+        /// <summary>
+        /// 服务工作连接类型
+        /// </summary>
+        private const byte WORK_CONNECT = 1;
 
-        private const short C_MAIN_LOGIN = 2000;
-        //private const short C_MAIN_GET_PLUGIN_FILES = 2006;
-
+        /// <summary>
+        /// 主核心库文件名
+        /// </summary>
         private const string MAIN_PLUGIN_COMNAME = "SiMayServiceCore.dll";
-        private const string LOG_FILENAME = "SiMayRun.log";
 
         private static IAppMainService _appMainService;
 
-        private static bool _hasloadPlugin;
-        private static IPEndPoint _iPEndPoint;
+        private static IPEndPoint _ipendPoint;
         private static StartParameter _startParameter;
         private static TcpSocketSaeaClientAgent _clientAgent;
         private static Dictionary<string, byte[]> _pluginCOMs = new Dictionary<string, byte[]>();
@@ -77,7 +84,6 @@ namespace SiMay.RemoteService.Loader
                     RunTimeText = DateTime.Now.ToString(),
                     UniqueId = "AAAAAAAAAAAAAAA11111111"
                 };
-                //_startParameter.Host = "94.191.115.121";
                 byte[] binary = File.ReadAllBytes(Application.ExecutablePath);
                 var sign = BitConverter.ToInt16(binary, binary.Length - sizeof(Int16));
                 if (sign == 9999)
@@ -156,7 +162,7 @@ namespace SiMay.RemoteService.Loader
                     var ip = GetHostByName(_startParameter.Host);
                     if (ip != null)
                     {
-                        _iPEndPoint = new IPEndPoint(IPAddress.Parse(ip), _startParameter.Port);
+                        _ipendPoint = new IPEndPoint(IPAddress.Parse(ip), _startParameter.Port);
                         break;
                     }
 
@@ -178,16 +184,16 @@ namespace SiMay.RemoteService.Loader
                 var ip = GetHostByName(_startParameter.Host);//尝试解析域名
                 if (ip == null)
                     return;
-                _iPEndPoint = new IPEndPoint(IPAddress.Parse(ip), _startParameter.Port);
+                _ipendPoint = new IPEndPoint(IPAddress.Parse(ip), _startParameter.Port);
             });
-            _clientAgent.ConnectToServer(_iPEndPoint);
+            _clientAgent.ConnectToServer(_ipendPoint);
         }
 
         private static void Notify(TcpSessionNotify notify, TcpSocketSaeaSession session)
         {
-            if (_appMainService != null)
+            //如果服务已加载，转交消息核心程序
+            if (!_appMainService.IsNull())
             {
-                //如果服务已加载
                 _appMainService.Notify(notify, session);
                 return;
             }
@@ -195,33 +201,29 @@ namespace SiMay.RemoteService.Loader
             switch (notify)
             {
                 case TcpSessionNotify.OnConnected:
-                    byte[] ack = BuilderAckPacket(_startParameter.AccessKey, CONNECT_MAIN);
-                    MsgHelper.SendMessage(session, C_GLOBAL_CONNECT, ack);
+
+                    var ackData = BuilderAckPacket(_startParameter.AccessKey, MAIN_CONNECT);//构造ACK数据包
+                    var carryAccessIdData = WrapAccessId(ackData, 0);//构造带AccessId信息的数据包
+                    session.SendAsync(carryAccessIdData);
                     break;
                 case TcpSessionNotify.OnSend:
                     break;
                 case TcpSessionNotify.OnDataReceiveing:
                     break;
                 case TcpSessionNotify.OnDataReceived:
-                    switch (MsgHelper.GetMessageHead(session.CompletedBuffer))
+
+                    var packBody = TakeHeadAndMessage(session);
+                    var headInt = BitConverter.ToInt16(packBody, 0);
+                    switch (headInt)
                     {
-                        case S_GLOBAL_OK:
-                            byte[] data = BuilerTempLoginPacket();
-                            MsgHelper.SendMessage(session, C_MAIN_LOGIN, data);
-                            break;
-                        case S_MAIN_PLUGIN_FILES:
-                            if (_hasloadPlugin)
-                                return;
-                            AnalysisLoadAssemblyCOM(session, MsgHelper.GetMessagePayload(session.CompletedBuffer));
+                        case S_GLOBAL_PLUGIN:
+                            AnalysisLoadAssemblyCOM(session, packBody);
                             break;
                         default:
                             break;
                     }
                     break;
                 case TcpSessionNotify.OnClosed:
-
-                    if (_hasloadPlugin)
-                        return;
 
                     System.Timers.Timer resetTimer = new System.Timers.Timer();
                     resetTimer.Interval = 5000;
@@ -239,22 +241,38 @@ namespace SiMay.RemoteService.Loader
                     break;
             }
         }
-        public static byte[] BuilderAckPacket(long accessKey, byte type)
-        {
-            byte[] ack = new byte[sizeof(long) + sizeof(byte)];
-            BitConverter.GetBytes(accessKey).CopyTo(ack, 0);
-            ack[ack.Length - 1] = type;
 
-            return ack;
+
+        private static byte[] TakeHeadAndMessage(TcpSocketSaeaSession session)
+        {
+            var bytes = session.CompletedBuffer.Copy(sizeof(long), session.CompletedBuffer.Length - sizeof(long));
+            return GZipHelper.Decompress(bytes);
         }
 
-
-
-        private static void BuilderAdd(List<byte> buffers, string text)
+        private static byte[] WrapAccessId(byte[] data, long accessId)
         {
-            byte[] bytes = Encoding.Unicode.GetBytes(text);
-            buffers.AddRange(BitConverter.GetBytes(bytes.Length));
-            buffers.AddRange(bytes);
+            var accessIdBytes = BitConverter.GetBytes(accessId);
+            var byteBuilder = new List<byte>();
+            byteBuilder.AddRange(accessIdBytes);
+            byteBuilder.AddRange(GZipHelper.Compress(data, 0, data.Length));
+            return byteBuilder.ToArray();
+        }
+
+        /// <summary>
+        /// 构造确认包，通知主控端未载入核心库
+        /// </summary>
+        /// <param name="accessKey"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        private static byte[] BuilderAckPacket(long accessKey, byte type)
+        {
+            var emptyLong = new byte[8];
+            var byteBuilder = new List<byte>();
+            byteBuilder.Add(type);
+            byteBuilder.AddRange(emptyLong);
+            byteBuilder.AddRange(BitConverter.GetBytes(accessKey));
+            byteBuilder.Add(0);//未载入核心库
+            return byteBuilder.ToArray();
         }
 
         private static void AnalysisLoadAssemblyCOM(TcpSocketSaeaSession session, byte[] data)
@@ -284,11 +302,9 @@ namespace SiMay.RemoteService.Loader
                 var assembly = Assembly.Load(_pluginCOMs[MAIN_PLUGIN_COMNAME]);
                 var mainType = assembly.GetTypes().Where(c => typeof(IAppMainService).IsAssignableFrom(c)).FirstOrDefault();
                 if (mainType == null)
-                    throw new InvalidOperationException();
+                    return;
 
-                _hasloadPlugin = true;
-
-                _appMainService = Activator.CreateInstance(mainType, _startParameter, _clientAgent, session, _iPEndPoint) as IAppMainService;
+                _appMainService = Activator.CreateInstance(mainType, _startParameter, _clientAgent, session, _ipendPoint) as IAppMainService;
             }
         }
         public static string GetHostByName(string host)
@@ -307,12 +323,12 @@ namespace SiMay.RemoteService.Loader
 
         private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
         {
-            CommonHelper.WriteText(e.Exception, Path.Combine(Environment.CurrentDirectory, LOG_FILENAME));
+            //CommonHelper.WriteText(e.Exception, Path.Combine(Environment.CurrentDirectory, LOG_FILENAME));
         }
 
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            CommonHelper.WriteText(e.ExceptionObject as Exception, Path.Combine(Environment.CurrentDirectory, LOG_FILENAME));
+            //CommonHelper.WriteText(e.ExceptionObject as Exception, Path.Combine(Environment.CurrentDirectory, LOG_FILENAME));
         }
     }
 }
