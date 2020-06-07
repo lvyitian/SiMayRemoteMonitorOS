@@ -21,7 +21,7 @@ namespace SiMay.RemoteMonitorForWeb
             _appMainAdapterHandler = new MainApplicationAdapterHandler(config);
             _appMainAdapterHandler.ViewRefreshInterval = AppConfiguration.DesktopRefreshInterval;
             _appMainAdapterHandler.OnProxyNotifyHandlerEvent += OnProxyNotify;
-            _appMainAdapterHandler.OnCreateDesktopViewHandlerEvent += OnCreateDesktopViewHandlerEvent;
+            //_appMainAdapterHandler.OnCreateDesktopViewHandlerEvent += OnCreateDesktopViewHandlerEvent;
             _appMainAdapterHandler.OnLogHandlerEvent += OnLogHandlerEvent;
             _appMainAdapterHandler.OnLoginHandlerEvent += OnLoginHandlerEvent; ;
             _appMainAdapterHandler.OnLogOutHandlerEvent += OnLogOutHandlerEvent;
@@ -43,12 +43,32 @@ namespace SiMay.RemoteMonitorForWeb
 
         private void OnLoginHandlerEvent(SessionSyncContext syncContext)
         {
-            _appMainAdapterHandler.RemoteOpenDesktopView(syncContext, true);
+            var des = syncContext.KeyDictions[SysConstants.MachineName].ToString() + "-" + syncContext.KeyDictions[SysConstants.OSVersion].ToString() + "(" + syncContext.KeyDictions[SysConstants.Remark].ToString() + ")";
+            var lanuchDesktopView = syncContext.KeyDictions[SysConstants.OpenScreenRecord].ConvertTo<bool>();
+            var view = DesktopViewContextsHelper.CreateDesktopView(syncContext, TokenHelper.Session);
+            view.Caption = des;
+
+            syncContext.KeyDictions.Add("DesktopViewId", view.Id);
+            _serivceDesktopViews.Add(view.Id, view);
+
+            if (TokenHelper.Has())
+            {
+                view.Session = TokenHelper.Session;
+                TokenHelper.Session.Send(JsonConvert.SerializeObject(new
+                {
+                    code = WebMessageHead.S_LOGIN_SESSION,
+                    des = view.Caption,
+                    desktopId = view.Id,
+                    open = lanuchDesktopView
+                }));
+            }
+
+            _appMainAdapterHandler.SetSessionDesktopView(syncContext, view);
         }
 
         private void Server_SessionClosed(WebSocketSession session, CloseReason value)
         {
-            if (TokenHelper.Has () && TokenHelper.Session.SessionID == session.SessionID)
+            if (TokenHelper.Has() && TokenHelper.Session.SessionID == session.SessionID)
                 TokenHelper.LogOut();
         }
 
@@ -185,31 +205,6 @@ namespace SiMay.RemoteMonitorForWeb
                     desktopId = desktopId
                 }));
             }
-        }
-
-        private IDesktopView OnCreateDesktopViewHandlerEvent(SessionSyncContext syncContext)
-        {
-            var des = syncContext.KeyDictions[SysConstants.MachineName].ToString() + "-" + syncContext.KeyDictions[SysConstants.OSVersion].ToString() + "(" + syncContext.KeyDictions[SysConstants.Remark].ToString() + ")";
-            var lanuchDesktopView = syncContext.KeyDictions[SysConstants.HasLaunchDesktopRecord].ConvertTo<bool>();
-            var view = DesktopViewContextsHelper.CreateDesktopView(syncContext, TokenHelper.Session);
-            view.Caption = des;
-            
-            syncContext.KeyDictions.Add("DesktopViewId", view.Id);
-            _serivceDesktopViews.Add(view.Id, view);
-
-            if (TokenHelper.Has())
-            {
-                view.Session = TokenHelper.Session;
-                TokenHelper.Session.Send(JsonConvert.SerializeObject(new
-                {
-                    code = WebMessageHead.S_LOGIN_SESSION,
-                    des = view.Caption,
-                    desktopId = view.Id,
-                    open = lanuchDesktopView
-                }));
-            }
-
-            return view;
         }
 
         private void OnProxyNotify(ProxyProviderNotify level, EventArgs arg)

@@ -29,6 +29,6 @@ namespace SiMay.Core
         public int RecordWidth { get; set; }
         public int RecordSpanTime { get; set; }
 
-        public bool HasLoadServiceCOM { get; set; }
+        public bool InitialAssemblyLoad { get; set; }
     }
 }

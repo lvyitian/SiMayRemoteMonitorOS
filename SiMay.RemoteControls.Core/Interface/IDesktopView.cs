@@ -27,9 +27,6 @@ namespace SiMay.RemoteControlsCore
         /// </summary>
         SessionSyncContext SessionSyncContext { get; set; }
 
-
-        MainApplicationAdapterHandler Owner { get; set; }
-
         /// <summary>
         /// 展示视图
         /// </summary>

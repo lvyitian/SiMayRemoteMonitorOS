@@ -15,7 +15,7 @@ namespace SiMay.RemoteMonitor.UserControls
         public delegate void OnDoubleClickEventHnadler(SessionSyncContext sessionSync);
         public event OnDoubleClickEventHnadler OnDoubleClickEvent;
 
-        public MainApplicationAdapterHandler Owner { get; set; }
+        //public MainApplicationAdapterHandler Owner { get; set; }
 
 
         public UDesktopView(SessionSyncContext syncContext)
@@ -70,7 +70,7 @@ namespace SiMay.RemoteMonitor.UserControls
             img.Image?.Dispose();
             img.Image = image;
 
-            Owner.GetDesktopViewFrame(SessionSyncContext);
+            //Owner.GetDesktopViewFrame(SessionSyncContext);
         }
 
         public void CloseDesktopView()

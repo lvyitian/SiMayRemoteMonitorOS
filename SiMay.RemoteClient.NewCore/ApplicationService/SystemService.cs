@@ -79,12 +79,12 @@ namespace SiMay.ServiceCore
         public void CreateProcessAsUser(TcpSocketSaeaSession session)
         {
             var sessionId = GetMessageEntity<CreateProcessAsUserPack>(session).SessionId;
-            UserTrunkContext.UserTrunkContextInstance.CreateProcessAsUser(sessionId);
+            UserTrunkContext.UserTrunkContextInstance?.CreateProcessAsUser(sessionId);
         }
 
         private void SendSessionItem()
         {
-            var sessions = UserTrunkContext.UserTrunkContextInstance.GetSessionItems()
+            var sessions = UserTrunkContext.UserTrunkContextInstance?.GetSessionItems()
                 .Select(c => new  Core.SessionItem()
                 {
                     UserName = c.UserName,
@@ -94,6 +94,9 @@ namespace SiMay.ServiceCore
                     HasUserProcess = c.HasUserProcess
                 })
                 .ToArray();
+
+            if (sessions.IsNull())
+                return;
 
             SendTo(CurrentSession, MessageHead.C_SYSTEM_SESSIONS,
                         new SessionsPack()

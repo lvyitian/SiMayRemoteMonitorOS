@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Timers;
 using System.Windows.Forms;
-using static SiMay.ServiceCore.CommonWin32Api;
+using static SiMay.Platform.Windows.CommonWin32Api;
 
 namespace SiMay.ServiceCore
 {

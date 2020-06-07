@@ -7,35 +7,30 @@ namespace SiMay.ReflectCache
 {
     public class DynamicMethodMemberAccessor
     {
-        private static Dictionary<Type, IMemberAccessor> classAccessors = new Dictionary<Type, IMemberAccessor>();
+        private static Dictionary<Type, IMemberAccessor> _classAccessors = new Dictionary<Type, IMemberAccessor>();
 
         static DynamicMethodMemberAccessor()
         {
             //预加载所有数据实体
-                var currentDomainTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(c => c.GetTypes());
-            foreach (var type in currentDomainTypes.Where(c => c.IsSubclassOf(typeof(EntitySerializerBase))))
-
+            var currentDomainTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(c => c.GetTypes());
+            try
             {
-                try
-                {
-                    classAccessors.Add(type, CreateMemberAccessor(type));
-                }
-                catch (Exception ex)
-                {
-
-                }
-
+                foreach (var type in currentDomainTypes.Where(c => c.IsSubclassOf(typeof(EntitySerializerBase))))
+                    _classAccessors.Add(type, CreateMemberAccessor(type));
             }
+            catch (Exception ex)
+            {
 
-
+                throw ex;
+            }
         }
         public static IMemberAccessor FindClassAccessor(Type instanceType)
         {
             IMemberAccessor classAccessor;
-            if (!classAccessors.TryGetValue(instanceType, out classAccessor))
+            if (!_classAccessors.TryGetValue(instanceType, out classAccessor))
             {
                 classAccessor = CreateMemberAccessor(instanceType);
-                classAccessors.Add(instanceType, classAccessor);
+                _classAccessors.Add(instanceType, classAccessor);
             }
             return classAccessor;
         }

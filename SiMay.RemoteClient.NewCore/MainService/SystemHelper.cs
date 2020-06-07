@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using SiMay.Core;
 using SiMay.Platform.Windows;
+using SiMay.Platform.Windows.Helper;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -86,7 +87,7 @@ namespace SiMay.ServiceCore.MainService
                     SystemSessionHelper.FileHide(false);
                     break;
                 case UNSTALL:
-                    UserTrunkContext.UserTrunkContextInstance?.InitiativeExit();
+                    RemoteService.Loader.UserTrunkContext.UserTrunkContextInstance?.InitiativeExit();
                     Thread.Sleep(100);//等待服务响应
                     SystemSessionHelper.UnInstall();
                     break;
@@ -102,13 +103,13 @@ namespace SiMay.ServiceCore.MainService
 
         public static void InstallAutoStartService()
         {
-            SystemMessageNotify.ShowTip("SiMay远程控制被控服务正在安装服务!");
+            Platform.Windows.Helper.SystemMessageNotify.ShowTip("SiMay远程控制被控服务正在安装服务!");
             var svcFullName = Assembly.GetExecutingAssembly().Location;
             var parameter = " \"-serviceStart\"";//服务启动标志
             svcFullName += parameter;
             if (ServiceInstallerHelper.InstallService(svcFullName, AppConfiguartion.ServiceName, AppConfiguartion.ServiceDisplayName))
             {
-                SystemMessageNotify.ShowTip("SiMay远程控制被控服务安装完成!");
+                Platform.Windows.Helper.SystemMessageNotify.ShowTip("SiMay远程控制被控服务安装完成!");
                 //服务安装完成启动成功
                 Environment.Exit(0);
             }

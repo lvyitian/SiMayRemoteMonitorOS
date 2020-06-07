@@ -43,10 +43,12 @@ namespace SiMay.ServiceCore
         protected virtual void SendToBefore(TcpSocketSaeaSession session, byte[] data)
         {
             //为解决延迟发送导致的accessId不安全问题
-            var accessIdObj = Thread.GetData(Thread.GetNamedDataSlot("AccessId"));
-            var accessId = accessIdObj.IsNull() ? GetAccessId(session) : accessIdObj.ConvertTo<long>();
+            //var accessIdObj = Thread.GetData(Thread.GetNamedDataSlot("AccessId"));
+            //var accessId = accessIdObj.IsNull() ? GetAccessId(session) : accessIdObj.ConvertTo<long>();
 
-            SendTo(session, WrapAccessId(GZipHelper.Compress(data, 0, data.Length), accessId));
+            var accessId = GetAccessId(session);
+
+            SendTo(session, SysMessageConstructionHelper.WrapAccessId(data, accessId));
         }
 
         protected virtual void SendTo(TcpSocketSaeaSession session, byte[] data)
@@ -59,35 +61,20 @@ namespace SiMay.ServiceCore
         /// <param name="data"></param>
         /// <param name="accessId"></param>
         /// <returns></returns>
-        private byte[] WrapAccessId(byte[] data, long accessId)
-        {
-            var bytes = new byte[data.Length + sizeof(long)];
-            BitConverter.GetBytes(accessId).CopyTo(bytes, 0);
-            data.CopyTo(bytes, sizeof(long));
-            return bytes;
-        }
+
 
         protected virtual T GetMessageEntity<T>(TcpSocketSaeaSession session)
             where T : new()
-        {
-            return TakeHeadAndMessage(session).GetMessageEntity<T>();
-        }
+            => SysMessageConstructionHelper.GetMessageEntity<T>(session.CompletedBuffer);
+
 
         protected virtual byte[] GetMessage(TcpSocketSaeaSession session)
-        {
-            return TakeHeadAndMessage(session).GetMessagePayload();
-        }
+            => SysMessageConstructionHelper.GetMessage(session.CompletedBuffer);
+
 
         protected virtual MessageHead GetMessageHead(TcpSocketSaeaSession session)
-        {
-            return TakeHeadAndMessage(session).GetMessageHead<MessageHead>();
-        }
+            => SysMessageConstructionHelper.GetMessageHead(session.CompletedBuffer);
 
-        private byte[] TakeHeadAndMessage(TcpSocketSaeaSession session)
-        {
-            var bytes = session.CompletedBuffer.Copy(sizeof(long), session.CompletedBuffer.Length - sizeof(long));
-            return GZipHelper.Decompress(bytes);
-        }
 
         /// <summary>
         /// 获取当前数据来源AccessId
@@ -95,11 +82,8 @@ namespace SiMay.ServiceCore
         /// <param name="session"></param>
         /// <returns></returns>
         protected long GetAccessId(TcpSocketSaeaSession session)
-        {
-            if (session.CompletedBuffer.IsNull())
-                return 0;
-            return BitConverter.ToInt64(session.CompletedBuffer, 0);
-        }
+            => SysMessageConstructionHelper.GetAccessId(session.CompletedBuffer);
+
 
     }
 }

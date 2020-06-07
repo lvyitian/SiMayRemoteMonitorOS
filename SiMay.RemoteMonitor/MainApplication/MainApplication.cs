@@ -247,7 +247,7 @@ namespace SiMay.RemoteMonitor.MainApplication
             this._appMainAdapterHandler.OnReceiveHandlerEvent += OnReceiveHandlerEvent;
             this._appMainAdapterHandler.OnTransmitHandlerEvent += OnTransmitHandlerEvent;
             this._appMainAdapterHandler.OnLogOutHandlerEvent += OnLogOutHandlerEvent;
-            this._appMainAdapterHandler.OnCreateDesktopViewHandlerEvent += OnCreateDesktopViewHandlerEvent;
+            //this._appMainAdapterHandler.OnCreateDesktopViewHandlerEvent += OnCreateDesktopViewHandlerEvent;
             this._appMainAdapterHandler.OnLoginHandlerEvent += OnLoginHandlerEvent;
             this._appMainAdapterHandler.OnLoginUpdateHandlerEvent += OnLoginUpdateHandlerEvent;
             this._appMainAdapterHandler.OnApplicationCreatedEventHandler += OnApplicationCreatedEventHandler;
@@ -320,22 +320,12 @@ namespace SiMay.RemoteMonitor.MainApplication
             stripConnectedNum.Text = _connect_count.ToString();
         }
 
-        private IDesktopView OnCreateDesktopViewHandlerEvent(SessionSyncContext syncContext)
-        {
-            var view = new UDesktopView(syncContext)
-            {
-                Owner = _appMainAdapterHandler,
-                Height = this._viewCarouselContext.ViewHeight,
-                Width = this._viewCarouselContext.ViewWidth
-            };
-            view.OnDoubleClickEvent += DesktopViewDbClick;
+        //private IDesktopView OnCreateDesktopViewHandlerEvent(SessionSyncContext syncContext)
+        //{
 
-            this._appMainAdapterHandler.GetDesktopViewFrame(syncContext);
 
-            this.desktopViewLayout.Controls.Add(view);
-
-            return view;
-        }
+        //    return view;
+        //}
 
         private void OnTransmitHandlerEvent(SessionProviderContext session)
             => this._sendTransferredBytes += session.SendTransferredBytes;
@@ -696,8 +686,21 @@ namespace SiMay.RemoteMonitor.MainApplication
         {
             this.GetSelectedListItem().ForEach(c =>
             {
-                this._appMainAdapterHandler.RemoteOpenDesktopView(c.SessionSyncContext);
-                c.BackColor = Color.Transparent;
+                var view = new UDesktopView(c.SessionSyncContext)
+                {
+                    //Owner = _appMainAdapterHandler,
+                    Height = this._viewCarouselContext.ViewHeight,
+                    Width = this._viewCarouselContext.ViewWidth
+                };
+                if (this._appMainAdapterHandler.SetSessionDesktopView(c.SessionSyncContext, view))
+                {
+                    view.OnDoubleClickEvent += DesktopViewDbClick;
+
+                    this.desktopViewLayout.Controls.Add(view);
+
+                    this._appMainAdapterHandler.GetDesktopViewFrame(c.SessionSyncContext);
+                    c.BackColor = Color.Transparent;
+                }
             });
         }
 
@@ -706,7 +709,7 @@ namespace SiMay.RemoteMonitor.MainApplication
             this.GetSelectedListItem().ForEach(c =>
             {
                 var syncContext = c.SessionSyncContext;
-                this._appMainAdapterHandler.RemoteCloseDesktopView(c.SessionSyncContext);
+                this._appMainAdapterHandler.CloseDesktopView(c.SessionSyncContext);
                 if (syncContext.KeyDictions.ContainsKey(SysConstants.DesktopView))
                 {
                     var view = syncContext.KeyDictions[SysConstants.DesktopView].ConvertTo<UDesktopView>();
@@ -849,7 +852,7 @@ namespace SiMay.RemoteMonitor.MainApplication
             {
                 if (view.Checked)
                 {
-                    this._appMainAdapterHandler.RemoteCloseDesktopView(view.SessionSyncContext);
+                    this._appMainAdapterHandler.CloseDesktopView(view.SessionSyncContext);
                     this.DisposeDesktopView(view);
 
                     view.SessionSyncContext.KeyDictions.Remove(SysConstants.DesktopView);

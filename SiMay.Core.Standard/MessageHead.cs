@@ -24,9 +24,9 @@ namespace SiMay.Core
         S_MAIN_HTTPDOWNLOAD,                               //下载
         S_MAIN_OPEN_WEBURL,                                //打开URL
         S_MAIN_MESSAGEBOX,                                 //MessageBox
-        S_MAIN_CREATE_DESKTOPVIEW,                         //屏幕查看
-        S_MAIN_DESKTOPVIEW_GETFRAME,                       //获取屏幕
-        S_MAIN_DESKTOPVIEW_CLOSE,                          //关闭屏幕墙
+        //S_MAIN_CREATE_DESKTOPVIEW,                         //屏幕查看
+        S_MAIN_DESKTOPVIEW_GETFRAME,                       //获取屏幕帧
+        //S_MAIN_DESKTOPVIEW_CLOSE,                          //关闭屏幕墙
         S_MAIN_DESKTOPRECORD_OPEN,                         //设置屏幕记录
         S_MAIN_DESKTOPRECORD_CLOSE,                        //关闭屏幕记录
         S_MAIN_DESKTOPRECORD_GETFRAME,                     //获取下一帧屏幕记录数据
@@ -39,12 +39,12 @@ namespace SiMay.Core
         //接收指令
         C_MAIN_LOGIN = 2000,                               //上线信息
         C_MAIN_ACTIVE_APP,                                 //打开窗口
-        C_MAIN_DESKTOPVIEW_CREATE,                         //创建屏幕查看控件
+        //C_MAIN_DESKTOPVIEW_CREATE,                         //创建屏幕查看控件
         C_MAIN_DESKTOPVIEW_FRAME,                          //屏幕墙数据
         C_MAIN_DESKTOPRECORD_FRAME,                        //屏幕记录数据
         C_MAIN_DESKTOPRECORD_OPEN,                         //打开桌面录制任务
-        C_MAIN_GET_PLUGIN_FILES,                           //下载插件
-        C_MAIN_TEMP_LOGIN,                                 //临时上线信息(插件未加载状态)
+        //C_MAIN_GET_PLUGIN_FILES,                           //下载插件
+        //C_MAIN_TEMP_LOGIN,                                 //临时上线信息(插件未加载状态)
 
         //远程桌面------------------------------------------------------------------------
         S_SCREEN_NEXT_SCREENBITMP = 1000,                  //请求获取图像数据

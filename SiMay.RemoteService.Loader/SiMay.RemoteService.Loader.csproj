@@ -70,8 +70,8 @@
     <Compile Include="..\SiMay.Core\Entitys\ServiceOptions.cs">
       <Link>Entitys\ServiceOptions.cs</Link>
     </Compile>
-    <Compile Include="AppConfiguartion.cs" />
     <Compile Include="Entitys\StartParameter.cs" />
+    <Compile Include="Helper\MessageHelper.cs" />
     <Compile Include="Interface\IAppMainService.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -115,9 +115,7 @@
       <Name>SiMay.Sockets.Standard</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Helper\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Fody.2.0.0\build\portable-net+sl+win+wpa+wp\Fody.targets" Condition="Exists('..\packages\Fody.2.0.0\build\portable-net+sl+win+wpa+wp\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

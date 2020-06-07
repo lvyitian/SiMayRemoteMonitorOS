@@ -1,137 +1,142 @@
-﻿﻿
-# 系统介绍
- - SiMay远程控制管理系统是一个Windows远程控制系统，底层基于IOCP的异步通信模型，能对海量客户端实时监控，目前功能已实现:逐行扫描远程桌面，仅传输桌面变化区域，可有效节省传输流量；经典的文件管理方式，实现了快速上传下载文件和文件夹；实时传输远程语音与发送语音，及实时捕获远程摄像头；Windows风格界面的经典注册表管理模块；命令行终端；系统进程管理，实时进程查看，用户桌面视图墙轮播等功能，被控服务端支持绿色启动及以系统服务方式安装，解决了WindowsSession桌面切换限制，实现了捕获UAC,WinLogon桌面；系统实现了中间会话服务器，可支持不同平台多主控端同时监控同一被控端，项目完全采用C#.NET开发，代码仅供参考，项目不定时更新，欢迎关注点星星，fork。欢迎入群技术交流:905958449 :laughing:  :blush: 
+?
+# ϵͳ����
+ - SiMayԶ�̿��ƹ���ϵͳ��һ��WindowsԶ�̿���ϵͳ���ײ����IOCP���첽ͨ��ģ�ͣ��ܶԺ����ͻ���ʵʱ��أ�Ŀǰ������ʵ��:����ɨ��Զ�����棬����������仯���򣬿���Ч��ʡ����������������ļ�������ʽ��ʵ���˿����ϴ������ļ����ļ��У�ʵʱ����Զ�������뷢����������ʵʱ����Զ������ͷ��Windows������ľ���ע�������ģ�飻�������նˣ�ϵͳ���̹�����ʵʱ���̲鿴���û�������ͼǽ�ֲ��ȹ��ܣ����ط����֧����ɫ��������ϵͳ����ʽ��װ�������WindowsSession�����л����ƣ�ʵ���˲���UAC,WinLogon���棻ϵͳʵ�����м�Ự����������֧�ֲ�ͬƽ̨�����ض�ͬʱ���ͬһ���ضˣ���Ŀ��ȫ����C#.NET��������������ο�����Ŀ����ʱ���£���ӭ��ע�����ǣ�fork����ӭ��Ⱥ��������:905958449 :laughing:  :blush: 
 
-# 申明
- - 作为创作者，我对由此软件引起的任何行为和/或损害不承担任何责任。 您对自己的行为承担全部责任，并承认此软件仅用于教育和研究目的。 不得用于您不拥有或有权使用的任何系统。 使用此软件，您自动同意上述内容，感谢支持。 
+# ����
+ - ��Ϊ�����ߣ��Ҷ��ɴ�����������κ���Ϊ��/���𺦲��е��κ����Ρ� �����Լ�����Ϊ�е�ȫ�����Σ������ϴ����������ڽ������о�Ŀ�ġ� ������������ӵ�л���Ȩʹ�õ��κ�ϵͳ�� ʹ�ô����������Զ�ͬ���������ݣ���л֧�֡� 
 
-# 背景
- - 本项目仅为个人项目，是个人技术的一个总结，经过几次重构，系统相对比较成熟了，决定开源反馈开源社区，希望更多人能和我一起进步，欢迎吐槽改进。
+# ����
+ - ����Ŀ��Ϊ������Ŀ���Ǹ��˼�����һ���ܽᣬ���������ع���ϵͳ��ԱȽϳ����ˣ�������Դ������Դ������ϣ���������ܺ���һ���������ӭ�²۸Ľ���
 
-![主控界面](https://images.gitee.com/uploads/images/2019/0717/225727_cc5c40c8_1654743.jpeg "主控制界面")
-![创建服务端](https://images.gitee.com/uploads/images/2020/0216/154537_c7d2473c_1654743.png "创建服务")
-![远程桌面](https://images.gitee.com/uploads/images/2019/0717/225853_2d8f4f8d_1654743.jpeg "远程桌面")
-![文件管理](https://images.gitee.com/uploads/images/2019/0717/225829_9fed04ca_1654743.jpeg "文件管理")
-![语音传输](https://images.gitee.com/uploads/images/2019/0717/225918_159b8bec_1654743.jpeg "语音传输")
-![注册表管理](https://images.gitee.com/uploads/images/2019/0906/221633_6f9559ff_1654743.jpeg "注册表管理")
-![中间服务器](https://images.gitee.com/uploads/images/2020/0216/154108_e5e50552_1654743.png "多对一实时控制")
+![���ؽ���](https://images.gitee.com/uploads/images/2019/0717/225727_cc5c40c8_1654743.jpeg "�����ƽ���")
+![���������](https://images.gitee.com/uploads/images/2020/0216/154537_c7d2473c_1654743.png "��������")
+![Զ������](https://images.gitee.com/uploads/images/2019/0717/225853_2d8f4f8d_1654743.jpeg "Զ������")
+![�ļ�����](https://images.gitee.com/uploads/images/2019/0717/225829_9fed04ca_1654743.jpeg "�ļ�����")
+![��������](https://images.gitee.com/uploads/images/2019/0717/225918_159b8bec_1654743.jpeg "��������")
+![ע�������](https://images.gitee.com/uploads/images/2019/0906/221633_6f9559ff_1654743.jpeg "ע�������")
+![�м������](https://images.gitee.com/uploads/images/2020/0216/154108_e5e50552_1654743.png "���һʵʱ����")
 
-# 系统项目结构
+# ϵͳ��Ŀ�ṹ
 
-### SiMay.Core【公共核心功能】
- - SiMay.Basic --基础通用库
- - SiMay.Core --系统核心统一公共库【统一通讯指令丶共用组件丶通信数据实体等..】
- - SiMay.Serialize --轻量级高性能二进制序列化库【作用:系统通信数据实体化】
+### SiMay.Core���������Ĺ��ܡ�
+ - SiMay.Basic --����ͨ�ÿ�
+ - SiMay.Core.Standard --ϵͳ����ͳһ�����⡾ͳһͨѶָ��ؼ�������ؼͨ������ʵ���..��
+ - SiMay.Serialize.Standard --�����������ܶ��������л��⡾����:ϵͳͨ������ʵ�廯��
+ - SiMay.ModelBinder --���ð���
 
-### SiMay.RemoteMonitor【主控制端】
- - SiMay.RemoteControlsCore --主控端核心库
- - SiMay.RemoteMonitor --Windows主控端(基于核心库)
- - SiMay.RemoteMonitorForWeb【计划，未完成】 --Web主控端后端(基于核心库，支持.NET Core)，基于WebSocket与前端通信
- - SiMay.RemoteMonitorForWebSite【计划，未完成】 --Web监控前端
+### SiMay.RemoteMonitor�������ƶˡ�
+ - SiMay.RemoteControls.Core --���ض˺��Ŀ�
+ - SiMay.RemoteMonitor --Windows���ض�
+ - SiMay.RemoteMonitorFor.Web --Web���ض˺�ˣ�����WebSocket��ǰ��ͨ��
+ - SiMay.RemoteMonitorForWebSite --Web���ǰ��
 
-### SiMay.RemoteService【远程被控服务端】
- - SiMay.RemoteService.Loader --内存加载Loader，实现远程内存载入被控端核心库
- - SiMay.ServiceCore --被控端核心库/被控端主程序
+### SiMay.Platform��ƽ̨ʵ�֡�
+ - SiMay.Platform.Windows -- ����Windows�Ĺ���ʵ��
 
-### SiMay.SessionProvider【会话提供层】
- - SiMay.Net.SessionProvider --会话提供库【作用：提供服务器监听模式或者中间会话代理协议】
- - SiMay.Net.SessionProvider.Core --代理协议统一公用库【作用：统一中间库和服务器的通信指令及序列化等】
- - SiMay.Net.SessionProviderService --中间会话代理服务器【作用：提供保持服务端会话保持丶数据转发功能，基于此实现多平台端监控】
+### SiMay.RemoteService��Զ�̱��ط���ˡ�
+ - SiMay.RemoteService.Loader --�ڴ����Loader��ʵ��Զ���ڴ����뱻�ض˺��Ŀ�
+ - SiMay.ServiceCore --���ض˺��Ŀ�/���ض�������
 
-### SiMay.Sockets【通信层】
- - SiMay.Socket.Standard --轻量级通信引擎
- - SiMaySocketTestApp --通信引擎测试程序
+### SiMay.SessionProvider���Ự�ṩ�㡿
+ - SiMay.Net.SessionProvider --�Ự�ṩ�⡾���ã��ṩ����������ģʽ�����м�Ự����Э�顿
+ - SiMay.Net.SessionProvider.Core --����Э��ͳһ���ÿ⡾���ã�ͳһ�м��ͷ�������ͨ��ָ����л��ȡ�
+ - SiMay.Net.SessionProviderServiceCore -- �м������Ŀ�
+ - SiMay.Net.SessionProviderService --�м�Ự���������������ã��ṩ���ַ���˻Ự����ؼ����ת�����ܣ����ڴ�ʵ�ֶ�ƽ̨�˼�ء�
 
-### SiMay.Web.MonitorService【Web监控服务端，已弃用】
- - SiMay.Net.HttpRemoteMonitorService --WebSocket监控服务端
+### SiMay.Sockets��ͨ�Ų㡿
+ - SiMay.Socket.Standard --������ͨ������
+ - SiMaySocketTestApp --ͨ��������Գ���
 
+### ����
+ - 1.BinΪ����Ŀ¼���������ɺ����س��򽫱��뵽��Ŀ¼��Bin->datĿ¼Ϊ���ط����Ŀ¼�����ط���˱�����ڴˡ�(û��Ŀ¼�½�һ��)
 
-### 编译
- - 1.Bin为编译目录，重新生成后，主控程序将编译到此目录，Bin->dat目录为被控服务端目录，被控服务端编译后在此。(没有目录新建一下)
+### ����
+ - 1.������
 
-### 运行
- - 1.局域网
+���ض�:��λ��BinĿ¼�µ����ض˳���SiMayRemoteMonitor.exe��ȷ��ϵͳ���÷�������ַΪ0.0.0.0(����������������)���˿�Ĭ��5200��ʹ�ûỰģʽΪ=���ط�������Ȼ�󱣴�������������,
+��������־��������ɹ��������ض�������ȷ��
 
-主控端:打开位与Bin目录下的主控端程序SiMayRemoteMonitor.exe，确认系统设置服务器地址为0.0.0.0(监听本机所有网卡)，端口默认5200，使用会话模式为=本地服务器，然后保存配置重启程序,
-重启后日志输出监听成功，即主控端设置正确。
+���ط���˴���:�����ض�-->�����ͻ�-->��ַ���뱾��������ַ(��127.0.0.1)���˿�����Ϊ����˼����˿�(Ĭ��5200)-->������Ӳ��Լ�������Ƿ���ȷ-->����������ļ���������ļ���Ϊ������ɵı��ض˳���(����ʾ�Ҳ����ļ������鱻�ط�������Ƿ����[���벽���Ƿ���ȷ])��˫�����б��ط�����򼴿������ض˿�������������Ϣ�������ض���������Ϣ���������������Ƿ�������ȷ��
 
-被控服务端创建:打开主控端-->创建客户-->地址输入本机物理地址(或127.0.0.1)，端口设置为服务端监听端口(默认5200)-->点击连接测试检查配置是否正确-->创建服务端文件，服务端文件即为配置完成的被控端程序(如提示找不到文件，请检查被控服务程序是否存在[编译步骤是否正确])，双击运行被控服务程序即可在主控端看见服务在线信息，如主控端无在线信息，请检查上述步骤是否配置正确。
+ - 2.������
 
- - 2.广域网
+����:��Ҫ���ض˴��ڹ�������(��������·������ӳ�䡢ʹ������ӳ�乤��[�绨���ǣ�����ͨ])�����ҿ������ض˼����˿�(ע����˿��Ƿ񿪷š�����ǽͨ�й���)��
+�����ͻ���-->���ط�������������ض˵Ĺ�����ַ���˿ڼ���
 
-条件:需要主控端处于公网环境(或者设置路由内网映射、使用内网映射工具[如花生壳，内网通])，并且开放主控端监听端口(注意检查端口是否开放、防火墙通行规则)。
-创建客户端-->被控服务端连接至主控端的公网地址，端口即可
+ - 3.�м����������
 
- - 3.中间服务器部署
+����:��Ҫ�м���������ڹ�������(���鲿���ڹ�������������������·������ӳ��)�����ҿ����м�����������˿�(Ĭ��522�˿ڡ�ע����˿��Ƿ񿪷š�����ǽͨ�й���)��
 
-条件:需要中间服务器处于公网环境(建议部署在公网服务器，或者设置路由内网映射)，并且开放中间服务器监听端口(默认522端口、注意检查端口是否开放、防火墙通行规则)。
+���ض�����: ϵͳ����-->�Ự��������ַ ���� �м�������Ĺ�����ַ���˿ڡ�-->���ûỰģʽΪ:�м�Ựģʽ-->ȷ��AccessKey���м������Accesskeyһ�¡�(�м�Ự������ϵͳ����λ�ڱ�����ϵͳ�˵��Ҽ�)-->�����ͻ��˲�ѡ��ỰģʽΪ�м�Ựģʽ��ip���������м�������Ĺ�����ַ����
 
-主控端设置: 系统设置-->会话服务器地址 输入 中间服务器的公网地址，端口。-->设置会话模式为:中间会话模式-->确认AccessKey与中间服务器Accesskey一致。(中间会话服务器系统设置位于标题栏系统菜单右键)-->创建客户端并选择会话模式为中间会话模式，ip，端输入中间服务器的公网地址即可
+ - 4.Web�˼��
+����SiMay.RemoteMonitorFor.Web.exe��Web����Ϊ����̨��ʽ��ϵͳ���ý��棬��ֱ��ʹ��Windows���ƶ˱����ϵͳ�����ļ�SiMayConfig.ini���Ựģʽ��ʹ�÷�����ģʽ�����м�Ựģʽ�����������ɹ������̨��ӡ�����ɹ����ʼ���ɹ�������������ȷ(������ģʽΪ�����ɹ����м�ỰģʽΪ��ʼ���ɹ� �� WebSocket�˿ڼ����ɹ�)�����б��ض����ӳɹ�������̨��ʵʱ��ӡ����������Ϣ��Web����������ɡ�
 
- - 4.web端监控【完善中，不可用】
+����Web����������ɺ���һ����Ҫ����Web��վSiMay.WebRemoteMonitor�����ȴ�Index.html�ļ��༭WebSocket���ӵ�ַ��ָ��Web����Ĺ�����ַ��˿ڼ��ɡ�
 
-配置IIS，部署SiMay.WebRemoteMonitor网站，编译启动SiMay.Net.HttpRemoteMonitorService，配置地址指向中间服务器ip，端口即可(无系统设置，需手动配置配置文件)，如连接成功，中间服务器出现主控制连接在线日志即可
-使用浏览器，访问SiMay.WebRemoteMonitor网站，输入SiMay.Net.HttpRemoteMonitorService配置的账号密码即可，当有中间服务器有被控端会话时，将自动连接至http服务，连接成功后网页可看到被控服务端计算机桌面视图，长按视图可打开更多功能。
+ʹ�������������SiMay.WebRemoteMonitor��վ��ҳ�浯��Id��Key����򼴱�ʾ��Web�������ӳɹ�������SiMay.RemoteMonitorFor.Web.exe���õ��˺����뼴�ɵ�¼�����ӳɹ���ҳ��ɿ������ط���˼����������ͼ��������ͼ�ɴ򿪸��๦�ܡ�
 
-### 技术架构
- - 基于组件式的系统架构
- - 基于实体的实体消息协议
- - 基于IOCP的异步Socket高性能通信模型
- - 基于可视区域逐行扫描算法的远程桌面
- - 基于Windows WaInXX系列实现的语音通讯
- - 基于Dx组件捕获摄像头
- - 基于HOOK技术的键盘记录
- - 基于WebSocket技术实现Web端监控
- - 中间会话服务转发，支持多个主控端同时实时监控
+### �����ܹ�
+ - �������ʽ��ϵͳ�ܹ�
+ - ����ʵ���ʵ����ϢЭ��
+ - ����IOCP���첽Socket������ͨ��ģ��
+ - ���ڿ�����������ɨ���㷨��Զ������
+ - ����Windows WaInXXϵ��ʵ�ֵ�����ͨѶ
+ - ����Dx�����������ͷ
+ - ����HOOK�����ļ��̼�¼
+ - ����WebSocket����ʵ��Web�˼��
+ - �м�Ự����ת����֧�ֶ�����ض�ͬʱʵʱ���
 
-### 开发环境
- - 建议 Visual Studio 2019 企业版
+### ��������
+ - ���� Visual Studio 2019 ��ҵ��
 
-### 参与贡献
- - Fork 本仓库
- - 新建 Feat_xxx 分支
- - 提交代码
- - 新建 Pull Request
+### ���빱��
+ - Fork ���ֿ�
+ - �½� Feat_xxx ��֧
+ - �ύ����
+ - �½� Pull Request
 
-### 未来构想
- - 移动Web监控端
- - 跨平台的系统管理监控
+### δ������
+ - �ƶ�Web��ض�
+ - ��ƽ̨��ϵͳ�������
+ - RPC���ÿ��
 
-### SiMay远程监控管理系统更新说明
+### SiMayԶ�̼�ع���ϵͳ����˵��
 
-### 6.0更新
-1. 跨.NET Core支持，重构中间会话服务器 --2020.2.15
-2. 二进制序列化器采用反射缓存，提高系统性能 -- 2020.1.25
-3. 屏幕视图轮播 --2020.1.15
-4. Web端主控端 --未实现
-5. SOCK5代理，并兼容中间服务转发 -- 未实现
-6. 远程桌面，语音监听，摄像头监控支持录制功能	--2.26
+### 6.0����
+1. ��.NET Core֧�֣��ع��м�Ự������ --2020.2.15
+2. ���������л������÷��仺�棬���ϵͳ���� -- 2020.1.25
+3. ��Ļ��ͼ�ֲ� --2020.1.15
+4. Web�����ض� --2020.5.15
+5. SOCK5�������������м����ת�� -- δʵ��
+6. Զ�����棬��������������ͷ���֧��¼�ƹ���	--2.26
+7. Զ�̺��Ŀ����룬ʵʱ���� -- 6.7
 
-### 5.0更新
-1. 优化了通讯库,支持FULL丶PACK数据处理方式，实现了更友好的配置接口
-2. 新增中间会话转发服务,增加了SessionProvider层，控制端支持监听模式丶中间会话模式，在此基础上实现了Web监控服务，支持Web方式监控
-3. 增强了远程桌面模块,支持全屏监控的远程鼠标控制及多屏幕切换
-4. 重构代码结构，实现了组件化系统框架，屏蔽了系统底层实现细节，增强了可扩展性	--2019.5.19
-5. 远程桌面增加了可视区域扫描算法，仅扫描可视区域变化部分，优化了远程桌面模块，速度更加快了 --2019.4.2
-6. 增强系统管理模块，实现了进程实时监控	--8.28
-7. 语音监听，视频监控支持录制功能	--6.0已实现
-8. 被控服务实现了以服务方式安装，使用服务方式可实现Session隔离穿透捕获桌面(锁屏，UAC)，	--11.9
-9. 文件管理功文件夹传输重构优化	2019.7.13
-10. 系统传输数据消息实体化 -- 2019-6-4
-11. 二进制序列化器采用反射缓存，提高系统性能 --已实现
-12. 远程桌面增加画面质量调整，优化低速率网络下的控制体验，使画面更加流畅 -- 7.27
-13. 支持远程更新服务端 -- 7.27
-14. 增加列表排序功能 -- 7.27
-15. 注册表组件更新，支持二进制丶多种类型数据编辑 -- 9.6
-16. 重构主控端，主控端逻辑核心库与展示层彻底分离(如:基于核心库横向扩展Web主控端，实现多平台逻辑复用) - 11.2
+### 5.0����
+1. �Ż���ͨѶ��,֧��FULLؼPACK���ݴ�����ʽ��ʵ���˸��Ѻõ����ýӿ�
+2. �����м�Ựת������,������SessionProvider�㣬���ƶ�֧�ּ���ģʽؼ�м�Ựģʽ���ڴ˻�����ʵ����Web��ط���֧��Web��ʽ���
+3. ��ǿ��Զ������ģ��,֧��ȫ����ص�Զ�������Ƽ�����Ļ�л�
+4. �ع�����ṹ��ʵ���������ϵͳ��ܣ�������ϵͳ�ײ�ʵ��ϸ�ڣ���ǿ�˿���չ��	--2019.5.19
+5. Զ�����������˿�������ɨ���㷨����ɨ���������仯���֣��Ż���Զ������ģ�飬�ٶȸ��ӿ��� --2019.4.2
+6. ��ǿϵͳ����ģ�飬ʵ���˽���ʵʱ���	--8.28
+7. ������������Ƶ���֧��¼�ƹ���	--6.0��ʵ��
+8. ���ط���ʵ�����Է���ʽ��װ��ʹ�÷���ʽ��ʵ��Session���봩͸��������(������UAC)��	--11.9
+9. �ļ��������ļ��д����ع��Ż�	2019.7.13
+10. ϵͳ����������Ϣʵ�廯 -- 2019-6-4
+11. ���������л������÷��仺�棬���ϵͳ���� --��ʵ��
+12. Զ���������ӻ��������������Ż������������µĿ������飬ʹ����������� -- 7.27
+13. ֧��Զ�̸��·���� -- 7.27
+14. �����б������� -- 7.27
+15. ע���������£�֧�ֶ�����ؼ�����������ݱ༭ -- 9.6
+16. �ع����ضˣ����ض��߼����Ŀ���չʾ�㳹�׷���(��:���ں��Ŀ������չWeb���ضˣ�ʵ�ֶ�ƽ̨�߼�����) - 11.2
 
-### 4.0更新
-1. 重写了通讯层，解决网络环境极差时频繁断开连接的情况，实现了对象池，以更好的并发能力应对大规模的客户端数据交互
-2. 设计了更稳定的通讯层接口，通讯层彻底与逻辑层分离
-3. 优化了部分功能的通讯协议
-4. 优化了远程桌面模块
-5. 修复远程桌面在高分屏笔记本时显示不完全的问题
-6. 修复视频监控显示不完全的问题
-7. 增强了语音监听模块
-8. 优化了窗体上的设计，用户体验更好了
-9. 修复了系统管理
+### 4.0����
+1. ��д��ͨѶ�㣬������绷������ʱƵ���Ͽ����ӵ������ʵ���˶���أ��Ը��õĲ�������Ӧ�Դ��ģ�Ŀͻ������ݽ���
+2. ����˸��ȶ���ͨѶ��ӿڣ�ͨѶ�㳹�����߼������
+3. �Ż��˲��ֹ��ܵ�ͨѶЭ��
+4. �Ż���Զ������ģ��
+5. �޸�Զ�������ڸ߷����ʼǱ�ʱ��ʾ����ȫ������
+6. �޸���Ƶ�����ʾ����ȫ������
+7. ��ǿ����������ģ��
+8. �Ż��˴����ϵ���ƣ��û����������
+9. �޸���ϵͳ����

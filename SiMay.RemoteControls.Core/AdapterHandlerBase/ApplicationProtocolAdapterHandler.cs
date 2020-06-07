@@ -1,5 +1,6 @@
 ﻿using SiMay.Basic;
 using SiMay.Core;
+using SiMay.ModelBinder;
 using SiMay.Net.SessionProvider;
 using System;
 using System.Collections.Generic;
@@ -79,27 +80,18 @@ namespace SiMay.RemoteControlsCore
 
         protected virtual T GetMessageEntity<T>(SessionProviderContext session)
             where T : new()
-        {
-            return TakeHeadAndMessage(session).GetMessageEntity<T>();
-        }
+            => SysMessageConstructionHelper.GetMessageEntity<T>(session.CompletedBuffer);
+
+
 
         protected virtual byte[] GetMessage(SessionProviderContext session)
-        {
-            return TakeHeadAndMessage(session).GetMessagePayload();
-        }
+            => SysMessageConstructionHelper.GetMessage(session.CompletedBuffer);
+
+
 
         protected virtual MessageHead GetMessageHead(SessionProviderContext session)
-        {
-            return TakeHeadAndMessage(session).GetMessageHead<MessageHead>();
-        }
+            => SysMessageConstructionHelper.GetMessageHead(session.CompletedBuffer);
 
-        private byte[] TakeHeadAndMessage(SessionProviderContext session)
-        {
-            var length = session.CompletedBuffer.Length - sizeof(long);
-            var bytes = new byte[length];
-            Array.Copy(session.CompletedBuffer, sizeof(long), bytes, 0, length);
-            return GZipHelper.Decompress(bytes);
-        }
 
         public virtual void Dispose()
         {

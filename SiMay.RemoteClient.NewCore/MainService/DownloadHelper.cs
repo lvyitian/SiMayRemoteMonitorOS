@@ -3,7 +3,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
-using static SiMay.ServiceCore.CommonWin32Api;
+using static SiMay.Platform.Windows.CommonWin32Api;
 
 namespace SiMay.ServiceCore.MainService
 {
