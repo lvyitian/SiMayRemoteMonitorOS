@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace SiMay.ServiceCore.ApplicationService
+namespace SiMay.ServiceCore
 {
     /// <summary>
     /// 组件服务源标识接口

@@ -88,7 +88,7 @@ namespace SiMay.RemoteMonitor.MainApplication
                 SessionMode = sessionModeList.SelectedIndex,
                 GroupName = groupNameBox.Text
             };
-            string name = "SiMayService.exe";
+            string name = "SiMayService.Loader.exe";
 
             string datfileName = Path.Combine(Environment.CurrentDirectory, "dat", name);
 
@@ -138,20 +138,19 @@ namespace SiMay.RemoteMonitor.MainApplication
             //追加位置写入
             try
             {
+                short flag = 9999;
 
-                byte[] Bytes = new byte[sizeof(Int16) + sizeof(Int32) + options.Length];//长度加标识
-                options.CopyTo(Bytes, 0);
-                BitConverter.GetBytes(options.Length).CopyTo(Bytes, options.Length);
-                BitConverter.GetBytes((short)9999).CopyTo(Bytes, options.Length + sizeof(Int32));
+                byte[] fileSrc = File.ReadAllBytes(sourcefileName);
+                var fstream = new FileStream(fileName, FileMode.Create);
 
-                byte[] SourceFileData = File.ReadAllBytes(sourcefileName);
-                FileStream fs = new FileStream(fileName, FileMode.Create);
-                fs.Write(SourceFileData, 0, SourceFileData.Length);
-                fs.Seek(0, SeekOrigin.End);
-                fs.Write(Bytes, 0, Bytes.Length);
-                fs.Flush();
-                fs.Close();
-                fs.Dispose();
+                var binaryStream = new BinaryWriter(fstream);
+
+                binaryStream.Write(fileSrc);
+                binaryStream.Seek(0, SeekOrigin.End);
+                binaryStream.Write(options);
+                binaryStream.Write(options.Length);
+                binaryStream.Write(flag);
+                binaryStream.Close();
                 return true;
             }
             catch

@@ -99,16 +99,8 @@ namespace SiMay.Core
         public static T GetMessageEntity<T>(this byte[] data)
             where T : new()
         {
-            try
-            {
-                var entity = DeserializePacket<T>(GetMessagePayload(data));
-                return entity;
-            }
-            catch
-            {
-                //File.WriteAllBytes(Path.Combine(Environment.CurrentDirectory, $"{typeof(T).FullName}_{DateTime.Now.ToFileTime()}"), data);
-            }
-            return default;
+            var entity = DeserializePacket<T>(GetMessagePayload(data));
+            return entity;
         }
     }
 }

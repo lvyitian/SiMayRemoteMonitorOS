@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SiMay.Core.Standard\SiMay.Core.Standard.csproj" />
     <ProjectReference Include="..\SiMay.ModelBinder\SiMay.ModelBinder.csproj" />
     <ProjectReference Include="..\SiMay.Net.SessionProvider\SiMay.Net.SessionProvider.csproj" />
     <ProjectReference Include="..\SiMay.Serialize.Standard\SiMay.Serialize.Standard.csproj" />

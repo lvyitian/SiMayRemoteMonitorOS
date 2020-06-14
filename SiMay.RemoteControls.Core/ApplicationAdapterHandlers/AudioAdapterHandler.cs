@@ -18,20 +18,20 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_AUDIO_DEVICE_OPENSTATE)]
         private void RemoteDeveiceStatusHandler(SessionProviderContext session)
         {
-            var statesPack = GetMessageEntity<AudioDeviceStatesPack>(session);
+            var statesPack = session.GetMessageEntity<AudioDeviceStatesPack>();
             this.OnOpenDeviceStatusEventHandler?.Invoke(this, statesPack.PlayerEnable, statesPack.RecordEnable);
         }
 
         [PacketHandler(MessageHead.C_AUDIO_DATA)]
         private void PlayerData(SessionProviderContext session)
         {
-            var payload = GetMessage(session);
+            var payload = session.GetMessage();
             this.OnPlayerEventHandler?.Invoke(this, payload);
         }
 
         public void StartRemoteAudio(int samplesPerSecond, int bitsPerSample, int channels)
         {
-            SendTo(CurrentSession, MessageHead.S_AUDIO_START,
+            CurrentSession.SendTo(MessageHead.S_AUDIO_START,
                 new AudioOptionsPack()
                 {
                     SamplesPerSecond = samplesPerSecond,
@@ -46,7 +46,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="payload"></param>
         public void SendVoiceDataToRemote(byte[] payload)
         {
-            SendTo(CurrentSession, MessageHead.S_AUDIO_DATA, payload);
+            CurrentSession.SendTo(MessageHead.S_AUDIO_DATA, payload);
         }
 
 
@@ -56,7 +56,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="enabled"></param>
         public void SetRemotePlayerStreamEnabled(bool enabled)
         {
-            SendTo(CurrentSession, MessageHead.S_AUDIO_DEIVCE_ONOFF, enabled ? "1" : "0");
+            CurrentSession.SendTo(MessageHead.S_AUDIO_DEIVCE_ONOFF, enabled ? "1" : "0");
         }
     }
 }

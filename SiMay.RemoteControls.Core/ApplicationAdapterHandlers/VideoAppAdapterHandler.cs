@@ -27,11 +27,11 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_VIEDO_DATA)]
         private void PlayerHandler(SessionProviderContext session)
         {
-            var data = GetMessage(session);
+            var data = session.GetMessage();
             using (MemoryStream ms = new MemoryStream(data))
                 OnImageFrameHandlerEvent?.Invoke(this, Image.FromStream(ms));
 
-            SendTo(session, MessageHead.S_VIEDO_GET_DATA);
+            session.SendTo(MessageHead.S_VIEDO_GET_DATA);
         }
 
         [PacketHandler(MessageHead.C_VIEDO_DEVICE_NOTEXIST)]
@@ -42,12 +42,12 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
         public void StartGetFrame()
         {
-            SendTo(CurrentSession, MessageHead.S_VIEDO_GET_DATA);
+            CurrentSession.SendTo(MessageHead.S_VIEDO_GET_DATA);
         }
 
         public void RemoteSetFrameQuantity(int level)
         {
-            SendTo(CurrentSession, MessageHead.S_VIEDO_RESET, new byte[] { (byte)level });
+            CurrentSession.SendTo(MessageHead.S_VIEDO_RESET, new byte[] { (byte)level });
         }
     }
 }

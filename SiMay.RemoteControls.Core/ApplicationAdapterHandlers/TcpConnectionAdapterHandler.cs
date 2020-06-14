@@ -19,7 +19,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_TCP_LIST)]
         private void TcpListHandler(SessionProviderContext session)
         {
-            var pack = GetMessageEntity<TcpConnectionPack>(session);
+            var pack = session.GetMessageEntity<TcpConnectionPack>();
             this.OnTcpListHandlerEvent?.Invoke(this, pack.TcpConnections);
         }
 
@@ -28,7 +28,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// </summary>
         public void GetTcpList()
         {
-            SendTo(CurrentSession, MessageHead.S_TCP_GET_LIST);
+            CurrentSession.SendTo(MessageHead.S_TCP_GET_LIST);
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="killTcps"></param>
         public void CloseTcpList(IEnumerable<KillTcpConnectionItem> killTcps)
         {
-            SendTo(CurrentSession, MessageHead.S_TCP_CLOSE_CHANNEL,
+            CurrentSession.SendTo(MessageHead.S_TCP_CLOSE_CHANNEL,
                 new KillTcpConnectionPack()
                 {
                     Kills = killTcps.ToArray()

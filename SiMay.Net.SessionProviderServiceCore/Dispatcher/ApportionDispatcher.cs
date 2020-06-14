@@ -46,7 +46,7 @@ namespace SiMay.Net.SessionProviderServiceCore
             var messageHead = TakeMessageHead(packageBody);
             if (messageHead == ACK_HEAD)
             {
-                var ack = PacketSerializeHelper.DeserializePacket<AckPacket>(TakeMessage(packageBody));
+                var ack = PacketSerializeHelper.DeserializePacket<LoaderAckPacket>(TakeMessage(packageBody));
 
                 this._accessId = ack.AccessId;
 

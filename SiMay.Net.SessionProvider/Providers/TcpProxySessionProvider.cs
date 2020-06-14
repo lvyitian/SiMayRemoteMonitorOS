@@ -9,11 +9,10 @@ using SiMay.Basic;
 using SiMay.Sockets.Tcp;
 using SiMay.Sockets.Tcp.Client;
 using SiMay.Sockets.Tcp.Session;
-using SiMay.Net.SessionProvider.Core;
 using SiMay.Sockets.Tcp.TcpConfiguration;
-using SiMay.Core;
 using ConnectionWorkType = SiMay.Net.SessionProvider.Core.ConnectionWorkType;
 using MessageHelper = SiMay.Net.SessionProvider.Core.MessageHelper;
+using SiMay.Net.SessionProvider.Core;
 
 namespace SiMay.Net.SessionProvider.Providers
 {
@@ -25,6 +24,8 @@ namespace SiMay.Net.SessionProvider.Providers
 
         private const Int16 CHANNEL_LOGOUT = 0;
         private const Int16 CHANNEL_LOGIN = 1;
+
+        private const Int16 C_GLOBAL_CONNECT = 1000;
 
         private int _currentState = 0;
         private bool _wetherLogOut;
@@ -75,8 +76,8 @@ namespace SiMay.Net.SessionProvider.Providers
         }
         private void SendACK(TcpSocketSaeaSession session, ConnectionWorkType type)
         {
-            var ackBody = MessageHelper.CopyMessageHeadTo(SiMay.Core.MessageHead.C_GLOBAL_CONNECT,
-                new AckPack()
+            var ackBody = MessageHelper.CopyMessageHeadTo(C_GLOBAL_CONNECT,
+                new LoaderAckPacket()
                 {
                     Type = (byte)type,
                     AccessId = ApplicationConfiguartion.Options.AccessId,
@@ -108,7 +109,7 @@ namespace SiMay.Net.SessionProvider.Providers
             }
             else
             {
-                var tcpSessionContext = new TcpSocketSessionContext(session);
+                var tcpSessionContext = new TcpServiceSessionContext(session);
                 this._proxySessions.Add(tcpSessionContext.GetHashCode(), tcpSessionContext);
 
                 session.AppTokens = new object[] {
@@ -116,7 +117,7 @@ namespace SiMay.Net.SessionProvider.Providers
                     ConnectionWorkType.ApplicationConnection
                 };
                 this.SendACK(session, ConnectionWorkType.ApplicationConnection);
-                this.SessionNotify(tcpSessionContext, TcpSessionNotify.OnConnected);
+                this.Notification(tcpSessionContext, TcpSessionNotify.OnConnected);
             }
         }
 
@@ -133,28 +134,8 @@ namespace SiMay.Net.SessionProvider.Providers
         }
 
         private void ProxyMainConnectionSessionNotify(TcpProxyApplicationConnectionContext proxyContext, TcpSessionNotify type)
-        {
-            this.SessionNotify(proxyContext, type);
+            => this.Notification(proxyContext, type);
 
-            //switch (type)
-            //{
-            //    case TcpSessionNotify.OnConnected:
-            //        this.SessionNotify(proxyContext, TcpSessionNotify.OnConnected);
-            //        break;
-            //    case TcpSessionNotify.OnSend:
-            //        this.SessionNotify(proxyContext, TcpSessionNotify.OnSend);
-            //        break;
-            //    case TcpSessionNotify.OnDataReceiveing:
-            //        this.SessionNotify(proxyContext, TcpSessionNotify.OnDataReceiveing);
-            //        break;
-            //    case TcpSessionNotify.OnDataReceived:
-            //        this.SessionNotify(proxyContext, TcpSessionNotify.OnDataReceived);
-            //        break;
-            //    case TcpSessionNotify.OnClosed:
-            //        this.SessionNotify(proxyContext, TcpSessionNotify.OnClosed);
-            //        break;
-            //}
-        }
 
         private void OnSend(TcpSocketSaeaSession session)
         {
@@ -164,8 +145,8 @@ namespace SiMay.Net.SessionProvider.Providers
             var type = session.AppTokens[SysContanct.INDEX_WORKTYPE].ConvertTo<ConnectionWorkType>();
             if (type == ConnectionWorkType.ApplicationConnection)
             {
-                var tcpSessionContext = session.AppTokens[SysContanct.INDEX_WORKER].ConvertTo<TcpSocketSessionContext>();
-                this.SessionNotify(tcpSessionContext, TcpSessionNotify.OnSend);
+                var tcpSessionContext = session.AppTokens[SysContanct.INDEX_WORKER].ConvertTo<TcpServiceSessionContext>();
+                this.Notification(tcpSessionContext, TcpSessionNotify.OnSend);
             }
         }
 
@@ -179,8 +160,8 @@ namespace SiMay.Net.SessionProvider.Providers
             }
             else if (type == ConnectionWorkType.ApplicationConnection)
             {
-                var sessionContext = session.AppTokens[SysContanct.INDEX_WORKER].ConvertTo<TcpSocketSessionContext>();
-                this.SessionNotify(sessionContext, TcpSessionNotify.OnDataReceived);
+                var sessionContext = session.AppTokens[SysContanct.INDEX_WORKER].ConvertTo<TcpServiceSessionContext>();
+                this.Notification(sessionContext, TcpSessionNotify.OnDataReceived);
             }
         }
 
@@ -212,7 +193,7 @@ namespace SiMay.Net.SessionProvider.Providers
                 lock (this)
                 {
                     foreach (var proxySession in _proxySessions.Select(c => c.Value))
-                        this.SessionNotify(proxySession, TcpSessionNotify.OnClosed);
+                        this.Notification(proxySession, TcpSessionNotify.OnClosed);
                     this._proxySessions.Clear();
                 }
 
@@ -234,14 +215,14 @@ namespace SiMay.Net.SessionProvider.Providers
             {
                 lock (this)
                 {
-                    var sessionContext = session.AppTokens[SysContanct.INDEX_WORKER].ConvertTo<TcpSocketSessionContext>();
-                    this.SessionNotify(sessionContext, TcpSessionNotify.OnClosed);
+                    var sessionContext = session.AppTokens[SysContanct.INDEX_WORKER].ConvertTo<TcpServiceSessionContext>();
+                    this.Notification(sessionContext, TcpSessionNotify.OnClosed);
                     this._proxySessions.Remove(sessionContext.GetHashCode());
                 }
             }
         }
 
-        public override void StartSerivce()
+        public void StartSerivce()
         {
             this._clientAgent.ConnectToServer(ApplicationConfiguartion.Options.ServiceIPEndPoint);
         }

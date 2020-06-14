@@ -29,7 +29,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_NREG_LOAD_REGKEYS)]
         private void AddKeyedHandler(SessionProviderContext session)
         {
-            var pack = GetMessageEntity<GetRegistryKeysResponsePack>(session);
+            var pack = session.GetMessageEntity<GetRegistryKeysResponsePack>();
             var handler = OnKeysReceivedEventHandler;
             handler?.Invoke(this, pack.RootKey, pack.Matches);
         }
@@ -37,7 +37,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_NREG_CREATE_KEY_RESPONSE)]
         private void CreateNewKeyedHandler(SessionProviderContext session)
         {
-            var pack = GetMessageEntity<GetCreateRegistryKeyResponsePack>(session);
+            var pack = session.GetMessageEntity<GetCreateRegistryKeyResponsePack>();
             var handler = OnKeyCreatedEventHandler;
             handler?.Invoke(this, pack.ParentPath, pack.Match);
         }
@@ -45,7 +45,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_NREG_DELETE_KEY_RESPONSE)]
         private void DeleteKeyedHandler(SessionProviderContext session)
         {
-            var pack = GetMessageEntity<GetDeleteRegistryKeyResponsePack>(session);
+            var pack = session.GetMessageEntity<GetDeleteRegistryKeyResponsePack>();
             var handler = OnKeyDeletedEventHandler;
             handler?.Invoke(this, pack.ParentPath, pack.KeyName);
         }
@@ -53,7 +53,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_NREG_RENAME_KEY_RESPONSE)]
         private void RenameKeyedHandler(SessionProviderContext session)
         {
-            var pack = GetMessageEntity<GetRenameRegistryKeyResponsePack>(session);
+            var pack = session.GetMessageEntity<GetRenameRegistryKeyResponsePack>();
             var handler = OnKeyRenamedEventHandler;
             handler?.Invoke(this, pack.ParentPath, pack.OldKeyName, pack.NewKeyName);
         }
@@ -61,7 +61,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_NREG_CREATE_VALUE_RESPONSE)]
         private void CreateValueHandler(SessionProviderContext session)
         {
-            var pack = GetMessageEntity<GetCreateRegistryValueResponsePack>(session);
+            var pack = session.GetMessageEntity<GetCreateRegistryValueResponsePack>();
             var handler = OnValueCreatedEventHandler;
             handler?.Invoke(this, pack.KeyPath, pack.Value);
         }
@@ -70,7 +70,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_NREG_DELETE_VALUE_RESPONSE)]
         private void DeleteValueHandler(SessionProviderContext session)
         {
-            var pack = GetMessageEntity<GetDeleteRegistryValueResponsePack>(session);
+            var pack = session.GetMessageEntity<GetDeleteRegistryValueResponsePack>();
             var handler = OnValueDeletedEventHandler;
             handler?.Invoke(this, pack.KeyPath, pack.ValueName);
         }
@@ -78,7 +78,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_NREG_RENAME_VALUE_RESPONSE)]
         private void RenameValueHandler(SessionProviderContext session)
         {
-            var pack = GetMessageEntity<GetRenameRegistryValueResponsePack>(session);
+            var pack = session.GetMessageEntity<GetRenameRegistryValueResponsePack>();
             var handler = OnValueRenamedEventHandler;
             handler?.Invoke(this, pack.KeyPath, pack.OldValueName, pack.NewValueName);
         }
@@ -87,7 +87,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_NREG_CHANGE_VALUE_RESPONSE)]
         private void ChangeValueHandler(SessionProviderContext session)
         {
-            var pack = GetMessageEntity<GetChangeRegistryValueResponsePack>(session);
+            var pack = session.GetMessageEntity<GetChangeRegistryValueResponsePack>();
             var handler = OnValueChangedEventHandler;
             handler?.Invoke(this, pack.KeyPath, pack.Value);
         }
@@ -98,7 +98,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="rootKeyName">The root key name.</param>
         public void LoadRegistryKey(string rootKeyName)
         {
-            SendTo(CurrentSession, MessageHead.S_NREG_LOAD_REGKEYS,
+            CurrentSession.SendTo( MessageHead.S_NREG_LOAD_REGKEYS,
                 new DoLoadRegistryKeyPack()
                 {
                     RootKeyName = rootKeyName
@@ -111,7 +111,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="parentPath">The parent path.</param>
         public void CreateRegistryKey(string parentPath)
         {
-            SendTo(CurrentSession, MessageHead.S_NREG_CREATE_KEY,
+            CurrentSession.SendTo( MessageHead.S_NREG_CREATE_KEY,
                                 new DoCreateRegistryKeyPack()
                                 {
                                     ParentPath = parentPath
@@ -125,7 +125,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="keyName">The registry key name to delete.</param>
         public void DeleteRegistryKey(string parentPath, string keyName)
         {
-            SendTo(CurrentSession, MessageHead.S_NREG_DELETE_KEY,
+            CurrentSession.SendTo( MessageHead.S_NREG_DELETE_KEY,
                                 new DoDeleteRegistryKeyPack()
                                 {
                                     ParentPath = parentPath,
@@ -141,7 +141,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="newKeyName">The new name of the registry key.</param>
         public void RenameRegistryKey(string parentPath, string oldKeyName, string newKeyName)
         {
-            SendTo(CurrentSession, MessageHead.S_NREG_RENAME_KEY,
+            CurrentSession.SendTo( MessageHead.S_NREG_RENAME_KEY,
                                         new DoRenameRegistryKeyPack()
                                         {
                                             ParentPath = parentPath,
@@ -157,7 +157,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="kind">The kind of registry key value.</param>
         public void CreateRegistryValue(string keyPath, RegistryValueKind kind)
         {
-            SendTo(CurrentSession, MessageHead.S_NREG_CREATE_VALUE,
+            CurrentSession.SendTo( MessageHead.S_NREG_CREATE_VALUE,
                                 new DoCreateRegistryValuePack()
                                 {
                                     KeyPath = keyPath,
@@ -172,7 +172,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="valueName">The registry key value name to delete.</param>
         public void DeleteRegistryValue(string keyPath, string valueName)
         {
-            SendTo(CurrentSession, MessageHead.S_NREG_DELETE_VALUE,
+            CurrentSession.SendTo( MessageHead.S_NREG_DELETE_VALUE,
                                         new DoDeleteRegistryValuePack()
                                         {
                                             KeyPath = keyPath,
@@ -188,7 +188,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="newValueName">The new registry key value name.</param>
         public void RenameRegistryValue(string keyPath, string oldValueName, string newValueName)
         {
-            SendTo(CurrentSession, MessageHead.S_NREG_RENAME_VALUE,
+            CurrentSession.SendTo( MessageHead.S_NREG_RENAME_VALUE,
                                     new DoRenameRegistryValuePack()
                                     {
                                         KeyPath = keyPath,
@@ -204,7 +204,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="value">The updated registry key value.</param>
         public void ChangeRegistryValue(string keyPath, RegValueData value)
         {
-            SendTo(CurrentSession, MessageHead.S_NREG_CHANGE_VALUE,
+            CurrentSession.SendTo( MessageHead.S_NREG_CHANGE_VALUE,
                                     new DoChangeRegistryValuePack()
                                     {
                                         KeyPath = keyPath,

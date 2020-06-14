@@ -6,10 +6,13 @@ namespace SiMay.Basic
 {
     public static class ArrayHelper
     {
-        public static T[] Copy<T>(this T[] source, int offset, int lenght)
+        public static T[] Copy<T>(this T[] source, int offset, int length)
         {
-            var nArray = new T[lenght];
-            Array.Copy(source, offset, nArray, 0, lenght);
+            if (offset == 0 && length == source.Length)
+                return source;
+
+            var nArray = new T[length];
+            Array.Copy(source, offset, nArray, 0, length);
             return nArray;
         }
     }

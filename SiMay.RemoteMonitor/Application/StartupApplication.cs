@@ -15,7 +15,7 @@ using System.Windows.Forms;
 namespace SiMay.RemoteMonitor.Application
 {
     [ApplicationName("启动项管理")]
-    [Application(typeof(StartupAdapterHandler), AppJobConstant.REMOTE_STARTUP, 100)]
+    [Application(typeof(StartupAdapterHandler), AppFlageConstant.REMOTE_STARTUP, 100)]
     public partial class StartupApplication : Form, IApplication
     {
         [ApplicationAdapterHandler]

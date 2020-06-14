@@ -81,7 +81,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// </summary>
         public void GetRemoteDriveItems()
         {
-            SendTo(CurrentSession, MessageHead.S_FILE_GET_DRIVES);
+            CurrentSession.SendTo(MessageHead.S_FILE_GET_DRIVES);
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="path"></param>
         public void GetRemoteFiles(string path)
         {
-            SendTo(CurrentSession, MessageHead.S_FILE_GET_FILES,
+            CurrentSession.SendTo(MessageHead.S_FILE_GET_FILES,
                 new FileListPack()
                 {
                     FilePath = path
@@ -103,7 +103,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="specialFolder"></param>
         public void GetRemoteSystemFoldFiles(Environment.SpecialFolder specialFolder)
         {
-            SendTo(CurrentSession, MessageHead.S_FILE_REDIRION,
+            CurrentSession.SendTo(MessageHead.S_FILE_REDIRION,
                 new FileRedirectionPath()
                 {
                     SpecialFolder = specialFolder
@@ -117,7 +117,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_FILE_FILE_LIST)]
         private void FixedRemoteFileItems(SessionProviderContext session)
         {
-            var fileItems = GetMessageEntity<FileListItemsPack>(session);
+            var fileItems = session.GetMessageEntity<FileListItemsPack>();
             this.OnFileItemsEventHandler?.Invoke(this, fileItems.FileList, fileItems.Path, fileItems.IsSccessed, fileItems.Message);
         }
 
@@ -128,7 +128,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_FILE_ERROR_INFO)]
         private void WriteExceptionLog(SessionProviderContext session)
         {
-            var log = GetMessageEntity<FileExceptionPack>(session);
+            var log = session.GetMessageEntity<FileExceptionPack>();
             this.OnRemoteExceptionEventHandler?.Invoke(this, log.OccurredTime, log.TipMessage, log.ExceptionMessage, log.StackTrace);
         }
 
@@ -139,7 +139,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="files"></param>
         public void RemoteFilePaster(string root, string[] files)
         {
-            SendTo(CurrentSession, MessageHead.S_FILE_FILE_PASTER,
+            CurrentSession.SendTo(MessageHead.S_FILE_FILE_PASTER,
                     new FileCopyPack()
                     {
                         TargetDirectoryPath = root,
@@ -154,7 +154,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_FILE_COPY_FINISH)]
         private void RefreshDirectory(SessionProviderContext session)
         {
-            var pack = GetMessageEntity<FileCopyFinishPack>(session);
+            var pack = session.GetMessageEntity<FileCopyFinishPack>();
             this.OnPasterFinishEventHandler?.Invoke(this, pack.ExceptionFileNames);
         }
 
@@ -164,7 +164,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="path"></param>
         public void RemoteOpenText(string path)
         {
-            SendTo(CurrentSession, MessageHead.S_FILE_OPEN_TEXT,
+            CurrentSession.SendTo(MessageHead.S_FILE_OPEN_TEXT,
                                         new FileOpenTextPack()
                                         {
                                             FileName = path
@@ -178,7 +178,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_FILE_TEXT)]
         private void OpenRemoteText(SessionProviderContext session)
         {
-            var text = GetMessageEntity<FileTextPack>(session);
+            var text = session.GetMessageEntity<FileTextPack>();
             this.OnOpenTextEventHandler?.Invoke(this, text.Text, text.IsSuccess);
         }
 
@@ -188,7 +188,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="files"></param>
         public void RemoteDeleteFiles(string[] files)
         {
-            SendTo(CurrentSession, MessageHead.S_FILE_DELETE,
+            CurrentSession.SendTo(MessageHead.S_FILE_DELETE,
                     new FileDeletePack()
                     {
                         FileNames = files
@@ -202,7 +202,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_FILE_DELETE_FINISH)]
         private void DeleteFinishHandler(SessionProviderContext session)
         {
-            var files = GetMessageEntity<FileDeleteFinishPack>(session);
+            var files = session.GetMessageEntity<FileDeleteFinishPack>();
             this.OnFileDeteledFinishEventHandler?.Invoke(this, files.DeleteFileNames);
         }
 
@@ -213,7 +213,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="noCallback">false = 回调</param>
         public void RemoteCreateDirectory(string path, bool noCallback = false)
         {
-            SendTo(CurrentSession, MessageHead.S_FILE_CREATE_DIR,
+            CurrentSession.SendTo(MessageHead.S_FILE_CREATE_DIR,
                 new FileCreateDirectoryPack()
                 {
                     DirectoryName = path,
@@ -228,7 +228,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_FILE_CREATEF_DIR_FNISH)]
         private void DirectoryCreateFinishHandler(SessionProviderContext session)
         {
-            var response = GetMessageEntity<FileCreateDirectoryFinishPack>(session);
+            var response = session.GetMessageEntity<FileCreateDirectoryFinishPack>();
             this.OnDirectoryCreateFinishEventHandler?.Invoke(this, response.IsSuccess);
         }
 
@@ -239,7 +239,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="targetFileName"></param>
         public void RemoteFileRename(string srcFileName, string targetFileName)
         {
-            SendTo(CurrentSession, MessageHead.S_FILE_RENAME,
+            CurrentSession.SendTo(MessageHead.S_FILE_RENAME,
                                 new FileReNamePack()
                                 {
                                     SourceFileName = srcFileName,
@@ -254,7 +254,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_FILE_RENAME_FINISH)]
         private void ReNameFinishHandler(SessionProviderContext session)
         {
-            var file = GetMessageEntity<FileReNameFinishPack>(session);
+            var file = session.GetMessageEntity<FileReNameFinishPack>();
             this.OnFileNameRenameFinishEventHandler?.Invoke(this, file.SourceFileName, file.TargetName, file.IsSuccess);
         }
 
@@ -264,7 +264,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="path"></param>
         public void GetRemoteRootTreeItems(string path)
         {
-            SendTo(CurrentSession, MessageHead.S_FILE_TREE_DIR,
+            CurrentSession.SendTo(MessageHead.S_FILE_TREE_DIR,
                     new FileGetTreeDirectoryPack()
                     {
                         TargetRoot = path
@@ -278,7 +278,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_FILE_TREE_DIRS)]
         private void TreeFilesHandler(SessionProviderContext session)
         {
-            var pack = GetMessageEntity<FileTreeDirFilePack>(session);
+            var pack = session.GetMessageEntity<FileTreeDirFilePack>();
             this.OnFileTreeItemsEventHandler?.Invoke(this, pack.FileList);
         }
 
@@ -288,7 +288,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="path"></param>
         public void RemoteExecuteFile(string path)
         {
-            SendTo(CurrentSession, MessageHead.S_FILE_EXECUTE,
+            CurrentSession.SendTo(MessageHead.S_FILE_EXECUTE,
                 new FileExcutePack()
                 {
                     FilePath = path
@@ -307,7 +307,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             //LogHelper.DebugWriteLog("begin download frist Data fileName:" + Path.GetFileName(localFileName));
 
             long position = fileStream.Length;
-            reset:
+        reset:
             var responsed = await this.AwaitOpenDownloadData(remoteFileName, position);//首数据包，带文件状态信息及文件分块
 
             var status = 0;
@@ -381,14 +381,14 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         private void SetOpenEvent(SessionProviderContext session)
         {
             //LogHelper.DebugWriteLog("C_FILE_FRIST_DATA SetOpenEvent head:" + string.Join(",", session.CompletedBuffer.Take(2).Select(c => c.ToString()).ToArray()) /*+ " fileName:" + session.CompletedBuffer.GetMessageEntity<FileFristDownloadDataPack>().fileName*/);
-            var data = GetMessage(session);
+            var data = session.GetMessage();
             _workerStreamEvent.SetOneData(data);
         }
         private async Task<FileFristDownloadDataPack> AwaitOpenDownloadData(string remoteFileName, long position)
         {
             return await Task.Run(() =>
             {
-                SendTo(CurrentSession, MessageHead.S_FILE_DOWNLOAD,
+                CurrentSession.SendTo(MessageHead.S_FILE_DOWNLOAD,
                 new FileDownloadPack()
                 {
                     FileName = remoteFileName,
@@ -412,7 +412,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         private void SetDataOneEvent(SessionProviderContext session)
         {
             //LogHelper.DebugWriteLog("SetDataOneEvent head:" + string.Join(",", session.CompletedBuffer.Take(2).Select(c => c.ToString()).ToArray()));
-            var data = GetMessage(session);
+            var data = session.GetMessage();
             _workerStreamEvent.SetOneData();
         }
         private async Task<FileDownloadDataPack> AwaitDownloadDataPack()
@@ -420,7 +420,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             return await Task.Run(() =>
             {
 
-                SendTo(CurrentSession, MessageHead.S_FILE_NEXT_DATA);
+                CurrentSession.SendTo(MessageHead.S_FILE_NEXT_DATA);
                 if (_isWorkSessionOfLines)
                 {
                     var data = _workerStreamEvent.AwaitOneData();
@@ -436,7 +436,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
         private void RemoteTaskStop()
         {
-            SendTo(CurrentSession, MessageHead.S_FILE_STOP);//停止任务，通知远程关闭文件
+            CurrentSession.SendTo(MessageHead.S_FILE_STOP);//停止任务，通知远程关闭文件
         }
 
         /// <summary>
@@ -459,7 +459,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             string remoteFileName,
             Func<string, TransferMode> onSelectedFileTransferMode)
         {
-            reset:
+        reset:
 
             LogHelper.DebugWriteLog("begin upload");
             var responsed = await this.AwaitOpenUploadFileStatus(remoteFileName);//获取远程文件状态
@@ -527,7 +527,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
             var data = await Task.Run(() => this.ReadFileStream(fileStream));
 
-            SendTo(CurrentSession, MessageHead.S_FILE_FRIST_DATA,//上传首数据块，带文件选项及长度
+            CurrentSession.SendTo(MessageHead.S_FILE_FRIST_DATA,//上传首数据块，带文件选项及长度
                 new FileFristUploadDataPack()
                 {
                     FileMode = fileMode,
@@ -568,7 +568,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
                 data = await Task.Run(() => this.ReadFileStream(fileStream));
 
                 //底层通信库在正式发送数据包前会进行组包丶压缩等操作，由于文件数据块大，所处理耗时较长,此处使用线程以防止ui发生卡顿
-                await Task.Run(() => SendTo(CurrentSession, MessageHead.S_FILE_DATA,
+                await Task.Run(() => CurrentSession.SendTo(MessageHead.S_FILE_DATA,
                             new FileUploadDataPack()
                             {
                                 FileSize = fileStream.Length,
@@ -622,13 +622,13 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         private void SetUploadFileStatus(SessionProviderContext session)
         {
             //LogHelper.DebugWriteLog("SetUploadFileStatus head:" + string.Join(",", session.CompletedBuffer.Take(2).Select(c => c.ToString()).ToArray()));
-            _workerStreamEvent.SetOneData(GetMessage(session));
+            _workerStreamEvent.SetOneData(session.GetMessage());
         }
         private async Task<FileUploadFileStatus> AwaitOpenUploadFileStatus(string remoteFileName)
         {
             return await Task.Run(() =>
             {
-                SendTo(CurrentSession, MessageHead.S_FILE_UPLOAD,
+                CurrentSession.SendTo(MessageHead.S_FILE_UPLOAD,
                     new FileUploadPack()
                     {
                         FileName = remoteFileName
@@ -664,7 +664,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             Func<string, IFileStream> onCreateFileStream,
             Action<string> onCreateDicectroy)
         {
-            reset:
+        reset:
             this._filesQueue.Clear();
             TransferTaskFlage = TransferTaskFlage.Allow;
             var result = await this.AwaitGetDirectoryFiles(remotedirectory);
@@ -709,7 +709,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_FILE_DIR_FILES)]
         private void SetFilesTriggerEvent(SessionProviderContext session)
         {
-            foreach (var file in GetMessageEntity<FileDirectoryFilesPack>(session).Files)
+            foreach (var file in session.GetMessageEntity<FileDirectoryFilesPack>().Files)
                 _filesQueue.Enqueue(file);
             _filesTriggerEvent.Set();
         }
@@ -718,7 +718,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         {
             return await Task.Run(() =>
             {
-                SendTo(CurrentSession, MessageHead.S_FILE_GETDIR_FILES,
+                CurrentSession.SendTo(MessageHead.S_FILE_GETDIR_FILES,
                     new FileDirectoryGetFilesPack()
                     {
                         DirectoryPath = remotedirectory

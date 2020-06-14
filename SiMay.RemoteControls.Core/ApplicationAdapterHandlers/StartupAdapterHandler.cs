@@ -61,18 +61,18 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_STARTUP_LIST)]
         private void HandlerStartupItems(SessionProviderContext session)
         {
-            var pack = GetMessageEntity<StartupItemsPack>(session);
+            var pack = session.GetMessageEntity<StartupItemsPack>();
             OnStartupItemHandlerEvent?.Invoke(this, pack.StartupItems);
         }
 
         public void GetStartup()
         {
-            SendTo(CurrentSession, MessageHead.S_STARTUP_GET_LIST);
+            CurrentSession.SendTo(MessageHead.S_STARTUP_GET_LIST);
         }
 
         public void AddStartupItem(string path, string name, StartupType startupType)
         {
-            SendTo(CurrentSession, MessageHead.S_STARTUP_ADD_ITEM,
+            CurrentSession.SendTo(MessageHead.S_STARTUP_ADD_ITEM,
                 new StartupItemPack()
                 {
                     Name = name,
@@ -83,7 +83,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
         public void RemoveStartupItem(IEnumerable<StartupItemPack> startupItems)
         {
-            SendTo(CurrentSession, MessageHead.S_STARTUP_REMOVE_ITEM,
+            CurrentSession.SendTo(MessageHead.S_STARTUP_REMOVE_ITEM,
                 new StartupItemsPack()
                 {
                     StartupItems = startupItems.ToArray()

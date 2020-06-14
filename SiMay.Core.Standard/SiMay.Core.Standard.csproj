@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SiMay.Basic\SiMay.Basic.csproj" />
+    <ProjectReference Include="..\SiMay.Net.SessionProvider\SiMay.Net.SessionProvider.csproj" />
     <ProjectReference Include="..\SiMay.Platform.Windows\SiMay.Platform.Windows.csproj" />
     <ProjectReference Include="..\SiMay.Serialize.Standard\SiMay.Serialize.Standard.csproj" />
   </ItemGroup>

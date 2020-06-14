@@ -10,13 +10,13 @@ namespace SiMay.Core
     {
         public int Height { get; set; }
         public int Width { get; set; }
-        public int TimeSpan { get; set; }
-        public bool InVisbleArea { get; set; }
+        //public int TimeSpan { get; set; }
+        //public bool InVisbleArea { get; set; }
     }
 
     public class DesktopViewFramePack : EntitySerializerBase
     {
-        public bool InVisbleArea { get; set; }
+        //public bool InVisbleArea { get; set; }
         public byte[] ViewData { get; set; }
     }
 }

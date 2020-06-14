@@ -19,5 +19,10 @@ namespace SiMay.RemoteMonitor
         protected override void Save(string key, string value)
             => IniConfigHelper.SetValue("SiMayConfig", key, value, _filePath);
 
+        //public bool DesktopViewRecordAny(string machineName)
+        //{
+        //    GetConfig();
+        //}
+
     }
 }

@@ -19,13 +19,13 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_SHELL_RESULT)]
         private void OutputCommandHandler(SessionProviderContext session)
         {
-            string text = GetMessage(session).ToUnicodeString();
+            string text = session.GetMessage().ToUnicodeString();
             this.OnOutputCommandEventHandler?.Invoke(this, text);
         }
 
         public void InputCommand(string command)
         {
-            SendTo(CurrentSession, MessageHead.S_SHELL_INPUT, command);
+            CurrentSession.SendTo( MessageHead.S_SHELL_INPUT, command);
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using SiMay.Core;
 using SiMay.ModelBinder;
+using SiMay.Net.SessionProvider;
 using SiMay.ServiceCore.Attributes;
-using SiMay.Sockets.Tcp.Session;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -9,11 +9,11 @@ using System.IO;
 namespace SiMay.ServiceCore
 {
     [ServiceName("Shell管理")]
-    [ServiceKey(AppJobConstant.REMOTE_SHELL)]
+    [ServiceKey(AppFlageConstant.REMOTE_SHELL)]
     public class ShellService : ApplicationRemoteService
     {
         private Process _pipe;
-        public override void SessionInited(TcpSocketSaeaSession session)
+        public override void SessionInited(SessionProviderContext session)
         {
             this.Init();
         }
@@ -48,9 +48,9 @@ namespace SiMay.ServiceCore
         }
 
         [PacketHandler(MessageHead.S_SHELL_INPUT)]
-        public void StartCommand(TcpSocketSaeaSession session)
+        public void StartCommand(SessionProviderContext session)
         {
-            byte[] payload = GetMessage(session);
+            byte[] payload = session.GetMessage();
             string command = payload.ToUnicodeString();
 
             _pipe.StandardInput.WriteLine(command);
@@ -61,14 +61,14 @@ namespace SiMay.ServiceCore
         {
             if (outLine.Data == null)
                 return;
-            SendTo(CurrentSession, MessageHead.C_SHELL_RESULT, "\r\n" + outLine.Data + "\r\n");
+            CurrentSession.SendTo(MessageHead.C_SHELL_RESULT, "\r\n" + outLine.Data + "\r\n");
         }
 
         private void OutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
         {
             if (outLine.Data == null)
                 return;
-            SendTo(CurrentSession, MessageHead.C_SHELL_RESULT, "\r\n" + outLine.Data);
+            CurrentSession.SendTo(MessageHead.C_SHELL_RESULT, "\r\n" + outLine.Data);
         }
     }
 }

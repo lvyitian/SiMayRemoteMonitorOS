@@ -8,5 +8,7 @@ namespace SiMay.RemoteMonitor
     public class SysConstantsExtend
     {
         public const string SessionListItem = "SessionListItem";
+
+        public const string OpenAutoDesktopViews = "OpenAutoDesktopViews";
     }
 }

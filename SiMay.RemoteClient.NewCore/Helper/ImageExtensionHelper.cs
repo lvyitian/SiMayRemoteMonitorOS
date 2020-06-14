@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace SiMay.ServiceCore.Helper
+namespace SiMay.ServiceCore
 {
     public class ImageExtensionHelper
     {

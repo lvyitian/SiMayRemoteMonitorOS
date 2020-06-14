@@ -1,5 +1,5 @@
-﻿using SiMay.Sockets.Tcp;
-using SiMay.Sockets.Tcp.Session;
+﻿using SiMay.Net.SessionProvider;
+using SiMay.Sockets.Tcp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +9,6 @@ namespace SiMay.RemoteService.Loader
 {
     public interface IAppMainService
     {
-        void Notify(TcpSessionNotify notify, TcpSocketSaeaSession session);
+        void Notify(TcpSessionNotify notify, SessionProviderContext session);
     }
 }

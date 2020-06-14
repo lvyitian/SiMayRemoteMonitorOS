@@ -1,9 +1,9 @@
 ﻿using Microsoft.Win32;
 using SiMay.Core;
 using SiMay.ModelBinder;
+using SiMay.Net.SessionProvider;
 using SiMay.Platform.Windows;
 using SiMay.ServiceCore.Attributes;
-using SiMay.Sockets.Tcp.Session;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,10 +12,10 @@ using System.Linq;
 namespace SiMay.ServiceCore
 {
     [ServiceName("启动项管理")]
-    [ServiceKey(AppJobConstant.REMOTE_STARTUP)]
+    [ServiceKey(AppFlageConstant.REMOTE_STARTUP)]
     public class StartupService : ApplicationRemoteService
     {
-        public override void SessionInited(TcpSocketSaeaSession session)
+        public override void SessionInited(SessionProviderContext session)
         {
 
         }
@@ -26,7 +26,7 @@ namespace SiMay.ServiceCore
         }
 
         [PacketHandler(MessageHead.S_STARTUP_GET_LIST)]
-        public void HandleGetStartupItems(TcpSocketSaeaSession session)
+        public void HandleGetStartupItems(SessionProviderContext session)
         {
             try
             {
@@ -118,7 +118,7 @@ namespace SiMay.ServiceCore
                         }));
                 }
 
-                SendTo(CurrentSession, MessageHead.C_STARTUP_LIST,
+                CurrentSession.SendTo(MessageHead.C_STARTUP_LIST,
                     new StartupItemsPack()
                     {
                         StartupItems = startupItems.ToArray()
@@ -127,7 +127,7 @@ namespace SiMay.ServiceCore
             catch (Exception ex)
             {
                 LogHelper.WriteErrorByCurrentMethod(ex);
-                SendTo(CurrentSession, MessageHead.C_STARTUP_OPER_RESPONSE,
+                CurrentSession.SendTo(MessageHead.C_STARTUP_OPER_RESPONSE,
                     new StartupOperResponsePack()
                     {
                         OperFlag = OperFlag.GetStartupItems,
@@ -137,11 +137,11 @@ namespace SiMay.ServiceCore
             }
         }
         [PacketHandler(MessageHead.S_STARTUP_ADD_ITEM)]
-        public void HandleDoStartupItemAdd(TcpSocketSaeaSession session)
+        public void HandleDoStartupItemAdd(SessionProviderContext session)
         {
             try
             {
-                var command = GetMessageEntity<StartupItemPack>(session);
+                var command = session.GetMessageEntity<StartupItemPack>();
                 switch (command.Type)
                 {
                     case StartupType.LocalMachineRun:
@@ -215,7 +215,7 @@ namespace SiMay.ServiceCore
             }
             catch (Exception ex)
             {
-                SendTo(CurrentSession, MessageHead.C_STARTUP_OPER_RESPONSE,
+                CurrentSession.SendTo(MessageHead.C_STARTUP_OPER_RESPONSE,
                     new StartupOperResponsePack()
                     {
                         OperFlag = OperFlag.AddStartupItem,
@@ -226,11 +226,11 @@ namespace SiMay.ServiceCore
         }
 
         [PacketHandler(MessageHead.S_STARTUP_REMOVE_ITEM)]
-        public void HandleDoStartupItemRemove(TcpSocketSaeaSession session)
+        public void HandleDoStartupItemRemove(SessionProviderContext session)
         {
             try
             {
-                var pack = GetMessageEntity<StartupItemsPack>(session);
+                var pack = session.GetMessageEntity<StartupItemsPack>();
                 foreach (var command in pack.StartupItems)
                 {
                     switch (command.Type)
@@ -297,7 +297,7 @@ namespace SiMay.ServiceCore
             }
             catch (Exception ex)
             {
-                SendTo(CurrentSession, MessageHead.C_STARTUP_OPER_RESPONSE,
+                CurrentSession.SendTo(MessageHead.C_STARTUP_OPER_RESPONSE,
                     new StartupOperResponsePack()
                     {
                         OperFlag = OperFlag.RemoveStartupItem,

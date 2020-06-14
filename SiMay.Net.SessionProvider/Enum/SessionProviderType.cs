@@ -9,6 +9,7 @@ namespace SiMay.Net.SessionProvider
     public enum SessionProviderType
     {
         TcpServiceSession,
-        TcpProxySession
+        TcpProxySession,
+        TcpClientSession
     }
 }

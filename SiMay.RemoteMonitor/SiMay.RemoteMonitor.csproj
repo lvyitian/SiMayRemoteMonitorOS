@@ -179,7 +179,6 @@
       <DependentUpon>TcpConnectionApplication.cs</DependentUpon>
     </Compile>
     <Compile Include="Entitys\KeyValueItem.cs" />
-    <Compile Include="Helper\KeygenHelper.cs" />
     <Compile Include="Helper\ListViewSortHelper.cs" />
     <Compile Include="Enums\FileItemType.cs" />
     <Compile Include="Extensions\ListViewExtensions.cs" />
@@ -254,29 +253,11 @@
     <Compile Include="MainApplication\BuilderServiceForm.Designer.cs">
       <DependentUpon>BuilderServiceForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MainApplication\DesktopRecordForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="MainApplication\DesktopRecordForm.Designer.cs">
-      <DependentUpon>DesktopRecordForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="MainApplication\DesktopRecordViewerForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="MainApplication\DesktopRecordViewerForm.Designer.cs">
-      <DependentUpon>DesktopRecordViewerForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="MainApplication\EnterForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MainApplication\EnterForm.Designer.cs">
       <DependentUpon>EnterForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="MainApplication\ExceptionForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="MainApplication\ExceptionForm.Designer.cs">
-      <DependentUpon>ExceptionForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Application\FileTransferModeForm.cs">
       <SubType>Form</SubType>
@@ -407,20 +388,11 @@
     <EmbeddedResource Include="MainApplication\BuilderServiceForm.resx">
       <DependentUpon>BuilderServiceForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MainApplication\DesktopRecordForm.resx">
-      <DependentUpon>DesktopRecordForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="MainApplication\DesktopRecordViewerForm.resx">
-      <DependentUpon>DesktopRecordViewerForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="MainApplication\DesktopViewCarousel\DesktopViewWallSettingForm.resx">
       <DependentUpon>DesktopViewWallSettingForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainApplication\EnterForm.resx">
       <DependentUpon>EnterForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="MainApplication\ExceptionForm.resx">
-      <DependentUpon>ExceptionForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Application\FileTransferModeForm.resx">
       <DependentUpon>FileTransferModeForm.cs</DependentUpon>

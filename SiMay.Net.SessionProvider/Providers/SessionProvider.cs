@@ -8,17 +8,12 @@ namespace SiMay.Net.SessionProvider
 {
     public abstract class SessionProvider
     {
-        public event Action<SessionProviderContext, TcpSessionNotify> SessionNotifyEventHandler;
+        public event Action<SessionProviderContext, TcpSessionNotify> NotificationEventHandler;
 
-        protected void SessionNotify(SessionProviderContext providerContext, TcpSessionNotify type)
+        protected void Notification(SessionProviderContext providerContext, TcpSessionNotify type)
         {
-            SessionNotifyEventHandler?.Invoke(providerContext, type);
+            NotificationEventHandler?.Invoke(providerContext, type);
         }
-
-        /// <summary>
-        /// 启动
-        /// </summary>
-        public abstract void StartSerivce();
 
         /// <summary>
         /// 广播发送

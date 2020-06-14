@@ -16,7 +16,7 @@ namespace SiMay.RemoteMonitor.Application
     [OnTools]
     [ApplicationName("注册表管理")]
     [AppResourceName("RegEditManager")]
-    [Application(typeof(RegistryEditorAdapterHandler), AppJobConstant.REMOTE_REGEDIT, 50)]
+    [Application(typeof(RegistryEditorAdapterHandler), AppFlageConstant.REMOTE_REGEDIT, 50)]
     public partial class RegEditorApplication : Form, IApplication
     {
         protected override CreateParams CreateParams

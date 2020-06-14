@@ -70,6 +70,7 @@
     <Compile Include="..\SiMay.Core\Entitys\ServiceOptions.cs">
       <Link>Entitys\ServiceOptions.cs</Link>
     </Compile>
+    <Compile Include="Entitys\LoaderAckPacket.cs" />
     <Compile Include="Entitys\StartParameter.cs" />
     <Compile Include="Helper\MessageHelper.cs" />
     <Compile Include="Interface\IAppMainService.cs" />
@@ -102,6 +103,10 @@
       <Project>{3547c677-4535-40bf-8185-f990c8b0d00f}</Project>
       <Name>SiMay.ModelBinder</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SiMay.Net.SessionProvider\SiMay.Net.SessionProvider.csproj">
+      <Project>{71283236-56CB-481E-A644-B7F9AF9EFDF9}</Project>
+      <Name>SiMay.Net.SessionProvider</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SiMay.Platform.Windows\SiMay.Platform.Windows.csproj">
       <Project>{B8B6A5BD-5349-4114-B93C-C1A3FD028F66}</Project>
       <Name>SiMay.Platform.Windows</Name>
@@ -111,7 +116,7 @@
       <Name>SiMay.Serialize.Standard</Name>
     </ProjectReference>
     <ProjectReference Include="..\SiMay.Sockets.Standard\SiMay.Sockets.Standard.csproj">
-      <Project>{866f8fe0-ee58-4d38-8be7-cbdd19dd1b40}</Project>
+      <Project>{866F8FE0-EE58-4D38-8BE7-CBDD19DD1B40}</Project>
       <Name>SiMay.Sockets.Standard</Name>
     </ProjectReference>
   </ItemGroup>

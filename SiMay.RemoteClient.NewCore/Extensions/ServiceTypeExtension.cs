@@ -5,7 +5,7 @@ using System.Text;
 using SiMay.Basic;
 using SiMay.ServiceCore.Attributes;
 
-namespace SiMay.ServiceCore.Extensions
+namespace SiMay.ServiceCore
 {
     public static class ServiceTypeExtension
     {

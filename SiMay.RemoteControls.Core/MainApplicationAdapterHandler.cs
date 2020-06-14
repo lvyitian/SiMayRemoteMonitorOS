@@ -45,11 +45,6 @@ namespace SiMay.RemoteControlsCore
         public event Action<SessionSyncContext> OnLogOutHandlerEvent;
 
         /// <summary>
-        /// 创建屏幕视图处理事件
-        /// </summary>
-        //public event Func<SessionSyncContext, IDesktopView> OnCreateDesktopViewHandlerEvent;
-
-        /// <summary>
         /// 代理协议事件
         /// </summary>
         public event Action<ProxyProviderNotify, EventArgs> OnProxyNotifyHandlerEvent;
@@ -66,17 +61,12 @@ namespace SiMay.RemoteControlsCore
         public event Action<string, LogSeverityLevel> OnLogHandlerEvent;
 
         /// <summary>
-        /// 视图墙刷新间隔
-        /// </summary>
-        public int ViewRefreshInterval { get; set; }
-
-        /// <summary>
         /// 主线程同步上下文
         /// </summary>
         public SynchronizationContext SynchronizationContext { get; set; }
 
         /// <summary>
-        /// 会话提供器
+        /// 会话提供对象
         /// </summary>
         public SessionProvider SessionProvider { get; set; }
 
@@ -84,7 +74,6 @@ namespace SiMay.RemoteControlsCore
         /// 主连接同步上下文
         /// </summary>
         public List<SessionSyncContext> SessionSyncContexts { get; set; } = new List<SessionSyncContext>();
-
 
         /// <summary>
         /// 中断任务上下文列表
@@ -94,7 +83,7 @@ namespace SiMay.RemoteControlsCore
         /// <summary>
         /// 是否已启动
         /// </summary>
-        private bool _launch;
+        bool _launch;
 
         public MainApplicationAdapterHandler(AbstractAppConfigBase config)
         {
@@ -152,11 +141,12 @@ namespace SiMay.RemoteControlsCore
 
             bool StartServiceProvider(SessionProviderOptions options)
             {
-                SessionProvider = SessionProviderFactory.CreateTcpSessionProvider(options);
-                SessionProvider.SessionNotifyEventHandler += OnNotifyProc;
+                var tcpSessionProvider = SessionProviderFactory.CreateTcpServiceSessionProvider(options); ;
+                tcpSessionProvider.NotificationEventHandler += OnNotifyProc;
+                SessionProvider = tcpSessionProvider;
                 try
                 {
-                    SessionProvider.StartSerivce();
+                    tcpSessionProvider.StartSerivce();
                     return true;
                 }
                 catch (Exception ex)
@@ -168,15 +158,14 @@ namespace SiMay.RemoteControlsCore
 
             bool StartProxySessionProvider(SessionProviderOptions options)
             {
-                SessionProvider = SessionProviderFactory.CreateProxySessionProvider(options);
-                SessionProvider.SessionNotifyEventHandler += OnNotifyProc;
-
-                if (SessionProvider is TcpProxySessionProvider proxySessionProvider)
-                    proxySessionProvider.ProxyProviderNotify += OnProxyNotifyHandlerEvent;
+                var proxySessionProvider = SessionProviderFactory.CreateProxySessionProvider(options);
+                proxySessionProvider.NotificationEventHandler += OnNotifyProc;
+                proxySessionProvider.ProxyProviderNotify += OnProxyNotifyHandlerEvent;
+                SessionProvider = proxySessionProvider;
 
                 try
                 {
-                    SessionProvider.StartSerivce();
+                    proxySessionProvider.StartSerivce();
                     return true;
                 }
                 catch (Exception ex)
@@ -250,13 +239,13 @@ namespace SiMay.RemoteControlsCore
                 var app = appTokens[SysConstants.INDEX_WORKER].ConvertTo<ApplicationAdapterHandler>();
                 if (app.WhetherClose)
                     return;
-                app.HandlerBinder.InvokePacketHandler(session, GetMessageHead(session), app);
+                app.HandlerBinder.InvokePacketHandler(session, session.GetMessageHead(), app);
             }
             else if (sessionWorkType == ConnectionWorkType.MAINCON)
-                this.HandlerBinder.InvokePacketHandler(session, GetMessageHead(session), this);
+                this.HandlerBinder.InvokePacketHandler(session, session.GetMessageHead(), this);
             else if (sessionWorkType == ConnectionWorkType.NONE) //未经过验证的连接的消息只能进入该方法块处理，连接密码验证正确才能正式处理消息
             {
-                switch (GetMessageHead(session))
+                switch (session.GetMessageHead())
                 {
                     case MessageHead.C_GLOBAL_CONNECT://连接确认包
                         this.ValiditySession(session);
@@ -274,7 +263,7 @@ namespace SiMay.RemoteControlsCore
         /// <param name="session"></param>
         private void ValiditySession(SessionProviderContext session)
         {
-            var ack = GetMessageEntity<AckPack>(session);
+            var ack = session.GetMessageEntity<AckPack>();
             long accessKey = ack.AccessKey;
             if (accessKey != int.Parse(AppConfiguration.ConnectPassWord))
             {
@@ -290,7 +279,7 @@ namespace SiMay.RemoteControlsCore
                     SendServicePlugins(session);
 
                 //告诉服务端一切就绪
-                SendTo(session, MessageHead.S_GLOBAL_OK);
+                session.SendTo(MessageHead.S_GLOBAL_OK);
             }
         }
 
@@ -318,7 +307,7 @@ namespace SiMay.RemoteControlsCore
                             _suspendTaskContexts.Remove(task); i--;
                             continue;
                         }
-                        SendTo(syncContext.Session, MessageHead.S_MAIN_ACTIVATE_APPLICATIONSERVICE,
+                        syncContext.Session.SendTo(MessageHead.S_MAIN_ACTIVATE_APPLICATIONSERVICE,
                             new ActivateServicePack()
                             {
                                 ApplicationKey = task.AdapterHandler.ApplicationKey
@@ -384,7 +373,7 @@ namespace SiMay.RemoteControlsCore
         [PacketHandler(MessageHead.C_MAIN_ACTIVE_APP)]
         private void OnActivateStartApp(SessionProviderContext session)
         {
-            var openControl = GetMessageEntity<ActivateApplicationPack>(session);
+            var openControl = session.GetMessageEntity<ActivateApplicationPack>();
             string originName = openControl.OriginName;
             string appKey = openControl.ServiceKey;
             string identifyId = openControl.IdentifyId;
@@ -396,7 +385,7 @@ namespace SiMay.RemoteControlsCore
                 if (task.AdapterHandler.WhetherClose)
                 {
                     //通知远程释放资源
-                    SendTo(session, MessageHead.S_GLOBAL_ONCLOSE);
+                    session.SendTo(MessageHead.S_GLOBAL_ONCLOSE);
                     return;
                 }
 
@@ -451,48 +440,48 @@ namespace SiMay.RemoteControlsCore
         }
 
 
-        /// <summary>
-        /// 创建桌面记录任务
-        /// </summary>
-        /// <param name="session"></param>
-        [PacketHandler(MessageHead.C_MAIN_DESKTOPRECORD_OPEN)]
-        private void StartScreenRecordTaskHandler(SessionProviderContext session)
-        {
-            string macName = GetMessage(session).ToUnicodeString();
-            var syncContext = session.AppTokens[SysConstants.INDEX_WORKER].ConvertTo<SessionSyncContext>();
-            syncContext.KeyDictions[SysConstants.HasLaunchDesktopRecord] = true;//开启
-            syncContext.KeyDictions[SysConstants.MachineName] = macName;//标识名(用计算机名作为唯一标识)
+        ///// <summary>
+        ///// 创建桌面记录任务
+        ///// </summary>
+        ///// <param name="session"></param>
+        //[PacketHandler(MessageHead.C_MAIN_DESKTOPRECORD_OPEN)]
+        //private void StartScreenRecordTaskHandler(SessionProviderContext session)
+        //{
+        //    string macName = session.GetMessage().ToUnicodeString();
+        //    var syncContext = session.AppTokens[SysConstants.INDEX_WORKER].ConvertTo<SessionSyncContext>();
+        //    syncContext.KeyDictions[SysConstants.HasLaunchDesktopRecord] = true;//开启
+        //    syncContext.KeyDictions[SysConstants.MachineName] = macName;//标识名(用计算机名作为唯一标识)
 
-            SendTo(session, MessageHead.S_MAIN_DESKTOPRECORD_GETFRAME);
-        }
+        //    session.SendTo(MessageHead.S_MAIN_DESKTOPRECORD_GETFRAME);
+        //}
 
-        /// <summary>
-        /// 储存桌面记录信息
-        /// </summary>
-        /// <param name="session"></param>
-        [PacketHandler(MessageHead.C_MAIN_DESKTOPRECORD_FRAME)]
-        private void ScreenSaveHandler(SessionProviderContext session)
-        {
-            var syncContext = session.AppTokens[SysConstants.INDEX_WORKER].ConvertTo<SessionSyncContext>();
-            var status = syncContext.KeyDictions[SysConstants.HasLaunchDesktopRecord].ConvertTo<bool>();
-            var macName = syncContext.KeyDictions[SysConstants.MachineName].ConvertTo<string>();
+        ///// <summary>
+        ///// 储存桌面记录信息
+        ///// </summary>
+        ///// <param name="session"></param>
+        //[PacketHandler(MessageHead.C_MAIN_DESKTOPRECORD_FRAME)]
+        //private void ScreenSaveHandler(SessionProviderContext session)
+        //{
+        //    var syncContext = session.AppTokens[SysConstants.INDEX_WORKER].ConvertTo<SessionSyncContext>();
+        //    var status = syncContext.KeyDictions[SysConstants.HasLaunchDesktopRecord].ConvertTo<bool>();
+        //    var macName = syncContext.KeyDictions[SysConstants.MachineName].ConvertTo<string>();
 
-            if (!Directory.Exists(Path.Combine("DesktopRecord", macName)))
-                Directory.CreateDirectory(Path.Combine("DesktopRecord", macName));
+        //    if (!Directory.Exists(Path.Combine("DesktopRecord", macName)))
+        //        Directory.CreateDirectory(Path.Combine("DesktopRecord", macName));
 
-            using (var ms = new MemoryStream(GetMessage(session)))
-            {
-                string fileName = Path.Combine(Environment.CurrentDirectory, "DesktopRecord", macName, DateTime.Now.ToFileTime() + ".png");
-                Image img = Image.FromStream(ms);
-                img.Save(fileName);
-                img.Dispose();
-            }
+        //    using (var ms = new MemoryStream(session.GetMessage()))
+        //    {
+        //        string fileName = Path.Combine(Environment.CurrentDirectory, "DesktopRecord", macName, DateTime.Now.ToFileTime() + ".png");
+        //        Image img = Image.FromStream(ms);
+        //        img.Save(fileName);
+        //        img.Dispose();
+        //    }
 
-            if (!status)
-                return;
+        //    if (!status)
+        //        return;
 
-            SendTo(session, MessageHead.S_MAIN_DESKTOPRECORD_GETFRAME);
-        }
+        //    session.SendTo(MessageHead.S_MAIN_DESKTOPRECORD_GETFRAME);
+        //}
 
         ///// <summary>
         ///// 创建桌面视图
@@ -511,45 +500,45 @@ namespace SiMay.RemoteControlsCore
         //}
 
 
-        /// <summary>
-        /// 显示桌面墙数据
-        /// </summary>
-        /// <param name="session"></param>
-        [PacketHandler(MessageHead.C_MAIN_DESKTOPVIEW_FRAME)]
-        private void PlayerDesktopImage(SessionProviderContext session)
-        {
-            var syncContext = session.AppTokens[SysConstants.INDEX_WORKER].ConvertTo<SessionSyncContext>();
-            if (!syncContext.KeyDictions.ContainsKey(SysConstants.DesktopView) ||
-                syncContext.KeyDictions[SysConstants.DesktopView].IsNull())
-                return;
+        ///// <summary>
+        ///// 显示桌面墙数据
+        ///// </summary>
+        ///// <param name="session"></param>
+        //[PacketHandler(MessageHead.C_MAIN_DESKTOPVIEW_FRAME)]
+        //private void PlayerDesktopImage(SessionProviderContext session)
+        //{
+        //    var syncContext = session.AppTokens[SysConstants.INDEX_WORKER].ConvertTo<SessionSyncContext>();
+        //    if (!syncContext.KeyDictions.ContainsKey(SysConstants.DesktopView) ||
+        //        syncContext.KeyDictions[SysConstants.DesktopView].IsNull())
+        //        return;
 
-            var frameData = GetMessageEntity<DesktopViewFramePack>(session);
-            var view = syncContext.KeyDictions[SysConstants.DesktopView].ConvertTo<IDesktopView>();
-            //if (frameData.InVisbleArea)
-            //{
-            using (var ms = new MemoryStream(frameData.ViewData))
-                view.PlayerDekstopView(Image.FromStream(ms));
-            //}
+        //    var frameData = session.GetMessageEntity<DesktopViewFramePack>();
+        //    var view = syncContext.KeyDictions[SysConstants.DesktopView].ConvertTo<IDesktopView>();
+        //    //if (frameData.InVisbleArea)
+        //    //{
+        //    using (var ms = new MemoryStream(frameData.ViewData))
+        //        view.PlayerDekstopView(Image.FromStream(ms));
+        //    //}
 
-            GetDesktopViewFrame(syncContext);
-        }
+        //    GetDesktopViewFrame(syncContext);
+        //}
 
-        public void GetDesktopViewFrame(SessionSyncContext syncContext)
-        {
-            if (!syncContext.KeyDictions.ContainsKey(SysConstants.DesktopView) ||
-                syncContext.KeyDictions[SysConstants.DesktopView].IsNull())
-                return;
+        //public void GetDesktopViewFrame(SessionSyncContext syncContext)
+        //{
+        //    if (!syncContext.KeyDictions.ContainsKey(SysConstants.DesktopView) ||
+        //        syncContext.KeyDictions[SysConstants.DesktopView].IsNull())
+        //        return;
 
-            var view = syncContext.KeyDictions.GetValue(SysConstants.DesktopView).ConvertTo<IDesktopView>();
-            SendTo(view.SessionSyncContext.Session, MessageHead.S_MAIN_DESKTOPVIEW_GETFRAME,
-                new DesktopViewGetFramePack()
-                {
-                    Height = view.Height,
-                    Width = view.Width,
-                    TimeSpan = this.ViewRefreshInterval,
-                    InVisbleArea = true
-                });
-        }
+        //    var view = syncContext.KeyDictions.GetValue(SysConstants.DesktopView).ConvertTo<IDesktopView>();
+        //    view.SessionSyncContext.Session.SendTo(MessageHead.S_MAIN_DESKTOPVIEW_GETFRAME,
+        //        new DesktopViewGetFramePack()
+        //        {
+        //            Height = view.Height,
+        //            Width = view.Width
+        //            //TimeSpan = this.ViewRefreshInterval
+        //            //InVisbleArea = true
+        //        });
+        //}
 
         /// <summary>
         /// 登陆信息更改
@@ -572,14 +561,14 @@ namespace SiMay.RemoteControlsCore
             syncContext.KeyDictions[SysConstants.ExistCameraDevice] = login.ExistCameraDevice;
             syncContext.KeyDictions[SysConstants.ExitsRecordDevice] = login.ExitsRecordDevice;
             syncContext.KeyDictions[SysConstants.ExitsPlayerDevice] = login.ExitsPlayerDevice;
-            syncContext.KeyDictions[SysConstants.OpenScreenRecord] = login.OpenScreenRecord;
-            syncContext.KeyDictions[SysConstants.OpenScreenWall] = login.OpenScreenWall;
+            //syncContext.KeyDictions[SysConstants.OpenScreenRecord] = login.OpenScreenRecord;
+            //syncContext.KeyDictions[SysConstants.OpenScreenWall] = login.OpenScreenWall;
             syncContext.KeyDictions[SysConstants.IdentifyId] = login.IdentifyId;
-            syncContext.KeyDictions[SysConstants.HasLaunchDesktopRecord] = false;//桌面记录状态
-            syncContext.KeyDictions[SysConstants.RecordHeight] = login.RecordHeight;//用于桌面记录的高
-            syncContext.KeyDictions[SysConstants.RecordWidth] = login.RecordWidth;//用于桌面记录宽
-            syncContext.KeyDictions[SysConstants.RecordSpanTime] = login.RecordSpanTime;
-            syncContext.KeyDictions[SysConstants.HasLoadServiceCOM] = login.InitialAssemblyLoad;
+            //syncContext.KeyDictions[SysConstants.HasLaunchDesktopRecord] = false;//桌面记录状态
+            //syncContext.KeyDictions[SysConstants.RecordHeight] = login.RecordHeight;//用于桌面记录的高
+            //syncContext.KeyDictions[SysConstants.RecordWidth] = login.RecordWidth;//用于桌面记录宽
+            //syncContext.KeyDictions[SysConstants.RecordSpanTime] = login.RecordSpanTime;
+            //syncContext.KeyDictions[SysConstants.HasLoadServiceCOM] = login.InitialAssemblyLoad;
 
             this.OnLoginUpdateHandlerEvent?.Invoke(syncContext);
         }
@@ -593,7 +582,7 @@ namespace SiMay.RemoteControlsCore
         {
             try
             {
-                var login = GetMessageEntity<LoginPack>(session);
+                var login = session.GetMessageEntity<LoginPack>();
                 if (!session.AppTokens[SysConstants.INDEX_WORKER].IsNull())//如果主连接同步对象存在，则对该对象更新
                 {
                     this.UpdateSyncContextHandler(session.AppTokens[SysConstants.INDEX_WORKER].ConvertTo<SessionSyncContext>(), login);
@@ -616,14 +605,14 @@ namespace SiMay.RemoteControlsCore
                     { SysConstants.ExistCameraDevice, login.ExistCameraDevice },
                     { SysConstants.ExitsRecordDevice, login.ExitsRecordDevice },
                     { SysConstants.ExitsPlayerDevice, login.ExitsPlayerDevice },
-                    { SysConstants.OpenScreenWall, login.OpenScreenWall },
-                    { SysConstants.IdentifyId, login.IdentifyId },
-                    { SysConstants.OpenScreenRecord, login.OpenScreenRecord },
-                    { SysConstants.HasLaunchDesktopRecord, false },
-                    { SysConstants.RecordHeight, login.RecordHeight },
-                    { SysConstants.RecordWidth, login.RecordWidth },
-                    { SysConstants.RecordSpanTime, login.RecordSpanTime },
-                    { SysConstants.HasLoadServiceCOM, login.InitialAssemblyLoad }
+                    //{ SysConstants.OpenScreenWall, login.OpenScreenWall },
+                    { SysConstants.IdentifyId, login.IdentifyId }
+                    //{ SysConstants.OpenScreenRecord, login.OpenScreenRecord },
+                    //{ SysConstants.HasLaunchDesktopRecord, false },
+                    //{ SysConstants.RecordHeight, login.RecordHeight },
+                    //{ SysConstants.RecordWidth, login.RecordWidth },
+                    //{ SysConstants.RecordSpanTime, login.RecordSpanTime },
+                    //{ SysConstants.HasLoadServiceCOM, login.InitialAssemblyLoad }
                 };
                 var syncContext = new SessionSyncContext(session, dictions);
                 SessionSyncContexts.Add(syncContext);
@@ -675,13 +664,18 @@ namespace SiMay.RemoteControlsCore
                 else if (worktype == ConnectionWorkType.MAINCON)
                 {
                     var syncContext = arguments[SysConstants.INDEX_WORKER].ConvertTo<SessionSyncContext>();
+                    if (syncContext.IsNull())
+                    {
+                        LogHelper.WriteErrorByCurrentMethod("syncContext NULL");
+                        return;
+                    }
                     SessionSyncContexts.Remove(syncContext);
 
-                    if (syncContext.KeyDictions.ContainsKey(SysConstants.DesktopView) && !syncContext.KeyDictions[SysConstants.DesktopView].IsNull())
-                    {
-                        var view = syncContext.KeyDictions[SysConstants.DesktopView].ConvertTo<IDesktopView>();
-                        view.CloseDesktopView();
-                    }
+                    //if (syncContext.KeyDictions.ContainsKey(SysConstants.DesktopView) && !syncContext.KeyDictions[SysConstants.DesktopView].IsNull())
+                    //{
+                    //    var view = syncContext.KeyDictions[SysConstants.DesktopView].ConvertTo<IDesktopView>();
+                    //    view.CloseDesktopView();
+                    //}
 
                     this.OnLogOutHandlerEvent?.Invoke(syncContext);
 
@@ -703,12 +697,12 @@ namespace SiMay.RemoteControlsCore
         /// <param name="syncContext"></param>
         public void RemoteServiceReload(SessionSyncContext syncContext)
         {
-            SendTo(syncContext.Session, MessageHead.S_MAIN_RELOADER);
+            syncContext.Session.SendTo(MessageHead.S_MAIN_RELOADER);
         }
 
         public void RegetLoginInformation(SessionSyncContext syncContext)
         {
-            SendTo(syncContext.Session, MessageHead.S_GLOBAL_OK);
+            syncContext.Session.SendTo(MessageHead.S_GLOBAL_OK);
         }
 
         /// <summary>
@@ -717,7 +711,7 @@ namespace SiMay.RemoteControlsCore
         /// <param name="syncContext"></param>
         public void InstallAutoStartService(SessionSyncContext syncContext)
         {
-            SendTo(syncContext.Session, MessageHead.S_MAIN_INSTANLL_SERVICE);
+            syncContext.Session.SendTo(MessageHead.S_MAIN_INSTANLL_SERVICE);
         }
 
         /// <summary>
@@ -726,7 +720,7 @@ namespace SiMay.RemoteControlsCore
         /// <param name="syncContext"></param>
         public void UnInStallAutoStartService(SessionSyncContext syncContext)
         {
-            SendTo(syncContext.Session, MessageHead.S_MAIN_UNINSTANLL_SERVICE);
+            syncContext.Session.SendTo(MessageHead.S_MAIN_UNINSTANLL_SERVICE);
         }
         /// <summary>
         /// 远程服务文件更新
@@ -737,7 +731,7 @@ namespace SiMay.RemoteControlsCore
         /// <param name="url"></param>
         public void RemoteServiceUpdate(SessionSyncContext syncContext, RemoteUpdateType updateType, byte[] file, string url)
         {
-            SendTo(syncContext.Session, MessageHead.S_MAIN_UPDATE,
+            syncContext.Session.SendTo(MessageHead.S_MAIN_UPDATE,
                 new RemoteUpdatePack()
                 {
                     UrlOrFileUpdate = updateType,
@@ -753,42 +747,42 @@ namespace SiMay.RemoteControlsCore
         /// <param name="groupName"></param>
         public void RemoteSetGroupName(SessionSyncContext syncContext, string groupName)
         {
-            SendTo(syncContext.Session, MessageHead.S_MAIN_GROUP, groupName);
-        }
-
-        /// <summary>
-        /// 设置桌面视图
-        /// </summary>
-        /// <param name="syncContext"></param>
-        public bool SetSessionDesktopView(SessionSyncContext syncContext, IDesktopView desktopView)
-        {
-            var machineName = syncContext.KeyDictions[SysConstants.MachineName].ConvertTo<string>();
-            var des = syncContext.KeyDictions[SysConstants.Remark].ConvertTo<string>();
-            desktopView.Caption = machineName + $"-({des})";
-            var result = syncContext.KeyDictions.ContainsKey(SysConstants.DesktopView);
-            if (result)
-                return false;
-            else
-                syncContext.KeyDictions[SysConstants.DesktopView] = desktopView;
-
-            return true;
-            //SendTo(syncContext.Session, MessageHead.S_MAIN_CREATE_DESKTOPVIEW, new byte[] { (byte)(compel ? 0 : 1) });
-
+            syncContext.Session.SendTo(MessageHead.S_MAIN_GROUP, groupName);
         }
 
         ///// <summary>
-        ///// 关闭桌面视图
+        ///// 设置桌面视图
         ///// </summary>
         ///// <param name="syncContext"></param>
-        public void CloseDesktopView(SessionSyncContext syncContext)
-        {
-            if (!syncContext.KeyDictions.ContainsKey(SysConstants.DesktopView))
-                return;
-            var view = syncContext.KeyDictions[SysConstants.DesktopView].ConvertTo<IDesktopView>();
-            view.CloseDesktopView();
+        //public bool SetSessionDesktopView(SessionSyncContext syncContext, IDesktopView desktopView)
+        //{
+        //    var machineName = syncContext.KeyDictions[SysConstants.MachineName].ConvertTo<string>();
+        //    var des = syncContext.KeyDictions[SysConstants.Remark].ConvertTo<string>();
+        //    desktopView.Caption = machineName + $"-({des})";
+        //    var result = syncContext.KeyDictions.ContainsKey(SysConstants.DesktopView);
+        //    if (result)
+        //        return false;
+        //    else
+        //        syncContext.KeyDictions[SysConstants.DesktopView] = desktopView;
 
-            syncContext.KeyDictions.Remove(SysConstants.DesktopView);
-        }
+        //    return true;
+        //    //SendTo(syncContext.Session, MessageHead.S_MAIN_CREATE_DESKTOPVIEW, new byte[] { (byte)(compel ? 0 : 1) });
+
+        //}
+
+        /////// <summary>
+        /////// 关闭桌面视图
+        /////// </summary>
+        /////// <param name="syncContext"></param>
+        //public void CloseDesktopView(SessionSyncContext syncContext)
+        //{
+        //    if (!syncContext.KeyDictions.ContainsKey(SysConstants.DesktopView))
+        //        return;
+        //    var view = syncContext.KeyDictions[SysConstants.DesktopView].ConvertTo<IDesktopView>();
+        //    view.CloseDesktopView();
+
+        //    syncContext.KeyDictions.Remove(SysConstants.DesktopView);
+        //}
 
         /// <summary>
         /// 远程打开Url
@@ -797,7 +791,7 @@ namespace SiMay.RemoteControlsCore
         /// <param name="url"></param>
         public void RemoteOpenUrl(SessionSyncContext syncContext, string url)
         {
-            SendTo(syncContext.Session, MessageHead.S_MAIN_OPEN_WEBURL, url);
+            syncContext.Session.SendTo(MessageHead.S_MAIN_OPEN_WEBURL, url);
         }
 
         /// <summary>
@@ -807,7 +801,7 @@ namespace SiMay.RemoteControlsCore
         /// <param name="sessionType"></param>
         public void RemoteSetSessionState(SessionSyncContext syncContext, SystemSessionType sessionType)
         {
-            SendTo(syncContext.Session, MessageHead.S_MAIN_SESSION, new byte[] { (byte)sessionType });
+            syncContext.Session.SendTo(MessageHead.S_MAIN_SESSION, new byte[] { (byte)sessionType });
         }
 
         /// <summary>
@@ -817,7 +811,7 @@ namespace SiMay.RemoteControlsCore
         /// <param name="url"></param>
         public void RemoteHttpDownloadExecute(SessionSyncContext syncContext, string url)
         {
-            SendTo(syncContext.Session, MessageHead.S_MAIN_HTTPDOWNLOAD, url);
+            syncContext.Session.SendTo(MessageHead.S_MAIN_HTTPDOWNLOAD, url);
         }
 
         /// <summary>
@@ -829,7 +823,7 @@ namespace SiMay.RemoteControlsCore
         /// <param name="icon"></param>
         public void RemoteMessageBox(SessionSyncContext syncContext, string text, string title, MessageIcon icon)
         {
-            SendTo(syncContext.Session, MessageHead.S_MAIN_MESSAGEBOX,
+            syncContext.Session.SendTo(MessageHead.S_MAIN_MESSAGEBOX,
                 new MessagePack()
                 {
                     MessageTitle = title,
@@ -845,7 +839,7 @@ namespace SiMay.RemoteControlsCore
         /// <param name="remark"></param>
         public void RemoteSetRemarkInformation(SessionSyncContext syncContext, string remark)
         {
-            SendTo(syncContext.Session, MessageHead.S_MAIN_REMARK, remark);
+            syncContext.Session.SendTo(MessageHead.S_MAIN_REMARK, remark);
         }
 
         /// <summary>
@@ -855,7 +849,7 @@ namespace SiMay.RemoteControlsCore
         /// <param name="appKey"></param>
         public void RemoteActiveService(SessionSyncContext syncContext, string appKey)
         {
-            SendTo(syncContext.Session, MessageHead.S_MAIN_ACTIVATE_APPLICATIONSERVICE,
+            syncContext.Session.SendTo(MessageHead.S_MAIN_ACTIVATE_APPLICATIONSERVICE,
                 new ActivateServicePack()
                 {
                     ApplicationKey = appKey

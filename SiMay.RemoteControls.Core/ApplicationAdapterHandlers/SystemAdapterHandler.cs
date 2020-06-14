@@ -22,43 +22,43 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_SYSTEM_SYSTEMINFO)]
         private void HandlerProcessList(SessionProviderContext session)
         {
-            var pack = GetMessageEntity<SystemInfoPack>(session);
+            var pack = session.GetMessageEntity<SystemInfoPack>();
             OnSystemInfoHandlerEvent?.Invoke(this, pack.SystemInfos);
         }
 
         [PacketHandler(MessageHead.C_SYSTEM_OCCUPY_INFO)]
         private void HandlerOccupy(SessionProviderContext session)
         {
-            var pack = GetMessageEntity<SystemOccupyPack>(session);
+            var pack = session.GetMessageEntity<SystemOccupyPack>();
             OnOccupyHandlerEvent?.Invoke(this, pack.CpuUsage, pack.MemoryUsage);
         }
 
         [PacketHandler(MessageHead.C_SYSTEM_PROCESS_LIST)]
         private void ProcessItemHandler(SessionProviderContext session)
         {
-            var processLst = GetMessageEntity<ProcessListPack>(session).ProcessList;
+            var processLst = session.GetMessageEntity<ProcessListPack>().ProcessList;
             OnProcessListHandlerEvent?.Invoke(this, processLst);
         }
         [PacketHandler(MessageHead.C_SYSTEM_SESSIONS)]
         private void SessionsItemHandler(SessionProviderContext session)
         {
-            var sessionLst = GetMessageEntity<SessionsPack>(session).Sessions;
+            var sessionLst = session.GetMessageEntity<SessionsPack>().Sessions;
             this.OnSessionsEventHandler?.Invoke(this, sessionLst);
         }
 
         public void GetSystemInfoItems()
         {
-            SendTo(CurrentSession, MessageHead.S_SYSTEM_GET_SYSTEMINFO);
+            CurrentSession.SendTo(MessageHead.S_SYSTEM_GET_SYSTEMINFO);
         }
 
         public void GetProcessList()
         {
-            SendTo(CurrentSession, MessageHead.S_SYSTEM_GET_PROCESS_LIST);
+            CurrentSession.SendTo(MessageHead.S_SYSTEM_GET_PROCESS_LIST);
         }
 
         public void GetOccupy()
         {
-            SendTo(CurrentSession, MessageHead.S_SYSTEM_GET_OCCUPY);
+            CurrentSession.SendTo(MessageHead.S_SYSTEM_GET_OCCUPY);
         }
 
         public void SetProcessWindowMaxi(IEnumerable<int> pids)
@@ -73,12 +73,12 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
         public void EnumSession()
         {
-            SendTo(CurrentSession, MessageHead.S_SYSTEM_ENUMSESSIONS);
+            CurrentSession.SendTo(MessageHead.S_SYSTEM_ENUMSESSIONS);
         }
 
         public void CreateProcessAsUser(int sessionId)
         {
-            SendTo(CurrentSession, MessageHead.S_SYSTEM_CREATE_USER_PROCESS,
+            CurrentSession.SendTo(MessageHead.S_SYSTEM_CREATE_USER_PROCESS,
                 new CreateProcessAsUserPack()
                 {
                     SessionId = sessionId
@@ -87,7 +87,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
         public void KillProcess(IEnumerable<int> pids)
         {
-            SendTo(CurrentSession, MessageHead.S_SYSTEM_KILL,
+            CurrentSession.SendTo(MessageHead.S_SYSTEM_KILL,
                 new SysKillPack()
                 {
                     ProcessIds = pids.ToArray()
@@ -96,7 +96,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
         private void SetProcessWindowState(int state, IEnumerable<int> pids)
         {
-            SendTo(CurrentSession, MessageHead.S_SYSTEM_MAXIMIZE,
+            CurrentSession.SendTo(MessageHead.S_SYSTEM_MAXIMIZE,
                 new SysWindowMaxPack()
                 {
                     State = state,

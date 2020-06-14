@@ -9,7 +9,7 @@ using System.Windows.Forms;
 namespace SiMay.RemoteMonitor.Application
 {
     [ApplicationName("Tcp连接管理")]
-    [Application(typeof(TcpConnectionAdapterHandler), AppJobConstant.REMOTE_TCP, 90)]
+    [Application(typeof(TcpConnectionAdapterHandler), AppFlageConstant.REMOTE_TCP, 90)]
     public partial class TcpConnectionApplication : Form, IApplication
     {
         [ApplicationAdapterHandler]

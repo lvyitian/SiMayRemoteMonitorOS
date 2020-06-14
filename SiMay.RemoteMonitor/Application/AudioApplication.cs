@@ -14,7 +14,7 @@ namespace SiMay.RemoteMonitor.Application
     [OnTools]
     [ApplicationName("远程语音")]
     [AppResourceName("AudioManager")]
-    [Application(typeof(AudioAdapterHandler), AppJobConstant.REMOTE_AUDIO, 20)]
+    [Application(typeof(AudioAdapterHandler), AppFlageConstant.REMOTE_AUDIO, 20)]
     public partial class AudioApplication : Form, IApplication
     {
         [ApplicationAdapterHandler]

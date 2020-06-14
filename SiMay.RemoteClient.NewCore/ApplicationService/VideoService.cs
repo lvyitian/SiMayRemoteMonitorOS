@@ -1,7 +1,7 @@
 ﻿using SiMay.Core;
 using SiMay.ModelBinder;
+using SiMay.Net.SessionProvider;
 using SiMay.ServiceCore.Attributes;
-using SiMay.Sockets.Tcp.Session;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -11,14 +11,14 @@ using System.Threading;
 namespace SiMay.ServiceCore
 {
     [ServiceName("远程监控摄像头")]
-    [ServiceKey(AppJobConstant.REMOTE_VIDEO)]
+    [ServiceKey(AppFlageConstant.REMOTE_VIDEO)]
     public class VideoService : ApplicationRemoteService
     {
         private int qty = 30;
         private bool isOpen = false;
         private AForgeViedo av;
 
-        public override void SessionInited(TcpSocketSaeaSession session)
+        public override void SessionInited(SessionProviderContext session)
         {
             this.Init();
         }
@@ -38,7 +38,7 @@ namespace SiMay.ServiceCore
                 av = new AForgeViedo();
                 if (!av.Init())
                 {
-                    SendTo(CurrentSession, MessageHead.C_VIEDO_DEVICE_NOTEXIST);
+                    CurrentSession.SendTo(MessageHead.C_VIEDO_DEVICE_NOTEXIST);
                     return;
                 }
 
@@ -48,7 +48,7 @@ namespace SiMay.ServiceCore
             }
             catch
             {
-                SendTo(CurrentSession, MessageHead.C_VIEDO_DEVICE_NOTEXIST);
+                CurrentSession.SendTo(MessageHead.C_VIEDO_DEVICE_NOTEXIST);
             }
         }
 
@@ -87,9 +87,9 @@ namespace SiMay.ServiceCore
         }
 
         [PacketHandler(MessageHead.S_VIEDO_RESET)]
-        public void SetBitQuality(TcpSocketSaeaSession session)
+        public void SetBitQuality(SessionProviderContext session)
         {
-            switch (GetMessage(session)[0])
+            switch (session.GetMessage()[0])
             {
                 case 3:
                     qty = 90;
@@ -106,7 +106,7 @@ namespace SiMay.ServiceCore
         }
 
         [PacketHandler(MessageHead.S_VIEDO_GET_DATA)]
-        public void SendBitMap(TcpSocketSaeaSession session)
+        public void SendBitMap(SessionProviderContext session)
             => this.sendNextBitMap();
 
         private void sendNextBitMap()
@@ -123,7 +123,7 @@ namespace SiMay.ServiceCore
                 return;
             }
 
-            SendTo(CurrentSession, MessageHead.C_VIEDO_DATA, data);
+            CurrentSession.SendTo(MessageHead.C_VIEDO_DATA, data);
         }
 
 

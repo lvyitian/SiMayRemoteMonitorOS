@@ -25,15 +25,7 @@ namespace SiMay.RemoteControlsCore
         public const string ExistCameraDevice = "ExistCameraDevice";
         public const string ExitsRecordDevice = "ExitsRecordDevice";
         public const string ExitsPlayerDevice = "ExitsPlayerDevice";
-        public const string OpenScreenWall = "OpenScreenWall";
         public const string IdentifyId = "IdentifyId";
-        public const string OpenScreenRecord = "OpenScreenRecord";
-        public const string HasLaunchDesktopRecord = "RecordScreenIsAction";
-        public const string RecordHeight = "RecordHeight";
-        public const string RecordWidth = "RecordWidth";
-        public const string RecordSpanTime = "RecordSpanTime";
         public const string Session = "Session";
-        public const string HasLoadServiceCOM = "HasLoadServiceCOM";
-        public const string DesktopView = "DesktopView";
     }
 }

@@ -4,20 +4,30 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SiMay.Net.SessionProvider.Providers;
+using SiMay.Sockets.Tcp.TcpConfiguration;
 
 namespace SiMay.Net.SessionProvider
 {
     public class SessionProviderFactory
     {
-        public static SessionProvider CreateTcpSessionProvider(SessionProviderOptions options)
+        public static TcpClientSessionProvider CreateTcpClientSessionProvider()
+            => CreateTcpClientSessionProvider(new TcpSocketSaeaClientConfiguration());
+
+        public static TcpClientSessionProvider CreateTcpClientSessionProvider(TcpSocketSaeaClientConfiguration clientConfiguration)
         {
-            SessionProvider provider = new TcpSocketSessionProvider(options);
+            TcpClientSessionProvider provider = new TcpClientSessionProvider(clientConfiguration);
             return provider;
         }
 
-        public static SessionProvider CreateProxySessionProvider(SessionProviderOptions options)
+        public static TcpServiceSessionProvider CreateTcpServiceSessionProvider(SessionProviderOptions options)
         {
-            SessionProvider provider = new TcpProxySessionProvider(options);
+            TcpServiceSessionProvider provider = new TcpServiceSessionProvider(options);
+            return provider;
+        }
+
+        public static TcpProxySessionProvider CreateProxySessionProvider(SessionProviderOptions options)
+        {
+            TcpProxySessionProvider provider = new TcpProxySessionProvider(options);
             return provider;
         }
 

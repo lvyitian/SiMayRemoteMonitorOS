@@ -31,6 +31,6 @@ namespace SiMay.RemoteControlsCore
             => OnNextDataEventHandler?.Invoke();
 
         public void SendFileData(byte[] data)
-            => SendTo(CurrentSession, MessageHead.S_REMOTE_UPDATE_DATA, data);
+            => CurrentSession.SendTo( MessageHead.S_REMOTE_UPDATE_DATA, data);
     }
 }

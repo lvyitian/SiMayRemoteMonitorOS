@@ -36,6 +36,13 @@ namespace SiMay.Net.SessionProvider
         public virtual byte[] CompletedBuffer { get; protected set; }
 
         /// <summary>
+        /// 获取当前消息AccessId
+        /// </summary>
+        /// <returns></returns>
+        public long GetAccessId()
+            => ProxyProtocolConstructionHelper.GetAccessId(CompletedBuffer);
+
+        /// <summary>
         /// Socket选项设置
         /// </summary>
         /// <param name="optionLevel"></param>
@@ -61,7 +68,7 @@ namespace SiMay.Net.SessionProvider
         /// <summary>
         /// 关闭会话
         /// </summary>
-        public abstract void SessionClose();
+        public abstract void SessionClose(bool notify = true);
 
         /// <summary>
         /// 释放资源

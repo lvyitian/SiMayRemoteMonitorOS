@@ -42,7 +42,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         private int _frameCount = 0;
         public void RemoteMouseKeyEvent(MOUSEKEY_ENUM @event, int point1, int point2)
         {
-            SendTo(CurrentSession, MessageHead.S_SCREEN_MOUSEKEYEVENT,
+            CurrentSession.SendTo(MessageHead.S_SCREEN_MOUSEKEYEVENT,
                 new ScreenKeyPack()
                 {
                     Key = @event,
@@ -54,21 +54,21 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_SCREEN_BITINFO)]
         private void SetBitmapHandler(SessionProviderContext session)
         {
-            var bitinfo = GetMessageEntity<ScreenInitBitPack>(session);
+            var bitinfo = session.GetMessageEntity<ScreenInitBitPack>();
             this.OnServcieInitEventHandler?.Invoke(this, bitinfo.Height, bitinfo.Width, bitinfo.PrimaryScreenIndex, bitinfo.Monitors);
         }
 
         [PacketHandler(MessageHead.C_SCREEN_DIFFBITMAP)]
         private void FullFragmentHandler(SessionProviderContext session)
         {
-            var fragments = GetMessageEntity<ScreenFragmentPack>(session);
+            var fragments = session.GetMessageEntity<ScreenFragmentPack>();
             this.OnScreenFragmentEventHandler?.Invoke(this, fragments.Fragments, ScreenReceivedType.Noninterlaced);
         }
 
         [PacketHandler(MessageHead.C_SCREEN_BITMP)]
         private void SigleFragmentHandler(SessionProviderContext session)
         {
-            var fragments = GetMessageEntity<ScreenFragmentPack>(session);
+            var fragments = session.GetMessageEntity<ScreenFragmentPack>();
             this.OnScreenFragmentEventHandler?.Invoke(this, fragments.Fragments, ScreenReceivedType.Difference);
         }
         [PacketHandler(MessageHead.C_SCREEN_SCANCOMPLETE)]
@@ -91,7 +91,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             _frameCount = 0;
             //第一帧不计入连续帧
             for (int i = 0; i < 3; i++)
-                SendTo(CurrentSession, MessageHead.S_SCREEN_NEXT_SCREENBITMP, rect);
+                CurrentSession.SendTo(MessageHead.S_SCREEN_NEXT_SCREENBITMP, rect);
         }
 
         public void GetNextScreen(int height, int width, int x, int y, ScreenDisplayMode mode)
@@ -113,7 +113,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
                     CtrlMode = mode.ConvertTo<int>()
                 });
                 for (int i = 0; i < 3; i++)
-                    SendTo(CurrentSession, MessageHead.S_SCREEN_NEXT_SCREENBITMP, rect);
+                    CurrentSession.SendTo(MessageHead.S_SCREEN_NEXT_SCREENBITMP, rect);
             }
             else if (_frameCount == 3)
                 _frameCount = 0;
@@ -121,7 +121,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
         public void MonitorChange(int screenIndex)
         {
-            SendTo(CurrentSession, MessageHead.S_SCREEN_CHANGE_MONITOR,
+            CurrentSession.SendTo(MessageHead.S_SCREEN_CHANGE_MONITOR,
                 new MonitorChangePack()
                 {
                     MonitorIndex = screenIndex
@@ -130,36 +130,36 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
         public void GetInitializeBitInfo()
         {
-            SendTo(CurrentSession, MessageHead.S_SCREEN_GET_INIT_BITINFO);
+            CurrentSession.SendTo(MessageHead.S_SCREEN_GET_INIT_BITINFO);
         }
         public void RemoteDeleteWallPaper()
         {
-            SendTo(CurrentSession, MessageHead.S_SCREEN_DELETE_WALLPAPER);
+            CurrentSession.SendTo(MessageHead.S_SCREEN_DELETE_WALLPAPER);
         }
         public void RemoteMouseBlock(bool islock)
         {
             byte @lock = islock ? (byte)10 : (byte)11;
-            SendTo(CurrentSession, MessageHead.S_SCREEN_MOUSEBLOCK, new byte[] { @lock });
+            CurrentSession.SendTo(MessageHead.S_SCREEN_MOUSEBLOCK, new byte[] { @lock });
         }
 
         public void RemoteScreenBlack()
         {
-            SendTo(CurrentSession, MessageHead.S_SCREEN_BLACKSCREEN);
+            CurrentSession.SendTo(MessageHead.S_SCREEN_BLACKSCREEN);
         }
 
         public void RemoteChangeScanMode(ScreenScanMode scanMode)
         {
-            SendTo(CurrentSession, MessageHead.S_SCREEN_CHANGESCANMODE, new byte[] { (byte)scanMode });
+            CurrentSession.SendTo(MessageHead.S_SCREEN_CHANGESCANMODE, new byte[] { (byte)scanMode });
         }
 
         public void RemoteResetBrandColor(BrandColorMode mode)
         {
-            SendTo(CurrentSession, MessageHead.S_SCREEN_RESET, new byte[] { (byte)mode });
+            CurrentSession.SendTo(MessageHead.S_SCREEN_RESET, new byte[] { (byte)mode });
         }
 
         public void RemoteSetScreenQuantity(long qty)
         {
-            SendTo(CurrentSession, MessageHead.S_SCREEN_SETQTY,
+            CurrentSession.SendTo(MessageHead.S_SCREEN_SETQTY,
                 new ScreenSetQtyPack()
                 {
                     Quality = qty
@@ -168,7 +168,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
         public void SetRemoteClipoardText(string text)
         {
-            SendTo(CurrentSession, MessageHead.S_SCREEN_SET_CLIPBOARD_TEXT,
+            CurrentSession.SendTo(MessageHead.S_SCREEN_SET_CLIPBOARD_TEXT,
                                     new ScreenSetClipoardPack()
                                     {
                                         Text = text
@@ -176,17 +176,17 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         }
         public void SendCtrlAltDel()
         {
-            SendTo(CurrentSession, MessageHead.S_SCREEN_CTRL_ALT_DEL);
+            CurrentSession.SendTo(MessageHead.S_SCREEN_CTRL_ALT_DEL);
         }
 
         public void GetRemoteClipoardText()
         {
-            SendTo(CurrentSession, MessageHead.S_SCREEN_GET_CLIPOARD_TEXT);
+            CurrentSession.SendTo(MessageHead.S_SCREEN_GET_CLIPOARD_TEXT);
         }
         [PacketHandler(MessageHead.C_SCREEN_CLIPOARD_TEXT)]
         private void GetClipoardValueHandler(SessionProviderContext session)
         {
-            var response = GetMessageEntity<ScreenClipoardValuePack>(session);
+            var response = session.GetMessageEntity<ScreenClipoardValuePack>();
             this.OnClipoardReceivedEventHandler?.Invoke(this, response.Value);
         }
     }

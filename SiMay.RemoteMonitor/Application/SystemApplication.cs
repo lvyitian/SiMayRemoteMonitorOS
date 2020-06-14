@@ -17,7 +17,7 @@ namespace SiMay.RemoteMonitor.Application
     [OnTools]
     [ApplicationName("系统管理")]
     [AppResourceName("SystemManager")]
-    [Application(typeof(SystemAdapterHandler), AppJobConstant.REMOTE_SYSMANAGER, 70)]
+    [Application(typeof(SystemAdapterHandler), AppFlageConstant.REMOTE_SYSMANAGER, 70)]
     public partial class SystemApplication : Form, IApplication
     {
         private string _title = "//系统管理 #Name#";

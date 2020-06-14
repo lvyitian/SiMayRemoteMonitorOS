@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using SiMay.Basic;
 using SiMay.Sockets.Tcp.Session;
 using SiMay.Net.SessionProvider.Core;
+using static SiMay.Net.SessionProvider.Core.ProxyProtocolConstructionHelper;
 
 namespace SiMay.Net.SessionProvider
 {
@@ -66,7 +67,10 @@ namespace SiMay.Net.SessionProvider
 
                 if (packageLen + defineHeadSize > ListByteBuffer.Count)
                     return;
-                this.CompletedBuffer = ListByteBuffer.GetRange(defineHeadSize, packageLen).ToArray();
+
+                var cproxyData = ListByteBuffer.GetRange(defineHeadSize, packageLen).ToArray();
+
+                this.CompletedBuffer = GZipHelper.Decompress(TakeHeadAndMessage(cproxyData));
                 this.DataReceivedEventHandler?.Invoke(this);
                 ListByteBuffer.RemoveRange(0, packageLen + defineHeadSize);
 
@@ -75,22 +79,24 @@ namespace SiMay.Net.SessionProvider
 
         public override void SendAsync(byte[] data, int offset, int length)
         {
-            var packetData = MessageHelper.CopyMessageHeadTo(MessageHead.APP_MESSAGE_DATA,
+            var reoffsetData = GZipHelper.Compress(data, offset, length);
+            var cproxyData = MessageHelper.CopyMessageHeadTo(MessageHead.APP_MESSAGE_DATA,
                 new MessageDataPacket()
                 {
                     AccessId = ApplicationConfiguartion.Options.AccessId,
                     DispatcherId = this.Id,
-                    Data = data.Copy(offset, length)
+                    Data = WrapAccessId(reoffsetData, ApplicationConfiguartion.Options.AccessId)
                 });
-            this.CurrentSession.SendAsync(packetData);
 
-            this.SendTransferredBytes = packetData.Length;
+            this.CurrentSession.SendAsync(cproxyData);
+
+            this.SendTransferredBytes = cproxyData.Length;
             this.DataSendEventHandler?.Invoke(this);
         }
         /// <summary>
         /// 不支持关闭代理连接
         /// </summary>
-        public override void SessionClose()
+        public override void SessionClose(bool notify = true)
         {
             throw new NotImplementedException("not support");
         }

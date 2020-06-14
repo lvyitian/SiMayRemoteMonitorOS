@@ -1,12 +1,7 @@
 ﻿using SiMay.Basic;
-using SiMay.ServiceCore.Extensions;
-using SiMay.ServiceCore.MainService;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Windows.Forms;
 
 namespace SiMay.ServiceCore
 {

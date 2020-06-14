@@ -128,33 +128,32 @@
     <Compile Include="ApplicationService\Registry\RegistrySeeker.cs" />
     <Compile Include="ApplicationService\StartupService.cs" />
     <Compile Include="ApplicationService\TcpConnectionService.cs" />
-    <Compile Include="Entitys\EventList.cs" />
+    <Compile Include="Custom\EventList.cs" />
     <Compile Include="Helper\ImageExtensionHelper.cs" />
     <Compile Include="Helper\ServiceInstallerHelper.cs" />
-    <Compile Include="MainService\SystemHelper.cs" />
+    <Compile Include="Helper\SystemHelper.cs" />
     <Compile Include="ApplicationService\AForgeViedo.cs" />
     <Compile Include="AppConfiguartion.cs" />
     <Compile Include="ApplicationService\AudioService.cs" />
     <Compile Include="ApplicationService\Keyboard.cs" />
     <Compile Include="ApplicationService\KeyboardService.cs" />
     <Compile Include="Extensions\ServiceTypeExtension.cs" />
-    <Compile Include="MainService\ServiceTaskQueue.cs" />
+    <Compile Include="Custom\ServiceTaskQueue.cs" />
     <Compile Include="ApplicationService\ShellService.cs" />
     <Compile Include="ApplicationService\FileService.cs" />
-    <Compile Include="MainService\DownloadHelper.cs" />
-    <Compile Include="ServiceBase\ApplicationProtocolService.cs" />
-    <Compile Include="ServiceBase\ApplicationRemoteService.cs" />
-    <Compile Include="ServiceBase\ApplicationServiceBase.cs" />
+    <Compile Include="Helper\AppDownloaderHelper.cs" />
+    <Compile Include="Base\ApplicationProtocolService.cs" />
+    <Compile Include="Base\ApplicationRemoteService.cs" />
+    <Compile Include="Base\ApplicationServiceBase.cs" />
     <Compile Include="ApplicationService\ScreenService.cs" />
-    <Compile Include="Helper\SystemInfoHelper.cs" />
+    <Compile Include="Helper\GetSystemInforHelper.cs" />
     <Compile Include="ApplicationService\SystemService.cs" />
     <Compile Include="ApplicationService\VideoService.cs" />
-    <Compile Include="MainService\MainService.cs" />
+    <Compile Include="MainApplicationService.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Interface\IApplicationService.cs" />
-    <Compile Include="Helper\RegValueHelper.cs" />
-    <Compile Include="ServiceBase\MainApplicationService.cs" />
+    <Compile Include="Helper\AppConfigRegValueHelper.cs" />
     <Compile Include="SysUtil.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -206,6 +205,10 @@
       <Project>{3547c677-4535-40bf-8185-f990c8b0d00f}</Project>
       <Name>SiMay.ModelBinder</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SiMay.Net.SessionProvider\SiMay.Net.SessionProvider.csproj">
+      <Project>{71283236-56CB-481E-A644-B7F9AF9EFDF9}</Project>
+      <Name>SiMay.Net.SessionProvider</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SiMay.Platform.Windows\SiMay.Platform.Windows.csproj">
       <Project>{B8B6A5BD-5349-4114-B93C-C1A3FD028F66}</Project>
       <Name>SiMay.Platform.Windows</Name>
@@ -219,13 +222,11 @@
       <Name>SiMay.Serialize.Standard</Name>
     </ProjectReference>
     <ProjectReference Include="..\SiMay.Sockets.Standard\SiMay.Sockets.Standard.csproj">
-      <Project>{866f8fe0-ee58-4d38-8be7-cbdd19dd1b40}</Project>
+      <Project>{866F8FE0-EE58-4D38-8BE7-CBDD19DD1B40}</Project>
       <Name>SiMay.Sockets.Standard</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Enums\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

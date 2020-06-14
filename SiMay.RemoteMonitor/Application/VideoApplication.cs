@@ -21,7 +21,7 @@ namespace SiMay.RemoteMonitor.Application
     [OnTools]
     [ApplicationName("视频监控")]
     [AppResourceName("ViedoManager")]
-    [Application(typeof(VideoAppAdapterHandler), AppJobConstant.REMOTE_VIDEO, 30)]
+    [Application(typeof(VideoAppAdapterHandler), AppFlageConstant.REMOTE_VIDEO, 30)]
     public partial class VideoApplication : Form, IApplication
     {
         private string _title = "//视频监控 #Name#";

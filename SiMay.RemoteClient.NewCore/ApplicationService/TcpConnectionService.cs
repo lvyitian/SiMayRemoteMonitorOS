@@ -1,7 +1,7 @@
 ﻿using SiMay.Core;
 using SiMay.ModelBinder;
+using SiMay.Net.SessionProvider;
 using SiMay.ServiceCore.Attributes;
-using SiMay.Sockets.Tcp.Session;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -12,10 +12,10 @@ using CommonWin32Api = SiMay.Platform.Windows.CommonWin32Api;
 namespace SiMay.ServiceCore
 {
     [ServiceName("Tcp连接管理")]
-    [ServiceKey(AppJobConstant.REMOTE_TCP)]
+    [ServiceKey(AppFlageConstant.REMOTE_TCP)]
     public class TcpConnectionService : ApplicationRemoteService
     {
-        public override void SessionInited(TcpSocketSaeaSession session)
+        public override void SessionInited(SessionProviderContext session)
         {
 
         }
@@ -26,7 +26,7 @@ namespace SiMay.ServiceCore
         }
 
         [PacketHandler(MessageHead.S_TCP_GET_LIST)]
-        public void GetTcpConnectionList(TcpSocketSaeaSession session)
+        public void GetTcpConnectionList(SessionProviderContext session)
         {
             var table = GetTable();
 
@@ -57,7 +57,7 @@ namespace SiMay.ServiceCore
                 var ss = connections[i];
             }
 
-            SendTo(CurrentSession, MessageHead.C_TCP_LIST,
+            CurrentSession.SendTo(MessageHead.C_TCP_LIST,
                 new TcpConnectionPack()
                 {
                     TcpConnections = connections
@@ -65,9 +65,9 @@ namespace SiMay.ServiceCore
         }
 
         [PacketHandler(MessageHead.S_TCP_CLOSE_CHANNEL)]
-        public void CloseTcpConnectionHandler(TcpSocketSaeaSession session)
+        public void CloseTcpConnectionHandler(SessionProviderContext session)
         {
-            var kills = GetMessageEntity<KillTcpConnectionPack>(session);
+            var kills = session.GetMessageEntity<KillTcpConnectionPack>();
 
             var table = GetTable();
 
