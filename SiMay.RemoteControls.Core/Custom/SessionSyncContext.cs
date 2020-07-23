@@ -24,8 +24,8 @@ namespace SiMay.RemoteControlsCore
                 KeyDictions[key] = value;
             }
         }
-        public string UniqueId { get; set; } = Guid.NewGuid().ToString();
-        public SessionProviderContext Session { get; set; }
-        public IDictionary<string, object> KeyDictions { get; set; }
+        public string UniqueId { get; private set; } = Guid.NewGuid().ToString();
+        public SessionProviderContext Session { get; private set; }
+        public IDictionary<string, object> KeyDictions { get; private set; }
     }
 }

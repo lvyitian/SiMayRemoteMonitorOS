@@ -22,7 +22,12 @@ namespace SiMay.ServiceCore
         /// <summary>
         /// 服务唯一标识
         /// </summary>
-        public string AppServiceKey { get; set; }
+        public string ApplicationKey { get; set; }
+
+        /// <summary>
+        /// 创建命令
+        /// </summary>
+        public string ActivatedCommandText { get; set; }
 
         /// <summary>
         /// 当前会话是否已关闭
@@ -32,11 +37,12 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_GLOBAL_OK)]
         public void InitializeCompleted(SessionProviderContext session)
         {
-            CurrentSession.SendTo(MessageHead.C_MAIN_ACTIVE_APP,
+            session.SendTo(MessageHead.C_MAIN_ACTIVE_APP,
                 new ActivateApplicationPack()
                 {
                     IdentifyId = AppConfiguartion.IdentifyId,
-                    ServiceKey = this.AppServiceKey,
+                    ApplicationKey = this.ApplicationKey,
+                    ActivatedCommandText = this.ActivatedCommandText,
                     OriginName = Environment.MachineName + "@" + (AppConfiguartion.RemarkInfomation ?? AppConfiguartion.DefaultRemarkInfo)
                 });
             this.SessionInited(session);

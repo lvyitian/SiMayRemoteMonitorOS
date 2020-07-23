@@ -24,12 +24,7 @@ namespace SiMay.RemoteControlsCore
         /// <summary>
         /// 用户状态上下文
         /// </summary>
-        public object StateContext { get; set; }
-
-        /// <summary>
-        /// 应用唯一标识
-        /// </summary>
-        public string ApplicationKey { get; set; }
+        public object State { get; set; } = string.Empty;
 
         /// <summary>
         /// 来源备注名
@@ -42,9 +37,20 @@ namespace SiMay.RemoteControlsCore
         public string IdentifyId { get; set; }
 
         /// <summary>
-        /// 当前会话是否关闭
+        /// 当前会话是否由用户关闭
         /// </summary>
-        public bool WhetherClose { get; private set; }
+        private bool _manualClose;
+
+        public bool IsManualClose()
+            => _manualClose;
+
+        /// <summary>
+        /// 绝对连接状态
+        /// </summary>
+        private bool _attachedConnection { get; set; } = true;
+
+        public bool GetAttachedConnectionState()
+            => _attachedConnection;
 
         /// <summary>
         /// 展示应用对象
@@ -56,20 +62,35 @@ namespace SiMay.RemoteControlsCore
         /// </summary>
         /// <param name="session"></param>
         public virtual void ContinueTask(SessionProviderContext session)
-            => App.ContinueTask(this);
-
+        {
+            //再发出重连命令后，如果使用者主动关闭消息处理器将不再建立连接
+            if (this.IsManualClose())
+            {
+                //通知远程释放资源
+                session.SendTo(MessageHead.S_GLOBAL_ONCLOSE);
+            }
+            else
+            {
+                _attachedConnection = true;
+                App.ContinueTask(this);
+            }
+        }
         /// <summary>
         /// 当会话中断后触发
         /// </summary>
         /// <param name="session"></param>
         public virtual void SessionClosed(SessionProviderContext session)
-            => App.SessionClose(this);
+        {
+            _attachedConnection = false;
+            App.SessionClose(this);
+        }
 
         public virtual void CloseSession()
         {
-            this.WhetherClose = true;
+            this._attachedConnection = false;
+            this._manualClose = true;
             this.HandlerBinder.Dispose();
-            CurrentSession.SendTo( MessageHead.S_GLOBAL_ONCLOSE);
+            CurrentSession.SendTo(MessageHead.S_GLOBAL_ONCLOSE);
         }
     }
 }

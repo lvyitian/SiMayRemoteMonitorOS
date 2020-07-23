@@ -10,9 +10,9 @@ using System.Windows.Forms;
 
 namespace SiMay.RemoteMonitor.UnconventionalApplication
 {
-
+    [Rank(100)]
     [ApplicationName("远程更新")]
-    [Application(typeof(RemoteUpdateAdapterHandler), AppFlageConstant.REMOTE_UPDATE, 40)]
+    //[Application(typeof(RemoteUpdateAdapterHandler), ApplicationKeyConstant.REMOTE_UPDATE, 40)]
     public class RemoteUpdateApplication : ListViewItem, IApplication
     {
         public void ContinueTask(ApplicationAdapterHandler handler)

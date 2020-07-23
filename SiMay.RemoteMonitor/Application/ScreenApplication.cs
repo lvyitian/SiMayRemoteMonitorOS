@@ -20,9 +20,9 @@ using SiMay.Platform.Windows;
 namespace SiMay.RemoteMonitor.Application
 {
     [OnTools]
+    [Rank(0)]
     [ApplicationName("远程桌面")]
     [AppResourceName("ScreenManager")]
-    [Application(typeof(RemoteScreenAdapterHandler), AppFlageConstant.REMOTE_DESKTOP, 0)]
     public partial class ScreenApplication : Form, IApplication
     {
         private const Int32 IDM_SCREENMON = 1000;
@@ -87,7 +87,7 @@ namespace SiMay.RemoteMonitor.Application
         public void SessionClose(ApplicationAdapterHandler handler)
         {
             _timer.Stop();
-            this.Text = this._title.FormatTo(0, (_traffic / (float)1024).ToString("0.00")) + " [" + this.RemoteScreenAdapterHandler.StateContext.ToString() + "]";
+            this.Text = this._title.FormatTo(0, (_traffic / (float)1024).ToString("0.00")) + " [" + this.RemoteScreenAdapterHandler.State.ToString() + "]";
         }
 
         public void ContinueTask(ApplicationAdapterHandler handler)
@@ -359,7 +359,7 @@ namespace SiMay.RemoteMonitor.Application
 
         private void FrameDataHandler(Fragment[] fragments)
         {
-            if (this.RemoteScreenAdapterHandler.WhetherClose)
+            if (this.RemoteScreenAdapterHandler.IsManualClose())
                 return;
             lock (this)
             {

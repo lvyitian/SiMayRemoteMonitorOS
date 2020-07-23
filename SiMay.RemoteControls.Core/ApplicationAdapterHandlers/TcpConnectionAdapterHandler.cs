@@ -9,6 +9,7 @@ using SiMay.Net.SessionProvider;
 
 namespace SiMay.RemoteControlsCore.HandlerAdapters
 {
+    [ApplicationKey(ApplicationKeyConstant.REMOTE_TCP)]
     public class TcpConnectionAdapterHandler : ApplicationAdapterHandler
     {
         /// <summary>
@@ -19,7 +20,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_TCP_LIST)]
         private void TcpListHandler(SessionProviderContext session)
         {
-            var pack = session.GetMessageEntity<TcpConnectionPack>();
+            var pack = session.GetMessageEntity<TcpConnectionPacket>();
             this.OnTcpListHandlerEvent?.Invoke(this, pack.TcpConnections);
         }
 

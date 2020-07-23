@@ -9,7 +9,7 @@ using System.IO;
 namespace SiMay.ServiceCore
 {
     [ServiceName("Shell管理")]
-    [ServiceKey(AppFlageConstant.REMOTE_SHELL)]
+    [ApplicationKeyAttribute(ApplicationKeyConstant.REMOTE_SHELL)]
     public class ShellService : ApplicationRemoteService
     {
         private Process _pipe;

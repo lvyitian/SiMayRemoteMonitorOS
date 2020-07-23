@@ -10,7 +10,7 @@ using System.Threading;
 namespace SiMay.ServiceCore
 {
     /// <summary>
-    /// 应用协议处理部分
+    /// 应用协议处理服务
     /// </summary>
     public abstract class ApplicationProtocolService : ApplicationServiceBase
     {

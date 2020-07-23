@@ -11,7 +11,7 @@ using System.Text;
 namespace SiMay.ServiceCore
 {
     [ServiceName("远程注册表")]
-    [ServiceKey(AppFlageConstant.REMOTE_REGEDIT)]
+    [ApplicationKeyAttribute(ApplicationKeyConstant.REMOTE_REGEDIT)]
     public class RegistryEditorService : ApplicationRemoteService
     {
         public override void SessionInited(SessionProviderContext session)
@@ -27,8 +27,8 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_NREG_LOAD_REGKEYS)]
         public void HandleGetRegistryKey(SessionProviderContext session)
         {
-            DoLoadRegistryKeyPack packet = session.GetMessageEntity<DoLoadRegistryKeyPack>();
-            GetRegistryKeysResponsePack responsePacket = new GetRegistryKeysResponsePack();
+            DoLoadRegistryKeyPacket packet = session.GetMessageEntity<DoLoadRegistryKeyPacket>();
+            GetRegistryKeysResponsePacket responsePacket = new GetRegistryKeysResponsePacket();
             try
             {
                 RegistrySeeker seeker = new RegistrySeeker();
@@ -51,8 +51,8 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_NREG_CREATE_KEY)]
         public void HandleCreateRegistryKey(SessionProviderContext session)
         {
-            var packet = session.GetMessageEntity<DoCreateRegistryKeyPack>();
-            GetCreateRegistryKeyResponsePack responsePacket = new GetCreateRegistryKeyResponsePack();
+            var packet = session.GetMessageEntity<DoCreateRegistryKeyPacket>();
+            GetCreateRegistryKeyResponsePacket responsePacket = new GetCreateRegistryKeyResponsePacket();
             string errorMsg;
             string newKeyName = "";
 
@@ -67,7 +67,7 @@ namespace SiMay.ServiceCore
             }
 
             responsePacket.ErrorMsg = errorMsg;
-            responsePacket.Match = new RegSeekerMatch
+            responsePacket.Match = new RegSeekerMatchPacket
             {
                 Key = newKeyName,
                 Data = RegistryKeyHelper.GetDefaultValues(),
@@ -82,8 +82,8 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_NREG_DELETE_KEY)]
         public void HandleDeleteRegistryKey(SessionProviderContext session)
         {
-            DoDeleteRegistryKeyPack packet = session.GetMessageEntity<DoDeleteRegistryKeyPack>();
-            GetDeleteRegistryKeyResponsePack responsePacket = new GetDeleteRegistryKeyResponsePack();
+            DoDeleteRegistryKeyPacket packet = session.GetMessageEntity<DoDeleteRegistryKeyPacket>();
+            GetDeleteRegistryKeyResponsePacket responsePacket = new GetDeleteRegistryKeyResponsePacket();
             string errorMsg;
             try
             {
@@ -105,8 +105,8 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_NREG_RENAME_KEY)]
         public void HandleRenameRegistryKey(SessionProviderContext session)
         {
-            DoRenameRegistryKeyPack packet = session.GetMessageEntity<DoRenameRegistryKeyPack>();
-            GetRenameRegistryKeyResponsePack responsePacket = new GetRenameRegistryKeyResponsePack();
+            DoRenameRegistryKeyPacket packet = session.GetMessageEntity<DoRenameRegistryKeyPacket>();
+            GetRenameRegistryKeyResponsePacket responsePacket = new GetRenameRegistryKeyResponsePacket();
             string errorMsg;
             try
             {
@@ -133,8 +133,8 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_NREG_CREATE_VALUE)]
         public void HandleCreateRegistryValue(SessionProviderContext session)
         {
-            DoCreateRegistryValuePack packet = session.GetMessageEntity<DoCreateRegistryValuePack>();
-            GetCreateRegistryValueResponsePack responsePacket = new GetCreateRegistryValueResponsePack();
+            DoCreateRegistryValuePacket packet = session.GetMessageEntity<DoCreateRegistryValuePacket>();
+            GetCreateRegistryValueResponsePacket responsePacket = new GetCreateRegistryValueResponsePacket();
             string errorMsg;
             string newKeyName = "";
             try
@@ -157,8 +157,8 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_NREG_DELETE_VALUE)]
         public void HandleDeleteRegistryValue(SessionProviderContext session)
         {
-            DoDeleteRegistryValuePack packet = session.GetMessageEntity<DoDeleteRegistryValuePack>();
-            GetDeleteRegistryValueResponsePack responsePacket = new GetDeleteRegistryValueResponsePack();
+            DoDeleteRegistryValuePacket packet = session.GetMessageEntity<DoDeleteRegistryValuePacket>();
+            GetDeleteRegistryValueResponsePacket responsePacket = new GetDeleteRegistryValueResponsePacket();
             string errorMsg;
             try
             {
@@ -180,8 +180,8 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_NREG_RENAME_VALUE)]
         public void HandleRenameRegistryValue(SessionProviderContext session)
         {
-            DoRenameRegistryValuePack packet = session.GetMessageEntity<DoRenameRegistryValuePack>();
-            GetRenameRegistryValueResponsePack responsePacket = new GetRenameRegistryValueResponsePack();
+            DoRenameRegistryValuePacket packet = session.GetMessageEntity<DoRenameRegistryValuePacket>();
+            GetRenameRegistryValueResponsePacket responsePacket = new GetRenameRegistryValueResponsePacket();
             string errorMsg;
             try
             {
@@ -204,8 +204,8 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_NREG_CHANGE_VALUE)]
         public void HandleChangeRegistryValue(SessionProviderContext session)
         {
-            DoChangeRegistryValuePack packet = session.GetMessageEntity<DoChangeRegistryValuePack>();
-            GetChangeRegistryValueResponsePack responsePacket = new GetChangeRegistryValueResponsePack();
+            DoChangeRegistryValuePacket packet = session.GetMessageEntity<DoChangeRegistryValuePacket>();
+            GetChangeRegistryValueResponsePacket responsePacket = new GetChangeRegistryValueResponsePacket();
             string errorMsg;
             try
             {

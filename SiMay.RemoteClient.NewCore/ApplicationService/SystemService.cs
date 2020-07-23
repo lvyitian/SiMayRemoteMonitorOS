@@ -15,7 +15,7 @@ using static SiMay.Platform.Windows.CommonWin32Api;
 namespace SiMay.ServiceCore
 {
     [ServiceName("系统管理")]
-    [ServiceKey(AppFlageConstant.REMOTE_SYSMANAGER)]
+    [ApplicationKeyAttribute(ApplicationKeyConstant.REMOTE_SYSMANAGER)]
     public class SystemService : ApplicationRemoteService
     {
         private ComputerInfo _memoryInfo = new ComputerInfo();
@@ -33,7 +33,7 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_SYSTEM_KILL)]
         public void TryKillProcess(SessionProviderContext session)
         {
-            var processIds = session.GetMessageEntity<SysKillPack>();
+            var processIds = session.GetMessageEntity<KillProcessPacket>();
             foreach (var id in processIds.ProcessIds)
             {
                 try
@@ -49,7 +49,7 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_SYSTEM_MAXIMIZE)]
         public void SetWindowState(SessionProviderContext session)
         {
-            var pack = session.GetMessageEntity<SysWindowMaxPack>();
+            var pack = session.GetMessageEntity<SysWindowMaxPacket>();
             int[] handlers = pack.Handlers;
             int state = pack.State;
 
@@ -98,7 +98,7 @@ namespace SiMay.ServiceCore
                 return;
 
             CurrentSession.SendTo(MessageHead.C_SYSTEM_SESSIONS,
-                        new SessionsPack()
+                        new SessionsPacket()
                         {
                             Sessions = sessions
                         });
@@ -235,7 +235,7 @@ namespace SiMay.ServiceCore
                 infos.Add(new SystemInfoItem()
                 {
                     ItemName = "LAN IP",
-                    Value = GetSystemInforHelper.GetLocalIPV4()
+                    Value = GetSystemInforHelper.GetLocalIPv4()
                 });
                 infos.Add(new SystemInfoItem()
                 {
@@ -257,7 +257,7 @@ namespace SiMay.ServiceCore
                     ItemName = "GPU",
                     Value = GetSystemInforHelper.GetGpuName()
                 });
-                var sysInfos = new SystemInfoPack();
+                var sysInfos = new SystemInfoPacket();
                 sysInfos.SystemInfos = infos.ToArray();
                 CurrentSession.SendTo(MessageHead.C_SYSTEM_SYSTEMINFO, sysInfos);
             });

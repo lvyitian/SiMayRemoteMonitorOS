@@ -9,6 +9,7 @@ using SiMay.Net.SessionProvider;
 
 namespace SiMay.RemoteControlsCore.HandlerAdapters
 {
+    [ApplicationKeyAttribute(ApplicationKeyConstant.REMOTE_SHELL)]
     public class ShellAdapterHandler : ApplicationAdapterHandler
     {
         /// <summary>

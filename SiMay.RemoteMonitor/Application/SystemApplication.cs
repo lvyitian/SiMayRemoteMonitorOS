@@ -15,9 +15,9 @@ using System.Windows.Forms;
 namespace SiMay.RemoteMonitor.Application
 {
     [OnTools]
+    [Rank(70)]
     [ApplicationName("系统管理")]
     [AppResourceName("SystemManager")]
-    [Application(typeof(SystemAdapterHandler), AppFlageConstant.REMOTE_SYSMANAGER, 70)]
     public partial class SystemApplication : Form, IApplication
     {
         private string _title = "//系统管理 #Name#";
@@ -41,7 +41,7 @@ namespace SiMay.RemoteMonitor.Application
 
         public void SessionClose(ApplicationAdapterHandler handler)
         {
-            this.Text = _title + " [" + this.SystemAdapterHandler.StateContext.ToString() + "]";
+            this.Text = _title + " [" + this.SystemAdapterHandler.State.ToString() + "]";
         }
 
         public void ContinueTask(ApplicationAdapterHandler handler)

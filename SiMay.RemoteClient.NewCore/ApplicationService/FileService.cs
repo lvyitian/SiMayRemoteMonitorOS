@@ -15,7 +15,7 @@ using static SiMay.Platform.Windows.CommonWin32Api;
 namespace SiMay.ServiceCore
 {
     [ServiceName("文件管理")]
-    [ServiceKey(AppFlageConstant.REMOTE_FILE)]
+    [ApplicationKeyAttribute(ApplicationKeyConstant.REMOTE_FILE)]
     public class FileService : ApplicationRemoteService
     {
         private const int FILE_BUFFER_SIZE = 1024 * 512;
@@ -39,7 +39,7 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_FILE_UPLOAD)]
         public void TryFixedDownloadFile(SessionProviderContext session)
         {
-            var pack = session.GetMessageEntity<FileUploadPack>();
+            var pack = session.GetMessageEntity<FileUploadPacket>();
             this._event.WaitOne();//等待上个文件传输完成
             if (_isSessionClose)
                 return;
@@ -115,7 +115,7 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_FILE_FILE_PASTER)]
         public void CopyFiles(SessionProviderContext session)
         {
-            var files = session.GetMessageEntity<FileCopyPack>();
+            var files = session.GetMessageEntity<FileCopyPacket>();
             ThreadHelper.CreateThread(() =>
             {
                 var failFiles = new List<string>();
@@ -148,7 +148,7 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_FILE_DELETE)]
         public void DeleteFiles(SessionProviderContext session)
         {
-            var files = session.GetMessageEntity<FileDeletePack>();
+            var files = session.GetMessageEntity<FileDeletePacket>();
             ThreadHelper.CreateThread(() =>
             {
                 var response = new List<string>();
@@ -183,7 +183,7 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_FILE_CREATE_DIR)]
         public void CreateDirectory(SessionProviderContext session)
         {
-            var file = session.GetMessageEntity<FileCreateDirectoryPack>();
+            var file = session.GetMessageEntity<FileCreateDirectoryPacket>();
             var result = true;
             try
             {
@@ -208,7 +208,7 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_FILE_RENAME)]
         public void FileReName(SessionProviderContext session)
         {
-            var file = session.GetMessageEntity<FileReNamePack>();
+            var file = session.GetMessageEntity<FileReNamePacket>();
             var result = true;
             ThreadHelper.CreateThread(() =>
             {
@@ -240,7 +240,7 @@ namespace SiMay.ServiceCore
         public void OpenText(SessionProviderContext session)
         {
             var file = session.GetMessageEntity<FileOpenTextPack>();
-            var textPack = new FileTextPack();
+            var textPack = new FileTextPacket();
             if (File.Exists(file.FileName) && new FileInfo(file.FileName).Length <= 1024 * 512)
             {
                 try
@@ -264,7 +264,7 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_FILE_GETDIR_FILES)]
         public void SendDirectoryFiles(SessionProviderContext session)
         {
-            var file = session.GetMessageEntity<FileDirectoryGetFilesPack>();
+            var file = session.GetMessageEntity<FileDirectoryGetFilesPacket>();
             ThreadPool.QueueUserWorkItem(c =>
             {
                 _isStopTask = false;//允许任务继续
@@ -324,7 +324,7 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_FILE_DOWNLOAD)]
         public void TryFixedUploadFile(SessionProviderContext session)
         {
-            var file = session.GetMessageEntity<FileDownloadPack>();
+            var file = session.GetMessageEntity<FileDownloadPacket>();
             //var dir = Path.GetDirectoryName(file.FileName);
             //if (!Directory.Exists(dir))
             //    Directory.CreateDirectory(dir);
@@ -450,7 +450,7 @@ namespace SiMay.ServiceCore
         private void SendErrorMessage(Exception e, string info)
         {
             CurrentSession.SendTo(MessageHead.C_FILE_ERROR_INFO,
-                new FileExceptionPack()
+                new FileExceptionPacket()
                 {
                     OccurredTime = DateTime.Now,
                     TipMessage = info,
@@ -462,7 +462,7 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_FILE_EXECUTE)]
         public void ExcuteFile(SessionProviderContext session)
         {
-            var file = session.GetMessageEntity<FileExcutePack>();
+            var file = session.GetMessageEntity<FileExcutePacket>();
             try
             {
                 if (Directory.Exists(file.FilePath))
@@ -476,7 +476,7 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_FILE_REDIRION)]
         public void RedirtionHandler(SessionProviderContext session)
         {
-            var pack = session.GetMessageEntity<FileRedirectionPath>();
+            var pack = session.GetMessageEntity<FileRedirectionPathPacket>();
             this.GetFileListHandler(Environment.GetFolderPath(pack.SpecialFolder));
         }
 
@@ -512,7 +512,7 @@ namespace SiMay.ServiceCore
                     })
                     .ToArray();
 
-                CurrentSession.SendTo(MessageHead.C_FILE_FILE_LIST, new FileListItemsPack()
+                CurrentSession.SendTo(MessageHead.C_FILE_FILE_LIST, new FileListItemsPacket()
                 {
                     FileList = dirs.Concat(files).ToArray(),
                     Path = path,
@@ -522,7 +522,7 @@ namespace SiMay.ServiceCore
             }
             catch (Exception e)
             {
-                CurrentSession.SendTo(MessageHead.C_FILE_FILE_LIST, new FileListItemsPack()
+                CurrentSession.SendTo(MessageHead.C_FILE_FILE_LIST, new FileListItemsPacket()
                 {
                     FileList = new FileItem[0],
                     Path = path,
@@ -535,7 +535,7 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_FILE_TREE_DIR)]
         public void GetTreeDirsHandler(SessionProviderContext session)
         {
-            var pack = session.GetMessageEntity<FileGetTreeDirectoryPack>();
+            var pack = session.GetMessageEntity<FileGetTreeDirectoryPacket>();
             if (pack.TargetRoot == "")
             {
                 var drives = this.GetDrivelist();
@@ -584,7 +584,7 @@ namespace SiMay.ServiceCore
 
                 var drives = this.GetDrivelist();
                 CurrentSession.SendTo(MessageHead.C_FILE_FILE_LIST,
-                    new FileListItemsPack()
+                    new FileListItemsPacket()
                     {
                         FileList = drives.ToArray(),
                         Path = string.Empty,
@@ -595,7 +595,7 @@ namespace SiMay.ServiceCore
             catch (Exception e)
             {
                 CurrentSession.SendTo(MessageHead.C_FILE_FILE_LIST,
-                    new FileListItemsPack()
+                    new FileListItemsPacket()
                     {
                         FileList = new FileItem[0],
                         Path = string.Empty,

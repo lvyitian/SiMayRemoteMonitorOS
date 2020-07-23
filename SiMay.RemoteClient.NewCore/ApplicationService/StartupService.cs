@@ -12,7 +12,7 @@ using System.Linq;
 namespace SiMay.ServiceCore
 {
     [ServiceName("启动项管理")]
-    [ServiceKey(AppFlageConstant.REMOTE_STARTUP)]
+    [ApplicationKeyAttribute(ApplicationKeyConstant.REMOTE_STARTUP)]
     public class StartupService : ApplicationRemoteService
     {
         public override void SessionInited(SessionProviderContext session)
@@ -30,7 +30,7 @@ namespace SiMay.ServiceCore
         {
             try
             {
-                List<StartupItemPack> startupItems = new List<StartupItemPack>();
+                List<StartupItemPacket> startupItems = new List<StartupItemPacket>();
 
                 using (var key = RegistryKeyHelper.OpenReadonlySubKey(RegistryHive.LocalMachine, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"))
                 {
@@ -38,7 +38,7 @@ namespace SiMay.ServiceCore
                     {
                         foreach (var item in key.GetKeyValues())
                         {
-                            startupItems.Add(new StartupItemPack
+                            startupItems.Add(new StartupItemPacket
                             { Name = item.Item1, Path = item.Item2, Type = StartupType.LocalMachineRun });
                         }
                     }
@@ -49,7 +49,7 @@ namespace SiMay.ServiceCore
                     {
                         foreach (var item in key.GetKeyValues())
                         {
-                            startupItems.Add(new StartupItemPack
+                            startupItems.Add(new StartupItemPacket
                             { Name = item.Item1, Path = item.Item2, Type = StartupType.LocalMachineRunOnce });
                         }
                     }
@@ -60,7 +60,7 @@ namespace SiMay.ServiceCore
                     {
                         foreach (var item in key.GetKeyValues())
                         {
-                            startupItems.Add(new StartupItemPack
+                            startupItems.Add(new StartupItemPacket
                             { Name = item.Item1, Path = item.Item2, Type = StartupType.CurrentUserRun });
                         }
                     }
@@ -71,7 +71,7 @@ namespace SiMay.ServiceCore
                     {
                         foreach (var item in key.GetKeyValues())
                         {
-                            startupItems.Add(new StartupItemPack
+                            startupItems.Add(new StartupItemPacket
                             { Name = item.Item1, Path = item.Item2, Type = StartupType.CurrentUserRunOnce });
                         }
                     }
@@ -84,7 +84,7 @@ namespace SiMay.ServiceCore
                         {
                             foreach (var item in key.GetKeyValues())
                             {
-                                startupItems.Add(new StartupItemPack
+                                startupItems.Add(new StartupItemPacket
                                 { Name = item.Item1, Path = item.Item2, Type = StartupType.LocalMachineWoW64Run });
                             }
                         }
@@ -95,7 +95,7 @@ namespace SiMay.ServiceCore
                         {
                             foreach (var item in key.GetKeyValues())
                             {
-                                startupItems.Add(new StartupItemPack
+                                startupItems.Add(new StartupItemPacket
                                 {
                                     Name = item.Item1,
                                     Path = item.Item2,
@@ -110,7 +110,7 @@ namespace SiMay.ServiceCore
                     var files = new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.Startup)).GetFiles();
 
                     startupItems.AddRange(files.Where(file => file.Name != "desktop.ini")
-                        .Select(file => new StartupItemPack
+                        .Select(file => new StartupItemPacket
                         {
                             Name = file.Name,
                             Path = file.FullName,
@@ -128,7 +128,7 @@ namespace SiMay.ServiceCore
             {
                 LogHelper.WriteErrorByCurrentMethod(ex);
                 CurrentSession.SendTo(MessageHead.C_STARTUP_OPER_RESPONSE,
-                    new StartupOperResponsePack()
+                    new StartupOperResponsePacket()
                     {
                         OperFlag = OperFlag.GetStartupItems,
                         Successed = false,
@@ -141,7 +141,7 @@ namespace SiMay.ServiceCore
         {
             try
             {
-                var command = session.GetMessageEntity<StartupItemPack>();
+                var command = session.GetMessageEntity<StartupItemPacket>();
                 switch (command.Type)
                 {
                     case StartupType.LocalMachineRun:
@@ -216,7 +216,7 @@ namespace SiMay.ServiceCore
             catch (Exception ex)
             {
                 CurrentSession.SendTo(MessageHead.C_STARTUP_OPER_RESPONSE,
-                    new StartupOperResponsePack()
+                    new StartupOperResponsePacket()
                     {
                         OperFlag = OperFlag.AddStartupItem,
                         Successed = false,
@@ -298,7 +298,7 @@ namespace SiMay.ServiceCore
             catch (Exception ex)
             {
                 CurrentSession.SendTo(MessageHead.C_STARTUP_OPER_RESPONSE,
-                    new StartupOperResponsePack()
+                    new StartupOperResponsePacket()
                     {
                         OperFlag = OperFlag.RemoveStartupItem,
                         Successed = false,

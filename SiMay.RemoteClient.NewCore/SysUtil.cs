@@ -10,19 +10,19 @@ namespace SiMay.ServiceCore
         public class ServiceTypeItem
         {
             public string ServiceKey { get; set; }
-            public Type AppServiceType { get; set; }
+            public Type ApplicationServiceType { get; set; }
         }
-        public static List<ServiceTypeItem> ControlTypes { get; set; }
+        public static List<ServiceTypeItem> ServiceTypes { get; set; }
         static SysUtil()
         {
-            ControlTypes = AppDomain.CurrentDomain
+            ServiceTypes = AppDomain.CurrentDomain
                 .GetAssemblies()
                 .SelectMany(a => a.GetTypes())
                 .Where(type => typeof(ApplicationRemoteService).IsAssignableFrom(type) && type.IsSubclassOf(typeof(ApplicationRemoteService)) && type.IsClass)
                 .Select(type => new ServiceTypeItem()
                 {
-                    ServiceKey = type.GetServiceKey() ?? throw new Exception(type.Name + ":The serviceKey cannot be empty!"),
-                    AppServiceType = type
+                    ServiceKey = type.GetApplicationKey() ?? throw new Exception(type.Name + ":the serviceKey cannot be empty!"),
+                    ApplicationServiceType = type
                 })
                 .ToList();
         }

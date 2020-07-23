@@ -55,6 +55,7 @@ namespace SiMay.RemoteMonitor.MainApplication
         {
             this.Text = "SiMay远程监控管理系统-IOASJHD 正式版_" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
+
             if (AppConfiguration.WindowMaximize)
                 this.WindowState = FormWindowState.Maximized;
 
@@ -62,6 +63,7 @@ namespace SiMay.RemoteMonitor.MainApplication
             this._imgList.Images.Add("ok", Resources.ok);
             this._imgList.Images.Add("error", Resources.erro);
 
+            #region 计算实时上下传输流量
             //计算实时上下传输流量
             this._flowCalcTimer = new System.Timers.Timer();
             this._flowCalcTimer.Interval = 1000;
@@ -85,6 +87,8 @@ namespace SiMay.RemoteMonitor.MainApplication
 
             };
             this._flowCalcTimer.Start();
+            #endregion
+
             if (AppConfiguration.SessionMode == "1")
             {
                 this.stripHost.Text = AppConfiguration.ServiceIPAddress;
@@ -128,7 +132,7 @@ namespace SiMay.RemoteMonitor.MainApplication
             for (int i = 0; i < columnsTitle.Length; i++)
                 this.servicesOnlineList.Columns.Insert(i, columnsTitle[i], 150);
 
-            var apps = SysUtil.ApplicationTypes.OrderByDescending(x => x.Rank).ToList();
+            var apps = SysUtil.ApplicationTypes.OrderByDescending(x => x.Type.GetRank()).ToList();
             apps.ForEach(c =>
             {
                 var type = c.Type;
@@ -255,17 +259,17 @@ namespace SiMay.RemoteMonitor.MainApplication
             this._appMainAdapterHandler.StartApp();
         }
 
-        private void OnApplicationCreatedEventHandler(IApplication app)
+        private bool OnApplicationCreatedEventHandler(IApplication app)
         {
-
+            return true;
         }
 
         private void OnLoginUpdateHandlerEvent(SessionSyncContext syncContext)
         {
-            var listItem = syncContext.KeyDictions[SysConstantsExtend.SessionListItem].ConvertTo<USessionListItem>(); ;
+            var listItem = syncContext[SysConstantsExtend.SessionListItem].ConvertTo<USessionListItem>(); ;
             listItem.UpdateListItemText();
 
-            //if (!syncContext.KeyDictions[SysConstants.OpenScreenWall].ConvertTo<bool>())
+            //if (!syncContext[SysConstants.OpenScreenWall].ConvertTo<bool>())
             //    listItem.BackColor = _closeScreenColor;
         }
 
@@ -292,14 +296,14 @@ namespace SiMay.RemoteMonitor.MainApplication
             syncContext.KeyDictions.Add(SysConstantsExtend.SessionListItem, listItem);
 
             //是否开启桌面视图
-            //if (!syncContext.KeyDictions[SysConstants.OpenScreenWall].ConvertTo<bool>())
+            //if (!syncContext[SysConstants.OpenScreenWall].ConvertTo<bool>())
             //    listItem.BackColor = _closeScreenColor;
             //else
             //{
 
             //}
 
-            var groupName = syncContext.KeyDictions[SysConstants.GroupName].ConvertTo<string>();
+            var groupName = syncContext[SysConstants.GroupName].ConvertTo<string>();
             if (!groupBox.Items.Contains(groupName))
                 this.groupBox.Items.Add(groupName);
 
@@ -316,9 +320,9 @@ namespace SiMay.RemoteMonitor.MainApplication
         private void OnLogOutHandlerEvent(SessionSyncContext syncContext)
         {
             //if (syncContext.KeyDictions.ContainsKey(SysConstants.DesktopView))                    //如果屏幕墙已开启,移除桌面墙
-            //    this.DisposeDesktopView(syncContext.KeyDictions[SysConstants.DesktopView].ConvertTo<UDesktopView>());
+            //    this.DisposeDesktopView(syncContext[SysConstants.DesktopView].ConvertTo<UDesktopView>());
 
-            syncContext.KeyDictions[SysConstantsExtend.SessionListItem].ConvertTo<USessionListItem>().Remove();
+            syncContext[SysConstantsExtend.SessionListItem].ConvertTo<USessionListItem>().Remove();
 
             _connect_count--;
             stripConnectedNum.Text = _connect_count.ToString();
@@ -424,20 +428,22 @@ namespace SiMay.RemoteMonitor.MainApplication
         private void StripButton_Click(object sender, EventArgs e)
         {
             var ustripbtn = sender as UToolStripButton;
-            string appkey = ustripbtn.CtrlType.GetApplicationKey();
+            string[] appkeys = ustripbtn.ApplicationType.GetActivateApplicationKey();
             this.GetSelectedDesktopView().ForEach(c =>
             {
-                this._appMainAdapterHandler.RemoteActiveService(c.SessionSyncContext, appkey);
+                foreach (var key in appkeys)
+                    this._appMainAdapterHandler.RemoteActivateService(c.SessionSyncContext, key);
             });
         }
 
         private void StripMenu_Click(object sender, EventArgs e)
         {
             var ustripbtn = sender as UToolStripMenuItem;
-            string appkey = ustripbtn.ApplicationType.GetApplicationKey();
+            string[] appkeys = ustripbtn.ApplicationType.GetActivateApplicationKey();
             this.GetSelectedListItem().ForEach(c =>
             {
-                this._appMainAdapterHandler.RemoteActiveService(c.SessionSyncContext, appkey);
+                foreach (var key in appkeys)
+                    this._appMainAdapterHandler.RemoteActivateService(c.SessionSyncContext, key);
             });
         }
 
@@ -447,7 +453,7 @@ namespace SiMay.RemoteMonitor.MainApplication
         /// <param name="session"></param>
         private void DesktopViewDbClick(SessionSyncContext syncContext)
         {
-            this._appMainAdapterHandler.RemoteActiveService(syncContext, AppConfiguration.DbClickViewExc);
+            this._appMainAdapterHandler.RemoteActivateService(syncContext, AppConfiguration.DbClickViewExc);
         }
 
         /// <summary>
@@ -716,7 +722,7 @@ namespace SiMay.RemoteMonitor.MainApplication
                 //this._appMainAdapterHandler.CloseDesktopView(c.SessionSyncContext);
                 //if (syncContext.KeyDictions.ContainsKey(SysConstants.DesktopView))
                 //{
-                //    var view = syncContext.KeyDictions[SysConstants.DesktopView].ConvertTo<UDesktopView>();
+                //    var view = syncContext[SysConstants.DesktopView].ConvertTo<UDesktopView>();
                 //    syncContext.KeyDictions.Remove(SysConstants.DesktopView);
                 //    this.DisposeDesktopView(view);
                 //}
@@ -860,7 +866,7 @@ namespace SiMay.RemoteMonitor.MainApplication
                     //this.DisposeDesktopView(view);
 
                     //view.SessionSyncContext.KeyDictions.Remove(SysConstants.DesktopView);
-                    //view.SessionSyncContext.KeyDictions[SysConstantsExtend.SessionListItem].ConvertTo<USessionListItem>().BackColor = _closeScreenColor;
+                    //view.SessionsyncContext[SysConstantsExtend.SessionListItem].ConvertTo<USessionListItem>().BackColor = _closeScreenColor;
                     //view.Checked = false;
                 }
             }

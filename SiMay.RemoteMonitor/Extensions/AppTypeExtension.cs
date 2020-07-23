@@ -25,5 +25,11 @@ namespace SiMay.RemoteMonitor.Extensions
             var attr = type.GetCustomAttribute<OnToolsAttribute>(true);
             return attr != null;
         }
+
+        public static int GetRank(this Type type)
+        {
+            var attr = type.GetCustomAttribute<RankAttribute>(true);
+            return attr.Rank;
+        }
     }
 }

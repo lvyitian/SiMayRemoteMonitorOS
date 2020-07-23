@@ -19,9 +19,9 @@ namespace SiMay.ServiceCore
         /// <summary>
         /// The list containing the matches found during the search.
         /// </summary>
-        private List<RegSeekerMatch> matches;
+        private List<RegSeekerMatchPacket> matches;
 
-        public RegSeekerMatch[] Matches
+        public RegSeekerMatchPacket[] Matches
         {
             get
             {
@@ -35,7 +35,7 @@ namespace SiMay.ServiceCore
 
         public RegistrySeeker()
         {
-            matches = new List<RegSeekerMatch>();
+            matches = new List<RegSeekerMatchPacket>();
         }
 
         public void BeginSeeking(string rootKeyName)
@@ -116,7 +116,7 @@ namespace SiMay.ServiceCore
 
         private void AddMatch(string key, RegValueData[] values, int subkeycount)
         {
-            RegSeekerMatch match = new RegSeekerMatch {Key = key, Data = values, HasSubKeys = subkeycount > 0};
+            RegSeekerMatchPacket match = new RegSeekerMatchPacket {Key = key, Data = values, HasSubKeys = subkeycount > 0};
 
             matches.Add(match);
         }

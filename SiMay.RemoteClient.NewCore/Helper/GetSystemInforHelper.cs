@@ -243,7 +243,7 @@ namespace SiMay.ServiceCore
         //    }
         //}
 
-        public static string GetLocalIPV4()
+        public static string GetLocalIPv4()
         {
             try
             {

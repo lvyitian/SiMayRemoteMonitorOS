@@ -11,7 +11,7 @@ namespace SiMay.RemoteMonitor.UserControls
     {
         public UToolStripButton(string text, Image image, Type type)
         {
-            this.CtrlType = type;
+            this.ApplicationType = type;
             this.Text = text;
             this.Image = image;
             this.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
@@ -19,6 +19,6 @@ namespace SiMay.RemoteMonitor.UserControls
             this.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
         }
 
-        public Type CtrlType { get; set; }
+        public Type ApplicationType { get; set; }
     }
 }

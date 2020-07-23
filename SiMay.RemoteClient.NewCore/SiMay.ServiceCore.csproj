@@ -122,7 +122,6 @@
   <ItemGroup>
     <Compile Include="ApplicationService\RemoteUpdateService.cs" />
     <Compile Include="Attributes\ServiceName.cs" />
-    <Compile Include="Attributes\ServiceKeyAttribute.cs" />
     <Compile Include="ApplicationService\RegistryEditorService.cs" />
     <Compile Include="ApplicationService\Registry\RegistryEditor.cs" />
     <Compile Include="ApplicationService\Registry\RegistrySeeker.cs" />

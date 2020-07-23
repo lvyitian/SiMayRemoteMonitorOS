@@ -67,10 +67,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\SiMay.Core\Entitys\ServiceOptions.cs">
-      <Link>Entitys\ServiceOptions.cs</Link>
-    </Compile>
-    <Compile Include="Entitys\LoaderAckPacket.cs" />
+    <Compile Include="Entitys\LoaderAcknowledPacket.cs" />
+    <Compile Include="Entitys\ServiceOptions.cs" />
     <Compile Include="Entitys\StartParameter.cs" />
     <Compile Include="Helper\MessageHelper.cs" />
     <Compile Include="Interface\IAppMainService.cs" />

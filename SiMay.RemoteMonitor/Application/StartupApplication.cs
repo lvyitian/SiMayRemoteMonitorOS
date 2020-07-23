@@ -14,8 +14,8 @@ using System.Windows.Forms;
 
 namespace SiMay.RemoteMonitor.Application
 {
+    [Rank(100)]
     [ApplicationName("启动项管理")]
-    [Application(typeof(StartupAdapterHandler), AppFlageConstant.REMOTE_STARTUP, 100)]
     public partial class StartupApplication : Form, IApplication
     {
         [ApplicationAdapterHandler]
@@ -41,7 +41,7 @@ namespace SiMay.RemoteMonitor.Application
 
         public void SessionClose(ApplicationAdapterHandler handler)
         {
-            this.Text = _title + " [" + this.StartupAdapterHandler.StateContext.ToString() + "]";
+            this.Text = _title + " [" + this.StartupAdapterHandler.State.ToString() + "]";
         }
 
         public void ContinueTask(ApplicationAdapterHandler handler)
@@ -56,7 +56,7 @@ namespace SiMay.RemoteMonitor.Application
             this.StartupAdapterHandler.GetStartup();
         }
 
-        private void OnStartupItemHandlerEvent(StartupAdapterHandler adapterHandler, IEnumerable<StartupItemPack> startupItems)
+        private void OnStartupItemHandlerEvent(StartupAdapterHandler adapterHandler, IEnumerable<StartupItemPacket> startupItems)
         {
             lstStartupItems.Items.Clear();
 
@@ -102,10 +102,10 @@ namespace SiMay.RemoteMonitor.Application
 
         private void RemoveEntryToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var startupItems = new List<StartupItemPack>();
+            var startupItems = new List<StartupItemPacket>();
             foreach (ListViewItem item in lstStartupItems.SelectedItems)
             {
-                startupItems.Add(item.Tag as StartupItemPack);
+                startupItems.Add(item.Tag as StartupItemPacket);
             }
             this.StartupAdapterHandler.RemoveStartupItem(startupItems);
         }

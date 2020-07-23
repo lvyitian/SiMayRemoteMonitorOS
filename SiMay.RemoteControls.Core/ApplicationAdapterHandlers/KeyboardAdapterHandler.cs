@@ -9,6 +9,7 @@ using SiMay.Net.SessionProvider;
 
 namespace SiMay.RemoteControlsCore.HandlerAdapters
 {
+    [ApplicationKeyAttribute(ApplicationKeyConstant.REMOTE_KEYBOARD)]
     public class KeyboardAdapterHandler : ApplicationAdapterHandler
     {
         public event Action<KeyboardAdapterHandler, string> OnKeyboardDataEventHandler;

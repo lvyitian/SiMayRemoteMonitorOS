@@ -13,9 +13,9 @@ namespace SiMay.RemoteMonitor.Application
 {
     [Disable]
     [OnTools]
+    [Rank(40)]
     [ApplicationName("输入记录")]
     [AppResourceName("KeyboradManager")]
-    [Application(typeof(KeyboardAdapterHandler), "RemoteKeyboradJob", 40)]
     public partial class KeyboardApplication : Form, IApplication
     {
         private const Int32 IDM_START_OFFLINE_RECORD = 1000;
@@ -44,7 +44,7 @@ namespace SiMay.RemoteMonitor.Application
 
         public void SessionClose(ApplicationAdapterHandler handler)
         {
-            this.Text = _title + " [" + this.KeyboardAdapterHandler.StateContext.ToString() + "]";
+            this.Text = _title + " [" + this.KeyboardAdapterHandler.State.ToString() + "]";
         }
 
         public void ContinueTask(ApplicationAdapterHandler handler)

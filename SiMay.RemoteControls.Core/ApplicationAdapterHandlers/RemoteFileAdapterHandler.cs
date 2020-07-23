@@ -13,6 +13,7 @@ using SiMay.Serialize.Standard;
 
 namespace SiMay.RemoteControlsCore.HandlerAdapters
 {
+    [ApplicationKeyAttribute(ApplicationKeyConstant.REMOTE_FILE)]
     public class RemoteFileAdapterHandler : ApplicationAdapterHandler
     {
         /// <summary>
@@ -104,7 +105,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         public void GetRemoteSystemFoldFiles(Environment.SpecialFolder specialFolder)
         {
             CurrentSession.SendTo(MessageHead.S_FILE_REDIRION,
-                new FileRedirectionPath()
+                new FileRedirectionPathPacket()
                 {
                     SpecialFolder = specialFolder
                 });
@@ -117,7 +118,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_FILE_FILE_LIST)]
         private void FixedRemoteFileItems(SessionProviderContext session)
         {
-            var fileItems = session.GetMessageEntity<FileListItemsPack>();
+            var fileItems = session.GetMessageEntity<FileListItemsPacket>();
             this.OnFileItemsEventHandler?.Invoke(this, fileItems.FileList, fileItems.Path, fileItems.IsSccessed, fileItems.Message);
         }
 
@@ -128,7 +129,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_FILE_ERROR_INFO)]
         private void WriteExceptionLog(SessionProviderContext session)
         {
-            var log = session.GetMessageEntity<FileExceptionPack>();
+            var log = session.GetMessageEntity<FileExceptionPacket>();
             this.OnRemoteExceptionEventHandler?.Invoke(this, log.OccurredTime, log.TipMessage, log.ExceptionMessage, log.StackTrace);
         }
 
@@ -140,7 +141,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         public void RemoteFilePaster(string root, string[] files)
         {
             CurrentSession.SendTo(MessageHead.S_FILE_FILE_PASTER,
-                    new FileCopyPack()
+                    new FileCopyPacket()
                     {
                         TargetDirectoryPath = root,
                         FileNames = files
@@ -178,7 +179,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_FILE_TEXT)]
         private void OpenRemoteText(SessionProviderContext session)
         {
-            var text = session.GetMessageEntity<FileTextPack>();
+            var text = session.GetMessageEntity<FileTextPacket>();
             this.OnOpenTextEventHandler?.Invoke(this, text.Text, text.IsSuccess);
         }
 
@@ -189,7 +190,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         public void RemoteDeleteFiles(string[] files)
         {
             CurrentSession.SendTo(MessageHead.S_FILE_DELETE,
-                    new FileDeletePack()
+                    new FileDeletePacket()
                     {
                         FileNames = files
                     });
@@ -214,7 +215,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         public void RemoteCreateDirectory(string path, bool noCallback = false)
         {
             CurrentSession.SendTo(MessageHead.S_FILE_CREATE_DIR,
-                new FileCreateDirectoryPack()
+                new FileCreateDirectoryPacket()
                 {
                     DirectoryName = path,
                     NoCallBack = noCallback
@@ -240,7 +241,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         public void RemoteFileRename(string srcFileName, string targetFileName)
         {
             CurrentSession.SendTo(MessageHead.S_FILE_RENAME,
-                                new FileReNamePack()
+                                new FileReNamePacket()
                                 {
                                     SourceFileName = srcFileName,
                                     TargetName = targetFileName
@@ -265,7 +266,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         public void GetRemoteRootTreeItems(string path)
         {
             CurrentSession.SendTo(MessageHead.S_FILE_TREE_DIR,
-                    new FileGetTreeDirectoryPack()
+                    new FileGetTreeDirectoryPacket()
                     {
                         TargetRoot = path
                     });
@@ -289,7 +290,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         public void RemoteExecuteFile(string path)
         {
             CurrentSession.SendTo(MessageHead.S_FILE_EXECUTE,
-                new FileExcutePack()
+                new FileExcutePacket()
                 {
                     FilePath = path
                 });
@@ -344,7 +345,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
                 var data = await this.AwaitDownloadDataPack().ConfigureAwait(true);
                 //LogHelper.DebugWriteLog("download data:" + (data == null ? "null" : data.Data.Length.ToString()));
-                if (this.WhetherClose)
+                if (this.IsManualClose())
                     break;//传输中途关闭应用
                 if (data.IsNull())
                 {
@@ -370,7 +371,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             return await Task.Run(() =>
             {
                 _sessionOfLinesEvent.WaitOne();//等待重连
-                if (this.WhetherClose)
+                if (this.IsManualClose())
                     return null;
 
                 long? position = fileStream.Length;
@@ -389,7 +390,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             return await Task.Run(() =>
             {
                 CurrentSession.SendTo(MessageHead.S_FILE_DOWNLOAD,
-                new FileDownloadPack()
+                new FileDownloadPacket()
                 {
                     FileName = remoteFileName,
                     Position = position
@@ -629,7 +630,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             return await Task.Run(() =>
             {
                 CurrentSession.SendTo(MessageHead.S_FILE_UPLOAD,
-                    new FileUploadPack()
+                    new FileUploadPacket()
                     {
                         FileName = remoteFileName
                     });
@@ -652,7 +653,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             return await Task.Run(() =>
             {
                 _sessionOfLinesEvent.WaitOne();//等待重连
-                if (this.WhetherClose)
+                if (this.IsManualClose())
                     return false;
                 else
                     return true;
@@ -719,7 +720,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             return await Task.Run(() =>
             {
                 CurrentSession.SendTo(MessageHead.S_FILE_GETDIR_FILES,
-                    new FileDirectoryGetFilesPack()
+                    new FileDirectoryGetFilesPacket()
                     {
                         DirectoryPath = remotedirectory
                     });
@@ -738,7 +739,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             return await Task.Run(() =>
             {
                 _sessionOfLinesEvent.WaitOne();//等待重连
-                if (this.WhetherClose)
+                if (this.IsManualClose())
                     return false;
                 else
                     return true;
@@ -752,7 +753,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             this._sessionOfLinesEvent.Reset();//阻塞等待重连
             this._workerStreamEvent.SetOneData();//如果有正在等待数据响应的，则先释放信号，进入重置方法
             LogHelper.DebugWriteLog("close eventSet");
-            if (this.WhetherClose)//如果应用已关闭,则释放退出
+            if (this.IsManualClose())//如果应用已关闭,则释放退出
                 this._sessionOfLinesEvent.Set();
 
             base.SessionClosed(session);

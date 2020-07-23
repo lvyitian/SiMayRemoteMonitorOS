@@ -48,7 +48,7 @@ namespace SiMay.ServiceCore
         /// <summary>
         /// 连接的服务端是否中间服务器
         /// </summary>
-        public static bool CenterServiceMode { get; set; } = false;
+        public static bool MiddleServiceMode { get; set; } = false;
         public static string IdentifyId { get; set; }
 
         public static IPEndPoint ServerIPEndPoint { get; set; }
@@ -104,101 +104,101 @@ namespace SiMay.ServiceCore
             }
         }
 
-        public static bool IsScreenRecord
-        {
-            get
-            {
-                try
-                {
-                    return bool.Parse(SysConfigs.GetConfig("IsScreenRecord") ?? "false");
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-            set
-            {
-                SysConfigs.SetConfig("IsScreenRecord", value.ToString());
-            }
-        }
+        //public static bool IsScreenRecord
+        //{
+        //    get
+        //    {
+        //        try
+        //        {
+        //            return bool.Parse(SysConfigs.GetConfig("IsScreenRecord") ?? "false");
+        //        }
+        //        catch
+        //        {
+        //            return false;
+        //        }
+        //    }
+        //    set
+        //    {
+        //        SysConfigs.SetConfig("IsScreenRecord", value.ToString());
+        //    }
+        //}
 
-        public static int ScreenRecordHeight
-        {
-            get
-            {
-                try
-                {
-                    return int.Parse(SysConfigs.GetConfig("ScreenRecordHeight") ?? "0");
-                }
-                catch
-                {
-                    return 800;
-                }
-            }
-            set
-            {
-                SysConfigs.SetConfig("ScreenRecordHeight", value.ToString());
-            }
-        }
-        public static int ScreenRecordWidth
-        {
-            get
-            {
-                try
-                {
-                    return int.Parse(SysConfigs.GetConfig("ScreenRecordWidth") ?? "0");
-                }
-                catch
-                {
-                    return 1200;
-                }
-            }
-            set
-            {
-                SysConfigs.SetConfig("ScreenRecordWidth", value.ToString());
-            }
-        }
-        public static int ScreenRecordSpanTime
-        {
-            get
-            {
-                try
-                {
-                    return int.Parse(SysConfigs.GetConfig("ScreenRecordSpanTime") ?? "0");
-                }
-                catch
-                {
-                    return 3000;
-                }
-            }
-            set
-            {
-                SysConfigs.SetConfig("ScreenRecordSpanTime", value.ToString());
-            }
-        }
+        //public static int ScreenRecordHeight
+        //{
+        //    get
+        //    {
+        //        try
+        //        {
+        //            return int.Parse(SysConfigs.GetConfig("ScreenRecordHeight") ?? "0");
+        //        }
+        //        catch
+        //        {
+        //            return 800;
+        //        }
+        //    }
+        //    set
+        //    {
+        //        SysConfigs.SetConfig("ScreenRecordHeight", value.ToString());
+        //    }
+        //}
+        //public static int ScreenRecordWidth
+        //{
+        //    get
+        //    {
+        //        try
+        //        {
+        //            return int.Parse(SysConfigs.GetConfig("ScreenRecordWidth") ?? "0");
+        //        }
+        //        catch
+        //        {
+        //            return 1200;
+        //        }
+        //    }
+        //    set
+        //    {
+        //        SysConfigs.SetConfig("ScreenRecordWidth", value.ToString());
+        //    }
+        //}
+        //public static int ScreenRecordSpanTime
+        //{
+        //    get
+        //    {
+        //        try
+        //        {
+        //            return int.Parse(SysConfigs.GetConfig("ScreenRecordSpanTime") ?? "0");
+        //        }
+        //        catch
+        //        {
+        //            return 3000;
+        //        }
+        //    }
+        //    set
+        //    {
+        //        SysConfigs.SetConfig("ScreenRecordSpanTime", value.ToString());
+        //    }
+        //}
 
 
-        public static bool KeyboardOffline
-        {
-            get
-            {
-                try
-                {
-                    return bool.Parse(SysConfigs.GetConfig("Offlinekeyboard") ?? "false");
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-            set
-            {
-                SysConfigs.SetConfig("Offlinekeyboard", value.ToString());
-            }
-        }
+        //public static bool KeyboardOffline
+        //{
+        //    get
+        //    {
+        //        try
+        //        {
+        //            return bool.Parse(SysConfigs.GetConfig("Offlinekeyboard") ?? "false");
+        //        }
+        //        catch
+        //        {
+        //            return false;
+        //        }
+        //    }
+        //    set
+        //    {
+        //        SysConfigs.SetConfig("Offlinekeyboard", value.ToString());
+        //    }
+        //}
 
-        public static bool HasSystemAuthority
+        public static bool SystemPermission
         {
             get
             {

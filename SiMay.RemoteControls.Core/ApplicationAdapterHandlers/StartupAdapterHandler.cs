@@ -9,11 +9,12 @@ using SiMay.Net.SessionProvider;
 
 namespace SiMay.RemoteControlsCore.HandlerAdapters
 {
+    [ApplicationKey(ApplicationKeyConstant.REMOTE_STARTUP)]
     public class StartupAdapterHandler : ApplicationAdapterHandler
     {
         public readonly IReadOnlyList<GroupItem> StartupGroupItems;
 
-        public event Action<StartupAdapterHandler, IEnumerable<StartupItemPack>> OnStartupItemHandlerEvent;
+        public event Action<StartupAdapterHandler, IEnumerable<StartupItemPacket>> OnStartupItemHandlerEvent;
 
         public StartupAdapterHandler()
         {
@@ -73,7 +74,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         public void AddStartupItem(string path, string name, StartupType startupType)
         {
             CurrentSession.SendTo(MessageHead.S_STARTUP_ADD_ITEM,
-                new StartupItemPack()
+                new StartupItemPacket()
                 {
                     Name = name,
                     Path = path,
@@ -81,7 +82,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
                 });
         }
 
-        public void RemoveStartupItem(IEnumerable<StartupItemPack> startupItems)
+        public void RemoveStartupItem(IEnumerable<StartupItemPacket> startupItems)
         {
             CurrentSession.SendTo(MessageHead.S_STARTUP_REMOVE_ITEM,
                 new StartupItemsPack()

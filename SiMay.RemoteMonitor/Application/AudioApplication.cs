@@ -12,9 +12,9 @@ using System.Windows.Forms;
 namespace SiMay.RemoteMonitor.Application
 {
     [OnTools]
+    [Rank(20)]
     [ApplicationName("远程语音")]
     [AppResourceName("AudioManager")]
-    [Application(typeof(AudioAdapterHandler), AppFlageConstant.REMOTE_AUDIO, 20)]
     public partial class AudioApplication : Form, IApplication
     {
         [ApplicationAdapterHandler]
@@ -56,7 +56,7 @@ namespace SiMay.RemoteMonitor.Application
 
         public void SessionClose(ApplicationAdapterHandler handler)
         {
-            this.Text = this._title + " [" + this.AudioAdapterHandler.StateContext.ToString() + "]";
+            this.Text = this._title + " [" + this.AudioAdapterHandler.State.ToString() + "]";
         }
 
         public void ContinueTask(ApplicationAdapterHandler handler)

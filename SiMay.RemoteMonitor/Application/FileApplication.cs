@@ -23,9 +23,9 @@ using static SiMay.RemoteMonitor.Win32Api;
 namespace SiMay.RemoteMonitor.Application
 {
     [OnTools]
+    [Rank(10)]
     [ApplicationName("文件管理")]
     [AppResourceName("FileManager")]
-    [Application(typeof(RemoteFileAdapterHandler), AppFlageConstant.REMOTE_FILE, 10)]
     public partial class FileApplication : Form, IApplication
     {
         private const Int32 IDM_DIR_DESKTOP = 1000;
@@ -66,7 +66,7 @@ namespace SiMay.RemoteMonitor.Application
 
         public void SessionClose(ApplicationAdapterHandler handler)
         {
-            this.Text = this._title + " [" + this.RemoteFileAdapterHandler.StateContext.ToString() + "]";
+            this.Text = this._title + " [" + this.RemoteFileAdapterHandler.State.ToString() + "]";
         }
 
         public void ContinueTask(ApplicationAdapterHandler handler)
@@ -585,7 +585,7 @@ namespace SiMay.RemoteMonitor.Application
                 }
                 if (this._transferMode == TransferMode.Cancel ||//选择取消传输
                     this.RemoteFileAdapterHandler.TransferTaskFlage == TransferTaskFlage.Abort ||//终止传输信号
-                    this.RemoteFileAdapterHandler.WhetherClose)//关闭应用
+                    this.RemoteFileAdapterHandler.IsManualClose())//关闭应用
                     break;
             }
             this.downloadMenuItem.Enabled = true;
@@ -720,7 +720,7 @@ namespace SiMay.RemoteMonitor.Application
 
         private void OnFileTransferProgressEventHandler(RemoteFileAdapterHandler adapterHandler, FileTransferFlag state, string fileName, long position, long fileSize)
         {
-            if (this.RemoteFileAdapterHandler.WhetherClose)//UI未关闭时才允许操作控件
+            if (this.RemoteFileAdapterHandler.IsManualClose())//UI未关闭时才允许操作控件
                 return;
 
             switch (state)

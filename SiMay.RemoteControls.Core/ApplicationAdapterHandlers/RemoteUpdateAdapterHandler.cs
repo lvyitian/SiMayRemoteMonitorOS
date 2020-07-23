@@ -9,6 +9,7 @@ using SiMay.ModelBinder;
 
 namespace SiMay.RemoteControlsCore
 {
+    [ApplicationKeyAttribute(ApplicationKeyConstant.REMOTE_UPDATE)]
     public class RemoteUpdateAdapterHandler : ApplicationAdapterHandler
     {
         /// <summary>

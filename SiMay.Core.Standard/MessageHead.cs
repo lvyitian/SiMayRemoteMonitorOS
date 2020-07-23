@@ -19,7 +19,7 @@ namespace SiMay.Core
 
         //主窗体------------------------------------------------------------
         S_MAIN_REMARK = 1000,                              //备注
-        S_MAIN_ACTIVATE_APPLICATIONSERVICE,                //创建功能服务
+        S_MAIN_ACTIVATE_APPLICATION_SERVICE,                //创建功能服务
         S_MAIN_SESSION,                                    //会话管理
         S_MAIN_HTTPDOWNLOAD,                               //下载
         S_MAIN_OPEN_WEBURL,                                //打开URL

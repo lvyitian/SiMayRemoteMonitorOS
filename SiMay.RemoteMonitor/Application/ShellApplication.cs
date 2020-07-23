@@ -9,11 +9,14 @@ using System.Windows.Forms;
 namespace SiMay.RemoteMonitor.Application
 {
     [OnTools]
+    [Rank(60)]
     [ApplicationName("远程终端")]
     [AppResourceName("ShellManager")]
-    [Application(typeof(ShellAdapterHandler), AppFlageConstant.REMOTE_SHELL, 60)]
     public partial class ShellApplication : Form, IApplication
     {
+
+        [ApplicationAdapterHandler]
+        public TcpConnectionAdapterHandler TcpConnectionAdapterHandler { get; set; }
 
         [ApplicationAdapterHandler]
         public ShellAdapterHandler ShellAdapterHandler { get; set; }
@@ -38,7 +41,7 @@ namespace SiMay.RemoteMonitor.Application
 
         public void SessionClose(ApplicationAdapterHandler handler)
         {
-            this.Text = _title + " [" + this.ShellAdapterHandler.StateContext.ToString() + "]";
+            this.Text = _title + " [" + handler.State.ToString() + "]";
         }
 
         public void ContinueTask(ApplicationAdapterHandler handler)
@@ -52,6 +55,14 @@ namespace SiMay.RemoteMonitor.Application
             this.Text = this._title = _title.Replace("#Name#", this.ShellAdapterHandler.OriginName);
             this.ShellAdapterHandler.OnOutputCommandEventHandler += OnOutputCommandEventHandler;
             this.ShellAdapterHandler.InputCommand("");
+
+            TcpConnectionAdapterHandler.OnTcpListHandlerEvent += TcpConnectionAdapterHandler_OnTcpListHandlerEvent;
+            TcpConnectionAdapterHandler.GetTcpList();
+        }
+
+        private void TcpConnectionAdapterHandler_OnTcpListHandlerEvent(TcpConnectionAdapterHandler arg1, System.Collections.Generic.IEnumerable<TcpConnectionItem> arg2)
+        {
+            MessageBox.Show("aaaaaaaaa");
         }
 
         private void OnOutputCommandEventHandler(ShellAdapterHandler adapterHandler, string outputLine)
@@ -73,6 +84,8 @@ namespace SiMay.RemoteMonitor.Application
         {
             this.ShellAdapterHandler.OnOutputCommandEventHandler -= OnOutputCommandEventHandler;
             this.ShellAdapterHandler.CloseSession();
+
+            this.TcpConnectionAdapterHandler.CloseSession();
         }
 
         private void textBox1_KeyPress(object sender, KeyPressEventArgs e)

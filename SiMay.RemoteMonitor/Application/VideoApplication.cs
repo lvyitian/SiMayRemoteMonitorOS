@@ -19,9 +19,9 @@ using static SiMay.RemoteMonitor.Win32Api;
 namespace SiMay.RemoteMonitor.Application
 {
     [OnTools]
+    [Rank(30)]
     [ApplicationName("视频监控")]
     [AppResourceName("ViedoManager")]
-    [Application(typeof(VideoAppAdapterHandler), AppFlageConstant.REMOTE_VIDEO, 30)]
     public partial class VideoApplication : Form, IApplication
     {
         private string _title = "//视频监控 #Name#";
@@ -44,7 +44,7 @@ namespace SiMay.RemoteMonitor.Application
 
 
         public void SessionClose(ApplicationAdapterHandler handler)
-            => this.Text = _title + " [" + VideoAppAdapterHandler.StateContext.ToString() + "]";
+            => this.Text = _title + " [" + VideoAppAdapterHandler.State.ToString() + "]";
 
 
         public void ContinueTask(ApplicationAdapterHandler handler)

@@ -8,7 +8,7 @@ using SiMay.ServiceCore.Attributes;
 namespace SiMay.ServiceCore
 {
     [ServiceName("远程语音")]
-    [ServiceKey(AppFlageConstant.REMOTE_AUDIO)]
+    [ApplicationKeyAttribute(ApplicationKeyConstant.REMOTE_AUDIO)]
     public class AudioService : ApplicationRemoteService
     {
         private bool _isRun = true;
@@ -61,7 +61,7 @@ namespace SiMay.ServiceCore
             catch { }
 
             CurrentSession.SendTo(MessageHead.C_AUDIO_DEVICE_OPENSTATE,
-                new AudioDeviceStatesPack()
+                new AudioDeviceStatesPacket()
                 {
                     PlayerEnable = outDeviceOpen == 0,
                     RecordEnable = inDeviceOpen == 0
@@ -79,7 +79,7 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_AUDIO_START)]
         public void SetOpenAudioInConfig(SessionProviderContext session)
         {
-            var config = session.GetMessageEntity<AudioOptionsPack>();
+            var config = session.GetMessageEntity<AudioOptionsPacket>();
             this.OpenAudio(config.SamplesPerSecond, config.BitsPerSample, config.Channels);
         }
 

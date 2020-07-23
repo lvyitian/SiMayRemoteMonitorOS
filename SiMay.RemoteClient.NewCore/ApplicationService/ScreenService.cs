@@ -14,13 +14,13 @@ using SiMay.Net.SessionProvider;
 namespace SiMay.ServiceCore
 {
     [ServiceName("远程桌面")]
-    [ServiceKey(AppFlageConstant.REMOTE_DESKTOP)]
+    [ApplicationKeyAttribute(ApplicationKeyConstant.REMOTE_DESKTOP)]
     public class ScreenService : ApplicationRemoteService
     {
         private int _bscanmode = 1; //0差异 1逐行
         private bool _cleanWallPaper = false;
         private static string wallpaper = string.Empty;
-        private bool _hasSystemAuthor = AppConfiguartion.HasSystemAuthority;
+        private bool _hasSystemAuthor = AppConfiguartion.SystemPermission;
         private ScreenSpy _spy;
 
         public override void SessionInited(SessionProviderContext session)
@@ -53,7 +53,7 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_SCREEN_SET_CLIPBOARD_TEXT)]
         public void SetClipoardHandler(SessionProviderContext session)
         {
-            var pack = session.GetMessageEntity<ScreenSetClipoardPack>();
+            var pack = session.GetMessageEntity<ScreenSetClipoardPacket>();
 
             Thread thread = new Thread(() =>
             {
@@ -71,7 +71,7 @@ namespace SiMay.ServiceCore
             {
                 var text = Clipboard.GetText();
                 CurrentSession.SendTo(MessageHead.C_SCREEN_CLIPOARD_TEXT,
-                    new ScreenClipoardValuePack()
+                    new ScreenClipoardValuePacket()
                     {
                         Value = text
                     });
@@ -88,7 +88,7 @@ namespace SiMay.ServiceCore
         private void SendDesktopInitInfo()
         {
             CurrentSession.SendTo(MessageHead.C_SCREEN_BITINFO,
-               new ScreenInitBitPack()
+               new ScreenInitBitPacket()
                {
                    Height = _spy.ScreenHeight,
                    Width = _spy.ScreenWidth,
@@ -104,7 +104,7 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_SCREEN_CHANGE_MONITOR)]
         public void MonitorChangeHandler(SessionProviderContext session)
         {
-            var currenMonitor = session.GetMessageEntity<MonitorChangePack>().MonitorIndex;
+            var currenMonitor = session.GetMessageEntity<MonitorChangePacket>().MonitorIndex;
             _spy.Capturer.SelectedScreen = currenMonitor;
         }
 
@@ -114,7 +114,7 @@ namespace SiMay.ServiceCore
             {
                 case DifferStatus.FULL_DIFFERENCES:
                     CurrentSession.SendTo(MessageHead.C_SCREEN_DIFFBITMAP,
-                        new ScreenFragmentPack()
+                        new ScreenFragmentPacket()
                         {
                             Fragments = fragments
                         });
@@ -122,7 +122,7 @@ namespace SiMay.ServiceCore
 
                 case DifferStatus.NEXT_SCREEN:
                     CurrentSession.SendTo(MessageHead.C_SCREEN_BITMP,
-                        new ScreenFragmentPack()
+                        new ScreenFragmentPacket()
                         {
                             Fragments = fragments
                         });
@@ -136,7 +136,7 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_SCREEN_NEXT_SCREENBITMP)]
         public void SendNextScreen(SessionProviderContext session)
         {
-            var rect = session.GetMessageEntity<ScreenHotRectanglePack>();
+            var rect = session.GetMessageEntity<ScreenHotRectanglePacket>();
             //根据监控模式使用热区域扫描
             bool ishotRegtionScan = false;// rect.CtrlMode == 1 ? true : false;
 
@@ -155,7 +155,7 @@ namespace SiMay.ServiceCore
             var registryKey = RegistryEditor.GetWritableRegistryKey(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System");
             registryKey.SetValue("SoftwareSASGeneration", 00000003, Microsoft.Win32.RegistryValueKind.DWord);
 
-            if (AppConfiguartion.HasSystemAuthority)
+            if (AppConfiguartion.SystemPermission)
                 UserTrunkContext.UserTrunkContextInstance?.SendSas();
             else
                 User32.SendSAS(true);
@@ -170,7 +170,7 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_SCREEN_SETQTY)]
         public void SetImageQuality(SessionProviderContext session)
         {
-            var pack = session.GetMessageEntity<ScreenSetQtyPack>();
+            var pack = session.GetMessageEntity<ScreenSetQtyPacket>();
             _spy.SetImageQuality = pack.Quality;
         }
 
@@ -198,7 +198,7 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_SCREEN_MOUSEKEYEVENT)]
         public void MouseKeyEvent(SessionProviderContext session)
         {
-            var @event = session.GetMessageEntity<ScreenKeyPack>();
+            var @event = session.GetMessageEntity<ScreenKeyPacket>();
             Screen[] allScreens = Screen.AllScreens;
             int offsetX = allScreens[_spy.Capturer.SelectedScreen].Bounds.X;
             int offsetY = allScreens[_spy.Capturer.SelectedScreen].Bounds.Y;

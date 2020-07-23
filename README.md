@@ -27,7 +27,7 @@
 ### SiMay.RemoteMonitor【主控制端】
  - SiMay.RemoteControls.Core --主控端核心库
  - SiMay.RemoteMonitor --Windows主控端
- - SiMay.RemoteMonitorFor.Web --Web主控端后端，基于WebSocket与前端通信
+ - SiMay.RemoteMonitor.Web --Web主控端后端，基于WebSocket与前端通信
  - SiMay.RemoteMonitorForWebSite --Web监控前端
 
 ### SiMay.Platform【平台实现】
@@ -35,7 +35,7 @@
 
 ### SiMay.RemoteService【远程被控服务端】
  - SiMay.RemoteService.Loader --内存加载Loader，实现远程内存载入被控端核心库
- - SiMay.ServiceCore --被控端核心库/被控端主程序
+ - SiMay.ServiceCore --被控端核心库
 
 ### SiMay.SessionProvider【会话提供层】
  - SiMay.Net.SessionProvider --会话提供库【作用：提供服务器监听模式或者中间会话代理协议】
@@ -70,7 +70,7 @@
 主控端设置: 系统设置-->会话服务器地址 输入 中间服务器的公网地址，端口。-->设置会话模式为:中间会话模式-->确认AccessKey与中间服务器Accesskey一致。(中间会话服务器系统设置位于标题栏系统菜单右键)-->创建客户端并选择会话模式为中间会话模式，ip，端输入中间服务器的公网地址即可
 
  - 4.Web端监控
-编译SiMay.RemoteMonitorFor.Web.exe，Web服务为控制台形式无系统设置界面，可直接使用Windows控制端保存的系统配置文件SiMayConfig.ini，会话模式可使用服务器模式或者中间会话模式启动，启动成功后控制台打印监听成功或初始化成功字样即设置正确(服务器模式为监听成功，中间会话模式为初始化成功 及 WebSocket端口监听成功)，如有被控端连接成功，控制台会实时打印上线连接信息，Web服务设置完成。
+编译SiMay.RemoteMonitor.Web.exe，Web服务为控制台形式无系统设置界面，可直接使用Windows控制端保存的系统配置文件SiMayConfig.ini，会话模式可使用服务器模式或者中间会话模式启动，启动成功后控制台打印监听成功或初始化成功字样即设置正确(服务器模式为监听成功，中间会话模式为初始化成功 及 WebSocket端口监听成功)，如有被控端连接成功，控制台会实时打印上线连接信息，Web服务设置完成。
 
 上述Web服务设置完成后，下一步需要部署Web网站SiMay.WebRemoteMonitor，首先打开Index.html文件编辑WebSocket连接地址，指向Web服务的公网地址与端口即可。
 
@@ -115,7 +115,7 @@
 10.新增RPC接口调用组件 --未完成
 11.框架升级调整(应用与应用服务之间实现对方法接口RPC调用) --未完成
 12.框架升级调整(增强功能复用性，使"应用服务"支持RPC接口调用可复用子功能模块) --未完成
-13.框架升级调整(使各应用模块支持多应用服务独立连接并可断线重连) --未完成
+13.框架升级调整(使各应用模块支持多应用服务独立连接并可断线重连) --7.20
 
 ### 5.0更新
 1. 优化了通讯库,支持FULL丶PACK数据处理方式，实现了更友好的配置接口

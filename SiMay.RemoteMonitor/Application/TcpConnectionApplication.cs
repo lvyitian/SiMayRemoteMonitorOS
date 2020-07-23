@@ -8,8 +8,8 @@ using System.Windows.Forms;
 
 namespace SiMay.RemoteMonitor.Application
 {
+    [Rank(90)]
     [ApplicationName("Tcp连接管理")]
-    [Application(typeof(TcpConnectionAdapterHandler), AppFlageConstant.REMOTE_TCP, 90)]
     public partial class TcpConnectionApplication : Form, IApplication
     {
         [ApplicationAdapterHandler]
@@ -36,7 +36,7 @@ namespace SiMay.RemoteMonitor.Application
         }
 
         public void SessionClose(ApplicationAdapterHandler handler)
-            => this.Text = _title + " [" + handler.StateContext.ToString() + "]";
+            => this.Text = _title + " [" + handler.State.ToString() + "]";
 
         public void ContinueTask(ApplicationAdapterHandler handler)
         {

@@ -7,7 +7,7 @@ namespace SiMay.RemoteMonitor.Application
 {
     public partial class StartupItemAdd : Form
     {
-        public StartupItemPack StartupItem { get; set; }
+        public StartupItemPacket StartupItem { get; set; }
 
         public StartupItemAdd()
         {
@@ -45,7 +45,7 @@ namespace SiMay.RemoteMonitor.Application
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            StartupItem = new StartupItemPack
+            StartupItem = new StartupItemPacket
                 {Name = txtName.Text, Path = txtPath.Text, Type = (StartupType) cmbType.SelectedIndex};
 
             this.DialogResult = DialogResult.OK;

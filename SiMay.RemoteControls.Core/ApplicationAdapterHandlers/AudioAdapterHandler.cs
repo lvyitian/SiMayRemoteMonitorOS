@@ -9,6 +9,7 @@ using SiMay.Net.SessionProvider;
 
 namespace SiMay.RemoteControlsCore.HandlerAdapters
 {
+    [ApplicationKey(ApplicationKeyConstant.REMOTE_AUDIO)]
     public class AudioAdapterHandler : ApplicationAdapterHandler
     {
         public event Action<AudioAdapterHandler, bool, bool> OnOpenDeviceStatusEventHandler;
@@ -18,7 +19,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_AUDIO_DEVICE_OPENSTATE)]
         private void RemoteDeveiceStatusHandler(SessionProviderContext session)
         {
-            var statesPack = session.GetMessageEntity<AudioDeviceStatesPack>();
+            var statesPack = session.GetMessageEntity<AudioDeviceStatesPacket>();
             this.OnOpenDeviceStatusEventHandler?.Invoke(this, statesPack.PlayerEnable, statesPack.RecordEnable);
         }
 
@@ -32,7 +33,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         public void StartRemoteAudio(int samplesPerSecond, int bitsPerSample, int channels)
         {
             CurrentSession.SendTo(MessageHead.S_AUDIO_START,
-                new AudioOptionsPack()
+                new AudioOptionsPacket()
                 {
                     SamplesPerSecond = samplesPerSecond,
                     BitsPerSample = bitsPerSample,

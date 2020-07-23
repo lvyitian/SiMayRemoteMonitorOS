@@ -52,7 +52,7 @@ namespace SiMay.RemoteControlsCore
         /// <summary>
         /// 当应用被创建
         /// </summary>
-        public event Action<IApplication> OnApplicationCreatedEventHandler;
+        public event Func<IApplication, bool> OnApplicationCreatedEventHandler;
 
 
         /// <summary>
@@ -68,17 +68,12 @@ namespace SiMay.RemoteControlsCore
         /// <summary>
         /// 会话提供对象
         /// </summary>
-        public SessionProvider SessionProvider { get; set; }
+        public SessionProvider SessionProvider { get; private set; }
 
         /// <summary>
         /// 主连接同步上下文
         /// </summary>
-        public List<SessionSyncContext> SessionSyncContexts { get; set; } = new List<SessionSyncContext>();
-
-        /// <summary>
-        /// 中断任务上下文列表
-        /// </summary>
-        private List<SuspendTaskContext> _suspendTaskContexts = new List<SuspendTaskContext>();
+        public List<SessionSyncContext> SessionSyncContexts { get; } = new List<SessionSyncContext>();
 
         /// <summary>
         /// 是否已启动
@@ -93,8 +88,7 @@ namespace SiMay.RemoteControlsCore
             _launch = true;
 
             AppConfiguration.SysConfig = config;
-
-            ThreadHelper.CreateThread(ApplicationResetThread, true);
+            TaskScheduleTrigger.StarSchedule(10);
         }
 
         public void StartApp()
@@ -235,11 +229,11 @@ namespace SiMay.RemoteControlsCore
 
             if (sessionWorkType == ConnectionWorkType.WORKCON)
             {
-                //消息传给消息处理器,由消息处理器所在App进行处理
-                var app = appTokens[SysConstants.INDEX_WORKER].ConvertTo<ApplicationAdapterHandler>();
-                if (app.WhetherClose)
+                //消息传给消息适配器,由消息适配器进行处理，通过事件反馈数据到展示层
+                var adapter = appTokens[SysConstants.INDEX_WORKER].ConvertTo<ApplicationAdapterHandler>();
+                if (adapter.IsManualClose())
                     return;
-                app.HandlerBinder.InvokePacketHandler(session, session.GetMessageHead(), app);
+                adapter.HandlerBinder.InvokePacketHandler(session, session.GetMessageHead(), adapter);
             }
             else if (sessionWorkType == ConnectionWorkType.MAINCON)
                 this.HandlerBinder.InvokePacketHandler(session, session.GetMessageHead(), this);
@@ -263,7 +257,7 @@ namespace SiMay.RemoteControlsCore
         /// <param name="session"></param>
         private void ValiditySession(SessionProviderContext session)
         {
-            var ack = session.GetMessageEntity<AckPack>();
+            var ack = session.GetMessageEntity<AcknowledPacket>();
             long accessKey = ack.AccessKey;
             if (accessKey != int.Parse(AppConfiguration.ConnectPassWord))
             {
@@ -284,87 +278,6 @@ namespace SiMay.RemoteControlsCore
         }
 
         /// <summary>
-        /// 中断任务重连线程
-        /// </summary>
-        private void ApplicationResetThread()
-        {
-            while (this._launch)
-            {
-                for (int i = 0; i < _suspendTaskContexts.Count; i++)
-                {
-                    SuspendTaskContext task = _suspendTaskContexts[i];
-
-                    string id = task.AdapterHandler.IdentifyId.Split('|')[0];
-                    var syncContext = SessionSyncContexts.FirstOrDefault(x => x.KeyDictions[SysConstants.IdentifyId].ConvertTo<string>() == id);
-
-                    LogHelper.WriteErrorByCurrentMethod("beigin Reset--{0},{1},{2}".FormatTo(task.AdapterHandler.ApplicationKey, task.AdapterHandler.IdentifyId, id));
-
-                    if (!syncContext.IsNull())
-                    {
-                        if (task.AdapterHandler.WhetherClose)
-                        {
-                            //窗口关闭将不再建立连接
-                            _suspendTaskContexts.Remove(task); i--;
-                            continue;
-                        }
-                        syncContext.Session.SendTo(MessageHead.S_MAIN_ACTIVATE_APPLICATIONSERVICE,
-                            new ActivateServicePack()
-                            {
-                                ApplicationKey = task.AdapterHandler.ApplicationKey
-                            });
-
-                        LogHelper.WriteErrorByCurrentMethod("send reset command--{0},{1},{2}".FormatTo(task.AdapterHandler.ApplicationKey, task.AdapterHandler.IdentifyId, id));
-                    }
-                }
-                Thread.Sleep(5000);
-            }
-        }
-
-        /// <summary>
-        /// 加入重连线程
-        /// </summary>
-        /// <param name="context"></param>
-        private void AddSuspendTaskContext(SuspendTaskContext context)
-        {
-            _suspendTaskContexts.Add(context);
-            LogHelper.WriteErrorByCurrentMethod("Session Close--{0},{1}".FormatTo(context.AdapterHandler.ApplicationKey, context.AdapterHandler.IdentifyId));
-        }
-
-        /// <summary>
-        /// 根据被控服务组合id寻找中断应用
-        /// </summary>
-        /// <param name="identifyId"></param>
-        /// <returns></returns>
-        private SuspendTaskContext FindOfSuspendTaskContext(string identifyId)
-        {
-            var task = _suspendTaskContexts
-                .Where(x => x.AdapterHandler.IdentifyId.Split('|').FirstOrDefault() == identifyId)
-                .FirstOrDefault();
-
-            return task;
-        }
-
-        /// <summary>
-        /// 移出重连线程
-        /// </summary>
-        /// <param name="identifyId"></param>
-        /// <returns></returns>
-        private bool RemoveSuspendTaskContext(string identifyId)
-        {
-            var task = _suspendTaskContexts.Where(x => x.AdapterHandler.IdentifyId.Split('|').FirstOrDefault().Equals(identifyId)).FirstOrDefault();
-            if (task != null)
-            {
-                _suspendTaskContexts.Remove(task);
-                LogHelper.WriteErrorByCurrentMethod("ResetTask Remove--{0},{1}".FormatTo(task.AdapterHandler.ApplicationKey, task.AdapterHandler.IdentifyId));
-            }
-            else
-                return false;
-
-            return true;
-        }
-
-
-        /// <summary>
         /// 启动App
         /// </summary>
         /// <param name="type"></param>
@@ -373,68 +286,119 @@ namespace SiMay.RemoteControlsCore
         [PacketHandler(MessageHead.C_MAIN_ACTIVE_APP)]
         private void OnActivateStartApp(SessionProviderContext session)
         {
-            var openControl = session.GetMessageEntity<ActivateApplicationPack>();
-            string originName = openControl.OriginName;
-            string appKey = openControl.ServiceKey;
-            string identifyId = openControl.IdentifyId;
-            //查找离线任务队列,如果有对应的任务则继续工作
-            var task = FindOfSuspendTaskContext(identifyId);
-            if (!task.IsNull())
+            lock (this)
             {
-                //再发出重连命令后，如果使用者主动关闭消息处理器将不再建立连接
-                if (task.AdapterHandler.WhetherClose)
+                var activateResponse = session.GetMessageEntity<ActivateApplicationPack>();
+                string originName = activateResponse.OriginName;
+                string appKey = activateResponse.ApplicationKey;
+                string identifyId = activateResponse.IdentifyId;
+
+                var applicationName = activateResponse.ActivatedCommandText.Split('.')[0];
+
+                //离线适配器TaskName格式:identifyId,APP.AdapterKey，其中 identifyId 表示被控端唯一标识，用于区分重连任务中不同被控端,APP为应用名称，AdapterKey为适配器Id
+                //等待应用TaskName格式:identifyId,APP
+                //优先级说明:等待应用优先匹配，应用创建时如有多个适配器，第一个适配器完成初始化后会被创建为等待应用加入任务调度队列，直至所有适配器连接完成，否则超时应用会被判定创建失败。
+
+                //查找任务调度队列,如果有对应的任务则继续工作
+                if (TaskScheduleTrigger.FindScheduleTask(c => c.TaskName.Contains(identifyId) && (c.TaskName.Split(',')[1].Equals(applicationName, StringComparison.OrdinalIgnoreCase) || c.TaskName.Split(',')[1].Equals(activateResponse.ActivatedCommandText, StringComparison.OrdinalIgnoreCase)), out var taskSchedule))
                 {
-                    //通知远程释放资源
-                    session.SendTo(MessageHead.S_GLOBAL_ONCLOSE);
-                    return;
-                }
+                    //如果是匹配到了离线适配器
+                    if (taskSchedule.TaskName.Equals($"{identifyId},{activateResponse.ActivatedCommandText}") && taskSchedule is ICustomEvent task)
+                        task.Invoke(this, new SuspendTaskResumEventArgs()
+                        {
+                            Session = session
+                        });
+                    else if (taskSchedule.TaskName.Equals($"{identifyId},{applicationName}") && taskSchedule is ApplicationCreatingTimeOutSuspendTaskContext creatingTimeOutContext)
+                    {
+                        var application = creatingTimeOutContext.Application;
+                        var property = application.GetApplicationAdapterPropertyByKey(appKey);
+                        if (property.IsNull())
+                            throw new ArgumentNullException("adapter not found!");
 
-                //将消息处理器与会话关联
-                var tokens = session.AppTokens;
-                tokens[SysConstants.INDEX_WORKTYPE] = ConnectionWorkType.WORKCON;
-                tokens[SysConstants.INDEX_WORKER] = task.AdapterHandler;
-                task.AdapterHandler.OriginName = originName;
-                task.AdapterHandler.SetSession(session);
-                task.AdapterHandler.ContinueTask(session);//继续任务
+                        var adapter = Activator.CreateInstance(property.PropertyType).ConvertTo<ApplicationAdapterHandler>();
+                        adapter.App = application;
+                        adapter.IdentifyId = identifyId;
+                        adapter.OriginName = originName;
+                        adapter.SetSession(session);
+                        //property.SetValue(application, adapter);
 
-                RemoveSuspendTaskContext(identifyId);
-            }
-            else
-            {
-                var context = SysUtil.ApplicationTypes.FirstOrDefault(x => x.ApplicationKey.Equals(appKey));
-                if (!context.IsNull())
-                {
-
-                    var appHandlerType = context.Type.GetAppAdapterHandlerType();
-                    ApplicationAdapterHandler appHandlerBase = Activator.CreateInstance(appHandlerType).ConvertTo<ApplicationAdapterHandler>();
-                    IApplication app = Activator.CreateInstance(context.Type).ConvertTo<IApplication>();
-
-                    appHandlerBase.App = app;
-                    appHandlerBase.IdentifyId = identifyId;
-                    appHandlerBase.OriginName = originName;
-                    appHandlerBase.ApplicationKey = context.Type.GetApplicationKey();
-                    appHandlerBase.SetSession(session);
-
-                    //每个应用至少标记一个应用处理器属性
-                    var handlerFieder = context
-                        .Type
-                        .GetProperties()
-                        .Single(c => !c.GetCustomAttribute<ApplicationAdapterHandlerAttribute>(true).IsNull());
-                    handlerFieder.SetValue(app, appHandlerBase);
-
-                    this.OnApplicationCreatedEventHandler?.Invoke(app);
-
-                    //app.HandlerAdapter = handlerBase;
-                    app.Start();
-
-                    session.AppTokens[SysConstants.INDEX_WORKTYPE] = ConnectionWorkType.WORKCON;
-                    session.AppTokens[SysConstants.INDEX_WORKER] = appHandlerBase;
+                        if (ApplicationReadyExamine(adapter, application))
+                            TaskScheduleTrigger.RemoveScheduleTask(taskSchedule);
+                    }
+                    else
+                        throw new ApplicationException();
                 }
                 else
                 {
-                    session.SessionClose();
-                    LogHelper.WriteErrorByCurrentMethod("A working connection was closed because the control whose controlkey is :{0} could not be found!".FormatTo(appKey));
-                    return;
+                    //查找应用
+                    var context = SysUtil.ApplicationTypes.FirstOrDefault(c => c.Type.Name.Equals(applicationName, StringComparison.OrdinalIgnoreCase));
+                    if (!context.IsNull())
+                    {
+                        //根据appKey查找该应用适配器
+                        var appAdapterProperty = context.Type.GetApplicationAdapterPropertyByKey(appKey);
+
+                        if (appAdapterProperty.IsNull())
+                            throw new ApplicationException("adapter not declaration!");
+
+                        ApplicationAdapterHandler appHandlerBase = Activator.CreateInstance(appAdapterProperty.PropertyType).ConvertTo<ApplicationAdapterHandler>();
+                        IApplication app = Activator.CreateInstance(context.Type).ConvertTo<IApplication>();
+
+                        appHandlerBase.App = app;
+                        appHandlerBase.IdentifyId = identifyId;
+                        appHandlerBase.OriginName = originName;
+                        //appHandlerBase.ApplicationKey = context.Type.GetApplicationKey();
+                        appHandlerBase.SetSession(session);
+
+                        ApplicationReadyExamine(appHandlerBase, app);
+                    }
+                    else
+                    {
+                        session.SessionClose();
+                        LogHelper.WriteErrorByCurrentMethod("a working connection was closed because the control whose appkey is :{0} could not be found!".FormatTo(appKey));
+                        return;
+                    }
+
+
+                }
+
+                //应用资源情况检查
+                bool ApplicationReadyExamine(ApplicationAdapterHandler adapter, IApplication app)
+                {
+                    var handlerFieders = app
+                        .GetApplicationAdapterProperty()
+                        .ToDictionary(key => key.PropertyType.GetApplicationKey(), val => val);
+
+                    if (handlerFieders.ContainsKey(appKey) && handlerFieders.TryGetValue(appKey, out var property))
+                        property.SetValue(app, adapter);
+                    else
+                        throw new ApplicationException();
+
+                    //检查所有适配器属性
+                    var prepareCompleted = handlerFieders.Where(c => !c.Value.GetValue(app).IsNull()/* && c.Value.GetValue(app).ConvertTo<ApplicationAdapterHandler>().AttachedConnection*/);
+                    if (prepareCompleted.Count() != handlerFieders.Count)
+                    {
+                        //创建超时任务
+                        TaskScheduleTrigger.AddScheduleTask(new ApplicationCreatingTimeOutSuspendTaskContext()
+                        {
+                            Application = app,
+                            TaskName = $"{identifyId},{app.GetType().Name}"
+                        });
+                        return false;
+                    }
+
+                    var successed = this.OnApplicationCreatedEventHandler.Invoke(app);
+                    if (successed)
+                    {
+                        //app.HandlerAdapter = handlerBase;
+                        app.Start();
+
+                        session.AppTokens[SysConstants.INDEX_WORKTYPE] = ConnectionWorkType.WORKCON;
+                        session.AppTokens[SysConstants.INDEX_WORKER] = adapter;
+                    }
+                    else
+                        session.SessionClose();
+
+                    return successed;
                 }
             }
         }
@@ -545,25 +509,25 @@ namespace SiMay.RemoteControlsCore
         /// </summary>
         /// <param name="syncContext"></param>
         /// <param name="login"></param>
-        private void UpdateSyncContextHandler(SessionSyncContext syncContext, LoginPack login)
+        private void UpdateSyncContextHandler(SessionSyncContext syncContext, LoginPacket login)
         {
-            syncContext.KeyDictions[SysConstants.IPV4] = login.IPV4;
-            syncContext.KeyDictions[SysConstants.MachineName] = login.MachineName;
-            syncContext.KeyDictions[SysConstants.Remark] = login.Remark;
-            syncContext.KeyDictions[SysConstants.ProcessorInfo] = login.ProcessorInfo;
-            syncContext.KeyDictions[SysConstants.ProcessorCount] = login.ProcessorCount;
-            syncContext.KeyDictions[SysConstants.MemorySize] = login.MemorySize;
-            syncContext.KeyDictions[SysConstants.StartRunTime] = login.StartRunTime;
-            syncContext.KeyDictions[SysConstants.ServiceVison] = login.ServiceVison;
-            syncContext.KeyDictions[SysConstants.UserName] = login.UserName;
-            syncContext.KeyDictions[SysConstants.OSVersion] = login.OSVersion;
-            syncContext.KeyDictions[SysConstants.GroupName] = login.GroupName;
-            syncContext.KeyDictions[SysConstants.ExistCameraDevice] = login.ExistCameraDevice;
-            syncContext.KeyDictions[SysConstants.ExitsRecordDevice] = login.ExitsRecordDevice;
-            syncContext.KeyDictions[SysConstants.ExitsPlayerDevice] = login.ExitsPlayerDevice;
+            syncContext[SysConstants.IPV4] = login.IPV4;
+            syncContext[SysConstants.MachineName] = login.MachineName;
+            syncContext[SysConstants.Remark] = login.Remark;
+            syncContext[SysConstants.ProcessorInfo] = login.ProcessorInfo;
+            syncContext[SysConstants.ProcessorCount] = login.ProcessorCount;
+            syncContext[SysConstants.MemorySize] = login.MemorySize;
+            syncContext[SysConstants.StartRunTime] = login.StartRunTime;
+            syncContext[SysConstants.ServiceVison] = login.ServiceVison;
+            syncContext[SysConstants.UserName] = login.UserName;
+            syncContext[SysConstants.OSVersion] = login.OSVersion;
+            syncContext[SysConstants.GroupName] = login.GroupName;
+            syncContext[SysConstants.ExistCameraDevice] = login.ExistCameraDevice;
+            syncContext[SysConstants.ExitsRecordDevice] = login.ExitsRecordDevice;
+            syncContext[SysConstants.ExitsPlayerDevice] = login.ExitsPlayerDevice;
             //syncContext.KeyDictions[SysConstants.OpenScreenRecord] = login.OpenScreenRecord;
             //syncContext.KeyDictions[SysConstants.OpenScreenWall] = login.OpenScreenWall;
-            syncContext.KeyDictions[SysConstants.IdentifyId] = login.IdentifyId;
+            syncContext[SysConstants.IdentifyId] = login.IdentifyId;
             //syncContext.KeyDictions[SysConstants.HasLaunchDesktopRecord] = false;//桌面记录状态
             //syncContext.KeyDictions[SysConstants.RecordHeight] = login.RecordHeight;//用于桌面记录的高
             //syncContext.KeyDictions[SysConstants.RecordWidth] = login.RecordWidth;//用于桌面记录宽
@@ -582,7 +546,7 @@ namespace SiMay.RemoteControlsCore
         {
             try
             {
-                var login = session.GetMessageEntity<LoginPack>();
+                var login = session.GetMessageEntity<LoginPacket>();
                 if (!session.AppTokens[SysConstants.INDEX_WORKER].IsNull())//如果主连接同步对象存在，则对该对象更新
                 {
                     this.UpdateSyncContextHandler(session.AppTokens[SysConstants.INDEX_WORKER].ConvertTo<SessionSyncContext>(), login);
@@ -649,26 +613,28 @@ namespace SiMay.RemoteControlsCore
                 {
                     var adapterHandler = arguments[SysConstants.INDEX_WORKER].ConvertTo<ApplicationAdapterHandler>();
 
-                    if (adapterHandler.WhetherClose)//如果是手动结束任务
+                    if (adapterHandler.IsManualClose())//如果是手动结束任务
                         return;
 
-                    adapterHandler.StateContext = "工作连接已断开,正在重新连接中....";
+                    adapterHandler.State = "工作连接已断开,正在重新连接中....";
                     adapterHandler.SessionClosed(session);
+
                     //非手动结束任务，将该任务扔到重连线程中
-                    AddSuspendTaskContext(new SuspendTaskContext()
+                    var appName = adapterHandler.App.GetType().Name;
+                    TaskScheduleTrigger.AddScheduleTask(new SuspendTaskContext()
                     {
-                        DisconnectTime = DateTime.Now,
-                        AdapterHandler = adapterHandler
+                        DisconnectTimePoint = DateTime.Now,
+                        ApplicationAdapterHandler = adapterHandler,
+                        SessionSyncContexts = SessionSyncContexts,
+                        TaskName = $"{adapterHandler.IdentifyId},{appName}.{adapterHandler.GetApplicationKey()}"
                     });
                 }
                 else if (worktype == ConnectionWorkType.MAINCON)
                 {
                     var syncContext = arguments[SysConstants.INDEX_WORKER].ConvertTo<SessionSyncContext>();
                     if (syncContext.IsNull())
-                    {
-                        LogHelper.WriteErrorByCurrentMethod("syncContext NULL");
                         return;
-                    }
+
                     SessionSyncContexts.Remove(syncContext);
 
                     //if (syncContext.KeyDictions.ContainsKey(SysConstants.DesktopView) && !syncContext.KeyDictions[SysConstants.DesktopView].IsNull())
@@ -732,7 +698,7 @@ namespace SiMay.RemoteControlsCore
         public void RemoteServiceUpdate(SessionSyncContext syncContext, RemoteUpdateType updateType, byte[] file, string url)
         {
             syncContext.Session.SendTo(MessageHead.S_MAIN_UPDATE,
-                new RemoteUpdatePack()
+                new RemoteUpdatePacket()
                 {
                     UrlOrFileUpdate = updateType,
                     DownloadUrl = updateType == RemoteUpdateType.Url ? url : string.Empty,
@@ -824,7 +790,7 @@ namespace SiMay.RemoteControlsCore
         public void RemoteMessageBox(SessionSyncContext syncContext, string text, string title, MessageIcon icon)
         {
             syncContext.Session.SendTo(MessageHead.S_MAIN_MESSAGEBOX,
-                new MessagePack()
+                new MessagePacket()
                 {
                     MessageTitle = title,
                     MessageBody = text,
@@ -847,12 +813,13 @@ namespace SiMay.RemoteControlsCore
         /// </summary>
         /// <param name="syncContext"></param>
         /// <param name="appKey"></param>
-        public void RemoteActiveService(SessionSyncContext syncContext, string appKey)
+        public void RemoteActivateService(SessionSyncContext syncContext, string appKey)
         {
-            syncContext.Session.SendTo(MessageHead.S_MAIN_ACTIVATE_APPLICATIONSERVICE,
+            Thread.Sleep(1000);
+            syncContext.Session.SendTo(MessageHead.S_MAIN_ACTIVATE_APPLICATION_SERVICE,
                 new ActivateServicePack()
                 {
-                    ApplicationKey = appKey
+                    CommandText = appKey
                 });
         }
 

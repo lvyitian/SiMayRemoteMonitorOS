@@ -12,7 +12,7 @@ using CommonWin32Api = SiMay.Platform.Windows.CommonWin32Api;
 namespace SiMay.ServiceCore
 {
     [ServiceName("Tcp连接管理")]
-    [ServiceKey(AppFlageConstant.REMOTE_TCP)]
+    [ApplicationKeyAttribute(ApplicationKeyConstant.REMOTE_TCP)]
     public class TcpConnectionService : ApplicationRemoteService
     {
         public override void SessionInited(SessionProviderContext session)
@@ -58,7 +58,7 @@ namespace SiMay.ServiceCore
             }
 
             CurrentSession.SendTo(MessageHead.C_TCP_LIST,
-                new TcpConnectionPack()
+                new TcpConnectionPacket()
                 {
                     TcpConnections = connections
                 });

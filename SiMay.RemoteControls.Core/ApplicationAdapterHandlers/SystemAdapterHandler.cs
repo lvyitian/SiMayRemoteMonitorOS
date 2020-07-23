@@ -9,6 +9,7 @@ using SiMay.Net.SessionProvider;
 
 namespace SiMay.RemoteControlsCore.HandlerAdapters
 {
+    [ApplicationKeyAttribute(ApplicationKeyConstant.REMOTE_SYSMANAGER)]
     public class SystemAdapterHandler : ApplicationAdapterHandler
     {
         public event Action<SystemAdapterHandler, IEnumerable<ProcessItem>> OnProcessListHandlerEvent;
@@ -22,7 +23,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_SYSTEM_SYSTEMINFO)]
         private void HandlerProcessList(SessionProviderContext session)
         {
-            var pack = session.GetMessageEntity<SystemInfoPack>();
+            var pack = session.GetMessageEntity<SystemInfoPacket>();
             OnSystemInfoHandlerEvent?.Invoke(this, pack.SystemInfos);
         }
 
@@ -42,7 +43,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_SYSTEM_SESSIONS)]
         private void SessionsItemHandler(SessionProviderContext session)
         {
-            var sessionLst = session.GetMessageEntity<SessionsPack>().Sessions;
+            var sessionLst = session.GetMessageEntity<SessionsPacket>().Sessions;
             this.OnSessionsEventHandler?.Invoke(this, sessionLst);
         }
 
@@ -88,7 +89,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         public void KillProcess(IEnumerable<int> pids)
         {
             CurrentSession.SendTo(MessageHead.S_SYSTEM_KILL,
-                new SysKillPack()
+                new KillProcessPacket()
                 {
                     ProcessIds = pids.ToArray()
                 });
@@ -97,7 +98,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         private void SetProcessWindowState(int state, IEnumerable<int> pids)
         {
             CurrentSession.SendTo(MessageHead.S_SYSTEM_MAXIMIZE,
-                new SysWindowMaxPack()
+                new SysWindowMaxPacket()
                 {
                     State = state,
                     Handlers = pids.ToArray()

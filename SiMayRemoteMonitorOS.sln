@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28803.352
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiMay.RemoteMonitor", "SiMay.RemoteMonitor\SiMay.RemoteMonitor.csproj", "{97E36F9B-145B-41DB-B6CF-E054B010869E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiMay.RemoteMonitor.Windows", "SiMay.RemoteMonitor\SiMay.RemoteMonitor.Windows.csproj", "{97E36F9B-145B-41DB-B6CF-E054B010869E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiMay.ServiceCore", "SiMay.RemoteClient.NewCore\SiMay.ServiceCore.csproj", "{8D061D46-9E59-42B0-91DC-4E380E4AE0BA}"
 EndProject
@@ -41,15 +41,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiMay.Platform.Windows", "S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SiMay.RemoteControls.Core", "SiMay.RemoteControls.Core\SiMay.RemoteControls.Core.csproj", "{8F5633D0-ADF1-4623-9BB0-2BEC910DFB45}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiMay.RemoteMonitorFor.Web", "SiMay.RemoteMonitorFor.Web\SiMay.RemoteMonitorFor.Web.csproj", "{218F5344-00FC-4428-82CE-7C4B79F04A4F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiMay.RemoteMonitor.Web", "SiMay.RemoteMonitorFor.Web\SiMay.RemoteMonitor.Web.csproj", "{218F5344-00FC-4428-82CE-7C4B79F04A4F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SiMay.ModelBinder", "SiMay.ModelBinder\SiMay.ModelBinder.csproj", "{3547C677-4535-40BF-8185-F990C8B0D00F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SiMay.UnitTest", "SiMay.UnitTest", "{55773480-7191-4C0C-BBF8-985D62DBE101}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SiMay.Logger", "SiMay.Logger\SiMay.Logger.csproj", "{AADC0657-20B4-4879-82F0-BFE031739817}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiMay.Application", "SiMay.Application\SiMay.Application.csproj", "{936CF593-204A-4509-8A65-E8D1148D1078}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -254,18 +252,6 @@ Global
 		{AADC0657-20B4-4879-82F0-BFE031739817}.Release|x64.Build.0 = Release|Any CPU
 		{AADC0657-20B4-4879-82F0-BFE031739817}.Release|x86.ActiveCfg = Release|Any CPU
 		{AADC0657-20B4-4879-82F0-BFE031739817}.Release|x86.Build.0 = Release|Any CPU
-		{936CF593-204A-4509-8A65-E8D1148D1078}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{936CF593-204A-4509-8A65-E8D1148D1078}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{936CF593-204A-4509-8A65-E8D1148D1078}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{936CF593-204A-4509-8A65-E8D1148D1078}.Debug|x64.Build.0 = Debug|Any CPU
-		{936CF593-204A-4509-8A65-E8D1148D1078}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{936CF593-204A-4509-8A65-E8D1148D1078}.Debug|x86.Build.0 = Debug|Any CPU
-		{936CF593-204A-4509-8A65-E8D1148D1078}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{936CF593-204A-4509-8A65-E8D1148D1078}.Release|Any CPU.Build.0 = Release|Any CPU
-		{936CF593-204A-4509-8A65-E8D1148D1078}.Release|x64.ActiveCfg = Release|Any CPU
-		{936CF593-204A-4509-8A65-E8D1148D1078}.Release|x64.Build.0 = Release|Any CPU
-		{936CF593-204A-4509-8A65-E8D1148D1078}.Release|x86.ActiveCfg = Release|Any CPU
-		{936CF593-204A-4509-8A65-E8D1148D1078}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -287,7 +273,6 @@ Global
 		{218F5344-00FC-4428-82CE-7C4B79F04A4F} = {A86A6BBD-1122-4993-B472-6A0265E5F2A1}
 		{3547C677-4535-40BF-8185-F990C8B0D00F} = {5E72F9F6-8DB0-4727-92F3-D05A3CC0348E}
 		{AADC0657-20B4-4879-82F0-BFE031739817} = {5E72F9F6-8DB0-4727-92F3-D05A3CC0348E}
-		{936CF593-204A-4509-8A65-E8D1148D1078} = {5E72F9F6-8DB0-4727-92F3-D05A3CC0348E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A0BD3F74-AC23-4649-932F-ECB61CF9EED6}

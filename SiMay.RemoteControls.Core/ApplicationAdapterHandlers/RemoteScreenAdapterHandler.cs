@@ -15,6 +15,7 @@ using static SiMay.Serialize.Standard.PacketSerializeHelper;
 
 namespace SiMay.RemoteControlsCore.HandlerAdapters
 {
+    [ApplicationKeyAttribute(ApplicationKeyConstant.REMOTE_DESKTOP)]
     public class RemoteScreenAdapterHandler : ApplicationAdapterHandler
     {
 
@@ -43,7 +44,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         public void RemoteMouseKeyEvent(MOUSEKEY_ENUM @event, int point1, int point2)
         {
             CurrentSession.SendTo(MessageHead.S_SCREEN_MOUSEKEYEVENT,
-                new ScreenKeyPack()
+                new ScreenKeyPacket()
                 {
                     Key = @event,
                     Point1 = point1,
@@ -54,21 +55,21 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_SCREEN_BITINFO)]
         private void SetBitmapHandler(SessionProviderContext session)
         {
-            var bitinfo = session.GetMessageEntity<ScreenInitBitPack>();
+            var bitinfo = session.GetMessageEntity<ScreenInitBitPacket>();
             this.OnServcieInitEventHandler?.Invoke(this, bitinfo.Height, bitinfo.Width, bitinfo.PrimaryScreenIndex, bitinfo.Monitors);
         }
 
         [PacketHandler(MessageHead.C_SCREEN_DIFFBITMAP)]
         private void FullFragmentHandler(SessionProviderContext session)
         {
-            var fragments = session.GetMessageEntity<ScreenFragmentPack>();
+            var fragments = session.GetMessageEntity<ScreenFragmentPacket>();
             this.OnScreenFragmentEventHandler?.Invoke(this, fragments.Fragments, ScreenReceivedType.Noninterlaced);
         }
 
         [PacketHandler(MessageHead.C_SCREEN_BITMP)]
         private void SigleFragmentHandler(SessionProviderContext session)
         {
-            var fragments = session.GetMessageEntity<ScreenFragmentPack>();
+            var fragments = session.GetMessageEntity<ScreenFragmentPacket>();
             this.OnScreenFragmentEventHandler?.Invoke(this, fragments.Fragments, ScreenReceivedType.Difference);
         }
         [PacketHandler(MessageHead.C_SCREEN_SCANCOMPLETE)]
@@ -79,7 +80,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
         public void StartGetScreen(int height, int width, int x, int y, ScreenDisplayMode mode)
         {
-            var rect = SerializePacket(new ScreenHotRectanglePack()
+            var rect = SerializePacket(new ScreenHotRectanglePacket()
             {
                 X = x,
                 Y = y,
@@ -96,7 +97,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
         public void GetNextScreen(int height, int width, int x, int y, ScreenDisplayMode mode)
         {
-            if (this.WhetherClose)
+            if (this.IsManualClose())
                 return;
 
             _frameCount++;
@@ -104,7 +105,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
             if (_frameCount == 1)//使帧数更连续
             {
-                var rect = SerializePacket(new ScreenHotRectanglePack()
+                var rect = SerializePacket(new ScreenHotRectanglePacket()
                 {
                     X = x,
                     Y = y,
@@ -122,7 +123,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         public void MonitorChange(int screenIndex)
         {
             CurrentSession.SendTo(MessageHead.S_SCREEN_CHANGE_MONITOR,
-                new MonitorChangePack()
+                new MonitorChangePacket()
                 {
                     MonitorIndex = screenIndex
                 });
@@ -160,7 +161,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         public void RemoteSetScreenQuantity(long qty)
         {
             CurrentSession.SendTo(MessageHead.S_SCREEN_SETQTY,
-                new ScreenSetQtyPack()
+                new ScreenSetQtyPacket()
                 {
                     Quality = qty
                 });
@@ -169,7 +170,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         public void SetRemoteClipoardText(string text)
         {
             CurrentSession.SendTo(MessageHead.S_SCREEN_SET_CLIPBOARD_TEXT,
-                                    new ScreenSetClipoardPack()
+                                    new ScreenSetClipoardPacket()
                                     {
                                         Text = text
                                     });
@@ -186,7 +187,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         [PacketHandler(MessageHead.C_SCREEN_CLIPOARD_TEXT)]
         private void GetClipoardValueHandler(SessionProviderContext session)
         {
-            var response = session.GetMessageEntity<ScreenClipoardValuePack>();
+            var response = session.GetMessageEntity<ScreenClipoardValuePacket>();
             this.OnClipoardReceivedEventHandler?.Invoke(this, response.Value);
         }
     }

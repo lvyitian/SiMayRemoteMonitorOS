@@ -12,6 +12,9 @@ namespace SiMay.RemoteMonitor.UserControls
             : base(name)
             => ApplicationType = type;
 
+        /// <summary>
+        /// 应用类型
+        /// </summary>
         public Type ApplicationType { get; set; }
     }
 }

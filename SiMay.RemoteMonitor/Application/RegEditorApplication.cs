@@ -14,9 +14,9 @@ using SiMay.RemoteMonitor.UserControls;
 namespace SiMay.RemoteMonitor.Application
 {
     [OnTools]
+    [Rank(50)]
     [ApplicationName("注册表管理")]
     [AppResourceName("RegEditManager")]
-    [Application(typeof(RegistryEditorAdapterHandler), AppFlageConstant.REMOTE_REGEDIT, 50)]
     public partial class RegEditorApplication : Form, IApplication
     {
         protected override CreateParams CreateParams
@@ -49,7 +49,7 @@ namespace SiMay.RemoteMonitor.Application
 
         public void SessionClose(ApplicationAdapterHandler handler)
         {
-            this.Text = this._title + " [" + this.RegistryEditorAdapterHandler.StateContext.ToString() + "]";
+            this.Text = this._title + " [" + this.RegistryEditorAdapterHandler.State.ToString() + "]";
         }
 
         public void ContinueTask(ApplicationAdapterHandler handler)
@@ -93,14 +93,14 @@ namespace SiMay.RemoteMonitor.Application
 
         #region TreeView helper functions
 
-        private void AddRootKey(RegSeekerMatch match)
+        private void AddRootKey(RegSeekerMatchPacket match)
         {
             TreeNode node = CreateNode(match.Key, match.Key, match.Data);
             node.Nodes.Add(new TreeNode());
             tvRegistryDirectory.Nodes.Add(node);
         }
 
-        private TreeNode AddKeyToTree(TreeNode parent, RegSeekerMatch subKey)
+        private TreeNode AddKeyToTree(TreeNode parent, RegSeekerMatchPacket subKey)
         {
             TreeNode node = CreateNode(subKey.Key, subKey.Key, subKey.Data);
             parent.Nodes.Add(node);
@@ -119,7 +119,7 @@ namespace SiMay.RemoteMonitor.Application
             };
         }
 
-        private void OnKeysReceivedEventHandler(RegistryEditorAdapterHandler adapterHandler, string rootKey, RegSeekerMatch[] matches)
+        private void OnKeysReceivedEventHandler(RegistryEditorAdapterHandler adapterHandler, string rootKey, RegSeekerMatchPacket[] matches)
         {
             if (string.IsNullOrEmpty(rootKey))
             {
@@ -149,7 +149,7 @@ namespace SiMay.RemoteMonitor.Application
             }
         }
 
-        private void OnKeyCreatedEventHandler(RegistryEditorAdapterHandler adapterHandler, string parentPath, RegSeekerMatch match)
+        private void OnKeyCreatedEventHandler(RegistryEditorAdapterHandler adapterHandler, string parentPath, RegSeekerMatchPacket match)
         {
             TreeNode parent = GetTreeNode(parentPath);
 
