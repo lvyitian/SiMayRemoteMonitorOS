@@ -212,7 +212,7 @@ namespace SiMay.RemoteMonitor.MainApplication
 
             string[] strarrays = strHosts.Split(',');
 
-            for (int i = 0; i < strarrays.Length - 1; i++)
+            for (int i = 0; i < strarrays.Length; i++)
             {
                 string[] strs = strarrays[i].Split(':');
 
