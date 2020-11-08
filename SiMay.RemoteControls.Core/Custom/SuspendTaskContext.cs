@@ -70,7 +70,6 @@ namespace SiMay.RemoteControlsCore
 
         public override void Execute()
         {
-            Console.WriteLine(DateTime.Now);
             if ((DateTime.Now - DisconnectTimePoint).Seconds > 5)
             {
                 string id = ApplicationAdapterHandler.IdentifyId.Split('|')[0];

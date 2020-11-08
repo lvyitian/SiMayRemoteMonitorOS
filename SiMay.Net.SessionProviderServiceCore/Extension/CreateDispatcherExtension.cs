@@ -17,7 +17,7 @@ namespace SiMay.Net.SessionProviderServiceCore
             if (bufferData.Length > 0)//如缓冲区有数据，则处理消息
             {
                 mainServiceChannelDispatcher.ListByteBuffer.AddRange(bufferData);
-                mainServiceChannelDispatcher.OnMessage();
+                mainServiceChannelDispatcher.OnProcess();
             }
             return mainServiceChannelDispatcher;
         }
@@ -33,7 +33,7 @@ namespace SiMay.Net.SessionProviderServiceCore
             if (bufferData.Length > 0)//如缓冲区有数据，则处理消息
             {
                 mainappChannelDispatcher.ListByteBuffer.AddRange(bufferData);
-                mainappChannelDispatcher.OnMessage();
+                mainappChannelDispatcher.OnProcess();
             }
             return mainappChannelDispatcher;
         }

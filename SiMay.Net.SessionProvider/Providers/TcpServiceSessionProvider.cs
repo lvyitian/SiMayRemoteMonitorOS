@@ -40,7 +40,7 @@ namespace SiMay.Net.SessionProvider.Providers
                      case TcpSessionNotify.OnDataReceiveing:
 
                          var sessionProviderContext = session.AppTokens.First().ConvertTo<TcpServiceSessionContext>();
-                         sessionProviderContext.OnMessage();
+                         sessionProviderContext.OnProcess();
 
                          this.Notification(sessionProviderContext, TcpSessionNotify.OnDataReceiveing);
                          break;

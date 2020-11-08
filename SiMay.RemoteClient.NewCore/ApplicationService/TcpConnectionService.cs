@@ -28,6 +28,7 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_TCP_GET_LIST)]
         public void GetTcpConnectionList(SessionProviderContext session)
         {
+            Console.WriteLine("server:gettcplist");
             var table = GetTable();
 
             var connections = new TcpConnectionItem[table.Length];

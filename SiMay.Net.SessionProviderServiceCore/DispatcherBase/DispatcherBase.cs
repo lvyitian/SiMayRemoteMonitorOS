@@ -96,13 +96,13 @@ namespace SiMay.Net.SessionProviderServiceCore
         /// 消息处理前
         /// </summary>
         /// <param name="data"></param>
-        public virtual void OnMessageBefore(byte[] data)
+        public virtual void OnBefore(byte[] data)
             => ListByteBuffer.AddRange(data);
 
         /// <summary>
         /// 触发消息处理
         /// </summary>
-        public abstract void OnMessage();
+        public abstract void OnProcess();
 
 
         /// <summary>

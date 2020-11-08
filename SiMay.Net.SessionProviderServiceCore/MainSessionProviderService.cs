@@ -35,7 +35,7 @@ namespace SiMay.Net.SessionProviderServiceCore
         public SynchronizationContext SynchronizationContext { get; set; }
 
         private TcpSocketSaeaServer _tcpSaeaServer;
-        private IList<Tuple<long, long>> _appServiceChannels = new List<Tuple<long, long>>();
+        private IList<(long, long)> _appServiceChannels = new List<(long, long)>();
         private IDictionary<long, TcpSessionChannelDispatcher> _dispatchers = new Dictionary<long, TcpSessionChannelDispatcher>();
         public bool StartService(StartServiceOptions options)
         {
@@ -105,8 +105,8 @@ namespace SiMay.Net.SessionProviderServiceCore
         {
             byte[] data = session.CompletedBuffer.Copy(0, session.ReceiveBytesTransferred);
             var dispatcher = session.AppTokens[SysContanct.INDEX_WORKER].ConvertTo<DispatcherBase>();
-            dispatcher.OnMessageBefore(data);
-            dispatcher.OnMessage();
+            dispatcher.OnBefore(data);
+            dispatcher.OnProcess();
         }
 
         private void OnClosedHandler(TcpSocketSaeaSession session)
@@ -234,7 +234,7 @@ namespace SiMay.Net.SessionProviderServiceCore
             }
 
             this._dispatchers.Add(appWorkerConnectionDispatcher.DispatcherId, appWorkerConnectionDispatcher);
-            this._appServiceChannels.Add(new Tuple<long, long>(apportionDispatcher.GetAccessId(), appWorkerConnectionDispatcher.DispatcherId));
+            this._appServiceChannels.Add((apportionDispatcher.GetAccessId(), appWorkerConnectionDispatcher.DispatcherId));
             this.OnConnectedEventHandler?.Invoke(appWorkerConnectionDispatcher);
             //找到相应主控端连接
             TcpSessionChannelDispatcher dispatcher;
@@ -272,8 +272,8 @@ namespace SiMay.Net.SessionProviderServiceCore
                 if (!serviceChannelDispatcher.IsJoin)
                 {
                     serviceChannelDispatcher.Join(appChannelDispatcher);
-                    serviceChannelDispatcher.OnMessage();
-                    appChannelDispatcher.OnMessage();
+                    serviceChannelDispatcher.OnProcess();
+                    appChannelDispatcher.OnProcess();
                 }
                 else appChannelDispatcher.CloseSession();
             }

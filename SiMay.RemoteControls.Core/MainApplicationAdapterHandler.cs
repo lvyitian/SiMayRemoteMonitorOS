@@ -16,6 +16,9 @@ using System.Threading.Tasks;
 
 namespace SiMay.RemoteControlsCore
 {
+    /// <summary>
+    /// 主控端应用适配器
+    /// </summary>
     public class MainApplicationAdapterHandler : MainApplicationBaseAdapterHandler
     {
         /// <summary>
@@ -91,6 +94,9 @@ namespace SiMay.RemoteControlsCore
             TaskScheduleTrigger.StarSchedule(10);
         }
 
+        /// <summary>
+        /// 启动主控端应用
+        /// </summary>
         public void StartApp()
         {
             var providerType = int.Parse(AppConfiguration.SessionMode).ConvertTo<SessionProviderType>();
@@ -218,9 +224,9 @@ namespace SiMay.RemoteControlsCore
                 }
             }
         }
-
         private void OnReceiveComplete(SessionProviderContext session)
         {
+            //Console.WriteLine($"Id:{session.Id},Type:{session.AppTokens[SysConstants.INDEX_WORKTYPE]},MessageHead:{(int)session.GetMessageHead()}");
             // Tokens参数说明
             // [0]为该连接工作类型，MainWork为主连接，Work工作连接，NONE为未知连接
             // [1]如果连接为Work类型，则是消息处理器，否则是主连接上下文对象
@@ -278,7 +284,7 @@ namespace SiMay.RemoteControlsCore
         }
 
         /// <summary>
-        /// 启动App
+        /// 启动工作应用
         /// </summary>
         /// <param name="type"></param>
         /// <param name="session"></param>
@@ -300,7 +306,7 @@ namespace SiMay.RemoteControlsCore
                 //优先级说明:等待应用优先匹配，应用创建时如有多个适配器，第一个适配器完成初始化后会被创建为等待应用加入任务调度队列，直至所有适配器连接完成，否则超时应用会被判定创建失败。
 
                 //查找任务调度队列,如果有对应的任务则继续工作
-                if (TaskScheduleTrigger.FindScheduleTask(c => c.TaskName.Contains(identifyId) && (c.TaskName.Split(',')[1].Equals(applicationName, StringComparison.OrdinalIgnoreCase) || c.TaskName.Split(',')[1].Equals(activateResponse.ActivatedCommandText, StringComparison.OrdinalIgnoreCase)), out var taskSchedule))
+                if (TaskScheduleTrigger.FindScheduleTask(c => c.TaskName.Contains(identifyId) && (c.TaskName.Split(',').ElementAt(1).Equals(applicationName, StringComparison.OrdinalIgnoreCase) || c.TaskName.Split(',').ElementAt(1).Equals(activateResponse.ActivatedCommandText, StringComparison.OrdinalIgnoreCase)), out var taskSchedule))
                 {
                     //如果是匹配到了离线适配器
                     if (taskSchedule.TaskName.Equals($"{identifyId},{activateResponse.ActivatedCommandText}") && taskSchedule is ICustomEvent task)
@@ -322,7 +328,7 @@ namespace SiMay.RemoteControlsCore
                         adapter.SetSession(session);
                         //property.SetValue(application, adapter);
 
-                        if (ApplicationReadyExamine(adapter, application))
+                        if (internalApplicationReadyExamine(adapter, application))
                             TaskScheduleTrigger.RemoveScheduleTask(taskSchedule);
                     }
                     else
@@ -349,7 +355,7 @@ namespace SiMay.RemoteControlsCore
                         //appHandlerBase.ApplicationKey = context.Type.GetApplicationKey();
                         appHandlerBase.SetSession(session);
 
-                        ApplicationReadyExamine(appHandlerBase, app);
+                        internalApplicationReadyExamine(appHandlerBase, app);
                     }
                     else
                     {
@@ -362,8 +368,11 @@ namespace SiMay.RemoteControlsCore
                 }
 
                 //应用资源情况检查
-                bool ApplicationReadyExamine(ApplicationAdapterHandler adapter, IApplication app)
+                bool internalApplicationReadyExamine(ApplicationAdapterHandler adapter, IApplication app)
                 {
+                    session.AppTokens[SysConstants.INDEX_WORKTYPE] = ConnectionWorkType.WORKCON;
+                    session.AppTokens[SysConstants.INDEX_WORKER] = adapter;
+
                     var handlerFieders = app
                         .GetApplicationAdapterProperty()
                         .ToDictionary(key => key.PropertyType.GetApplicationKey(), val => val);
@@ -388,13 +397,7 @@ namespace SiMay.RemoteControlsCore
 
                     var successed = this.OnApplicationCreatedEventHandler.Invoke(app);
                     if (successed)
-                    {
-                        //app.HandlerAdapter = handlerBase;
                         app.Start();
-
-                        session.AppTokens[SysConstants.INDEX_WORKTYPE] = ConnectionWorkType.WORKCON;
-                        session.AppTokens[SysConstants.INDEX_WORKER] = adapter;
-                    }
                     else
                         session.SessionClose();
 
@@ -525,14 +528,7 @@ namespace SiMay.RemoteControlsCore
             syncContext[SysConstants.ExistCameraDevice] = login.ExistCameraDevice;
             syncContext[SysConstants.ExitsRecordDevice] = login.ExitsRecordDevice;
             syncContext[SysConstants.ExitsPlayerDevice] = login.ExitsPlayerDevice;
-            //syncContext.KeyDictions[SysConstants.OpenScreenRecord] = login.OpenScreenRecord;
-            //syncContext.KeyDictions[SysConstants.OpenScreenWall] = login.OpenScreenWall;
             syncContext[SysConstants.IdentifyId] = login.IdentifyId;
-            //syncContext.KeyDictions[SysConstants.HasLaunchDesktopRecord] = false;//桌面记录状态
-            //syncContext.KeyDictions[SysConstants.RecordHeight] = login.RecordHeight;//用于桌面记录的高
-            //syncContext.KeyDictions[SysConstants.RecordWidth] = login.RecordWidth;//用于桌面记录宽
-            //syncContext.KeyDictions[SysConstants.RecordSpanTime] = login.RecordSpanTime;
-            //syncContext.KeyDictions[SysConstants.HasLoadServiceCOM] = login.InitialAssemblyLoad;
 
             this.OnLoginUpdateHandlerEvent?.Invoke(syncContext);
         }
@@ -569,28 +565,15 @@ namespace SiMay.RemoteControlsCore
                     { SysConstants.ExistCameraDevice, login.ExistCameraDevice },
                     { SysConstants.ExitsRecordDevice, login.ExitsRecordDevice },
                     { SysConstants.ExitsPlayerDevice, login.ExitsPlayerDevice },
-                    //{ SysConstants.OpenScreenWall, login.OpenScreenWall },
                     { SysConstants.IdentifyId, login.IdentifyId }
-                    //{ SysConstants.OpenScreenRecord, login.OpenScreenRecord },
-                    //{ SysConstants.HasLaunchDesktopRecord, false },
-                    //{ SysConstants.RecordHeight, login.RecordHeight },
-                    //{ SysConstants.RecordWidth, login.RecordWidth },
-                    //{ SysConstants.RecordSpanTime, login.RecordSpanTime },
-                    //{ SysConstants.HasLoadServiceCOM, login.InitialAssemblyLoad }
                 };
                 var syncContext = new SessionSyncContext(session, dictions);
-                SessionSyncContexts.Add(syncContext);
                 session.AppTokens[SysConstants.INDEX_WORKER] = syncContext;
-
-                ////是否开启桌面视图
-                //if (syncContext.KeyDictions[SysConstants.OpenScreenWall].ConvertTo<bool>())
-                //{
-                //    SendTo(session, MessageHead.S_MAIN_CREATE_DESKTOPVIEW, new byte[] { 0 });//TODO : 强制创建视图,此处会触发载入插件
-                //}
+                SessionSyncContexts.Add(syncContext);
 
                 this.OnLoginHandlerEvent?.Invoke(syncContext);
 
-                this.OnLogHandlerEvent?.Invoke($"计算机:{syncContext.KeyDictions[SysConstants.MachineName].ConvertTo<string>()}({syncContext.KeyDictions[SysConstants.Remark].ConvertTo<string>()}) -->已连接控制端!", LogSeverityLevel.Information);
+                this.OnLogHandlerEvent?.Invoke($"计算机:{syncContext[SysConstants.MachineName].ConvertTo<string>()}({syncContext[SysConstants.Remark].ConvertTo<string>()}) -->已连接控制端!", LogSeverityLevel.Information);
             }
             catch (Exception ex)
             {
@@ -637,15 +620,9 @@ namespace SiMay.RemoteControlsCore
 
                     SessionSyncContexts.Remove(syncContext);
 
-                    //if (syncContext.KeyDictions.ContainsKey(SysConstants.DesktopView) && !syncContext.KeyDictions[SysConstants.DesktopView].IsNull())
-                    //{
-                    //    var view = syncContext.KeyDictions[SysConstants.DesktopView].ConvertTo<IDesktopView>();
-                    //    view.CloseDesktopView();
-                    //}
-
                     this.OnLogOutHandlerEvent?.Invoke(syncContext);
 
-                    this.OnLogHandlerEvent?.Invoke($"计算机:{syncContext.KeyDictions[SysConstants.MachineName].ConvertTo<string>()}({syncContext.KeyDictions[SysConstants.Remark].ConvertTo<string>()}) --已与控制端断开连接!", LogSeverityLevel.Warning);
+                    this.OnLogHandlerEvent?.Invoke($"计算机:{syncContext[SysConstants.MachineName].ConvertTo<string>()}({syncContext[SysConstants.Remark].ConvertTo<string>()}) --已与控制端断开连接!", LogSeverityLevel.Warning);
                 }
                 else if (worktype == ConnectionWorkType.NONE)
                 {
@@ -815,7 +792,6 @@ namespace SiMay.RemoteControlsCore
         /// <param name="appKey"></param>
         public void RemoteActivateService(SessionSyncContext syncContext, string appKey)
         {
-            Thread.Sleep(1000);
             syncContext.Session.SendTo(MessageHead.S_MAIN_ACTIVATE_APPLICATION_SERVICE,
                 new ActivateServicePack()
                 {

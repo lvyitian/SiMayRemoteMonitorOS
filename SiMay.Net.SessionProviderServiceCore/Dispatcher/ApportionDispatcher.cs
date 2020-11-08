@@ -19,7 +19,7 @@ namespace SiMay.Net.SessionProviderServiceCore
 
         private byte[] _ackRetainData;
         private long _accessId;
-        public override void OnMessage()
+        public override void OnProcess()
         {
             var defineHeadSize = sizeof(int);
             if (ListByteBuffer.Count < defineHeadSize)

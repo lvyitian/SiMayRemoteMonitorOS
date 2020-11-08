@@ -97,7 +97,9 @@ namespace SiMay.ServiceCore
                     return;
                 AppConfiguartion.ServerIPEndPoint = new IPEndPoint(IPAddress.Parse(ip), AppConfiguartion.HostPort);
             });
-            SessionProvider.ConvertTo<TcpClientSessionProvider>().ConnectAsync(AppConfiguartion.ServerIPEndPoint);
+            SessionProvider
+                .ConvertTo<TcpClientSessionProvider>()
+                .ConnectAsync(AppConfiguartion.ServerIPEndPoint);
         }
 
         /// <summary>
@@ -196,6 +198,7 @@ namespace SiMay.ServiceCore
                     service
                 };
                 service.SetSession(session);
+
                 this.SendACK(session, ConnectionWorkType.WORKCON, service.AccessId);
             }
 

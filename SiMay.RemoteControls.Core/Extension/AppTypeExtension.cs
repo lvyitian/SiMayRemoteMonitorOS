@@ -40,8 +40,7 @@ namespace SiMay.RemoteControlsCore
         {
             var propertys = type
                 .GetProperties();
-            return type
-                .GetProperties()
+            return propertys
                 .Where(c => !c.GetCustomAttribute<ApplicationAdapterHandlerAttribute>(true).IsNull() && typeof(ApplicationAdapterHandler).IsAssignableFrom(c.PropertyType))
                 .ToArray();
         }

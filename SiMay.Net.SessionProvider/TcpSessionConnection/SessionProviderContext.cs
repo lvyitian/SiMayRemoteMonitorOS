@@ -10,6 +10,7 @@ namespace SiMay.Net.SessionProvider
 {
     public abstract class SessionProviderContext : IDisposable
     {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
         /// <summary>
         /// 当前会话
         /// </summary>

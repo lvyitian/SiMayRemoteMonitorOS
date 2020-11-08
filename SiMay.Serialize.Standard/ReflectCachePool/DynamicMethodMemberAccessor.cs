@@ -9,6 +9,7 @@ namespace SiMay.ReflectCache
     {
         private static Dictionary<Type, IMemberAccessor> _classAccessors = new Dictionary<Type, IMemberAccessor>();
 
+        private static readonly object _lock = new object();
         static DynamicMethodMemberAccessor()
         {
             //预加载所有数据实体
@@ -29,8 +30,14 @@ namespace SiMay.ReflectCache
             IMemberAccessor classAccessor;
             if (!_classAccessors.TryGetValue(instanceType, out classAccessor))
             {
-                classAccessor = CreateMemberAccessor(instanceType);
-                _classAccessors.Add(instanceType, classAccessor);
+                lock (_lock)
+                {
+                    if (_classAccessors.ContainsKey(instanceType))
+                        return FindClassAccessor(instanceType);
+
+                    classAccessor = CreateMemberAccessor(instanceType);
+                    _classAccessors.Add(instanceType, classAccessor);
+                }
             }
             return classAccessor;
         }

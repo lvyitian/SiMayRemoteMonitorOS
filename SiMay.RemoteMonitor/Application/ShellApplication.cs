@@ -3,6 +3,7 @@ using SiMay.RemoteControlsCore;
 using SiMay.RemoteControlsCore.HandlerAdapters;
 using SiMay.RemoteMonitor.Attributes;
 using System;
+using System.Linq;
 using System.Net;
 using System.Windows.Forms;
 
@@ -62,7 +63,7 @@ namespace SiMay.RemoteMonitor.Application
 
         private void TcpConnectionAdapterHandler_OnTcpListHandlerEvent(TcpConnectionAdapterHandler arg1, System.Collections.Generic.IEnumerable<TcpConnectionItem> arg2)
         {
-            MessageBox.Show("aaaaaaaaa");
+            this.txtCommandLine.AppendText(DateTime.Now.ToString());
         }
 
         private void OnOutputCommandEventHandler(ShellAdapterHandler adapterHandler, string outputLine)
@@ -95,7 +96,10 @@ namespace SiMay.RemoteMonitor.Application
                 this._lastLine = this.txtCommandLine.Text.Substring(this.txtCommandLine.GetFirstCharIndexOfCurrentLine());
                 var str = this._lastLine.Substring(this._lastLine.IndexOf('>') + 1);
 
+                TcpConnectionAdapterHandler.GetTcpList();
                 this.ShellAdapterHandler.InputCommand(str);
+
+                //Console.WriteLine($"TcpConnectionAdapterHandler:{TcpConnectionAdapterHandler.CurrentSession.Id},ShellAdapterHandler:{ShellAdapterHandler.CurrentSession.Id}");
 
                 e.Handled = true;
             }

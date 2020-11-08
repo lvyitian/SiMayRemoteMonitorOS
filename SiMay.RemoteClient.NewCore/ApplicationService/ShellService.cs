@@ -53,6 +53,8 @@ namespace SiMay.ServiceCore
             byte[] payload = session.GetMessage();
             string command = payload.ToUnicodeString();
 
+            Console.WriteLine("cmd:" + command);
+
             _pipe.StandardInput.WriteLine(command);
             _pipe.StandardInput.Flush();
         }

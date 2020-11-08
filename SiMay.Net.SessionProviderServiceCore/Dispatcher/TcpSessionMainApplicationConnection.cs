@@ -18,9 +18,9 @@ namespace SiMay.Net.SessionProviderServiceCore
         private readonly IDictionary<long, TcpSessionChannelDispatcher> _dispatchers;
         public TcpSessionMainApplicationConnection(IDictionary<long, TcpSessionChannelDispatcher> dispatchers) => _dispatchers = dispatchers;
 
-        public override void OnMessage()
+        public override void OnProcess()
         {
-            base.OnMessage();
+            base.OnProcess();
 
             int defineHeadSize = sizeof(int);
             do

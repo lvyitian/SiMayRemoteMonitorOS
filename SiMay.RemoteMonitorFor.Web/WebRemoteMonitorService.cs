@@ -43,12 +43,12 @@ namespace SiMay.RemoteMonitorForWeb
 
         private void OnLoginHandlerEvent(SessionSyncContext syncContext)
         {
-            var des = syncContext.KeyDictions[SysConstants.MachineName].ToString() + "-" + syncContext.KeyDictions[SysConstants.OSVersion].ToString() + "(" + syncContext.KeyDictions[SysConstants.Remark].ToString() + ")";
-            var lanuchDesktopView = syncContext.KeyDictions[SysConstants.OpenScreenRecord].ConvertTo<bool>();
+            var des = syncContext[SysConstants.MachineName].ToString() + "-" + syncContext[SysConstants.OSVersion].ToString() + "(" + syncContext[SysConstants.Remark].ToString() + ")";
+            var lanuchDesktopView = syncContext[SysConstants.OpenScreenRecord].ConvertTo<bool>();
             var view = DesktopViewContextsHelper.CreateDesktopView(syncContext, TokenHelper.Session);
             view.Caption = des;
 
-            syncContext.KeyDictions.Add("DesktopViewId", view.Id);
+            syncContext["DesktopViewId"] = view.Id;
             _serivceDesktopViews.Add(view.Id, view);
 
             if (TokenHelper.Has())
@@ -161,10 +161,10 @@ namespace SiMay.RemoteMonitorForWeb
         {
             foreach (var syncContext in _appMainAdapterHandler.SessionSyncContexts)
             {
-                if (syncContext.KeyDictions.ContainsKey(SysConstants.DesktopView) && !syncContext.KeyDictions[SysConstants.DesktopView].IsNull())
+                if (syncContext.ContainsKey(SysConstants.DesktopView) && !syncContext[SysConstants.DesktopView].IsNull())
                 {
-                    var view = syncContext.KeyDictions[SysConstants.DesktopView].ConvertTo<DesktopView>();
-                    var lanuchDesktopView = syncContext.KeyDictions[SysConstants.HasLaunchDesktopRecord].ConvertTo<bool>();
+                    var view = syncContext[SysConstants.DesktopView].ConvertTo<DesktopView>();
+                    var lanuchDesktopView = syncContext[SysConstants.HasLaunchDesktopRecord].ConvertTo<bool>();
 
                     view.Session = TokenHelper.Session;
                     TokenHelper.Session.Send(JsonConvert.SerializeObject(new
@@ -196,9 +196,9 @@ namespace SiMay.RemoteMonitorForWeb
 
         private void OnLogOutHandlerEvent(SessionSyncContext syncContext)
         {
-            if (syncContext.KeyDictions.ContainsKey("DesktopViewId") && TokenHelper.Has())
+            if (syncContext.ContainsKey("DesktopViewId") && TokenHelper.Has())
             {
-                var desktopId = syncContext.KeyDictions["DesktopViewId"].ToString();
+                var desktopId = syncContext["DesktopViewId"].ToString();
                 TokenHelper.Session.Send(JsonConvert.SerializeObject(new
                 {
                     code = WebMessageHead.S_CLOSE_SESSION,

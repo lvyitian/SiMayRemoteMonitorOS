@@ -41,7 +41,7 @@ namespace SiMay.RemoteMonitorForWeb
             using (MemoryStream ms = new MemoryStream())
             {
                 image.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
-                var id = SessionSyncContext.KeyDictions["DesktopViewId"].ToString();
+                var id = SessionSyncContext["DesktopViewId"].ToString();
                 Session.Send(JsonConvert.SerializeObject(
                         new
                         {

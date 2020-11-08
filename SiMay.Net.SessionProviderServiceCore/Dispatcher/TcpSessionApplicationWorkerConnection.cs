@@ -24,11 +24,11 @@ namespace SiMay.Net.SessionProviderServiceCore
             targetConnection.Join(this);
         }
 
-        public override void OnMessageBefore(byte[] data) => this._targetConnection.SendTo(data);
+        public override void OnBefore(byte[] data) => this._targetConnection.SendTo(data);
 
-        public override void OnMessage()
+        public override void OnProcess()
         {
-            base.OnMessage();
+            base.OnProcess();
             if (ListByteBuffer.Count > 0)
             {
                 this._targetConnection.SendTo(ListByteBuffer.ToArray());

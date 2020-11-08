@@ -20,9 +20,9 @@ namespace SiMay.Net.SessionProviderServiceCore
         long? _lastChannelCreatedTime;
         int? _packageLength;
         int _transpondOffset;
-        public override void OnMessage()
+        public override void OnProcess()
         {
-            base.OnMessage();
+            base.OnProcess();
 
             int defineHeadSize = sizeof(int);
             int defineAccessIdSize = sizeof(long);
@@ -47,7 +47,7 @@ namespace SiMay.Net.SessionProviderServiceCore
                 {
                     this._accessId = null; this._packageLength = null; this._lastChannelCreatedTime = null; continue;
                 }
-                var waitTranspondData = ListByteBuffer.GetRange(0, calculateOffsetLength).ToArray();
+                var waitTranspondDatas = ListByteBuffer.GetRange(0, calculateOffsetLength).ToArray();
                 TcpSessionChannelDispatcher dispatcher;
                 if (_dispatchers.TryGetValue(_accessId.Value, out dispatcher) && dispatcher is TcpSessionMainApplicationConnection mainApplicationConnection)
                 {
@@ -62,7 +62,7 @@ namespace SiMay.Net.SessionProviderServiceCore
                             {
                                 AccessId = dispatcher.DispatcherId,
                                 DispatcherId = this.DispatcherId,
-                                Data = waitTranspondData
+                                Data = waitTranspondDatas
                             }));
                     }
                     else

@@ -18,34 +18,38 @@ namespace SiMay.RemoteControlsCore
         private static Queue<ITaskSchedule> _waitRemoveSchedules;
         private static int _intervalMin = 100;
 
+        /// <summary>
+        /// 启动调度器
+        /// </summary>
+        /// <param name="intervalMin">最小调度间隔</param>
         public static void StarSchedule(int intervalMin)
         {
             _stared = true;
             _intervalMin = intervalMin;
             _taskSchedules = new List<ITaskSchedule>();
             _waitRemoveSchedules = new Queue<ITaskSchedule>();
-            ThreadHelper.CreateThread(async () =>
+            Task.Factory.StartNew(async () =>
             {
                 while (_stared)
                 {
                     var now = DateTime.Now;
                     foreach (var task in _taskSchedules)
                     {
-                        await Task.Run(() =>
+                        if ((now - task.TimePoint) > task.Interval)
                         {
-                            if ((now - task.TimePoint) > task.Interval)
+                            await Task.Run(() =>
                             {
                                 task.TimePoint = now;
                                 task.Execute();
-                            }
-                        });
+                            });
+                        }
 
                     }
                     if (_waitRemoveSchedules.Count > 0)
                         _taskSchedules.Remove(_waitRemoveSchedules.Dequeue());
                     await Task.Delay(intervalMin);
                 }
-            }, true);
+            }, TaskCreationOptions.LongRunning);
         }
 
         public static void AddScheduleTask(ITaskSchedule task)

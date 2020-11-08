@@ -293,7 +293,7 @@ namespace SiMay.RemoteMonitor.MainApplication
         private void OnLoginHandlerEvent(SessionSyncContext syncContext)
         {
             var listItem = new USessionListItem(syncContext);
-            syncContext.KeyDictions.Add(SysConstantsExtend.SessionListItem, listItem);
+            syncContext[SysConstantsExtend.SessionListItem] = listItem;
 
             //是否开启桌面视图
             //if (!syncContext[SysConstants.OpenScreenWall].ConvertTo<bool>())
@@ -919,12 +919,12 @@ namespace SiMay.RemoteMonitor.MainApplication
             //界面初始化完成会被触发一次。。
 
             foreach (var item in this._appMainAdapterHandler.SessionSyncContexts)
-                item.KeyDictions[SysConstantsExtend.SessionListItem].ConvertTo<USessionListItem>().Remove();
+                item[SysConstantsExtend.SessionListItem].ConvertTo<USessionListItem>().Remove();
 
             foreach (var item in this._appMainAdapterHandler.SessionSyncContexts)
             {
-                if (item.KeyDictions[SysConstants.GroupName].ConvertTo<string>() == groupBox.Text || groupBox.Text == GROUP_ALL)
-                    this.servicesOnlineList.Items.Add(item.KeyDictions[SysConstantsExtend.SessionListItem].ConvertTo<USessionListItem>());
+                if (item[SysConstants.GroupName].ConvertTo<string>() == groupBox.Text || groupBox.Text == GROUP_ALL)
+                    this.servicesOnlineList.Items.Add(item[SysConstantsExtend.SessionListItem].ConvertTo<USessionListItem>());
             }
         }
 

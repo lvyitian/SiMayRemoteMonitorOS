@@ -16,7 +16,7 @@ namespace SiMay.Net.SessionProviderServiceCore
         /// </summary>
         public event Action<TcpSessionChannelDispatcher, long> SendStreamLengthEventHandler;
 
-        public override void OnMessage()
+        public override void OnProcess()
         {
             this.ReceiveStreamLengthEventHandler?.Invoke(this, ListByteBuffer.Count);
         }

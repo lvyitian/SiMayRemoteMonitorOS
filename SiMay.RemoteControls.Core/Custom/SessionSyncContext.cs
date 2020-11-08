@@ -10,22 +10,44 @@ namespace SiMay.RemoteControlsCore
     {
         public SessionSyncContext(SessionProviderContext session, IDictionary<string, object> dictions)
         {
-            Session = session;
-            KeyDictions = dictions;
+            _session = session;
+            _keyDictions = dictions;
         }
+
+        /// <summary>
+        /// 获取主服务连接上下文
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public object this[string key]
         {
             get
             {
-                return KeyDictions[key];
+                return _keyDictions[key];
             }
             set
             {
-                KeyDictions[key] = value;
+                _keyDictions[key] = value;
             }
         }
-        public string UniqueId { get; private set; } = Guid.NewGuid().ToString();
-        public SessionProviderContext Session { get; private set; }
-        public IDictionary<string, object> KeyDictions { get; private set; }
+
+        public string UniqueId { get; } = Guid.NewGuid().ToString();
+
+        /// <summary>
+        /// 主服务连接
+        /// </summary>
+        private SessionProviderContext _session;
+        public SessionProviderContext Session
+            => _session;
+
+        private IDictionary<string, object> _keyDictions;
+
+        /// <summary>
+        /// 上下文是否存在
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public bool ContainsKey(string key)
+            => _keyDictions.ContainsKey(key);
     }
 }
