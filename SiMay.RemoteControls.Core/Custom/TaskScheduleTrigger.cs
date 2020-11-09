@@ -16,6 +16,9 @@ namespace SiMay.RemoteControlsCore
 
         //待移除队列
         private static Queue<ITaskSchedule> _waitRemoveSchedules;
+
+        private static Queue<ITaskSchedule> _waitIncreaseSchedules;
+
         private static int _intervalMin = 100;
 
         /// <summary>
@@ -28,6 +31,7 @@ namespace SiMay.RemoteControlsCore
             _intervalMin = intervalMin;
             _taskSchedules = new List<ITaskSchedule>();
             _waitRemoveSchedules = new Queue<ITaskSchedule>();
+            _waitIncreaseSchedules = new Queue<ITaskSchedule>();
             Task.Factory.StartNew(async () =>
             {
                 while (_stared)
@@ -43,10 +47,12 @@ namespace SiMay.RemoteControlsCore
                                 task.Execute();
                             });
                         }
-
                     }
                     if (_waitRemoveSchedules.Count > 0)
                         _taskSchedules.Remove(_waitRemoveSchedules.Dequeue());
+                    if (_waitIncreaseSchedules.Count > 0)
+                        _taskSchedules.Add(_waitIncreaseSchedules.Dequeue());
+
                     await Task.Delay(intervalMin);
                 }
             }, TaskCreationOptions.LongRunning);
@@ -55,11 +61,14 @@ namespace SiMay.RemoteControlsCore
         public static void AddScheduleTask(ITaskSchedule task)
         {
             task.TimePoint = DateTime.Now;
-            _taskSchedules.Add(task);
+            _waitIncreaseSchedules.Enqueue(task);
         }
-        public static bool FindScheduleTask(Func<ITaskSchedule, bool> func, out ITaskSchedule task)
+        public static bool FindOutScheduleTask(Func<ITaskSchedule, bool> func, out ITaskSchedule task)
         {
             task = _taskSchedules.FirstOrDefault(func);
+            if (task.IsNull())
+                task = _waitIncreaseSchedules.FristOrDefault(func);
+
             return !task.IsNull();
         }
 

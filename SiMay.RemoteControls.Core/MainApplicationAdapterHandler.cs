@@ -2,17 +2,12 @@
 using SiMay.Core;
 using SiMay.ModelBinder;
 using SiMay.Net.SessionProvider;
-using SiMay.Net.SessionProvider.Providers;
 using SiMay.Sockets.Tcp;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace SiMay.RemoteControlsCore
 {
@@ -306,7 +301,7 @@ namespace SiMay.RemoteControlsCore
                 //优先级说明:等待应用优先匹配，应用创建时如有多个适配器，第一个适配器完成初始化后会被创建为等待应用加入任务调度队列，直至所有适配器连接完成，否则超时应用会被判定创建失败。
 
                 //查找任务调度队列,如果有对应的任务则继续工作
-                if (TaskScheduleTrigger.FindScheduleTask(c => c.TaskName.Contains(identifyId) && (c.TaskName.Split(',').ElementAt(1).Equals(applicationName, StringComparison.OrdinalIgnoreCase) || c.TaskName.Split(',').ElementAt(1).Equals(activateResponse.ActivatedCommandText, StringComparison.OrdinalIgnoreCase)), out var taskSchedule))
+                if (TaskScheduleTrigger.FindOutScheduleTask(c => c.TaskName.Contains(identifyId) && (c.TaskName.Split(',').ElementAt(1).Equals(applicationName, StringComparison.OrdinalIgnoreCase) || c.TaskName.Split(',').ElementAt(1).Equals(activateResponse.ActivatedCommandText, StringComparison.OrdinalIgnoreCase)), out var taskSchedule))
                 {
                     //如果是匹配到了离线适配器
                     if (taskSchedule.TaskName.Equals($"{identifyId},{activateResponse.ActivatedCommandText}") && taskSchedule is ICustomEvent task)
@@ -606,7 +601,7 @@ namespace SiMay.RemoteControlsCore
                     var appName = adapterHandler.App.GetType().Name;
                     TaskScheduleTrigger.AddScheduleTask(new SuspendTaskContext()
                     {
-                        DisconnectTimePoint = DateTime.Now,
+                        //DisconnectTimePoint = DateTime.Now,
                         ApplicationAdapterHandler = adapterHandler,
                         SessionSyncContexts = SessionSyncContexts,
                         TaskName = $"{adapterHandler.IdentifyId},{appName}.{adapterHandler.GetApplicationKey()}"

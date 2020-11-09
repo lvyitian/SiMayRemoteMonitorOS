@@ -48,21 +48,25 @@ namespace SiMay.RemoteControlsCore
 
         public virtual TimeSpan Interval { get; set; }
 
-        public DateTime TimePoint { get; set; }
+        public DateTime TimePoint { get; set; } = DateTime.Now;
 
         public abstract void Execute();
     }
 
+    /// <summary>
+    /// 离线处理器上下文，等待重连
+    /// </summary>
     public class SuspendTaskContext : TaskScheduleContextBase, ICustomEvent
     {
         /// <summary>
         /// 间隔2秒执行一次
         /// </summary>
-        public override TimeSpan Interval { get; set; } = new TimeSpan(0, 0, 2);
+        public override TimeSpan Interval { get; set; } = new TimeSpan(0, 0, 5);
+
         /// <summary>
         /// 离线时间
         /// </summary>
-        public DateTime DisconnectTimePoint { get; set; }
+        //public DateTime DisconnectTimePoint { get; set; }
 
         public IList<SessionSyncContext> SessionSyncContexts { get; set; }
 
@@ -70,32 +74,31 @@ namespace SiMay.RemoteControlsCore
 
         public override void Execute()
         {
-            if ((DateTime.Now - DisconnectTimePoint).Seconds > 5)
+            //if ((DateTime.Now - DisconnectTimePoint).Seconds > 5)
+            //{
+            string id = ApplicationAdapterHandler.IdentifyId.Split('|')[0];
+            var syncContext = SessionSyncContexts.FirstOrDefault(x => x[SysConstants.IdentifyId].ConvertTo<string>() == id);
+
+            //LogHelper.WriteErrorByCurrentMethod("beigin Reset--{0},{1},{2}".FormatTo(ApplicationAdapterHandler.GetApplicationKey(), ApplicationAdapterHandler.IdentifyId, id));
+
+            if (!syncContext.IsNull())
             {
-                string id = ApplicationAdapterHandler.IdentifyId.Split('|')[0];
-                var syncContext = SessionSyncContexts.FirstOrDefault(x => x[SysConstants.IdentifyId].ConvertTo<string>() == id);
-
-                //LogHelper.WriteErrorByCurrentMethod("beigin Reset--{0},{1},{2}".FormatTo(ApplicationAdapterHandler.GetApplicationKey(), ApplicationAdapterHandler.IdentifyId, id));
-
-                if (!syncContext.IsNull())
+                if (ApplicationAdapterHandler.IsManualClose())
                 {
-                    if (ApplicationAdapterHandler.IsManualClose())
-                    {
-                        //窗口关闭将不再建立连接
-                        TaskScheduleTrigger.RemoveScheduleTask(this);
-                        return;
-                    }
-
-                    var appName = ApplicationAdapterHandler.App.GetType().Name;
-                    syncContext.Session.SendTo(MessageHead.S_MAIN_ACTIVATE_APPLICATION_SERVICE,
-                        new ActivateServicePack()
-                        {
-                            CommandText = $"{appName}.{ApplicationAdapterHandler.GetApplicationKey()}"
-                        });
-
-                    //LogHelper.WriteErrorByCurrentMethod("send reset command--{0},{1},{2}".FormatTo(ApplicationAdapterHandler.GetApplicationKey(), ApplicationAdapterHandler.IdentifyId, id));
+                    //窗口关闭将不再建立连接
+                    TaskScheduleTrigger.RemoveScheduleTask(this);
+                    return;
                 }
+
+                var appName = ApplicationAdapterHandler.App.GetType().Name;
+                syncContext.Session.SendTo(MessageHead.S_MAIN_ACTIVATE_APPLICATION_SERVICE,
+                    new ActivateServicePack()
+                    {
+                        CommandText = $"{appName}.{ApplicationAdapterHandler.GetApplicationKey()}"
+                    });
+                //LogHelper.WriteErrorByCurrentMethod("send reset command--{0},{1},{2}".FormatTo(ApplicationAdapterHandler.GetApplicationKey(), ApplicationAdapterHandler.IdentifyId, id));
             }
+            //}
         }
 
         /// <summary>
@@ -121,7 +124,7 @@ namespace SiMay.RemoteControlsCore
         /// <summary>
         /// 间隔2秒未创建完成则判定创建超时
         /// </summary>
-        public override TimeSpan Interval { get; set; } = new TimeSpan(0, 0, 2);
+        public override TimeSpan Interval { get; set; } = new TimeSpan(0, 0, 5);
 
         /// <summary>
         /// 应用
