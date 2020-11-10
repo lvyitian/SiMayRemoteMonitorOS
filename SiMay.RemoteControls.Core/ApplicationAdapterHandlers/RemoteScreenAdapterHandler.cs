@@ -32,7 +32,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <summary>
         /// 屏幕帧处理
         /// </summary>
-        public event Action<RemoteScreenAdapterHandler, Fragment[], ScreenReceivedType> OnScreenFragmentEventHandler;
+        public event Action<RemoteScreenAdapterHandler, Fragment[], ScreenReceivedKind> OnScreenFragmentEventHandler;
 
         //public RemoteScreenAdapterHandler()
         //{
@@ -41,7 +41,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
         //已接收帧数
         private int _frameCount = 0;
-        public void RemoteMouseKeyEvent(MOUSEKEY_ENUM @event, int point1, int point2)
+        public void RemoteMouseKeyEvent(MOUSEKEY_KIND @event, int point1, int point2)
         {
             CurrentSession.SendTo(MessageHead.S_SCREEN_MOUSEKEYEVENT,
                 new ScreenKeyPacket()
@@ -63,19 +63,19 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         private void FullFragmentHandler(SessionProviderContext session)
         {
             var fragments = session.GetMessageEntity<ScreenFragmentPacket>();
-            this.OnScreenFragmentEventHandler?.Invoke(this, fragments.Fragments, ScreenReceivedType.Noninterlaced);
+            this.OnScreenFragmentEventHandler?.Invoke(this, fragments.Fragments, ScreenReceivedKind.Noninterlaced);
         }
 
         [PacketHandler(MessageHead.C_SCREEN_BITMP)]
         private void SigleFragmentHandler(SessionProviderContext session)
         {
             var fragments = session.GetMessageEntity<ScreenFragmentPacket>();
-            this.OnScreenFragmentEventHandler?.Invoke(this, fragments.Fragments, ScreenReceivedType.Difference);
+            this.OnScreenFragmentEventHandler?.Invoke(this, fragments.Fragments, ScreenReceivedKind.Difference);
         }
         [PacketHandler(MessageHead.C_SCREEN_SCANCOMPLETE)]
         private void ScanFinishHandler(SessionProviderContext session)
         {
-            this.OnScreenFragmentEventHandler?.Invoke(this, new Fragment[0], ScreenReceivedType.DifferenceEnd);
+            this.OnScreenFragmentEventHandler?.Invoke(this, new Fragment[0], ScreenReceivedKind.DifferenceEnd);
         }
 
         public void StartGetScreen(int height, int width, int x, int y, ScreenDisplayMode mode)
@@ -148,7 +148,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             CurrentSession.SendTo(MessageHead.S_SCREEN_BLACKSCREEN);
         }
 
-        public void RemoteChangeScanMode(ScreenScanMode scanMode)
+        public void RemoteChangeScanMode(ScreenScanKind scanMode)
         {
             CurrentSession.SendTo(MessageHead.S_SCREEN_CHANGESCANMODE, new byte[] { (byte)scanMode });
         }

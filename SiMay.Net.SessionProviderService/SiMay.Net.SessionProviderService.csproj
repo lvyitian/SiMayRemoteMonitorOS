@@ -57,7 +57,7 @@
     <Compile Include="SystemOptionsDialog.Designer.cs">
       <DependentUpon>SystemOptionsDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="ChannelViewItem\ChannelViewItem.cs" />
+    <Compile Include="ViewItem\ChannelViewItem.cs" />
     <Compile Include="SessionProviderService.cs">
       <SubType>Form</SubType>
     </Compile>

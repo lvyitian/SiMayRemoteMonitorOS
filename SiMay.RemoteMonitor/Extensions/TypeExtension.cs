@@ -7,7 +7,7 @@ using SiMay.Basic;
 
 namespace SiMay.RemoteMonitor.Extensions
 {
-    public static class AppTypeExtension
+    public static class TypeExtension
     {
         public static string GetApplicationName(this Type type)
         {

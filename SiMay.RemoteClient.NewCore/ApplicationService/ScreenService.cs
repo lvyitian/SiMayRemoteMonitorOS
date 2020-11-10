@@ -14,7 +14,7 @@ using SiMay.Net.SessionProvider;
 namespace SiMay.ServiceCore
 {
     [ServiceName("远程桌面")]
-    [ApplicationKeyAttribute(ApplicationKeyConstant.REMOTE_DESKTOP)]
+    [ApplicationKey(ApplicationKeyConstant.REMOTE_DESKTOP)]
     public class ScreenService : ApplicationRemoteService
     {
         private int _bscanmode = 1; //0差异 1逐行
@@ -207,56 +207,56 @@ namespace SiMay.ServiceCore
             int p2 = @event.Point2 + offsetY;
             switch (@event.Key)
             {
-                case MOUSEKEY_ENUM.Move:
+                case MOUSEKEY_KIND.Move:
                     //SendMouseMove(p1, p2);
                     SetCursorPos(p1, p2);
                     break;
 
-                case MOUSEKEY_ENUM.LeftDown:
+                case MOUSEKEY_KIND.LeftDown:
                     //SendLeftMouseDown(p1, p2);
                     SetCursorPos(p1, p2);
                     mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
                     break;
 
-                case MOUSEKEY_ENUM.LeftUp:
+                case MOUSEKEY_KIND.LeftUp:
                     //SendLeftMouseUp(p1, p2);
                     SetCursorPos(p1, p2);
                     mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
                     break;
 
-                case MOUSEKEY_ENUM.MiddleDown:
+                case MOUSEKEY_KIND.MiddleDown:
                     SetCursorPos(p1, p2);
                     mouse_event(MOUSEEVENTF_MIDDLEDOWN, 0, 0, 0, 0);
                     break;
 
-                case MOUSEKEY_ENUM.MiddleUp:
+                case MOUSEKEY_KIND.MiddleUp:
                     SetCursorPos(p1, p2);
                     mouse_event(MOUSEEVENTF_MIDDLEUP, 0, 0, 0, 0);
                     break;
 
-                case MOUSEKEY_ENUM.RightDown:
+                case MOUSEKEY_KIND.RightDown:
                     //SendRightMouseDown(p1, p2);
                     SetCursorPos(p1, p2);
                     mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);
                     break;
 
-                case MOUSEKEY_ENUM.RightUp:
+                case MOUSEKEY_KIND.RightUp:
                     //SendRightMouseUp(p1, p2);
                     SetCursorPos(p1, p2);
                     mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
                     break;
 
-                case MOUSEKEY_ENUM.Wheel:
+                case MOUSEKEY_KIND.Wheel:
                     mouse_event(MOUSEEVENTF_WHEEL, 0, 0, p1, 0);
                     //SendMouseWheel(p1);
                     break;
 
-                case MOUSEKEY_ENUM.KeyDown:
+                case MOUSEKEY_KIND.KeyDown:
                     keybd_event((byte)p1, 0, 0, 0);
                     //SendKeyDown(p1.ConvertTo<VirtualKey>());
                     break;
 
-                case MOUSEKEY_ENUM.KeyUp:
+                case MOUSEKEY_KIND.KeyUp:
                     //SendKeyUp(p1.ConvertTo<VirtualKey>());
                     keybd_event((byte)p1, 0, WM_KEYUP, 0);
                     break;

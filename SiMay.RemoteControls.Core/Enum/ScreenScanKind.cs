@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SiMay.RemoteControlsCore
+namespace SiMay.RemoteControlsCore.Enum
 {
-    public enum FileTransferFlag
+    public enum ScreenScanKind
     {
-        Begin,
-        Transfering,
-        End
+        Difference,
+        Noninterlaced
     }
 }

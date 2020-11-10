@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SiMay.RemoteControlsCore.Enum
+namespace SiMay.RemoteControlsCore
 {
-    public enum ScreenScanMode
+    public enum LogOutLevel
     {
-        Difference,
-        Noninterlaced
+        Information,
+        Warning,
+        Error
     }
 }

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SiMay.Core
 {
-    public enum SystemSessionType : byte
+    public enum SystemSessionKind : byte
     {
         /// <summary>
         /// 关机

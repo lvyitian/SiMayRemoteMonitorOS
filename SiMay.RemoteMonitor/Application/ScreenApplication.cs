@@ -219,13 +219,13 @@ namespace SiMay.RemoteMonitor.Application
 
                         CheckMenuItem(sysMenuHandle, IDM_FULL_DIFFER, MF_CHECKED);
                         CheckMenuItem(sysMenuHandle, IDM_DIFFER, MF_UNCHECKED);
-                        this.RemoteScreenAdapterHandler.RemoteChangeScanMode(ScreenScanMode.Noninterlaced);
+                        this.RemoteScreenAdapterHandler.RemoteChangeScanMode(ScreenScanKind.Noninterlaced);
                         break;
                     case IDM_DIFFER:
 
                         CheckMenuItem(sysMenuHandle, IDM_FULL_DIFFER, MF_UNCHECKED);
                         CheckMenuItem(sysMenuHandle, IDM_DIFFER, MF_CHECKED);
-                        this.RemoteScreenAdapterHandler.RemoteChangeScanMode(ScreenScanMode.Difference);
+                        this.RemoteScreenAdapterHandler.RemoteChangeScanMode(ScreenScanKind.Difference);
                         break;
                     case IDM_1X:
 
@@ -335,19 +335,19 @@ namespace SiMay.RemoteMonitor.Application
             this.StartGetScreen();
         }
 
-        private void OnScreenFragmentEventHandler(RemoteScreenAdapterHandler adapterHandler, Fragment[] fragments, ScreenReceivedType type)
+        private void OnScreenFragmentEventHandler(RemoteScreenAdapterHandler adapterHandler, Fragment[] fragments, ScreenReceivedKind type)
         {
             switch (type)
             {
-                case ScreenReceivedType.Noninterlaced:
+                case ScreenReceivedKind.Noninterlaced:
                     this.FrameDataHandler(fragments);
                     _recvImgCount++;
                     this.GetNextScreen();
                     break;
-                case ScreenReceivedType.Difference:
+                case ScreenReceivedKind.Difference:
                     this.FrameDataHandler(fragments);
                     break;
-                case ScreenReceivedType.DifferenceEnd:
+                case ScreenReceivedKind.DifferenceEnd:
                     _recvImgCount++;
                     this.GetNextScreen();
                     break;
@@ -442,7 +442,7 @@ namespace SiMay.RemoteMonitor.Application
             if (!_isControl)
                 return;
 
-            this.RemoteScreenAdapterHandler.RemoteMouseKeyEvent(MOUSEKEY_ENUM.KeyDown, e.KeyValue, 0);
+            this.RemoteScreenAdapterHandler.RemoteMouseKeyEvent(MOUSEKEY_KIND.KeyDown, e.KeyValue, 0);
         }
 
         private void ScreenSpyForm_KeyUp(object sender, KeyEventArgs e)
@@ -450,7 +450,7 @@ namespace SiMay.RemoteMonitor.Application
             if (!_isControl)
                 return;
 
-            this.RemoteScreenAdapterHandler.RemoteMouseKeyEvent(MOUSEKEY_ENUM.KeyUp, e.KeyValue, 0);
+            this.RemoteScreenAdapterHandler.RemoteMouseKeyEvent(MOUSEKEY_KIND.KeyUp, e.KeyValue, 0);
         }
 
         private void desktopImg_MouseDown(object sender, MouseEventArgs e)
@@ -470,15 +470,15 @@ namespace SiMay.RemoteMonitor.Application
             switch (e.Button)
             {
                 case MouseButtons.Left:
-                    this.RemoteScreenAdapterHandler.RemoteMouseKeyEvent(MOUSEKEY_ENUM.LeftDown, x, y);
+                    this.RemoteScreenAdapterHandler.RemoteMouseKeyEvent(MOUSEKEY_KIND.LeftDown, x, y);
                     break;
                 case MouseButtons.Middle:
-                    this.RemoteScreenAdapterHandler.RemoteMouseKeyEvent(MOUSEKEY_ENUM.MiddleDown, x, y);
+                    this.RemoteScreenAdapterHandler.RemoteMouseKeyEvent(MOUSEKEY_KIND.MiddleDown, x, y);
                     break;
                 case MouseButtons.None:
                     break;
                 case MouseButtons.Right:
-                    this.RemoteScreenAdapterHandler.RemoteMouseKeyEvent(MOUSEKEY_ENUM.RightDown, x, y);
+                    this.RemoteScreenAdapterHandler.RemoteMouseKeyEvent(MOUSEKEY_KIND.RightDown, x, y);
                     break;
                 case MouseButtons.XButton1:
                     break;
@@ -506,15 +506,15 @@ namespace SiMay.RemoteMonitor.Application
             switch (e.Button)
             {
                 case MouseButtons.Left:
-                    this.RemoteScreenAdapterHandler.RemoteMouseKeyEvent(MOUSEKEY_ENUM.LeftUp, x, y);
+                    this.RemoteScreenAdapterHandler.RemoteMouseKeyEvent(MOUSEKEY_KIND.LeftUp, x, y);
                     break;
                 case MouseButtons.Middle:
-                    this.RemoteScreenAdapterHandler.RemoteMouseKeyEvent(MOUSEKEY_ENUM.MiddleUp, x, y);
+                    this.RemoteScreenAdapterHandler.RemoteMouseKeyEvent(MOUSEKEY_KIND.MiddleUp, x, y);
                     break;
                 case MouseButtons.None:
                     break;
                 case MouseButtons.Right:
-                    this.RemoteScreenAdapterHandler.RemoteMouseKeyEvent(MOUSEKEY_ENUM.RightUp, x, y);
+                    this.RemoteScreenAdapterHandler.RemoteMouseKeyEvent(MOUSEKEY_KIND.RightUp, x, y);
                     break;
                 case MouseButtons.XButton1:
                     break;
@@ -549,7 +549,7 @@ namespace SiMay.RemoteMonitor.Application
                 x = (int)(e.X / ((float)this.imgDesktop.Width / (float)this._srcImageWidth));
                 y = (int)(e.Y / ((float)this.imgDesktop.Height / (float)this._srcImageHeight));
             }
-            this.RemoteScreenAdapterHandler.RemoteMouseKeyEvent(MOUSEKEY_ENUM.Move, x, y);
+            this.RemoteScreenAdapterHandler.RemoteMouseKeyEvent(MOUSEKEY_KIND.Move, x, y);
 
         }
         private void ScreenManager_MouseWheel(object sender, MouseEventArgs e)
@@ -557,7 +557,7 @@ namespace SiMay.RemoteMonitor.Application
             if (!_isControl)
                 return;
 
-            this.RemoteScreenAdapterHandler.RemoteMouseKeyEvent(MOUSEKEY_ENUM.Wheel, e.Delta, 0);
+            this.RemoteScreenAdapterHandler.RemoteMouseKeyEvent(MOUSEKEY_KIND.Wheel, e.Delta, 0);
         }
     }
 }

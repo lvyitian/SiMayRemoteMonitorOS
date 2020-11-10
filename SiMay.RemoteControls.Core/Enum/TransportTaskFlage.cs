@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SiMay.RemoteControlsCore
 {
-    public enum TransferTaskFlage
+    public enum TransportTaskFlage
     {
         /// <summary>
         /// 允许

@@ -15,7 +15,7 @@ using static SiMay.Platform.Windows.CommonWin32Api;
 namespace SiMay.ServiceCore
 {
     [ServiceName("系统管理")]
-    [ApplicationKeyAttribute(ApplicationKeyConstant.REMOTE_SYSMANAGER)]
+    [ApplicationKey(ApplicationKeyConstant.REMOTE_SYSMANAGER)]
     public class SystemService : ApplicationRemoteService
     {
         private ComputerInfo _memoryInfo = new ComputerInfo();

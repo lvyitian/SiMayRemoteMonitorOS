@@ -12,7 +12,7 @@ namespace SiMay.RemoteMonitor.UserControls
 {
     public class FileListViewItem : ListViewItem
     {
-        public FileListViewItem(string fileName, long size, long usingSize, long freeSize, FileItemType type, DateTime lastAccessTime, int imageIndex)
+        public FileListViewItem(string fileName, long size, long usingSize, long freeSize, Enums.FileKind type, DateTime lastAccessTime, int imageIndex)
         {
             FileName = fileName;
             FileSize = size;
@@ -23,7 +23,7 @@ namespace SiMay.RemoteMonitor.UserControls
 
             this.Text = fileName;
             this.SubItems.Add(FileHelper.LengthToFileSize((double)size));
-            if (type == FileItemType.File)
+            if (type == Enums.FileKind.File)
             {
                 var firx = Path.GetExtension(fileName).ToUpper().Replace(".", "");
                 this.SubItems.Add(firx + type.GetDescription());
@@ -39,7 +39,7 @@ namespace SiMay.RemoteMonitor.UserControls
         public long FileSize { get; set; }
         public long UsingSize { get; set; }
         public long FreeSize { get; set; }
-        public FileItemType FileType { get; set; }
+        public Enums.FileKind FileType { get; set; }
         public DateTime LastAccessTime { get; set; }
     }
 }

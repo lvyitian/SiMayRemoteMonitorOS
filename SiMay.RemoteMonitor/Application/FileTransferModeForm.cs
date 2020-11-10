@@ -22,10 +22,10 @@ namespace SiMay.RemoteMonitor.Application
             set { tip.Text = value; }
         }
 
-        public TransferMode TransferModeResult
+        public TransportMode TransferModeResult
         {
             get; private set;
-        } = TransferMode.Cancel;
+        } = TransportMode.Cancel;
 
         private void FileTransferModeDialog_Load(object sender, EventArgs e)
         {
@@ -33,37 +33,37 @@ namespace SiMay.RemoteMonitor.Application
 
         private void button1_Click(object sender, EventArgs e)
         {
-            TransferModeResult = TransferMode.Replace;
+            TransferModeResult = TransportMode.Replace;
             this.Close();
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            TransferModeResult = TransferMode.ReplaceAll;
+            TransferModeResult = TransportMode.ReplaceAll;
             this.Close();
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
-            TransferModeResult = TransferMode.Continuingly;
+            TransferModeResult = TransportMode.Continuingly;
             this.Close();
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
-            TransferModeResult = TransferMode.ContinuinglyAll;
+            TransferModeResult = TransportMode.ContinuinglyAll;
             this.Close();
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
-            TransferModeResult = TransferMode.JumpOver;
+            TransferModeResult = TransportMode.JumpOver;
             this.Close();
         }
 
         private void button7_Click(object sender, EventArgs e)
         {
-            TransferModeResult = TransferMode.Cancel;
+            TransferModeResult = TransportMode.Cancel;
             this.Close();
         }
     }

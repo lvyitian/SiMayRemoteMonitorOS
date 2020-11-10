@@ -10,9 +10,9 @@ namespace SiMay.RemoteControlsCore
     public interface ITaskSchedule
     {
         /// <summary>
-        /// 任务表示
+        /// 主题
         /// </summary>
-        string TaskName { get; set; }
+        string Topic { get; set; }
 
         /// <summary>
         /// 执行间隔
@@ -44,7 +44,7 @@ namespace SiMay.RemoteControlsCore
 
     public abstract class TaskScheduleContextBase : ITaskSchedule
     {
-        public string TaskName { get; set; }
+        public string Topic { get; set; }
 
         public virtual TimeSpan Interval { get; set; }
 
@@ -59,14 +59,9 @@ namespace SiMay.RemoteControlsCore
     public class SuspendTaskContext : TaskScheduleContextBase, ICustomEvent
     {
         /// <summary>
-        /// 间隔2秒执行一次
+        /// 间隔5秒执行一次
         /// </summary>
-        public override TimeSpan Interval { get; set; } = new TimeSpan(0, 0, 5);
-
-        /// <summary>
-        /// 离线时间
-        /// </summary>
-        //public DateTime DisconnectTimePoint { get; set; }
+        public override TimeSpan Interval => new TimeSpan(0, 0, 5);
 
         public IList<SessionSyncContext> SessionSyncContexts { get; set; }
 
@@ -74,13 +69,8 @@ namespace SiMay.RemoteControlsCore
 
         public override void Execute()
         {
-            //if ((DateTime.Now - DisconnectTimePoint).Seconds > 5)
-            //{
             string id = ApplicationAdapterHandler.IdentifyId.Split('|')[0];
             var syncContext = SessionSyncContexts.FirstOrDefault(x => x[SysConstants.IdentifyId].ConvertTo<string>() == id);
-
-            //LogHelper.WriteErrorByCurrentMethod("beigin Reset--{0},{1},{2}".FormatTo(ApplicationAdapterHandler.GetApplicationKey(), ApplicationAdapterHandler.IdentifyId, id));
-
             if (!syncContext.IsNull())
             {
                 if (ApplicationAdapterHandler.IsManualClose())
@@ -89,16 +79,13 @@ namespace SiMay.RemoteControlsCore
                     TaskScheduleTrigger.RemoveScheduleTask(this);
                     return;
                 }
-
                 var appName = ApplicationAdapterHandler.App.GetType().Name;
                 syncContext.Session.SendTo(MessageHead.S_MAIN_ACTIVATE_APPLICATION_SERVICE,
                     new ActivateServicePack()
                     {
                         CommandText = $"{appName}.{ApplicationAdapterHandler.GetApplicationKey()}"
                     });
-                //LogHelper.WriteErrorByCurrentMethod("send reset command--{0},{1},{2}".FormatTo(ApplicationAdapterHandler.GetApplicationKey(), ApplicationAdapterHandler.IdentifyId, id));
             }
-            //}
         }
 
         /// <summary>
@@ -109,7 +96,7 @@ namespace SiMay.RemoteControlsCore
         {
             var taskResumEventArg = eventArgs as SuspendTaskResumEventArgs;
             var tokens = taskResumEventArg.Session.AppTokens;
-            tokens[SysConstants.INDEX_WORKTYPE] = ConnectionWorkType.WORKCON;
+            tokens[SysConstants.INDEX_WORKTYPE] = SessionKind.APP_SERVICE;
             tokens[SysConstants.INDEX_WORKER] = ApplicationAdapterHandler;
             ApplicationAdapterHandler.OriginName = taskResumEventArg.OriginName;
             ApplicationAdapterHandler.SetSession(taskResumEventArg.Session);
@@ -122,9 +109,9 @@ namespace SiMay.RemoteControlsCore
     public class ApplicationCreatingTimeOutSuspendTaskContext : TaskScheduleContextBase
     {
         /// <summary>
-        /// 间隔2秒未创建完成则判定创建超时
+        /// 间隔5秒未创建完成则判定创建超时
         /// </summary>
-        public override TimeSpan Interval { get; set; } = new TimeSpan(0, 0, 5);
+        public override TimeSpan Interval => new TimeSpan(0, 0, 5);
 
         /// <summary>
         /// 应用

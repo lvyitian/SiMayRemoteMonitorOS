@@ -181,7 +181,7 @@
     </Compile>
     <Compile Include="Entitys\KeyValueItem.cs" />
     <Compile Include="Helper\ListViewSortHelper.cs" />
-    <Compile Include="Enums\FileItemType.cs" />
+    <Compile Include="Enums\FileKind.cs" />
     <Compile Include="Extensions\ListViewExtensions.cs" />
     <Compile Include="Helper\MessageBoxHelper.cs" />
     <Compile Include="Helper\PCMStreamToWavHelper.cs" />
@@ -202,7 +202,7 @@
     <Compile Include="UnconventionalApplication\RemoteUpdateApplication.cs" />
     <Compile Include="UserControls\FileListViewItem.cs" />
     <Compile Include="SysConstantsExtend.cs" />
-    <Compile Include="Extensions\AppTypeExtension.cs" />
+    <Compile Include="Extensions\TypeExtension.cs" />
     <Compile Include="UserControls\HexEditor\ByteCollection.cs" />
     <Compile Include="UserControls\HexEditor\Caret.cs" />
     <Compile Include="UserControls\HexEditor\EditView.cs" />

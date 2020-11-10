@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SiMay.Core
 {
-    public enum MessageIcon : Byte
+    public enum MessageIconKind : Byte
     {
         /// <summary>
         /// 错误信息

@@ -6,7 +6,7 @@ using System.Text;
 
 namespace SiMay.RemoteMonitor.Enums
 {
-    public enum FileItemType
+    public enum FileKind
     {
         [Description("文件")]
         File,

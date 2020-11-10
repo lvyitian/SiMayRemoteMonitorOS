@@ -8,7 +8,7 @@ using SiMay.ServiceCore.Attributes;
 namespace SiMay.ServiceCore
 {
     [ServiceName("远程语音")]
-    [ApplicationKeyAttribute(ApplicationKeyConstant.REMOTE_AUDIO)]
+    [ApplicationKey(ApplicationKeyConstant.REMOTE_AUDIO)]
     public class AudioService : ApplicationRemoteService
     {
         private bool _isRun = true;

@@ -59,16 +59,16 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <summary>
         /// 文件传输进度
         /// </summary>
-        public event Action<RemoteFileAdapterHandler, FileTransferFlag, string, long, long> OnFileTransferProgressEventHandler;
+        public event Action<RemoteFileAdapterHandler, TransportFlage, string, long, long> OnFileTransferProgressEventHandler;
 
         /// <summary>
         /// 传输任务状态信号
         /// </summary>
-        public TransferTaskFlage TransferTaskFlage { get; set; } = TransferTaskFlage.Allow;
+        public TransportTaskFlage TransferTaskFlage { get; set; } = TransportTaskFlage.Allow;
 
         private const int FILE_BUFFER_SIZE = 1024 * 512;
         private volatile bool _isWorkSessionOfLines = true; //session是否在线状态
-        private TransferMode? _transferMode = null;
+        private TransportMode? _transferMode = null;
 
         /// <summary>
         /// 内置版本号的自动事件
@@ -331,10 +331,10 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             else
                 status = responsed.Status;//文件访问失败
 
-            this.OnFileTransferProgressEventHandler?.Invoke(this, FileTransferFlag.Begin, remoteFileName, position, responsed.FileSize);
+            this.OnFileTransferProgressEventHandler?.Invoke(this, TransportFlage.Begin, remoteFileName, position, responsed.FileSize);
             while (status == 1)
             {
-                if (TransferTaskFlage == TransferTaskFlage.Abort)
+                if (TransferTaskFlage == TransportTaskFlage.Abort)
                 {
                     //停止传输
                     this.RemoteTaskStop();
@@ -358,10 +358,10 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
                 }
                 await Task.Run(() => fileStream.Write(data.Data, 0, data.Data.Length));
 
-                this.OnFileTransferProgressEventHandler?.Invoke(this, FileTransferFlag.Transfering, remoteFileName, fileStream.Length, responsed.FileSize);
+                this.OnFileTransferProgressEventHandler?.Invoke(this, TransportFlage.Transfering, remoteFileName, fileStream.Length, responsed.FileSize);
             }
 
-            this.OnFileTransferProgressEventHandler?.Invoke(this, FileTransferFlag.End, remoteFileName, fileStream.Length, responsed.FileSize);
+            this.OnFileTransferProgressEventHandler?.Invoke(this, TransportFlage.End, remoteFileName, fileStream.Length, responsed.FileSize);
 
             fileStream.Close();
         }
@@ -445,7 +445,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// </summary>
         public void StopTransferTask()
         {
-            this.TransferTaskFlage = TransferTaskFlage.Abort;
+            this.TransferTaskFlage = TransportTaskFlage.Abort;
         }
 
         /// <summary>
@@ -458,7 +458,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         public async Task UploadFile(
             IFileStream fileStream,
             string remoteFileName,
-            Func<string, TransferMode> onSelectedFileTransferMode)
+            Func<string, TransportMode> onSelectedFileTransferMode)
         {
         reset:
 
@@ -480,7 +480,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             int fileMode = 0;//0覆盖，1续传,2跳过
             if (responsed.Status == 1)
             {
-                TransferMode transferMode = TransferMode.Continuingly;
+                TransportMode transferMode = TransportMode.Continuingly;
                 if (!_transferMode.HasValue)
                     transferMode = onSelectedFileTransferMode.Invoke(remoteFileName);
                 else
@@ -488,26 +488,26 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
                 switch (transferMode)
                 {
-                    case TransferMode.Replace:
+                    case TransportMode.Replace:
                         fileMode = 0;
                         break;
-                    case TransferMode.ReplaceAll:
+                    case TransportMode.ReplaceAll:
                         fileMode = 0;
-                        _transferMode = TransferMode.Replace;
+                        _transferMode = TransportMode.Replace;
                         break;
-                    case TransferMode.Continuingly:
+                    case TransportMode.Continuingly:
                         fileMode = 1;
                         position = responsed.Position;
                         break;
-                    case TransferMode.ContinuinglyAll:
+                    case TransportMode.ContinuinglyAll:
                         fileMode = 1;
                         position = responsed.Position;
-                        _transferMode = TransferMode.Continuingly;
+                        _transferMode = TransportMode.Continuingly;
                         break;
-                    case TransferMode.JumpOver:
+                    case TransportMode.JumpOver:
                         CancelTransfer();
                         return;
-                    case TransferMode.Cancel:
+                    case TransportMode.Cancel:
                         CancelTransfer();
                         _transferMode = transferMode;
                         return;
@@ -524,7 +524,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             fileStream.Position = position;
             var fileSize = fileStream.Length;
 
-            this.OnFileTransferProgressEventHandler?.Invoke(this, FileTransferFlag.Begin, remoteFileName, position, fileSize);
+            this.OnFileTransferProgressEventHandler?.Invoke(this, TransportFlage.Begin, remoteFileName, position, fileSize);
 
             var data = await Task.Run(() => this.ReadFileStream(fileStream));
 
@@ -539,7 +539,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
             while (true)
             {
-                if (TransferTaskFlage == TransferTaskFlage.Abort)
+                if (TransferTaskFlage == TransportTaskFlage.Abort)
                 {
                     //停止
                     this.RemoteTaskStop();
@@ -576,9 +576,9 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
                                 Data = data
                             }));
 
-                this.OnFileTransferProgressEventHandler?.Invoke(this, FileTransferFlag.Transfering, remoteFileName, position, fileSize);
+                this.OnFileTransferProgressEventHandler?.Invoke(this, TransportFlage.Transfering, remoteFileName, position, fileSize);
             }
-            this.OnFileTransferProgressEventHandler?.Invoke(this, FileTransferFlag.End, remoteFileName, position, fileSize);
+            this.OnFileTransferProgressEventHandler?.Invoke(this, TransportFlage.End, remoteFileName, position, fileSize);
 
             //取消传输
             void CancelTransfer()
@@ -586,7 +586,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
                 fileMode = 2;
                 fileStream.Close();
                 this.RemoteTaskStop();
-                this.OnFileTransferProgressEventHandler?.Invoke(this, FileTransferFlag.End, remoteFileName, 0, 0);
+                this.OnFileTransferProgressEventHandler?.Invoke(this, TransportFlage.End, remoteFileName, 0, 0);
             }
         }
 
@@ -667,7 +667,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         {
         reset:
             this._filesQueue.Clear();
-            TransferTaskFlage = TransferTaskFlage.Allow;
+            TransferTaskFlage = TransportTaskFlage.Allow;
             var result = await this.AwaitGetDirectoryFiles(remotedirectory);
             if (!result)
             {
@@ -683,7 +683,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
                 if (_filesQueue.Count <= 0)
                     break;//文件夹所有文件传输完成
 
-                if (TransferTaskFlage == TransferTaskFlage.Abort)
+                if (TransferTaskFlage == TransportTaskFlage.Abort)
                     break;//停止任务
 
                 var file = _filesQueue.Dequeue();
@@ -694,7 +694,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
                     var fileStream = onCreateFileStream?.Invoke(localFileName);
                     if (fileStream.IsNull())
                         continue;
-                    if (_transferMode == TransferMode.Cancel || TransferTaskFlage == TransferTaskFlage.Abort)
+                    if (_transferMode == TransportMode.Cancel || TransferTaskFlage == TransportTaskFlage.Abort)
                         break;
                     await this.DownloadFile(fileStream, targetFileName);
                 }

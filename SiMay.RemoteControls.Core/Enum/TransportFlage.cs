@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace SiMay.RemoteControlsCore
 {
-    public enum LogSeverityLevel
+    public enum TransportFlage
     {
-        Information,
-        Warning,
-        Error
+        Begin,
+        Transfering,
+        End
     }
 }

@@ -20,7 +20,7 @@ namespace SiMay.RemoteControlsCore
             /// <summary>
             /// 应用类型
             /// </summary>
-            public Type Type { get; set; }
+            public Type ApplicationType { get; set; }
         }
         public static IReadOnlyList<ApplicationItem> ApplicationTypes { get; private set; }
         static SysUtil()
@@ -32,7 +32,7 @@ namespace SiMay.RemoteControlsCore
                 .Select(type => new ApplicationItem()
                 {
                     ApplicationName = type.Name,
-                    Type = type
+                    ApplicationType = type
                 })
                 .ToList();
         }

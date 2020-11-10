@@ -9,7 +9,7 @@ using System.IO;
 namespace SiMay.ServiceCore
 {
     [ServiceName("Shell管理")]
-    [ApplicationKeyAttribute(ApplicationKeyConstant.REMOTE_SHELL)]
+    [ApplicationKey(ApplicationKeyConstant.REMOTE_SHELL)]
     public class ShellService : ApplicationRemoteService
     {
         private Process _pipe;
@@ -52,8 +52,6 @@ namespace SiMay.ServiceCore
         {
             byte[] payload = session.GetMessage();
             string command = payload.ToUnicodeString();
-
-            Console.WriteLine("cmd:" + command);
 
             _pipe.StandardInput.WriteLine(command);
             _pipe.StandardInput.Flush();

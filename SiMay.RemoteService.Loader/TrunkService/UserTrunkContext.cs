@@ -14,6 +14,7 @@ namespace SiMay.RemoteService.Loader
 {
     public class UserTrunkContext
     {
+        private const string LOOP_BACK_ADDRESS = "127.0.0.1";
         public static UserTrunkContext UserTrunkContextInstance { get; set; }
 
         public int CurrentSessionId
@@ -159,7 +160,7 @@ namespace SiMay.RemoteService.Loader
         }
         private void LaunchConnectTrunkService()
         {
-            _socketSaeaClientAgent.ConnectToServer(new IPEndPoint(IPAddress.Parse("127.0.0.1"), _port));
+            _socketSaeaClientAgent.ConnectToServer(new IPEndPoint(IPAddress.Parse(LOOP_BACK_ADDRESS), _port));
         }
     }
 }

@@ -66,7 +66,7 @@ namespace SiMay.ServiceCore
 
             session.AppTokens = new object[2]
             {
-                ConnectionWorkType.MAINCON,
+                SessionKind.MAIN_SERVICE,
                 null
             };
 
@@ -107,7 +107,7 @@ namespace SiMay.ServiceCore
         /// 作用：连接确认，以便服务端识别这是一个有效的工作连接，type = 中间服务器识别 ， accessId = 发起创建应用服务请求的主控端标识
         /// </summary>
         /// <param name="session"></param>
-        private void SendACK(SessionProviderContext session, ConnectionWorkType type, long accessId)
+        private void SendACK(SessionProviderContext session, SessionKind type, long accessId)
         {
             session.SendTo(MessageHead.C_GLOBAL_CONNECT,
                 new AcknowledPacket()
@@ -136,10 +136,10 @@ namespace SiMay.ServiceCore
                     case TcpSessionNotify.OnDataReceiveing:
                         break;
                     case TcpSessionNotify.OnDataReceived:
-                        var workType = (ConnectionWorkType)session.AppTokens[0];
-                        if (workType == ConnectionWorkType.MAINCON)
+                        var workType = (SessionKind)session.AppTokens[0];
+                        if (workType == SessionKind.MAIN_SERVICE)
                             this.HandlerBinder.InvokePacketHandler(session, session.GetMessageHead(), this);
-                        else if (workType == ConnectionWorkType.WORKCON)
+                        else if (workType == SessionKind.APP_SERVICE)
                         {
                             var appService = ((ApplicationRemoteService)session.AppTokens[1]);
                             appService.HandlerBinder.InvokePacketHandler(session, session.GetMessageHead(), appService);
@@ -176,12 +176,12 @@ namespace SiMay.ServiceCore
             {
                 session.AppTokens = new object[2]
                 {
-                    ConnectionWorkType.MAINCON,
+                    SessionKind.MAIN_SERVICE,
                     null
                 };
                 this.SetSession(session);
                 //服务主连接accessId保留
-                this.SendACK(session, ConnectionWorkType.MAINCON, 0);
+                this.SendACK(session, SessionKind.MAIN_SERVICE, 0);
             }
             else
             {
@@ -194,12 +194,12 @@ namespace SiMay.ServiceCore
                 }
                 session.AppTokens = new object[2]
                 {
-                    ConnectionWorkType.WORKCON,
+                    SessionKind.APP_SERVICE,
                     service
                 };
                 service.SetSession(session);
 
-                this.SendACK(session, ConnectionWorkType.WORKCON, service.AccessId);
+                this.SendACK(session, SessionKind.APP_SERVICE, service.AccessId);
             }
 
         }
@@ -210,7 +210,7 @@ namespace SiMay.ServiceCore
                 //服务主连接断开或未连接
                 session.AppTokens = new object[2]
                 {
-                    ConnectionWorkType.MAINCON,
+                    SessionKind.MAIN_SERVICE,
                     null
                 };
             }
@@ -220,8 +220,8 @@ namespace SiMay.ServiceCore
                 return;//不重试连接，因为可能会连接不上，导致频繁重试连接
             }
 
-            var workType = (ConnectionWorkType)session.AppTokens[0];
-            if (workType == ConnectionWorkType.MAINCON)
+            var workType = (SessionKind)session.AppTokens[0];
+            if (workType == SessionKind.MAIN_SERVICE)
             {
                 //清除主连接会话信息
                 this.SetSession(null);
@@ -239,7 +239,7 @@ namespace SiMay.ServiceCore
                 };
                 timer.Start();
             }
-            else if (workType == ConnectionWorkType.WORKCON)
+            else if (workType == SessionKind.APP_SERVICE)
             {
                 var appService = ((ApplicationRemoteService)session.AppTokens[1]);
                 if (appService.WhetherClosed)
@@ -523,21 +523,21 @@ namespace SiMay.ServiceCore
                 string title = msg.MessageTitle;
                 string cont = msg.MessageBody;
 
-                switch ((MessageIcon)msg.MessageIcon)
+                switch ((MessageIconKind)msg.MessageIcon)
                 {
-                    case MessageIcon.Error:
+                    case MessageIconKind.Error:
                         MessageBox.Show(cont, title, 0, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                         break;
 
-                    case MessageIcon.Question:
+                    case MessageIconKind.Question:
                         MessageBox.Show(cont, title, 0, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                         break;
 
-                    case MessageIcon.InforMation:
+                    case MessageIconKind.InforMation:
                         MessageBox.Show(cont, title, 0, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                         break;
 
-                    case MessageIcon.Exclaim:
+                    case MessageIconKind.Exclaim:
                         MessageBox.Show(cont, title, 0, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                         break;
                 }

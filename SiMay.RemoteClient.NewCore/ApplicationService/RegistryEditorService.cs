@@ -11,7 +11,7 @@ using System.Text;
 namespace SiMay.ServiceCore
 {
     [ServiceName("远程注册表")]
-    [ApplicationKeyAttribute(ApplicationKeyConstant.REMOTE_REGEDIT)]
+    [ApplicationKey(ApplicationKeyConstant.REMOTE_REGEDIT)]
     public class RegistryEditorService : ApplicationRemoteService
     {
         public override void SessionInited(SessionProviderContext session)

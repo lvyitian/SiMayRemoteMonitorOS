@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SiMay.Core
 {
-    public enum MOUSEKEY_ENUM : byte
+    public enum MOUSEKEY_KIND : byte
     {
         /// <summary>
         /// 鼠标移动

@@ -52,7 +52,7 @@ namespace SiMay.RemoteMonitor.MainApplication
         {
             SysUtil.ApplicationTypes.ForEach(c =>
             {
-                var type = c.Type;
+                var type = c.ApplicationType;
                 funComboBox.Items.Add(new KeyValueItem()
                 {
                     Key = type.GetApplicationName(),
@@ -63,7 +63,7 @@ namespace SiMay.RemoteMonitor.MainApplication
             });
 
             if (funComboBox.SelectedIndex == -1)
-                funComboBox.Text = SysUtil.ApplicationTypes.First().Type.GetApplicationName();
+                funComboBox.Text = SysUtil.ApplicationTypes.First().ApplicationType.GetApplicationName();
 
             ip.Text = AppConfiguration.IPAddress;
             conPwd.Text = AppConfiguration.ConnectPassWord;

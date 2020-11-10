@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SiMay.RemoteControlsCore
 {
-    public enum TransferMode
+    public enum TransportMode
     {
         /// <summary>
         /// 覆盖

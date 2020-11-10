@@ -14,7 +14,7 @@ namespace SiMay.RemoteMonitor.MainApplication
 
         public string MessageBody { get; set; }
         public string MessageTitle { get; set; }
-        public MessageIcon MsgBoxIcon { get; set; }
+        public MessageIconKind MsgBoxIcon { get; set; }
 
         private void GMessageBox_Load(object sender, EventArgs e)
         {
@@ -46,13 +46,13 @@ namespace SiMay.RemoteMonitor.MainApplication
                 return;
             }
             if (m_errorRadio.Checked == true)
-                MsgBoxIcon = MessageIcon.Error;
+                MsgBoxIcon = MessageIconKind.Error;
             else if (m_questionRadio.Checked == true)
-                MsgBoxIcon = MessageIcon.Question;
+                MsgBoxIcon = MessageIconKind.Question;
             else if (m_infoRadio.Checked == true)
-                MsgBoxIcon = MessageIcon.InforMation;
+                MsgBoxIcon = MessageIconKind.InforMation;
             else if (m_exclaRadio.Checked == true)
-                MsgBoxIcon = MessageIcon.Exclaim;
+                MsgBoxIcon = MessageIconKind.Exclaim;
 
             this.MessageTitle = txtTitle.Text;
             this.MessageBody = txtValue.Text;

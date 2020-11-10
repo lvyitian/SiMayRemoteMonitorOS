@@ -38,34 +38,34 @@ namespace SiMay.Net.SessionProvider
 
         public TcpProxyMainConnectionContext(TcpSocketSaeaSession session) => _currentSession = session;
 
-        public void OnMessage(byte[] data)
+        public void OnProcess(byte[] data)
         {
             switch (data.GetMessageHead<MessageHead>())
             {
                 case MessageHead.MID_SESSION:
-                    this.CreateSession(data);
+                    this.HandleOnCreateSession(data);
                     break;
                 case MessageHead.MID_SESSION_CLOSED:
-                    this.SessionClosedHandler(data);
+                    this.HandleOnClosed(data);
                     break;
                 case MessageHead.MID_APPWORK:
                     this.LaunchApplicationConnectEventHandler?.Invoke(this);
                     break;
                 case MessageHead.MID_MESSAGE_DATA:
-                    this.SessionOnMessage(data);
+                    this.HandleOnMessage(data);
                     break;
                 case MessageHead.MID_ACCESS_KEY_WRONG:
                     this.AccessIdOrKeyWrongEventHandler?.Invoke(this);
                     break;
                 case MessageHead.MID_LOGOUT:
-                    this.LogOutHandler(data);
+                    this.HandleOnLogOut(data);
                     break;
                 default:
                     break;
             }
         }
 
-        private void CreateSession(byte[] data)
+        private void HandleOnCreateSession(byte[] data)
         {
             var sessions = data.GetMessageEntity<SessionPacket>();
             foreach (var session in sessions.SessionItems)
@@ -73,8 +73,8 @@ namespace SiMay.Net.SessionProvider
                 if (!this._proxySessions.ContainsKey(session.Id))
                 {
                     var proxyConnectionContext = new TcpProxyApplicationConnectionContext();
-                    proxyConnectionContext.DataReceivedEventHandler += DataReceivedEventHandler;
-                    proxyConnectionContext.DataSendEventHandler += DataSendEventHandler;
+                    proxyConnectionContext.DataReceivedEventHandler += HandleOnDataReceived;
+                    proxyConnectionContext.DataSendEventHandler += HandleOnDataSend;
                     proxyConnectionContext.SetSession(_currentSession, session.Id, session.ACKPacketData);
                     this._proxySessions.Add(session.Id, proxyConnectionContext);
                     this.SessionNotifyEventHandler?.Invoke(proxyConnectionContext, TcpSessionNotify.OnConnected);
@@ -83,27 +83,27 @@ namespace SiMay.Net.SessionProvider
             }
         }
 
-        private void DataSendEventHandler(TcpProxyApplicationConnectionContext proxyConnectionContext)
+        private void HandleOnDataSend(TcpProxyApplicationConnectionContext proxyConnectionContext)
             => this.SessionNotifyEventHandler?.Invoke(proxyConnectionContext, TcpSessionNotify.OnSend);
 
-        private void DataReceivedEventHandler(TcpProxyApplicationConnectionContext proxyConnectionContext)
+        private void HandleOnDataReceived(TcpProxyApplicationConnectionContext proxyConnectionContext)
             => this.SessionNotifyEventHandler?.Invoke(proxyConnectionContext, TcpSessionNotify.OnDataReceived);
 
-        private void SessionClosedHandler(byte[] data)
+        private void HandleOnClosed(byte[] data)
         {
             var closedPack = data.GetMessageEntity<SessionClosedPacket>();
             if (_proxySessions.ContainsKey(closedPack.Id))
             {
                 var proxyConnectionContext = _proxySessions.GetValue(closedPack.Id).ConvertTo<TcpProxyApplicationConnectionContext>();
-                proxyConnectionContext.DataReceivedEventHandler -= DataReceivedEventHandler;
-                proxyConnectionContext.DataSendEventHandler -= DataSendEventHandler;
+                proxyConnectionContext.DataReceivedEventHandler -= HandleOnDataReceived;
+                proxyConnectionContext.DataSendEventHandler -= HandleOnDataSend;
                 this.SessionNotifyEventHandler?.Invoke(proxyConnectionContext, TcpSessionNotify.OnClosed);
                 _proxySessions.Remove(closedPack.Id);
                 proxyConnectionContext.Dispose();
             }
         }
 
-        private void SessionOnMessage(byte[] data)
+        private void HandleOnMessage(byte[] data)
         {
             var message = data.GetMessageEntity<MessageDataPacket>();
             if (_proxySessions.ContainsKey(message.DispatcherId))
@@ -115,7 +115,7 @@ namespace SiMay.Net.SessionProvider
             }
         }
 
-        private void LogOutHandler(byte[] data)
+        private void HandleOnLogOut(byte[] data)
         {
             var logOut = data.GetMessageEntity<LogOutPacket>();
             this.LogOutEventHandler?.Invoke(this, logOut.Message);
@@ -124,7 +124,7 @@ namespace SiMay.Net.SessionProvider
         /// <summary>
         /// 获取Session
         /// </summary>
-        public void PullSession()
+        public void PulCurrentSessions()
         {
             var data = MessageHelper.CopyMessageHeadTo(MessageHead.APP_PULL_SESSION);
             _currentSession.SendAsync(data);
@@ -135,8 +135,8 @@ namespace SiMay.Net.SessionProvider
             foreach (TcpProxyApplicationConnectionContext proxyContext in _proxySessions.Select(c => c.Value))
             {
                 this.SessionNotifyEventHandler?.Invoke(proxyContext, TcpSessionNotify.OnClosed);
-                proxyContext.DataReceivedEventHandler -= DataReceivedEventHandler;
-                proxyContext.DataSendEventHandler -= DataSendEventHandler;
+                proxyContext.DataReceivedEventHandler -= HandleOnDataReceived;
+                proxyContext.DataSendEventHandler -= HandleOnDataSend;
                 proxyContext.Dispose();
             }
             _currentSession.Close(true);

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SiMay.RemoteControlsCore.Enum
 {
-    public enum ScreenReceivedType
+    public enum ScreenReceivedKind
     {
         /// <summary>
         /// 逐行扫描完成

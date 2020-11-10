@@ -40,7 +40,7 @@ namespace SiMay.RemoteMonitor.Application
 
         private string _title = "//远程文件管理 #Name#";
 
-        private TransferMode? _transferMode = null;
+        private TransportMode? _transferMode = null;
         private string[] _copyFileNames = null;
 
         private TreeView _remoteDirectoryTreeView;
@@ -188,7 +188,7 @@ namespace SiMay.RemoteMonitor.Application
         {
             switch (file.FileType)
             {
-                case FileType.File:
+                case Core.FileType.File:
                     string extension = Path.GetExtension(file.FileName);
                     if (extension == "")
                         extension = ".kksksxx";
@@ -198,28 +198,28 @@ namespace SiMay.RemoteMonitor.Application
                         file.FileSize,
                         file.UsingSize,
                         file.FreeSize,
-                        FileItemType.File,
+                        Enums.FileKind.File,
                         file.LastAccessTime,
                         IcoIndex(extension, true)));
 
                     break;
-                case FileType.Directory:
+                case Core.FileType.Directory:
                     this.fileList.Items.Add(new FileListViewItem(
                         file.FileName,
                         file.FileSize,
                         file.UsingSize,
                         file.FreeSize,
-                        FileItemType.Directory,
+                        Enums.FileKind.Directory,
                         file.LastAccessTime,
                         IcoIndex("DIR", false)));
                     break;
-                case FileType.Disk:
+                case Core.FileType.Disk:
                     this.fileList.Items.Add(new FileListViewItem(
                         file.FileName,
                         file.FileSize,
                         file.UsingSize,
                         file.FreeSize,
-                        FileItemType.Disk,
+                        Enums.FileKind.Disk,
                         file.LastAccessTime,
                         IcoIndex("", true)));
                     break;
@@ -273,7 +273,7 @@ namespace SiMay.RemoteMonitor.Application
             if (this.fileList.SelectedItems.Count != 0)
             {
                 var file = this.fileList.Items[fileList.SelectedItems[0].Index] as FileListViewItem;
-                if (file.FileType == FileItemType.File)
+                if (file.FileType == Enums.FileKind.File)
                 {
                     if (file.FileSize > 1024 * 512)
                     {
@@ -367,7 +367,7 @@ namespace SiMay.RemoteMonitor.Application
         private void 删除文件ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var files = this.GetSelectFiles();
-            if (files.Any(c => c.FileType == FileItemType.Disk))
+            if (files.Any(c => c.FileType == Enums.FileKind.Disk))
             {
                 MessageBoxHelper.ShowBoxExclamation("根目录不允许删除!");
                 return;
@@ -471,7 +471,7 @@ namespace SiMay.RemoteMonitor.Application
             if (files.Any())
             {
                 var file = files.FirstOrDefault();
-                if (file.FileType == FileItemType.Disk)
+                if (file.FileType == Enums.FileKind.Disk)
                 {
                     MessageBoxHelper.ShowBoxError("磁盘不能作为重命名的对象!");
                     return;
@@ -517,7 +517,7 @@ namespace SiMay.RemoteMonitor.Application
         private void 复制文件ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var files = this.GetSelectFiles().ToList();
-            if (files.Any(c => c.FileType == FileItemType.Disk))
+            if (files.Any(c => c.FileType == Enums.FileKind.Disk))
             {
                 MessageBoxHelper.ShowBoxError("磁盘对象不支持复制!");
                 return;
@@ -564,27 +564,27 @@ namespace SiMay.RemoteMonitor.Application
             this.uploadMenuItem.Enabled = false;
             this.downloadAsToolStripMenuItem.Enabled = false;
             this._transferMode = null;
-            this.RemoteFileAdapterHandler.TransferTaskFlage = TransferTaskFlage.Allow;
+            this.RemoteFileAdapterHandler.TransferTaskFlage = TransportTaskFlage.Allow;
             this._startTime = DateTime.Now;
             var root = targetRoot;
             var savePath = localRoot;
             foreach (var fileItem in this.GetSelectFiles())
             {
-                if (fileItem.FileType == FileItemType.File)
+                if (fileItem.FileType == Enums.FileKind.File)
                 {
                     string remoteFileName = Path.Combine(root, fileItem.FileName);
                     string localFileName = Path.Combine(savePath, fileItem.FileName);
                     await this.DownloadFile(remoteFileName, localFileName);
                 }
-                else if (fileItem.FileType == FileItemType.Directory)
+                else if (fileItem.FileType == Enums.FileKind.Directory)
                     await this.DownloadDirectory(Path.Combine(root, fileItem.FileName), savePath);
                 else
                 {
                     MessageBoxHelper.ShowBoxExclamation("当前选项中包含了暂未支持传输的部分!");
                     break;
                 }
-                if (this._transferMode == TransferMode.Cancel ||//选择取消传输
-                    this.RemoteFileAdapterHandler.TransferTaskFlage == TransferTaskFlage.Abort ||//终止传输信号
+                if (this._transferMode == TransportMode.Cancel ||//选择取消传输
+                    this.RemoteFileAdapterHandler.TransferTaskFlage == TransportTaskFlage.Abort ||//终止传输信号
                     this.RemoteFileAdapterHandler.IsManualClose())//关闭应用
                     break;
             }
@@ -609,7 +609,7 @@ namespace SiMay.RemoteMonitor.Application
             long position = 0;
             if (File.Exists(localFileName))
             {
-                TransferMode transferMode = TransferMode.Continuingly;
+                TransportMode transferMode = TransportMode.Continuingly;
                 if (!_transferMode.HasValue)
                 {
                     FileTransferModeForm dlg = new FileTransferModeForm();
@@ -622,23 +622,23 @@ namespace SiMay.RemoteMonitor.Application
 
                 switch (transferMode)
                 {
-                    case TransferMode.Replace:
+                    case TransportMode.Replace:
                         File.Delete(localFileName);
                         break;
-                    case TransferMode.ReplaceAll:
+                    case TransportMode.ReplaceAll:
                         File.Delete(localFileName);
-                        _transferMode = TransferMode.Replace;
+                        _transferMode = TransportMode.Replace;
                         break;
-                    case TransferMode.Continuingly:
+                    case TransportMode.Continuingly:
                         position = new FileInfo(localFileName).Length;
                         break;
-                    case TransferMode.ContinuinglyAll:
+                    case TransportMode.ContinuinglyAll:
                         position = new FileInfo(localFileName).Length;
-                        _transferMode = TransferMode.Continuingly;
+                        _transferMode = TransportMode.Continuingly;
                         break;
-                    case TransferMode.JumpOver:
+                    case TransportMode.JumpOver:
                         return ifileStream;//跳过本次
-                    case TransferMode.Cancel:
+                    case TransportMode.Cancel:
                         _transferMode = transferMode;
                         return ifileStream;
                     default:
@@ -704,7 +704,7 @@ namespace SiMay.RemoteMonitor.Application
             await this.RemoteFileAdapterHandler.UploadFile(new WindowsForFileStream(fileStream),
                 remoteFileName, r =>
                 {
-                    TransferMode transferMode = TransferMode.Continuingly;
+                    TransportMode transferMode = TransportMode.Continuingly;
                     if (!_transferMode.HasValue)
                     {
                         FileTransferModeForm dlg = new FileTransferModeForm();
@@ -718,26 +718,26 @@ namespace SiMay.RemoteMonitor.Application
                 });
         }
 
-        private void OnFileTransferProgressEventHandler(RemoteFileAdapterHandler adapterHandler, FileTransferFlag state, string fileName, long position, long fileSize)
+        private void OnFileTransferProgressEventHandler(RemoteFileAdapterHandler adapterHandler, TransportFlage state, string fileName, long position, long fileSize)
         {
             if (this.RemoteFileAdapterHandler.IsManualClose())//UI未关闭时才允许操作控件
                 return;
 
             switch (state)
             {
-                case FileTransferFlag.Begin:
+                case TransportFlage.Begin:
                     if (fileSize > 0)
                         this.transferProgress.Value = Convert.ToInt32(position / (float)fileSize * 100);
                     this.transferDatalenght.Text = $"已传输{FileHelper.LengthToFileSize(position).PadRight(10)}";
                     this.time.Text = "传输时间:{0}s".FormatTo((DateTime.Now - _startTime).TotalSeconds.ToString("0"));
                     break;
-                case FileTransferFlag.Transfering:
+                case TransportFlage.Transfering:
                     this.transferProgress.Value = Convert.ToInt32(position / (float)fileSize * 100);
                     this.transferCaption.Text = $"正在传输:{Path.GetFileName(fileName)} 文件大小:{FileHelper.LengthToFileSize(fileSize)}";
                     this.transferDatalenght.Text = $"已传输:{FileHelper.LengthToFileSize(position).PadRight(10)}";
                     this.time.Text = "传输时间:{0}s".FormatTo((DateTime.Now - _startTime).TotalSeconds.ToString("0"));
                     break;
-                case FileTransferFlag.End:
+                case TransportFlage.End:
                     this.transferProgress.Value = 0;
                     this.transferCaption.Text = $"目录装载完成";
                     this.transferDatalenght.Text = "已传输0KB";
@@ -772,7 +772,7 @@ namespace SiMay.RemoteMonitor.Application
         {
             try
             {
-                if (this.RemoteFileAdapterHandler.TransferTaskFlage == TransferTaskFlage.Abort || _transferMode == TransferMode.Cancel)
+                if (this.RemoteFileAdapterHandler.TransferTaskFlage == TransportTaskFlage.Abort || _transferMode == TransportMode.Cancel)
                     return;
 
                 string[] files = Directory.GetFiles(localdirectory);
@@ -780,7 +780,7 @@ namespace SiMay.RemoteMonitor.Application
                 {
                     var targetFileName = Path.Combine(remotedirectory, file.Substring(localdirectory.LastIndexOf("\\") + 1));
                     await this.UploadFile(file, targetFileName);
-                    if (this.RemoteFileAdapterHandler.TransferTaskFlage == TransferTaskFlage.Abort || _transferMode == TransferMode.Cancel)
+                    if (this.RemoteFileAdapterHandler.TransferTaskFlage == TransportTaskFlage.Abort || _transferMode == TransportMode.Cancel)
                         return;
                 }
                 string[] directroys = Directory.GetDirectories(localdirectory);
@@ -864,13 +864,13 @@ namespace SiMay.RemoteMonitor.Application
                 this.downloadMenuItem.Enabled = false;
                 this.uploadMenuItem.Enabled = false;
                 this._transferMode = null;
-                this.RemoteFileAdapterHandler.TransferTaskFlage = TransferTaskFlage.Allow;
+                this.RemoteFileAdapterHandler.TransferTaskFlage = TransportTaskFlage.Allow;
                 this._startTime = DateTime.Now;
                 var remotedirectory = txtRemotedirectory.Text;
                 foreach (var file in dlg.FileNames)
                 {
                     await this.UploadFile(file, Path.Combine(remotedirectory, Path.GetFileName(file)));
-                    if (_transferMode == TransferMode.Cancel || this.RemoteFileAdapterHandler.TransferTaskFlage == TransferTaskFlage.Abort)
+                    if (_transferMode == TransportMode.Cancel || this.RemoteFileAdapterHandler.TransferTaskFlage == TransportTaskFlage.Abort)
                         break;
                 }
                 this.RemoteFileAdapterHandler.GetRemoteFiles(remotedirectory);
@@ -896,7 +896,7 @@ namespace SiMay.RemoteMonitor.Application
                 else
                 {
                     this._transferMode = null;
-                    this.RemoteFileAdapterHandler.TransferTaskFlage = TransferTaskFlage.Allow;
+                    this.RemoteFileAdapterHandler.TransferTaskFlage = TransportTaskFlage.Allow;
                     this._startTime = DateTime.Now;
                     var remotedirectory = txtRemotedirectory.Text;
 
@@ -939,7 +939,7 @@ namespace SiMay.RemoteMonitor.Application
                 this.downloadMenuItem.Enabled = false;
                 this.uploadMenuItem.Enabled = false;
                 this._transferMode = null;
-                this.RemoteFileAdapterHandler.TransferTaskFlage = TransferTaskFlage.Allow;
+                this.RemoteFileAdapterHandler.TransferTaskFlage = TransportTaskFlage.Allow;
                 this._startTime = DateTime.Now;
                 var remotedirectory = txtRemotedirectory.Text;
                 foreach (var file in files)
@@ -949,7 +949,7 @@ namespace SiMay.RemoteMonitor.Application
                     else
                         await this.UploadFile(file, Path.Combine(remotedirectory, Path.GetFileName(file)));
 
-                    if (_transferMode == TransferMode.Cancel || this.RemoteFileAdapterHandler.TransferTaskFlage == TransferTaskFlage.Abort)
+                    if (_transferMode == TransportMode.Cancel || this.RemoteFileAdapterHandler.TransferTaskFlage == TransportTaskFlage.Abort)
                         break;
                 }
                 this.RemoteFileAdapterHandler.GetRemoteFiles(remotedirectory);

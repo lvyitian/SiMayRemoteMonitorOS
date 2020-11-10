@@ -56,7 +56,7 @@ namespace SiMay.RemoteControlsCore
         /// <summary>
         /// 监听日志事件
         /// </summary>
-        public event Action<string, LogSeverityLevel> OnLogHandlerEvent;
+        public event Action<string, LogOutLevel> OnLogHandlerEvent;
 
         /// <summary>
         /// 主线程同步上下文
@@ -122,16 +122,16 @@ namespace SiMay.RemoteControlsCore
             if (providerType == SessionProviderType.TcpServiceSession)
             {
                 if (StartServiceProvider(providerOptions))
-                    this.OnLogHandlerEvent?.Invoke($"SiMay远程监控管理系统端口 {port} 监听成功!", LogSeverityLevel.Information);
+                    this.OnLogHandlerEvent?.Invoke($"SiMay远程监控管理系统端口 {port} 监听成功!", LogOutLevel.Information);
                 else
-                    this.OnLogHandlerEvent?.Invoke($"SiMay远程监控管理系统端口 {port} 启动失败,请检查配置!", LogSeverityLevel.Warning);
+                    this.OnLogHandlerEvent?.Invoke($"SiMay远程监控管理系统端口 {port} 启动失败,请检查配置!", LogOutLevel.Warning);
             }
             else
             {
                 if (StartProxySessionProvider(providerOptions))
-                    this.OnLogHandlerEvent?.Invoke($"SiMay远程监控管理系统初始化成功!", LogSeverityLevel.Information);
+                    this.OnLogHandlerEvent?.Invoke($"SiMay远程监控管理系统初始化成功!", LogOutLevel.Information);
                 else
-                    this.OnLogHandlerEvent?.Invoke($"SiMay远程监控管理系统初始化发生错误，请注意检查配置!", LogSeverityLevel.Warning);
+                    this.OnLogHandlerEvent?.Invoke($"SiMay远程监控管理系统初始化发生错误，请注意检查配置!", LogOutLevel.Warning);
             }
 
             bool StartServiceProvider(SessionProviderOptions options)
@@ -193,7 +193,7 @@ namespace SiMay.RemoteControlsCore
                             //先分配好工作类型，等待工作指令分配新的工作类型
                             session.AppTokens = new object[SysConstants.INDEX_COUNT]
                             {
-                                ConnectionWorkType.NONE,//未经验证的状态
+                                SessionKind.NONE,//未经验证的状态
                                 null
                             };
                             break;
@@ -226,9 +226,9 @@ namespace SiMay.RemoteControlsCore
             // [0]为该连接工作类型，MainWork为主连接，Work工作连接，NONE为未知连接
             // [1]如果连接为Work类型，则是消息处理器，否则是主连接上下文对象
             var appTokens = session.AppTokens;
-            var sessionWorkType = appTokens[SysConstants.INDEX_WORKTYPE].ConvertTo<ConnectionWorkType>();
+            var sessionWorkType = appTokens[SysConstants.INDEX_WORKTYPE].ConvertTo<SessionKind>();
 
-            if (sessionWorkType == ConnectionWorkType.WORKCON)
+            if (sessionWorkType == SessionKind.APP_SERVICE)
             {
                 //消息传给消息适配器,由消息适配器进行处理，通过事件反馈数据到展示层
                 var adapter = appTokens[SysConstants.INDEX_WORKER].ConvertTo<ApplicationAdapterHandler>();
@@ -236,9 +236,9 @@ namespace SiMay.RemoteControlsCore
                     return;
                 adapter.HandlerBinder.InvokePacketHandler(session, session.GetMessageHead(), adapter);
             }
-            else if (sessionWorkType == ConnectionWorkType.MAINCON)
+            else if (sessionWorkType == SessionKind.MAIN_SERVICE)
                 this.HandlerBinder.InvokePacketHandler(session, session.GetMessageHead(), this);
-            else if (sessionWorkType == ConnectionWorkType.NONE) //未经过验证的连接的消息只能进入该方法块处理，连接密码验证正确才能正式处理消息
+            else if (sessionWorkType == SessionKind.NONE) //未经过验证的连接的消息只能进入该方法块处理，连接密码验证正确才能正式处理消息
             {
                 switch (session.GetMessageHead())
                 {
@@ -268,7 +268,7 @@ namespace SiMay.RemoteControlsCore
             else
             {
                 //连接密码验证通过，设置成为主连接，正式接收处理数据包
-                session.AppTokens[SysConstants.INDEX_WORKTYPE] = ConnectionWorkType.MAINCON;
+                session.AppTokens[SysConstants.INDEX_WORKTYPE] = SessionKind.MAIN_SERVICE;
 
                 if (!ack.AssemblyLoad)
                     SendServicePlugins(session);
@@ -301,15 +301,15 @@ namespace SiMay.RemoteControlsCore
                 //优先级说明:等待应用优先匹配，应用创建时如有多个适配器，第一个适配器完成初始化后会被创建为等待应用加入任务调度队列，直至所有适配器连接完成，否则超时应用会被判定创建失败。
 
                 //查找任务调度队列,如果有对应的任务则继续工作
-                if (TaskScheduleTrigger.FindOutScheduleTask(c => c.TaskName.Contains(identifyId) && (c.TaskName.Split(',').ElementAt(1).Equals(applicationName, StringComparison.OrdinalIgnoreCase) || c.TaskName.Split(',').ElementAt(1).Equals(activateResponse.ActivatedCommandText, StringComparison.OrdinalIgnoreCase)), out var taskSchedule))
+                if (TaskScheduleTrigger.FindOutScheduleTask(c => c.Topic.Contains(identifyId) && (c.Topic.Split(',').ElementAt(1).Equals(applicationName, StringComparison.OrdinalIgnoreCase) || c.Topic.Split(',').ElementAt(1).Equals(activateResponse.ActivatedCommandText, StringComparison.OrdinalIgnoreCase)), out var taskSchedule))
                 {
                     //如果是匹配到了离线适配器
-                    if (taskSchedule.TaskName.Equals($"{identifyId},{activateResponse.ActivatedCommandText}") && taskSchedule is ICustomEvent task)
+                    if (taskSchedule.Topic.Equals($"{identifyId},{activateResponse.ActivatedCommandText}") && taskSchedule is ICustomEvent task)
                         task.Invoke(this, new SuspendTaskResumEventArgs()
                         {
                             Session = session
                         });
-                    else if (taskSchedule.TaskName.Equals($"{identifyId},{applicationName}") && taskSchedule is ApplicationCreatingTimeOutSuspendTaskContext creatingTimeOutContext)
+                    else if (taskSchedule.Topic.Equals($"{identifyId},{applicationName}") && taskSchedule is ApplicationCreatingTimeOutSuspendTaskContext creatingTimeOutContext)
                     {
                         var application = creatingTimeOutContext.Application;
                         var property = application.GetApplicationAdapterPropertyByKey(appKey);
@@ -332,17 +332,17 @@ namespace SiMay.RemoteControlsCore
                 else
                 {
                     //查找应用
-                    var context = SysUtil.ApplicationTypes.FirstOrDefault(c => c.Type.Name.Equals(applicationName, StringComparison.OrdinalIgnoreCase));
+                    var context = SysUtil.ApplicationTypes.FirstOrDefault(c => c.ApplicationType.Name.Equals(applicationName, StringComparison.OrdinalIgnoreCase));
                     if (!context.IsNull())
                     {
                         //根据appKey查找该应用适配器
-                        var appAdapterProperty = context.Type.GetApplicationAdapterPropertyByKey(appKey);
+                        var appAdapterProperty = context.ApplicationType.GetApplicationAdapterPropertyByKey(appKey);
 
                         if (appAdapterProperty.IsNull())
                             throw new ApplicationException("adapter not declaration!");
 
                         ApplicationAdapterHandler appHandlerBase = Activator.CreateInstance(appAdapterProperty.PropertyType).ConvertTo<ApplicationAdapterHandler>();
-                        IApplication app = Activator.CreateInstance(context.Type).ConvertTo<IApplication>();
+                        IApplication app = Activator.CreateInstance(context.ApplicationType).ConvertTo<IApplication>();
 
                         appHandlerBase.App = app;
                         appHandlerBase.IdentifyId = identifyId;
@@ -365,7 +365,7 @@ namespace SiMay.RemoteControlsCore
                 //应用资源情况检查
                 bool internalApplicationReadyExamine(ApplicationAdapterHandler adapter, IApplication app)
                 {
-                    session.AppTokens[SysConstants.INDEX_WORKTYPE] = ConnectionWorkType.WORKCON;
+                    session.AppTokens[SysConstants.INDEX_WORKTYPE] = SessionKind.APP_SERVICE;
                     session.AppTokens[SysConstants.INDEX_WORKER] = adapter;
 
                     var handlerFieders = app
@@ -385,7 +385,7 @@ namespace SiMay.RemoteControlsCore
                         TaskScheduleTrigger.AddScheduleTask(new ApplicationCreatingTimeOutSuspendTaskContext()
                         {
                             Application = app,
-                            TaskName = $"{identifyId},{app.GetType().Name}"
+                            Topic = $"{identifyId},{app.GetType().Name}"
                         });
                         return false;
                     }
@@ -568,7 +568,7 @@ namespace SiMay.RemoteControlsCore
 
                 this.OnLoginHandlerEvent?.Invoke(syncContext);
 
-                this.OnLogHandlerEvent?.Invoke($"计算机:{syncContext[SysConstants.MachineName].ConvertTo<string>()}({syncContext[SysConstants.Remark].ConvertTo<string>()}) -->已连接控制端!", LogSeverityLevel.Information);
+                this.OnLogHandlerEvent?.Invoke($"计算机:{syncContext[SysConstants.MachineName].ConvertTo<string>()}({syncContext[SysConstants.Remark].ConvertTo<string>()}) -->已连接控制端!", LogOutLevel.Information);
             }
             catch (Exception ex)
             {
@@ -586,8 +586,8 @@ namespace SiMay.RemoteControlsCore
             try
             {
                 object[] arguments = session.AppTokens;
-                var worktype = arguments[SysConstants.INDEX_WORKTYPE].ConvertTo<ConnectionWorkType>();
-                if (worktype == ConnectionWorkType.WORKCON)
+                var worktype = arguments[SysConstants.INDEX_WORKTYPE].ConvertTo<SessionKind>();
+                if (worktype == SessionKind.APP_SERVICE)
                 {
                     var adapterHandler = arguments[SysConstants.INDEX_WORKER].ConvertTo<ApplicationAdapterHandler>();
 
@@ -604,10 +604,10 @@ namespace SiMay.RemoteControlsCore
                         //DisconnectTimePoint = DateTime.Now,
                         ApplicationAdapterHandler = adapterHandler,
                         SessionSyncContexts = SessionSyncContexts,
-                        TaskName = $"{adapterHandler.IdentifyId},{appName}.{adapterHandler.GetApplicationKey()}"
+                        Topic = $"{adapterHandler.IdentifyId},{appName}.{adapterHandler.GetApplicationKey()}"
                     });
                 }
-                else if (worktype == ConnectionWorkType.MAINCON)
+                else if (worktype == SessionKind.MAIN_SERVICE)
                 {
                     var syncContext = arguments[SysConstants.INDEX_WORKER].ConvertTo<SessionSyncContext>();
                     if (syncContext.IsNull())
@@ -617,9 +617,9 @@ namespace SiMay.RemoteControlsCore
 
                     this.OnLogOutHandlerEvent?.Invoke(syncContext);
 
-                    this.OnLogHandlerEvent?.Invoke($"计算机:{syncContext[SysConstants.MachineName].ConvertTo<string>()}({syncContext[SysConstants.Remark].ConvertTo<string>()}) --已与控制端断开连接!", LogSeverityLevel.Warning);
+                    this.OnLogHandlerEvent?.Invoke($"计算机:{syncContext[SysConstants.MachineName].ConvertTo<string>()}({syncContext[SysConstants.Remark].ConvertTo<string>()}) --已与控制端断开连接!", LogOutLevel.Warning);
                 }
-                else if (worktype == ConnectionWorkType.NONE)
+                else if (worktype == SessionKind.NONE)
                 {
                     LogHelper.WriteErrorByCurrentMethod("NONE Session Close");
                 }
@@ -737,7 +737,7 @@ namespace SiMay.RemoteControlsCore
         /// </summary>
         /// <param name="syncContext"></param>
         /// <param name="sessionType"></param>
-        public void RemoteSetSessionState(SessionSyncContext syncContext, SystemSessionType sessionType)
+        public void RemoteSetSessionState(SessionSyncContext syncContext, SystemSessionKind sessionType)
         {
             syncContext.Session.SendTo(MessageHead.S_MAIN_SESSION, new byte[] { (byte)sessionType });
         }
@@ -759,7 +759,7 @@ namespace SiMay.RemoteControlsCore
         /// <param name="text"></param>
         /// <param name="title"></param>
         /// <param name="icon"></param>
-        public void RemoteMessageBox(SessionSyncContext syncContext, string text, string title, MessageIcon icon)
+        public void RemoteMessageBox(SessionSyncContext syncContext, string text, string title, MessageIconKind icon)
         {
             syncContext.Session.SendTo(MessageHead.S_MAIN_MESSAGEBOX,
                 new MessagePacket()

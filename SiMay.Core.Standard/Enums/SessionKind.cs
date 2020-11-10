@@ -5,17 +5,17 @@ using System.Text;
 
 namespace SiMay.Core
 {
-    public enum ConnectionWorkType : Byte
+    public enum SessionKind : Byte
     {
         /// <summary>
         /// 主服务连接
         /// </summary>
-        MAINCON,
+        MAIN_SERVICE,
 
         /// <summary>
         /// 应用服务工作连接
         /// </summary>
-        WORKCON,
+        APP_SERVICE,
 
         /// <summary>
         /// 未识别的连接

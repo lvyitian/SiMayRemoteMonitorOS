@@ -132,15 +132,15 @@ namespace SiMay.RemoteMonitor.MainApplication
             for (int i = 0; i < columnsTitle.Length; i++)
                 this.servicesOnlineList.Columns.Insert(i, columnsTitle[i], 150);
 
-            var apps = SysUtil.ApplicationTypes.OrderByDescending(x => x.Type.GetRank()).ToList();
+            var apps = SysUtil.ApplicationTypes.OrderByDescending(x => x.ApplicationType.GetRank()).ToList();
             apps.ForEach(c =>
             {
-                var type = c.Type;
-                var stripMenu = new UToolStripMenuItem(type.GetApplicationName(), c.Type);
+                var type = c.ApplicationType;
+                var stripMenu = new UToolStripMenuItem(type.GetApplicationName(), c.ApplicationType);
                 stripMenu.Click += StripMenu_Click;
                 this.cmdContext.Items.Insert(0, stripMenu);
 
-                if (c.Type.OnTools())
+                if (c.ApplicationType.OnTools())
                 {
                     var stripButton = new UToolStripButton(type.GetApplicationName(), SysUtilExtend.GetResourceImageByName(type.GetIconResourceName()), type);
                     stripButton.Click += StripButton_Click;
@@ -273,17 +273,17 @@ namespace SiMay.RemoteMonitor.MainApplication
             //    listItem.BackColor = _closeScreenColor;
         }
 
-        private void OnLogHandlerEvent(string log, LogSeverityLevel level)
+        private void OnLogHandlerEvent(string log, LogOutLevel level)
         {
             switch (level)
             {
-                case LogSeverityLevel.Information:
+                case LogOutLevel.Information:
                     this.WriteRuninglog(log, "ok");
                     break;
-                case LogSeverityLevel.Warning:
+                case LogOutLevel.Warning:
                     this.WriteRuninglog(log, "error");
                     break;
-                case LogSeverityLevel.Error:
+                case LogOutLevel.Error:
                     break;
                 default:
                     break;
@@ -516,7 +516,7 @@ namespace SiMay.RemoteMonitor.MainApplication
                 return;
             this.GetSelectedListItem().ForEach(c =>
             {
-                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionType.Shutdown);
+                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionKind.Shutdown);
             });
         }
 
@@ -526,7 +526,7 @@ namespace SiMay.RemoteMonitor.MainApplication
                 return;
             this.GetSelectedListItem().ForEach(c =>
             {
-                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionType.Reboot);
+                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionKind.Reboot);
             });
         }
 
@@ -536,7 +536,7 @@ namespace SiMay.RemoteMonitor.MainApplication
                 return;
             this.GetSelectedListItem().ForEach(c =>
             {
-                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionType.RegStart);
+                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionKind.RegStart);
             });
         }
 
@@ -547,7 +547,7 @@ namespace SiMay.RemoteMonitor.MainApplication
 
             this.GetSelectedListItem().ForEach(c =>
             {
-                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionType.RegCancelStart);
+                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionKind.RegCancelStart);
             });
         }
 
@@ -555,7 +555,7 @@ namespace SiMay.RemoteMonitor.MainApplication
         {
             this.GetSelectedListItem().ForEach(c =>
             {
-                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionType.AttributeHide);
+                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionKind.AttributeHide);
             });
         }
 
@@ -563,7 +563,7 @@ namespace SiMay.RemoteMonitor.MainApplication
         {
             this.GetSelectedListItem().ForEach(c =>
             {
-                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionType.AttributeShow);
+                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionKind.AttributeShow);
             });
         }
 
@@ -573,7 +573,7 @@ namespace SiMay.RemoteMonitor.MainApplication
                 return;
             this.GetSelectedListItem().ForEach(c =>
             {
-                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionType.Unstall);
+                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionKind.Unstall);
             });
         }
 
@@ -799,7 +799,7 @@ namespace SiMay.RemoteMonitor.MainApplication
                 return;
             this.GetSelectedDesktopView().ForEach(c =>
             {
-                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionType.Unstall);
+                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionKind.Unstall);
             });
         }
 
@@ -959,7 +959,7 @@ namespace SiMay.RemoteMonitor.MainApplication
                 return;
             this.GetSelectedListItem().ForEach(c =>
             {
-                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionType.InstallService);
+                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionKind.InstallService);
             });
         }
 
@@ -969,7 +969,7 @@ namespace SiMay.RemoteMonitor.MainApplication
                 return;
             this.GetSelectedListItem().ForEach(c =>
             {
-                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionType.UnInstallService);
+                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionKind.UnInstallService);
             });
         }
 

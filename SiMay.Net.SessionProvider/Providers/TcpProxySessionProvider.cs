@@ -30,7 +30,8 @@ namespace SiMay.Net.SessionProvider.Providers
         private int _currentState = 0;
         private bool _wetherLogOut;
         private IDictionary<long, SessionProviderContext> _proxySessions = new Dictionary<long, SessionProviderContext>();
-        private TcpSocketSaeaClientAgent _clientAgent;
+
+        private TcpSocketSaeaClientAgent _clientAgent = null;
 
         /// <summary>
         /// session代理提供器构造函数
@@ -105,12 +106,14 @@ namespace SiMay.Net.SessionProvider.Providers
                     ConnectionWorkType.MainApplicationConnection
                 };
                 this.SendACK(session, ConnectionWorkType.MainApplicationConnection);
-                this.TcpProxyMainConnectionContext.PullSession();
+                this.TcpProxyMainConnectionContext.PulCurrentSessions();
             }
             else
             {
                 var tcpSessionContext = new TcpServiceSessionContext(session);
-                this._proxySessions.Add(tcpSessionContext.GetHashCode(), tcpSessionContext);
+
+                lock (_proxySessions)
+                    this._proxySessions.Add(tcpSessionContext.GetHashCode(), tcpSessionContext);
 
                 session.AppTokens = new object[] {
                     tcpSessionContext,
@@ -156,7 +159,7 @@ namespace SiMay.Net.SessionProvider.Providers
             if (type == ConnectionWorkType.MainApplicationConnection)
             {
                 var sessionContext = session.AppTokens[SysContanct.INDEX_WORKER].ConvertTo<TcpProxyMainConnectionContext>();
-                sessionContext.OnMessage(session.CompletedBuffer);
+                sessionContext.OnProcess(session.CompletedBuffer);
             }
             else if (type == ConnectionWorkType.ApplicationConnection)
             {
@@ -190,12 +193,12 @@ namespace SiMay.Net.SessionProvider.Providers
                 }
                 this.TcpProxyMainConnectionContext = null; _currentState = CHANNEL_LOGOUT;
 
-                lock (this)
-                {
-                    foreach (var proxySession in _proxySessions.Select(c => c.Value))
-                        this.Notification(proxySession, TcpSessionNotify.OnClosed);
+
+                foreach (var proxySession in _proxySessions.Select(c => c.Value).ToArray())//操作安全临时解决方案
+                    this.Notification(proxySession, TcpSessionNotify.OnClosed);
+
+                lock (_proxySessions)
                     this._proxySessions.Clear();
-                }
 
                 if (!_wetherLogOut)
                 {
@@ -213,7 +216,7 @@ namespace SiMay.Net.SessionProvider.Providers
             }
             else if (type == ConnectionWorkType.ApplicationConnection)
             {
-                lock (this)
+                lock (_proxySessions)
                 {
                     var sessionContext = session.AppTokens[SysContanct.INDEX_WORKER].ConvertTo<TcpServiceSessionContext>();
                     this.Notification(sessionContext, TcpSessionNotify.OnClosed);
@@ -229,7 +232,7 @@ namespace SiMay.Net.SessionProvider.Providers
 
         public override void BroadcastAsync(byte[] data, int offset, int lenght)
         {
-            foreach (var session in this._proxySessions.Select(c => c.Value))
+            foreach (var session in this._proxySessions.Select(c => c.Value).ToArray())//操作安全临时解决方案
                 session.SendAsync(data, offset, lenght);
         }
 
@@ -241,7 +244,7 @@ namespace SiMay.Net.SessionProvider.Providers
 
         public override void DisconnectAll()
         {
-            foreach (var session in this._proxySessions.Select(c => c.Value))
+            foreach (var session in this._proxySessions.Select(c => c.Value).ToArray())//操作安全临时解决方案
                 session.SessionClose();
         }
     }
