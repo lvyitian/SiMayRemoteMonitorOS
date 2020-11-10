@@ -13,12 +13,6 @@ namespace SiMay.RemoteControlsCore
         private static bool _stared = false;
 
         private static IList<ITaskSchedule> _taskSchedules;
-
-        //待移除队列
-        private static Queue<ITaskSchedule> _waitRemoveSchedules;
-
-        private static Queue<ITaskSchedule> _waitIncreaseSchedules;
-
         private static int _intervalMin = 100;
 
         /// <summary>
@@ -30,14 +24,16 @@ namespace SiMay.RemoteControlsCore
             _stared = true;
             _intervalMin = intervalMin;
             _taskSchedules = new List<ITaskSchedule>();
-            _waitRemoveSchedules = new Queue<ITaskSchedule>();
-            _waitIncreaseSchedules = new Queue<ITaskSchedule>();
             Task.Factory.StartNew(async () =>
             {
                 while (_stared)
                 {
                     var now = DateTime.Now;
-                    foreach (var task in _taskSchedules)
+                    ITaskSchedule[] toLists = Array.Empty<ITaskSchedule>();
+                    lock (_taskSchedules)
+                        toLists = _taskSchedules.ToArray();//临时解决方案
+
+                    foreach (var task in toLists)
                     {
                         if ((now - task.TimePoint) > task.Interval)
                         {
@@ -48,11 +44,7 @@ namespace SiMay.RemoteControlsCore
                             });
                         }
                     }
-                    if (_waitRemoveSchedules.Count > 0)
-                        _taskSchedules.Remove(_waitRemoveSchedules.Dequeue());
-                    if (_waitIncreaseSchedules.Count > 0)
-                        _taskSchedules.Add(_waitIncreaseSchedules.Dequeue());
-
+                    Array.Clear(toLists, 0, toLists.Length);
                     await Task.Delay(intervalMin);
                 }
             }, TaskCreationOptions.LongRunning);
@@ -61,21 +53,21 @@ namespace SiMay.RemoteControlsCore
         public static void AddScheduleTask(ITaskSchedule task)
         {
             task.TimePoint = DateTime.Now;
-            _waitIncreaseSchedules.Enqueue(task);
+            lock (_taskSchedules)
+                _taskSchedules.Add(task);
         }
         public static bool FindOutScheduleTask(Func<ITaskSchedule, bool> func, out ITaskSchedule task)
         {
-            task = _taskSchedules.FirstOrDefault(func);
-            if (task.IsNull())
-                task = _waitIncreaseSchedules.FristOrDefault(func);
+            lock (_taskSchedules)
+                task = _taskSchedules.FirstOrDefault(func);
 
             return !task.IsNull();
         }
 
         public static void RemoveScheduleTask(ITaskSchedule task)
         {
-            _waitRemoveSchedules.Enqueue(task);
-            //_taskSchedules.Remove(task);
+            lock (_taskSchedules)
+                _taskSchedules.Remove(task);
         }
     }
 }
