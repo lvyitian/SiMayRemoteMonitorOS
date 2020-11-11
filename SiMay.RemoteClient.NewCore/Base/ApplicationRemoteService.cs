@@ -1,4 +1,6 @@
-﻿using SiMay.Core;
+﻿using SiMay.Basic;
+using SiMay.Core;
+using SiMay.Core.Standard.Packets;
 using SiMay.ModelBinder;
 using SiMay.Net.SessionProvider;
 using System;
@@ -62,5 +64,37 @@ namespace SiMay.ServiceCore
         public abstract void SessionInited(SessionProviderContext session);
 
         public abstract void SessionClosed();
+
+        [PacketHandler(MessageHead.S_GLOBAL_SYNC_CALL)]
+        public void CallFunctionSync(SessionProviderContext session)
+        {
+            var callTarget = session.GetMessageEntity<CallSyncPacket>();
+
+            try
+            {
+                var returnEntity = this.HandlerBinder.CallFunctionPacketHandler(session, callTarget.TargetMessageHead, this);
+                if (!returnEntity.IsNull())
+                {
+                    var syncResultPacket = new CallSyncResultPacket
+                    {
+                        Id = callTarget.Id,
+                        Datas = SiMay.Serialize.Standard.PacketSerializeHelper.SerializePacket(returnEntity),
+                        IsOK = true
+                    };
+                    session.SendTo(MessageHead.C_GLOBAL_SYNC_RESULT, syncResultPacket);
+                }
+            }
+            catch (Exception)
+            {
+                session.SendTo(MessageHead.C_GLOBAL_SYNC_RESULT,
+                    new CallSyncResultPacket
+                    {
+                        Id = callTarget.Id,
+                        Datas = Array.Empty<byte>(),
+                        IsOK = false
+                    });
+            }
+
+        }
     }
 }

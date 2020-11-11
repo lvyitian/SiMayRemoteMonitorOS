@@ -48,7 +48,7 @@ namespace SiMay.Core
             where T : struct
         {
             if (data == null)
-                data = new byte[] { };
+                data = Array.Empty<byte>();
 
             return CopyMessageHeadTo(cmd, data, data.Length);
         }

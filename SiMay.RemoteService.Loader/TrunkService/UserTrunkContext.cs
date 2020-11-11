@@ -73,7 +73,7 @@ namespace SiMay.RemoteService.Loader
                     case TcpSessionNotify.OnDataReceiveing:
                         break;
                     case TcpSessionNotify.OnDataReceived:
-                        _handlerBinder.InvokePacketHandler(session, session.CompletedBuffer.GetMessageHead<TrunkMessageHead>(), this);
+                        _handlerBinder.CallPacketHandler(session, session.CompletedBuffer.GetMessageHead<TrunkMessageHead>(), this);
                         break;
                     case TcpSessionNotify.OnClosed:
                         _trunkTcpSession = null;

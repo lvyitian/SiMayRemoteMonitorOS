@@ -13,9 +13,10 @@ namespace SiMay.Core
         S_GLOBAL_ONCLOSE = 0,                              //关闭连接通道
         S_GLOBAL_OK,                                       //确认标志
         S_GLOBAL_PLUGIN,                                   //插件文件
+        S_GLOBAL_SYNC_CALL,                                //同步调用
 
         C_GLOBAL_CONNECT = 1000,                           //连接确认包，带连接密码
-
+        C_GLOBAL_SYNC_RESULT,                              //同步调用结果
 
         //主窗体------------------------------------------------------------
         S_MAIN_REMARK = 1000,                              //备注
@@ -172,7 +173,7 @@ namespace SiMay.Core
         S_NREG_DELETE_KEY,                                 //删除键
         S_NREG_DELETE_VALUE,                               //删除值
         S_NREG_CHANGE_VALUE,                               //更改值
-        
+
         C_NREG_LOAD_REGKEYS = 2000,                        //加载
         C_NREG_CREATE_KEY_RESPONSE,                        //创建KEY响应
         C_NREG_CREATE_VALUE_RESPONSE,                      //创建Value响应
@@ -197,7 +198,7 @@ namespace SiMay.Core
 
         C_REMOTE_UPDATE_READY = 2000,                      //远程就绪
         C_REMOTE_UPDATE_NEXT_DATA,                         //获取下一个文件数据
-        
+
         S_REMOTE_UPDATE_DATA,                              //文件数据
     }
 }

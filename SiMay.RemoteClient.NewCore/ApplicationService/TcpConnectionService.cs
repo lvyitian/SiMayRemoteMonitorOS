@@ -26,7 +26,7 @@ namespace SiMay.ServiceCore
         }
 
         [PacketHandler(MessageHead.S_TCP_GET_LIST)]
-        public void GetTcpConnectionList(SessionProviderContext session)
+        public TcpConnectionPacket GetTcpConnectionList(SessionProviderContext session)
         {
             Console.WriteLine("server:gettcplist");
             var table = GetTable();
@@ -58,11 +58,16 @@ namespace SiMay.ServiceCore
                 var ss = connections[i];
             }
 
-            CurrentSession.SendTo(MessageHead.C_TCP_LIST,
-                new TcpConnectionPacket()
-                {
-                    TcpConnections = connections
-                });
+            //CurrentSession.SendTo(MessageHead.C_TCP_LIST,
+            //    new TcpConnectionPacket()
+            //    {
+            //        TcpConnections = connections
+            //    });
+
+            return new TcpConnectionPacket()
+            {
+                TcpConnections = connections
+            };
         }
 
         [PacketHandler(MessageHead.S_TCP_CLOSE_CHANNEL)]
@@ -92,7 +97,7 @@ namespace SiMay.ServiceCore
                     }
                 }
             }
-            this.GetTcpConnectionList(session);
+            //this.GetTcpConnectionList(session);
         }
         private static CommonWin32Api.MibTcprowOwnerPid[] GetTable()
         {

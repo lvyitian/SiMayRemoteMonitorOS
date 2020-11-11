@@ -17,19 +17,22 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// </summary>
         public event Action<TcpConnectionAdapterHandler, IEnumerable<TcpConnectionItem>> OnTcpListHandlerEvent;
 
-        [PacketHandler(MessageHead.C_TCP_LIST)]
-        private void TcpListHandler(SessionProviderContext session)
-        {
-            var pack = session.GetMessageEntity<TcpConnectionPacket>();
-            this.OnTcpListHandlerEvent?.Invoke(this, pack.TcpConnections);
-        }
+        //[PacketHandler(MessageHead.C_TCP_LIST)]
+        //private void TcpListHandler(SessionProviderContext session)
+        //{
+        //    var pack = session.GetMessageEntity<TcpConnectionPacket>();
+        //    this.OnTcpListHandlerEvent?.Invoke(this, pack.TcpConnections);
+        //}
 
         /// <summary>
         /// 获取Tcp连接信息
         /// </summary>
-        public void GetTcpList()
+        public async void GetTcpList()
         {
-            CurrentSession.SendTo(MessageHead.S_TCP_GET_LIST);
+            var pack = await SendTo(MessageHead.S_TCP_GET_LIST);
+
+            this.OnTcpListHandlerEvent?.Invoke(this, SiMay.Serialize.Standard.PacketSerializeHelper.DeserializePacket<TcpConnectionPacket>(pack.Datas).TcpConnections);
+            //CurrentSession.SendTo(MessageHead.S_TCP_GET_LIST);
         }
 
         /// <summary>

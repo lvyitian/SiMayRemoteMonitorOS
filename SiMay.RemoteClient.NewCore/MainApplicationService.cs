@@ -138,11 +138,19 @@ namespace SiMay.ServiceCore
                     case TcpSessionNotify.OnDataReceived:
                         var workType = (SessionKind)session.AppTokens[0];
                         if (workType == SessionKind.MAIN_SERVICE)
-                            this.HandlerBinder.InvokePacketHandler(session, session.GetMessageHead(), this);
+                        {
+                            var messageHead = session.GetMessageHead();
+                            this.HandlerBinder.CallPacketHandler(session, messageHead, this);
+                        }
                         else if (workType == SessionKind.APP_SERVICE)
                         {
-                            var appService = ((ApplicationRemoteService)session.AppTokens[1]);
-                            appService.HandlerBinder.InvokePacketHandler(session, session.GetMessageHead(), appService);
+                            var appService = session.AppTokens[1].ConvertTo<ApplicationRemoteService>();
+
+                            var messageHead = session.GetMessageHead();
+                            //if (messageHead == MessageHead.S_GLOBAL_SYNC_CALL)
+                            //    appService.CallSync(session);
+                            //else
+                            appService.HandlerBinder.CallPacketHandler(session, messageHead, appService);
                         }
                         break;
                     case TcpSessionNotify.OnClosed:
