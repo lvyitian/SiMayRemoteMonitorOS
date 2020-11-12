@@ -21,7 +21,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <summary>
         /// 获取Tcp连接信息
         /// </summary>
-        public async Task GetTcpList()
+        public async void GetTcpList()
         {
             var responsed = await SendTo(MessageHead.S_TCP_GET_LIST);
 
@@ -45,7 +45,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
                     Kills = killTcps.ToArray()
                 });
 
-            await GetTcpList();
+            GetTcpList();
         }
     }
 }
