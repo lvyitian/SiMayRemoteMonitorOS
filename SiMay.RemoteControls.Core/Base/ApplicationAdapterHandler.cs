@@ -122,12 +122,13 @@ namespace SiMay.RemoteControlsCore
         public async Task<CallSyncResultPacket> SendTo(MessageHead msg, byte[] data = null)
         {
             var id = Guid.NewGuid().GetHashCode();
+
+            var waitTranDatas = MessageHelper.CopyMessageHeadTo(msg, data ?? Array.Empty<byte>());
             byte[] bytes = MessageHelper.CopyMessageHeadTo(MessageHead.S_GLOBAL_SYNC_CALL,
                 new CallSyncPacket
                 {
                     Id = id,
-                    TargetMessageHead = msg,
-                    Datas = data ?? Array.Empty<byte>()
+                    Datas = waitTranDatas
                 });
             CurrentSession.SendAsync(bytes);
 

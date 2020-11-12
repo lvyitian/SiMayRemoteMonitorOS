@@ -70,31 +70,18 @@ namespace SiMay.ServiceCore
         {
             var callTarget = session.GetMessageEntity<CallSyncPacket>();
 
-            try
-            {
-                var returnEntity = this.HandlerBinder.CallFunctionPacketHandler(session, callTarget.TargetMessageHead, this);
-                if (!returnEntity.IsNull())
-                {
-                    var syncResultPacket = new CallSyncResultPacket
-                    {
-                        Id = callTarget.Id,
-                        Datas = SiMay.Serialize.Standard.PacketSerializeHelper.SerializePacket(returnEntity),
-                        IsOK = true
-                    };
-                    session.SendTo(MessageHead.C_GLOBAL_SYNC_RESULT, syncResultPacket);
-                }
-            }
-            catch (Exception)
-            {
-                session.SendTo(MessageHead.C_GLOBAL_SYNC_RESULT,
-                    new CallSyncResultPacket
-                    {
-                        Id = callTarget.Id,
-                        Datas = Array.Empty<byte>(),
-                        IsOK = false
-                    });
-            }
+            session.CompletedBuffer = callTarget.Datas;
 
+            var targetMessageHead = session.GetMessageHead();
+
+            bool isOK = this.HandlerBinder.CallFunctionPacketHandler(session, targetMessageHead, this, out var returnEntity);
+            var syncResultPacket = new CallSyncResultPacket
+            {
+                Id = callTarget.Id,
+                Datas = returnEntity.IsNull() ? Array.Empty<byte>() : SiMay.Serialize.Standard.PacketSerializeHelper.SerializePacket(returnEntity),
+                IsOK = isOK
+            };
+            session.SendTo(MessageHead.C_GLOBAL_SYNC_RESULT, syncResultPacket);
         }
     }
 }

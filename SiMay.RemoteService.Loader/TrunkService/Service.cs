@@ -43,7 +43,7 @@ namespace SiMay.RemoteService.Loader
             serverConfig.AppKeepAlive = true;
             serverConfig.PendingConnectionBacklog = 0;
             var trunkService = TcpSocketsFactory.CreateServerAgent(TcpSocketSaeaSessionType.Packet, serverConfig,
-                (notity, session) =>
+                (Sockets.Delegate.NotifyEventHandler<TcpSessionNotify, TcpSocketSaeaSession>)((notity, session) =>
             {
                 switch (notity)
                 {
@@ -54,7 +54,7 @@ namespace SiMay.RemoteService.Loader
                     case TcpSessionNotify.OnDataReceiveing:
                         break;
                     case TcpSessionNotify.OnDataReceived:
-                        _handlerBinder.CallPacketHandler(session, session.CompletedBuffer.GetMessageHead<TrunkMessageHead>(), this);
+                        _handlerBinder.CallFunctionPacketHandler((TcpSocketSaeaSession)session, (TrunkMessageHead)session.CompletedBuffer.GetMessageHead<TrunkMessageHead>(), (object)this);
                         break;
                     case TcpSessionNotify.OnClosed:
                         this.SessionClosedHandler(session);
@@ -62,7 +62,7 @@ namespace SiMay.RemoteService.Loader
                     default:
                         break;
                 }
-            });
+            }));
 
             bool completed = false;
             for (int trycount = 0; trycount < 100; trycount++)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SiMay.Basic;
 using SiMay.Core;
 using SiMay.ModelBinder;
 using SiMay.Net.SessionProvider;
@@ -20,84 +21,78 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
         public event Action<SystemAdapterHandler, string, string> OnOccupyHandlerEvent;
 
-        [PacketHandler(MessageHead.C_SYSTEM_SYSTEMINFO)]
-        private void HandlerProcessList(SessionProviderContext session)
+        public async Task GetSystemInfoItems()
         {
-            var pack = session.GetMessageEntity<SystemInfoPacket>();
-            OnSystemInfoHandlerEvent?.Invoke(this, pack.SystemInfos);
+            var responsed = await SendTo(MessageHead.S_SYSTEM_GET_SYSTEMINFO);
+            if (!responsed.IsNull() && responsed.IsOK)
+            {
+                var pack = SiMay.Serialize.Standard.PacketSerializeHelper.DeserializePacket<SystemInfoPacket>(responsed.Datas);
+                OnSystemInfoHandlerEvent?.Invoke(this, pack.SystemInfos);
+            }
         }
 
-        [PacketHandler(MessageHead.C_SYSTEM_OCCUPY_INFO)]
-        private void HandlerOccupy(SessionProviderContext session)
+        public async Task GetProcessList()
         {
-            var pack = session.GetMessageEntity<SystemOccupyPack>();
-            OnOccupyHandlerEvent?.Invoke(this, pack.CpuUsage, pack.MemoryUsage);
+            var responsed = await SendTo(MessageHead.S_SYSTEM_GET_PROCESS_LIST);
+            if (!responsed.IsNull() && responsed.IsOK)
+            {
+                var pack = SiMay.Serialize.Standard.PacketSerializeHelper.DeserializePacket<ProcessListPack>(responsed.Datas);
+                OnProcessListHandlerEvent?.Invoke(this, pack.ProcessList);
+            }
         }
 
-        [PacketHandler(MessageHead.C_SYSTEM_PROCESS_LIST)]
-        private void ProcessItemHandler(SessionProviderContext session)
+        public async Task GetOccupy()
         {
-            var processLst = session.GetMessageEntity<ProcessListPack>().ProcessList;
-            OnProcessListHandlerEvent?.Invoke(this, processLst);
-        }
-        [PacketHandler(MessageHead.C_SYSTEM_SESSIONS)]
-        private void SessionsItemHandler(SessionProviderContext session)
-        {
-            var sessionLst = session.GetMessageEntity<SessionsPacket>().Sessions;
-            this.OnSessionsEventHandler?.Invoke(this, sessionLst);
+            var responsed = await SendTo(MessageHead.S_SYSTEM_GET_OCCUPY);
+            if (!responsed.IsNull() && responsed.IsOK)
+            {
+                var pack = SiMay.Serialize.Standard.PacketSerializeHelper.DeserializePacket<SystemOccupyPack>(responsed.Datas);
+                OnOccupyHandlerEvent?.Invoke(this, pack.CpuUsage, pack.MemoryUsage);
+            }
         }
 
-        public void GetSystemInfoItems()
+        public async Task SetProcessWindowMaxi(IEnumerable<int> pids)
         {
-            CurrentSession.SendTo(MessageHead.S_SYSTEM_GET_SYSTEMINFO);
+            await SetProcessWindowState(1, pids);
         }
 
-        public void GetProcessList()
+        public async Task SetProcessWindowMize(IEnumerable<int> pids)
         {
-            CurrentSession.SendTo(MessageHead.S_SYSTEM_GET_PROCESS_LIST);
+            await SetProcessWindowState(0, pids);
         }
 
-        public void GetOccupy()
+        public async Task EnumSession()
         {
-            CurrentSession.SendTo(MessageHead.S_SYSTEM_GET_OCCUPY);
+            var responsed = await SendTo(MessageHead.S_SYSTEM_ENUMSESSIONS);
+            if (!responsed.IsNull() && responsed.IsOK)
+            {
+                var sessionLst = SiMay.Serialize.Standard.PacketSerializeHelper.DeserializePacket<SessionsPacket>(responsed.Datas);
+                this.OnSessionsEventHandler?.Invoke(this, sessionLst.Sessions);
+            }
         }
 
-        public void SetProcessWindowMaxi(IEnumerable<int> pids)
+        public async Task CreateProcessAsUser(int sessionId)
         {
-            SetProcessWindowState(1, pids);
-        }
-
-        public void SetProcessWindowMize(IEnumerable<int> pids)
-        {
-            SetProcessWindowState(0, pids);
-        }
-
-        public void EnumSession()
-        {
-            CurrentSession.SendTo(MessageHead.S_SYSTEM_ENUMSESSIONS);
-        }
-
-        public void CreateProcessAsUser(int sessionId)
-        {
-            CurrentSession.SendTo(MessageHead.S_SYSTEM_CREATE_USER_PROCESS,
+            await SendTo(MessageHead.S_SYSTEM_CREATE_USER_PROCESS,
                 new CreateProcessAsUserPack()
                 {
                     SessionId = sessionId
                 });
         }
 
-        public void KillProcess(IEnumerable<int> pids)
+        public async Task KillProcess(IEnumerable<int> pids)
         {
-            CurrentSession.SendTo(MessageHead.S_SYSTEM_KILL,
-                new KillProcessPacket()
-                {
-                    ProcessIds = pids.ToArray()
-                });
+            await SendTo(MessageHead.S_SYSTEM_KILL,
+                 new KillProcessPacket()
+                 {
+                     ProcessIds = pids.ToArray()
+                 });
+            await GetProcessList();
         }
 
-        private void SetProcessWindowState(int state, IEnumerable<int> pids)
+        private async Task SetProcessWindowState(int state, IEnumerable<int> pids)
         {
-            CurrentSession.SendTo(MessageHead.S_SYSTEM_MAXIMIZE,
+            await SendTo(MessageHead.S_SYSTEM_MAXIMIZE,
                 new SysWindowMaxPacket()
                 {
                     State = state,

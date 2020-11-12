@@ -140,7 +140,7 @@ namespace SiMay.ServiceCore
                         if (workType == SessionKind.MAIN_SERVICE)
                         {
                             var messageHead = session.GetMessageHead();
-                            this.HandlerBinder.CallPacketHandler(session, messageHead, this);
+                            this.HandlerBinder.CallFunctionPacketHandler(session, messageHead, this);
                         }
                         else if (workType == SessionKind.APP_SERVICE)
                         {
@@ -150,7 +150,7 @@ namespace SiMay.ServiceCore
                             //if (messageHead == MessageHead.S_GLOBAL_SYNC_CALL)
                             //    appService.CallSync(session);
                             //else
-                            appService.HandlerBinder.CallPacketHandler(session, messageHead, appService);
+                            appService.HandlerBinder.CallFunctionPacketHandler(session, messageHead, appService);
                         }
                         break;
                     case TcpSessionNotify.OnClosed:

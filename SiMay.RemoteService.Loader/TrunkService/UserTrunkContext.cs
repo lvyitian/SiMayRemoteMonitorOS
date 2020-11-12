@@ -60,7 +60,7 @@ namespace SiMay.RemoteService.Loader
         {
             var clientConfig = new TcpSocketSaeaClientConfiguration();
             _socketSaeaClientAgent = TcpSocketsFactory.CreateClientAgent(TcpSocketSaeaSessionType.Packet, clientConfig,
-                (notity, session) =>
+                (Sockets.Delegate.NotifyEventHandler<TcpSessionNotify, TcpSocketSaeaSession>)((notity, session) =>
             {
                 switch (notity)
                 {
@@ -73,7 +73,7 @@ namespace SiMay.RemoteService.Loader
                     case TcpSessionNotify.OnDataReceiveing:
                         break;
                     case TcpSessionNotify.OnDataReceived:
-                        _handlerBinder.CallPacketHandler(session, session.CompletedBuffer.GetMessageHead<TrunkMessageHead>(), this);
+                        _handlerBinder.CallFunctionPacketHandler((TcpSocketSaeaSession)session, (TrunkMessageHead)session.CompletedBuffer.GetMessageHead<TrunkMessageHead>(), (object)this);
                         break;
                     case TcpSessionNotify.OnClosed:
                         _trunkTcpSession = null;
@@ -83,7 +83,7 @@ namespace SiMay.RemoteService.Loader
                     default:
                         break;
                 }
-            });
+            }));
         }
 
         private void SessionCloseHandler()

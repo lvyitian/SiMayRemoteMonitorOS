@@ -13,11 +13,6 @@ namespace SiMay.Core.Standard.Packets
         public int Id { get; set; }
 
         /// <summary>
-        /// 目标调用消息头
-        /// </summary>
-        public MessageHead TargetMessageHead { get; set; }
-
-        /// <summary>
         /// 数据
         /// </summary>
         public byte[] Datas { get; set; }

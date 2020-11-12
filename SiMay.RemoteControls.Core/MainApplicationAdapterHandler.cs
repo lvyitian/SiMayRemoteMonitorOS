@@ -239,10 +239,10 @@ namespace SiMay.RemoteControlsCore
                 if (messageHead == MessageHead.C_GLOBAL_SYNC_RESULT)
                     adapter.CallSyncCompleted();
                 else
-                    adapter.HandlerBinder.CallPacketHandler(session, messageHead, adapter);
+                    adapter.HandlerBinder.CallFunctionPacketHandler(session, messageHead, adapter);
             }
             else if (sessionWorkType == SessionKind.MAIN_SERVICE)
-                this.HandlerBinder.CallPacketHandler(session, session.GetMessageHead(), this);
+                this.HandlerBinder.CallFunctionPacketHandler(session, session.GetMessageHead(), this);
             else if (sessionWorkType == SessionKind.NONE) //未经过验证的连接的消息只能进入该方法块处理，连接密码验证正确才能正式处理消息
             {
                 switch (session.GetMessageHead())

@@ -10,7 +10,6 @@ namespace SiMay.Net.SessionProvider
 {
     public abstract class SessionProviderContext : IDisposable
     {
-        public string Id { get; set; } = Guid.NewGuid().ToString();
         /// <summary>
         /// 当前会话
         /// </summary>
@@ -34,14 +33,14 @@ namespace SiMay.Net.SessionProvider
         /// <summary>
         /// 完成缓冲区
         /// </summary>
-        public virtual byte[] CompletedBuffer { get; protected set; }
+        public virtual byte[] CompletedBuffer { get; set; }
 
         /// <summary>
         /// 获取当前消息AccessId
         /// </summary>
         /// <returns></returns>
         public long GetAccessId()
-            => ProxyProtocolConstructionHelper.GetAccessId(CompletedBuffer);
+            => ProxyProtocolConstructionHelper.GetAccessId(CurrentSession.CompletedBuffer);
 
         /// <summary>
         /// Socket选项设置

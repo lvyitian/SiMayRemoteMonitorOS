@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using CommonWin32Api = SiMay.Platform.Windows.CommonWin32Api;
 
 namespace SiMay.ServiceCore
@@ -28,7 +29,6 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_TCP_GET_LIST)]
         public TcpConnectionPacket GetTcpConnectionList(SessionProviderContext session)
         {
-            Console.WriteLine("server:gettcplist");
             var table = GetTable();
 
             var connections = new TcpConnectionItem[table.Length];
@@ -57,12 +57,6 @@ namespace SiMay.ServiceCore
                 };
                 var ss = connections[i];
             }
-
-            //CurrentSession.SendTo(MessageHead.C_TCP_LIST,
-            //    new TcpConnectionPacket()
-            //    {
-            //        TcpConnections = connections
-            //    });
 
             return new TcpConnectionPacket()
             {
@@ -97,7 +91,6 @@ namespace SiMay.ServiceCore
                     }
                 }
             }
-            //this.GetTcpConnectionList(session);
         }
         private static CommonWin32Api.MibTcprowOwnerPid[] GetTable()
         {
