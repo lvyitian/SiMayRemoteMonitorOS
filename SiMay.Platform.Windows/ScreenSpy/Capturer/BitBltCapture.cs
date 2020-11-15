@@ -101,7 +101,7 @@ namespace SiMay.Platform.Windows
                         CurrentFrame = _originBitmap;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //LogHelper.WriteErrorByCurrentMethod(ex);
             }

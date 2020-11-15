@@ -9,17 +9,23 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SiMay.RemoteControlsCore
+namespace SiMay.RemoteControls.Core
 {
     public abstract class MainApplicationBaseAdapterHandler : ApplicationProtocolAdapterHandler
     {
         private Dictionary<string, byte[]> _serviceCOMPlugins = new Dictionary<string, byte[]>();
 
+        /// <summary>
+        /// 简单程序集合
+        /// </summary>
+        public IDictionary<string, SimpleApplicationBase> SimpleApplicationCollection
+            => SimpleApplicationHelper.SimpleApplicationCollection;
+
         public MainApplicationBaseAdapterHandler()
         {
             string[] pluginFileNames = new string[]
             {
-                    "SiMayService.Core.dll",
+                    "SiMay.Service.Core.dll",
                     "SiMay.Core.Standard.dll",
                     "SiMay.Platform.Windows.dll",
                     "Microsoft.Win32.Registry.dll",
@@ -40,15 +46,15 @@ namespace SiMay.RemoteControlsCore
         }
 
         /// <summary>
-        /// 加载插件
+        /// 网络传输核心库
         /// </summary>
         /// <param name="session"></param>
-        protected void SendServicePlugins(SessionProviderContext session)
+        protected void SendToAssemblyCoreFile(SessionProviderContext session)
         {
             session.SendTo(MessageHead.S_GLOBAL_PLUGIN,
                 new ServiceAssemblyCorePluginPacket()
                 {
-                    Files = _serviceCOMPlugins.Select(c => new AssemblyFileItem() { FileName = c.Key, Data = c.Value }).ToArray()
+                    Files = _serviceCOMPlugins.Select(c => new AssemblyFileItem() { AssemblyName = c.Key, Data = c.Value }).ToArray()
                 });
         }
     }

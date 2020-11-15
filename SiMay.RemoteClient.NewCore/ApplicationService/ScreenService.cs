@@ -1,5 +1,4 @@
 ﻿using SiMay.Core;
-using SiMay.ServiceCore.Attributes;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
@@ -11,10 +10,10 @@ using SiMay.ModelBinder;
 using SiMay.RemoteService.Loader;
 using SiMay.Net.SessionProvider;
 
-namespace SiMay.ServiceCore
+namespace SiMay.Service.Core
 {
     [ServiceName("远程桌面")]
-    [ApplicationKey(ApplicationKeyConstant.REMOTE_DESKTOP)]
+    [ApplicationServiceKey(ApplicationKeyConstant.REMOTE_DESKTOP)]
     public class ScreenService : ApplicationRemoteService
     {
         private int _bscanmode = 1; //0差异 1逐行

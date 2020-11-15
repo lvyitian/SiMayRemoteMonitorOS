@@ -1,8 +1,7 @@
 ﻿using SiMay.Basic;
 using SiMay.Core;
 using SiMay.Platform.Windows;
-using SiMay.RemoteControlsCore;
-using SiMay.RemoteControlsCore.HandlerAdapters;
+using SiMay.RemoteControls.Core;
 using SiMay.RemoteMonitor.Attributes;
 using System;
 using System.IO;
@@ -54,12 +53,12 @@ namespace SiMay.RemoteMonitor.Application
             throw new NotImplementedException();
         }
 
-        public void SessionClose(ApplicationAdapterHandler handler)
+        public void SessionClose(ApplicationBaseAdapterHandler handler)
         {
             this.Text = this._title + " [" + this.AudioAdapterHandler.State.ToString() + "]";
         }
 
-        public void ContinueTask(ApplicationAdapterHandler handler)
+        public void ContinueTask(ApplicationBaseAdapterHandler handler)
         {
             this.Text = this._title;
         }
@@ -68,7 +67,6 @@ namespace SiMay.RemoteMonitor.Application
         private void AudioManager_Load(object sender, EventArgs e)
         {
             this.Text = this._title = this._title.Replace("#Name#", this.AudioAdapterHandler.OriginName);
-            this.AudioAdapterHandler.OnOpenDeviceStatusEventHandler += OnOpenDeviceStatusEventHandler;
             this.AudioAdapterHandler.OnPlayerEventHandler += OnPlayerEventHandler;
             Initialize();
 
@@ -111,7 +109,7 @@ namespace SiMay.RemoteMonitor.Application
             }
         }
 
-        private void OnOpenDeviceStatusEventHandler(AudioAdapterHandler adapterHandler, bool playerState, bool recordState)
+        private void OnOpenDeviceStatusEventHandler(bool playerState, bool recordState)
         {
             if (!playerState && !recordState)
                 tip.Text = "远程计算机的播放设备与录音设备未找到!";
@@ -123,7 +121,7 @@ namespace SiMay.RemoteMonitor.Application
                 tip.Text = "正在监听远程声音,并且您可以向远程发起说话...........";
         }
 
-        private void Initialize()
+        private async void Initialize()
         {
             _samplesPerSecond = AppConfiguration.AudioSamplesPerSecond;
             _bitsPerSample = (short)AppConfiguration.AudioBitsPerSample;
@@ -154,7 +152,9 @@ namespace SiMay.RemoteMonitor.Application
             {
                 MessageBoxHelper.ShowBoxExclamation("本机未找到录音设备!");
             }
-            this.AudioAdapterHandler.StartRemoteAudio(_samplesPerSecond, _bitsPerSample, _channels);
+            var result = await this.AudioAdapterHandler.StartRemoteAudio(_samplesPerSecond, _bitsPerSample, _channels);
+            if (result.playerEnabled.HasValue && result.recordEnabled.HasValue)
+                OnOpenDeviceStatusEventHandler(result.playerEnabled.HasValue, result.recordEnabled.HasValue);
 
             this._isRun = true;
         }
@@ -184,12 +184,11 @@ namespace SiMay.RemoteMonitor.Application
                 this._player.Close();
 
             this._isRun = false;
-            this.AudioAdapterHandler.OnOpenDeviceStatusEventHandler -= OnOpenDeviceStatusEventHandler;
             this.AudioAdapterHandler.OnPlayerEventHandler -= OnPlayerEventHandler;
             this.AudioAdapterHandler.CloseSession();
         }
 
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        private async void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             if (checkBox1.Checked)
             {
@@ -199,11 +198,11 @@ namespace SiMay.RemoteMonitor.Application
                     return;
                 }
                 this._isPlaying = false;
-                this.AudioAdapterHandler.SetRemotePlayerStreamEnabled(false);
+                await this.AudioAdapterHandler.SetRemotePlayerStreamEnabled(false);
             }
             else
             {
-                this.AudioAdapterHandler.SetRemotePlayerStreamEnabled(true);
+                await this.AudioAdapterHandler.SetRemotePlayerStreamEnabled(true);
                 this._isPlaying = true;
             }
         }

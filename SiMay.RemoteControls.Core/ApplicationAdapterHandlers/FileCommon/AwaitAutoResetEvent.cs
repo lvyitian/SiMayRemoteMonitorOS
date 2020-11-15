@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SiMay.RemoteControlsCore.HandlerAdapters
+namespace SiMay.RemoteControls.Core
 {
     public class AwaitAutoResetEvent
     {

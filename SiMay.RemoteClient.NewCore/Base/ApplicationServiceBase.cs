@@ -2,7 +2,7 @@
 using SiMay.Net.SessionProvider;
 using System;
 
-namespace SiMay.ServiceCore
+namespace SiMay.Service.Core
 {
     /// <summary>
     /// 基础应用服务

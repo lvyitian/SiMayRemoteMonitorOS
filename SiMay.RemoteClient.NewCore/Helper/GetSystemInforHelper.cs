@@ -11,7 +11,7 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
 
-namespace SiMay.ServiceCore
+namespace SiMay.Service.Core
 {
 
     public class GetSystemInforHelper

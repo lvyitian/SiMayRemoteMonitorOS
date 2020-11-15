@@ -11,91 +11,102 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace SiMay.ServiceCore
+namespace SiMay.Service.Core
 {
     public class SystemHelper
     {
         /// <summary>
         /// 关机
         /// </summary>
-        public const int SHUTDOWN = 0;
+        public const int SYS_SHUTDOWN = 0;
 
         /// <summary>
         /// 重启
         /// </summary>
-        public const int REBOOT = 1;
+        public const int SYS_REBOOT = 1;
 
         /// <summary>
         /// 自启动
         /// </summary>
-        public const int REG_ACTION = 2;
+        public const int REG_AUTO_START = 2;
 
         /// <summary>
         /// 取消自启动
         /// </summary>
-        public const int REG_CANCEL_Action = 3;
+        public const int REG_CANCEL_AUTO_START = 3;
 
         /// <summary>
         /// 隐藏文件
         /// </summary>
-        public const int ATTRIB_HIDE = 4;
+        public const int ATTRIB_EXE_HIDE = 4;
 
         /// <summary>
         /// 显示文件
         /// </summary>
-        public const int ATTRIB_SHOW = 5;
+        public const int ATTRIB_EXE_SHOW = 5;
 
         /// <summary>
         /// 卸载程序
         /// </summary>
-        public const int UNSTALL = 6;
+        public const int UNINSTALL_SERVICE = 6;
 
         /// <summary>
         /// 安装启动服务
         /// </summary>
-        public const int INSTALL_SERVICE = 7;
-
+        public const int INSTALL_SYS_SERVICE = 7;
 
         /// <summary>
         /// 卸载服务
         /// </summary>
-        public const int UNINSTALL_SERVICE = 8;
+        public const int UNINSTALL_SYS_SERVICE = 8;
 
-        public static void SetSessionStatus(int status)
+        /// <summary>
+        /// 服务重启
+        /// </summary>
+        public const int SERVICE_RELOADER = 9;
+
+        /// <summary>
+        /// 设置系统会话状态
+        /// </summary>
+        /// <param name="status"></param>
+        public static void SetWsStatus(int status)
         {
             switch (status)
             {
-                case SHUTDOWN:
+                case SYS_SHUTDOWN:
                     SystemSessionHelper.Shutdown();
                     break;
 
-                case REBOOT:
+                case SYS_REBOOT:
                     SystemSessionHelper.Reboot();
                     break;
-                case REG_ACTION:
+                case REG_AUTO_START:
                     SystemSessionHelper.SetAutoRun(true);
                     break;
 
-                case REG_CANCEL_Action:
+                case REG_CANCEL_AUTO_START:
                     SystemSessionHelper.SetAutoRun(false);
                     break;
 
-                case ATTRIB_HIDE:
+                case ATTRIB_EXE_HIDE:
                     SystemSessionHelper.FileHide(true);
                     break;
-                case ATTRIB_SHOW:
+                case ATTRIB_EXE_SHOW:
                     SystemSessionHelper.FileHide(false);
                     break;
-                case UNSTALL:
+                case UNINSTALL_SERVICE:
                     RemoteService.Loader.UserTrunkContext.UserTrunkContextInstance?.InitiativeExit();
                     Thread.Sleep(100);//等待服务响应
                     SystemSessionHelper.UnInstall();
                     break;
-                case INSTALL_SERVICE:
+                case INSTALL_SYS_SERVICE:
                     InstallAutoStartService();
                     break;
-                case UNINSTALL_SERVICE:
+                case UNINSTALL_SYS_SERVICE:
                     UnInstallAutoStartService();
+                    break;
+                case SERVICE_RELOADER:
+                    Application.Restart();
                     break;
             }
         }
@@ -115,19 +126,19 @@ namespace SiMay.ServiceCore
             }
             else
             {
-                SystemMessageNotify.ShowTip("SiMay远程控制被控服务安装失败!");
+                SystemMessageNotify.ShowTip("SiMay远程服务安装失败!");
                 LogHelper.DebugWriteLog("Service Install Not Completed!!");
             }
         }
 
         public static void UnInstallAutoStartService()
         {
-            SystemMessageNotify.ShowTip("SiMay远程控制被控服务正在卸载服务!");
+            SystemMessageNotify.ShowTip("SiMay远程控制服务正在卸载自启动服务!");
             if (ServiceInstallerHelper.UnInstallService(AppConfiguartion.ServiceName))
                 Environment.Exit(0);
             else
             {
-                SystemMessageNotify.ShowTip("SiMay远程控制被控服务卸载失败!");
+                SystemMessageNotify.ShowTip("SiMay远程控制服务自启动服务卸载失败!");
                 LogHelper.DebugWriteLog("Service UnInstall Not Completed!!");
             }
         }

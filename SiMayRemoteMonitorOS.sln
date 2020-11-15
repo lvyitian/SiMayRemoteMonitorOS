@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.28803.352
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiMay.RemoteMonitor.Windows", "SiMay.RemoteMonitor\SiMay.RemoteMonitor.Windows.csproj", "{97E36F9B-145B-41DB-B6CF-E054B010869E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiMay.ServiceCore", "SiMay.RemoteClient.NewCore\SiMay.ServiceCore.csproj", "{8D061D46-9E59-42B0-91DC-4E380E4AE0BA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiMay.Service.Core", "SiMay.RemoteClient.NewCore\SiMay.Service.Core.csproj", "{8D061D46-9E59-42B0-91DC-4E380E4AE0BA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiMay.Net.SessionProviderService", "SiMay.Net.SessionProviderService\SiMay.Net.SessionProviderService.csproj", "{61FB6C20-4541-40D1-AC4B-3ECDACF5F633}"
 EndProject

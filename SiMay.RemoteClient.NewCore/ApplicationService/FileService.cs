@@ -3,7 +3,6 @@ using SiMay.Core;
 using SiMay.ModelBinder;
 using SiMay.Net.SessionProvider;
 using SiMay.Platform.Windows;
-using SiMay.ServiceCore.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,10 +11,10 @@ using System.Linq;
 using System.Threading;
 using static SiMay.Platform.Windows.CommonWin32Api;
 
-namespace SiMay.ServiceCore
+namespace SiMay.Service.Core
 {
     [ServiceName("文件管理")]
-    [ApplicationKey(ApplicationKeyConstant.REMOTE_FILE)]
+    [ApplicationServiceKey(ApplicationKeyConstant.REMOTE_FILE)]
     public class FileService : ApplicationRemoteService
     {
         private const int FILE_BUFFER_SIZE = 1024 * 512;

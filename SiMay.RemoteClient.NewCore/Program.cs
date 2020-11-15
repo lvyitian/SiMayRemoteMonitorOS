@@ -11,10 +11,10 @@
 //using System.Linq;
 //using System.Reflection;
 //using System.ServiceProcess;
-//using SiMay.ServiceCore.MainService;
+//using SiMay.Service.Core.MainService;
 //using SiMay.Serialize.Standard;
 
-//namespace SiMay.ServiceCore
+//namespace SiMay.Service.Core
 //{
 //    public class StartParameterEx
 //    {

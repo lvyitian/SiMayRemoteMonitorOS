@@ -8,28 +8,24 @@ using SiMay.Core;
 using SiMay.ModelBinder;
 using SiMay.Net.SessionProvider;
 
-namespace SiMay.RemoteControlsCore.HandlerAdapters
+namespace SiMay.RemoteControls.Core
 {
-    [ApplicationKey(ApplicationKeyConstant.REMOTE_TCP)]
-    public class TcpConnectionAdapterHandler : ApplicationAdapterHandler
+    [ApplicationServiceKey(ApplicationKeyConstant.REMOTE_TCP)]
+    public class TcpConnectionAdapterHandler : ApplicationBaseAdapterHandler
     {
-        /// <summary>
-        /// Tcp连接信息
-        /// </summary>
-        public event Action<TcpConnectionAdapterHandler, IEnumerable<TcpConnectionItem>> OnTcpListHandlerEvent;
-
         /// <summary>
         /// 获取Tcp连接信息
         /// </summary>
-        public async void GetTcpList()
+        public async Task<TcpConnectionItem[]> GetTcpList()
         {
             var responsed = await SendTo(MessageHead.S_TCP_GET_LIST);
-
-            if (!responsed.IsNull())
+            if (!responsed.IsNull() && responsed.IsOK)
             {
-                var tcpConnectionPack = SiMay.Serialize.Standard.PacketSerializeHelper.DeserializePacket<TcpConnectionPacket>(responsed.Datas);
-                this.OnTcpListHandlerEvent?.Invoke(this, tcpConnectionPack.TcpConnections);
+                var tcpConnectionPack = responsed.Datas.GetMessageEntity<TcpConnectionPacket>();
+                return tcpConnectionPack.TcpConnections;
             }
+            else
+                return null;
         }
 
         /// <summary>
@@ -44,8 +40,6 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
                 {
                     Kills = killTcps.ToArray()
                 });
-
-            GetTcpList();
         }
     }
 }

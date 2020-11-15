@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SiMay.RemoteControlsCore
+namespace SiMay.RemoteControls.Core
 {
     public interface IDesktopView
     {
@@ -13,10 +13,12 @@ namespace SiMay.RemoteControlsCore
         /// 视图高
         /// </summary>
         int Height { get; set; }
+
         /// <summary>
         /// 视图宽
         /// </summary>
         int Width { get; set; }
+
         /// <summary>
         /// 视图标题
         /// </summary>

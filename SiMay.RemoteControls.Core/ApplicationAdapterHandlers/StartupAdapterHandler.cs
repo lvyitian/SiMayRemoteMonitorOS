@@ -3,18 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SiMay.Basic;
 using SiMay.Core;
 using SiMay.ModelBinder;
 using SiMay.Net.SessionProvider;
 
-namespace SiMay.RemoteControlsCore.HandlerAdapters
+namespace SiMay.RemoteControls.Core
 {
-    [ApplicationKey(ApplicationKeyConstant.REMOTE_STARTUP)]
-    public class StartupAdapterHandler : ApplicationAdapterHandler
+    [ApplicationServiceKey(ApplicationKeyConstant.REMOTE_STARTUP)]
+    public class StartupAdapterHandler : ApplicationBaseAdapterHandler
     {
         public readonly IReadOnlyList<GroupItem> StartupGroupItems;
-
-        public event Action<StartupAdapterHandler, IEnumerable<StartupItemPacket>> OnStartupItemHandlerEvent;
 
         public StartupAdapterHandler()
         {
@@ -59,21 +58,21 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             StartupGroupItems = starupItems;
         }
 
-        [PacketHandler(MessageHead.C_STARTUP_LIST)]
-        private void HandlerStartupItems(SessionProviderContext session)
+        public async Task<StartupItemPacket[]> GetStartup()
         {
-            var pack = session.GetMessageEntity<StartupItemsPack>();
-            OnStartupItemHandlerEvent?.Invoke(this, pack.StartupItems);
+            var responsed = await SendTo(MessageHead.S_STARTUP_GET_LIST);
+            if (!responsed.IsNull() && responsed.IsOK)
+            {
+                var pack = responsed.Datas.GetMessageEntity<StartupPacket>();
+                return pack.StartupItems;
+            }
+
+            return null;
         }
 
-        public void GetStartup()
+        public async Task AddStartupItem(string path, string name, StartupType startupType)
         {
-            CurrentSession.SendTo(MessageHead.S_STARTUP_GET_LIST);
-        }
-
-        public void AddStartupItem(string path, string name, StartupType startupType)
-        {
-            CurrentSession.SendTo(MessageHead.S_STARTUP_ADD_ITEM,
+            await SendTo(MessageHead.S_STARTUP_ADD_ITEM,
                 new StartupItemPacket()
                 {
                     Name = name,
@@ -82,13 +81,13 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
                 });
         }
 
-        public void RemoveStartupItem(IEnumerable<StartupItemPacket> startupItems)
+        public async Task RemoveStartupItem(IEnumerable<StartupItemPacket> startupItems)
         {
-            CurrentSession.SendTo(MessageHead.S_STARTUP_REMOVE_ITEM,
-                new StartupItemsPack()
-                {
-                    StartupItems = startupItems.ToArray()
-                });
+            await SendTo(MessageHead.S_STARTUP_REMOVE_ITEM,
+               new StartupPacket()
+               {
+                   StartupItems = startupItems.ToArray()
+               });
         }
         public class GroupItem
         {

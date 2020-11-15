@@ -1,7 +1,6 @@
-﻿using SiMay.Core;
-using SiMay.RemoteControlsCore;
-using SiMay.RemoteControlsCore.HandlerAdapters;
-using SiMay.RemoteMonitor.Attributes;
+﻿using SiMay.Basic;
+using SiMay.Core;
+using SiMay.RemoteControls.Core;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -39,24 +38,25 @@ namespace SiMay.RemoteMonitor.Application
             throw new NotImplementedException();
         }
 
-        public void SessionClose(ApplicationAdapterHandler handler)
+        public void SessionClose(ApplicationBaseAdapterHandler handler)
         {
             this.Text = _title + " [" + this.StartupAdapterHandler.State.ToString() + "]";
         }
 
-        public void ContinueTask(ApplicationAdapterHandler handler)
+        public void ContinueTask(ApplicationBaseAdapterHandler handler)
         {
             this.Text = _title;
         }
-        private void StartupManager_Load(object sender, EventArgs e)
+        private async void StartupManager_Load(object sender, EventArgs e)
         {
             this.AddGroups();
             this.Text = this._title = _title.Replace("#Name#", this.StartupAdapterHandler.OriginName);
-            this.StartupAdapterHandler.OnStartupItemHandlerEvent += OnStartupItemHandlerEvent;
-            this.StartupAdapterHandler.GetStartup();
+            var startups = await this.StartupAdapterHandler.GetStartup();
+            if (!startups.IsNull())
+                OnStartupItemHandlerEvent(startups);
         }
 
-        private void OnStartupItemHandlerEvent(StartupAdapterHandler adapterHandler, IEnumerable<StartupItemPacket> startupItems)
+        private void OnStartupItemHandlerEvent(IEnumerable<StartupItemPacket> startupItems)
         {
             lstStartupItems.Items.Clear();
 
@@ -80,39 +80,46 @@ namespace SiMay.RemoteMonitor.Application
         {
             foreach (var startupGroupItem in this.StartupAdapterHandler.StartupGroupItems)
             {
-                lstStartupItems.Groups.Add(
-                    new ListViewGroup(startupGroupItem.StartupPath)
-                    { Tag = startupGroupItem.StartupType });
+                lstStartupItems.Groups.Add(new ListViewGroup(startupGroupItem.StartupPath)
+                {
+                    Tag = startupGroupItem.StartupType
+                });
             }
         }
 
-        private void AddEntryToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void AddEntryToolStripMenuItem_Click(object sender, EventArgs e)
         {
             using (var frm = new StartupItemAdd())
             {
                 if (frm.ShowDialog() == DialogResult.OK)
                 {
-                    this.StartupAdapterHandler.AddStartupItem(
+                    await this.StartupAdapterHandler.AddStartupItem(
                         frm.StartupItem.Path,
                         frm.StartupItem.Name,
                         frm.StartupItem.Type);
+
+                    var startups = await this.StartupAdapterHandler.GetStartup();
+                    if (!startups.IsNull())
+                        OnStartupItemHandlerEvent(startups);
                 }
             }
         }
 
-        private void RemoveEntryToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void RemoveEntryToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var startupItems = new List<StartupItemPacket>();
             foreach (ListViewItem item in lstStartupItems.SelectedItems)
             {
                 startupItems.Add(item.Tag as StartupItemPacket);
             }
-            this.StartupAdapterHandler.RemoveStartupItem(startupItems);
+            await this.StartupAdapterHandler.RemoveStartupItem(startupItems);
+            var startups = await this.StartupAdapterHandler.GetStartup();
+            if (!startups.IsNull())
+                OnStartupItemHandlerEvent(startups);
         }
 
         private void StartupManager_FormClosing(object sender, FormClosingEventArgs e)
         {
-            this.StartupAdapterHandler.OnStartupItemHandlerEvent -= OnStartupItemHandlerEvent;
             this.StartupAdapterHandler.CloseSession();
         }
     }

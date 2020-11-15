@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SiMay.RemoteControlsCore
+namespace SiMay.RemoteControls.Core
 {
     public class SuspendTaskResumEventArgs : EventArgs
     {

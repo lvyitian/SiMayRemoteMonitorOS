@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
-namespace SiMay.ServiceCore
+namespace SiMay.Service.Core
 {
     /// <summary>
     /// 应用协议处理服务

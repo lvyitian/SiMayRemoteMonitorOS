@@ -4,7 +4,6 @@ using SiMay.Core;
 using SiMay.ModelBinder;
 using SiMay.Net.SessionProvider;
 using SiMay.RemoteService.Loader;
-using SiMay.ServiceCore.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,10 +11,10 @@ using System.Linq;
 using System.Windows.Forms;
 using static SiMay.Platform.Windows.CommonWin32Api;
 
-namespace SiMay.ServiceCore
+namespace SiMay.Service.Core
 {
     [ServiceName("系统管理")]
-    [ApplicationKey(ApplicationKeyConstant.REMOTE_SYSMANAGER)]
+    [ApplicationServiceKey(ApplicationKeyConstant.REMOTE_SYSMANAGER)]
     public class SystemService : ApplicationRemoteService
     {
         private ComputerInfo _memoryInfo = new ComputerInfo();
@@ -33,7 +32,7 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_SYSTEM_KILL)]
         public void TryKillProcess(SessionProviderContext session)
         {
-            var processIds = session.GetMessageEntity<KillProcessPacket>();
+            var processIds = session.GetMessageEntity<KillPacket>();
             foreach (var id in processIds.ProcessIds)
             {
                 try
@@ -47,7 +46,7 @@ namespace SiMay.ServiceCore
         [PacketHandler(MessageHead.S_SYSTEM_MAXIMIZE)]
         public void SetWindowState(SessionProviderContext session)
         {
-            var pack = session.GetMessageEntity<SysWindowMaxPacket>();
+            var pack = session.GetMessageEntity<SetWindowStatusPacket>();
             int[] handlers = pack.Handlers;
             int state = pack.State;
 
@@ -67,7 +66,7 @@ namespace SiMay.ServiceCore
         public SessionsPacket GetSessionItemHandler(SessionProviderContext session)
         {
             var sessions = UserTrunkContext.UserTrunkContextInstance?.GetSessionItems()
-                .Select(c => new Core.SessionItem()
+                .Select(c => new SiMay.Core.SessionItem()
                 {
                     UserName = c.UserName,
                     SessionId = c.SessionId,
@@ -129,7 +128,7 @@ namespace SiMay.ServiceCore
         }
 
         [PacketHandler(MessageHead.S_SYSTEM_GET_SYSTEMINFO)]
-        public SystemInfoPacket GetSystemInfosHandler(SessionProviderContext session)
+        public ProcessPacket GetSystemInfosHandler(SessionProviderContext session)
         {
             GeoLocationHelper.Initialize();
 
@@ -238,7 +237,7 @@ namespace SiMay.ServiceCore
                 ItemName = "GPU",
                 Value = GetSystemInforHelper.GetGpuName()
             });
-            var sysInfos = new SystemInfoPacket();
+            var sysInfos = new ProcessPacket();
             sysInfos.SystemInfos = infos.ToArray();
 
             return sysInfos;
@@ -250,7 +249,7 @@ namespace SiMay.ServiceCore
             string cpuUserate = "-1";
             try
             {
-                cpuUserate = ((_cpuInfo.NextValue() / Environment.ProcessorCount * 100f)).ToString("0.0") + "%";
+                cpuUserate = ((_cpuInfo.NextValue() / Environment.ProcessorCount)).ToString("0.0") + "%";
             }
             catch { }
 

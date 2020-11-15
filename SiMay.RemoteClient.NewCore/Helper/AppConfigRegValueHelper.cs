@@ -1,7 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 
-namespace SiMay.ServiceCore
+namespace SiMay.Service.Core
 {
 
     public class AppConfigRegValueHelper

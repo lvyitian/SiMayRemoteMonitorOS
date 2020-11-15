@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SiMay.RemoteControlsCore
+namespace SiMay.RemoteControls.Core
 {
     /// <summary>
     /// 文件流接口(解耦各种实现方式)

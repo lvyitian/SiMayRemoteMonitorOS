@@ -56,7 +56,7 @@ namespace SiMay.RemoteMonitor.Application
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.moryUse = new System.Windows.Forms.ToolStripStatusLabel();
             this.refreshTimer = new System.Windows.Forms.Timer(this.components);
-            this.processList = new SiMay.RemoteMonitor.UserControls.UListView();
+            this.processListView = new SiMay.RemoteMonitor.UserControls.UListView();
             this.sessionsListView = new SiMay.RemoteMonitor.UserControls.UListView();
             this.userName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.sessionId = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -95,7 +95,7 @@ namespace SiMay.RemoteMonitor.Application
             this.tabPage1.Controls.Add(this.button4);
             this.tabPage1.Controls.Add(this.button3);
             this.tabPage1.Controls.Add(this.button2);
-            this.tabPage1.Controls.Add(this.processList);
+            this.tabPage1.Controls.Add(this.processListView);
             this.tabPage1.Location = new System.Drawing.Point(4, 25);
             this.tabPage1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.tabPage1.Name = "tabPage1";
@@ -317,21 +317,21 @@ namespace SiMay.RemoteMonitor.Application
             // 
             // processList
             // 
-            this.processList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.processListView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.processList.BackColor = System.Drawing.SystemColors.ControlLightLight;
-            this.processList.CheckBoxes = true;
-            this.processList.FullRowSelect = true;
-            this.processList.HideSelection = false;
-            this.processList.Location = new System.Drawing.Point(17, 18);
-            this.processList.Margin = new System.Windows.Forms.Padding(4);
-            this.processList.Name = "processList";
-            this.processList.Size = new System.Drawing.Size(775, 438);
-            this.processList.TabIndex = 11;
-            this.processList.UseCompatibleStateImageBehavior = false;
-            this.processList.UseWindowsThemStyle = true;
-            this.processList.View = System.Windows.Forms.View.Details;
+            this.processListView.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.processListView.CheckBoxes = true;
+            this.processListView.FullRowSelect = true;
+            this.processListView.HideSelection = false;
+            this.processListView.Location = new System.Drawing.Point(17, 18);
+            this.processListView.Margin = new System.Windows.Forms.Padding(4);
+            this.processListView.Name = "processList";
+            this.processListView.Size = new System.Drawing.Size(775, 438);
+            this.processListView.TabIndex = 11;
+            this.processListView.UseCompatibleStateImageBehavior = false;
+            this.processListView.UseWindowsThemStyle = true;
+            this.processListView.View = System.Windows.Forms.View.Details;
             // 
             // sessionsListView
             // 
@@ -448,7 +448,7 @@ namespace SiMay.RemoteMonitor.Application
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button2;
-        private UListView processList;
+        private UListView processListView;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem 刷新信息ToolStripMenuItem;

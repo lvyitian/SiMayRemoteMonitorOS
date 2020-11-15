@@ -4,7 +4,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 
-namespace SiMay.ServiceCore
+namespace SiMay.Service.Core
 {
 
     public class AForgeViedo

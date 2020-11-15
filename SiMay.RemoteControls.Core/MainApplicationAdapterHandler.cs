@@ -4,12 +4,13 @@ using SiMay.ModelBinder;
 using SiMay.Net.SessionProvider;
 using SiMay.Sockets.Tcp;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
 
-namespace SiMay.RemoteControlsCore
+namespace SiMay.RemoteControls.Core
 {
     /// <summary>
     /// 主控端应用适配器
@@ -31,11 +32,6 @@ namespace SiMay.RemoteControlsCore
         /// 上线登陆处理事件
         /// </summary>
         public event Action<SessionSyncContext> OnLoginHandlerEvent;
-
-        /// <summary>
-        /// 上线信息更新事件
-        /// </summary>
-        public event Action<SessionSyncContext> OnLoginUpdateHandlerEvent;
 
         /// <summary>
         /// 离线处理事件
@@ -136,7 +132,7 @@ namespace SiMay.RemoteControlsCore
 
             bool StartServiceProvider(SessionProviderOptions options)
             {
-                var tcpSessionProvider = SessionProviderFactory.CreateTcpServiceSessionProvider(options); ;
+                var tcpSessionProvider = SessionProviderFactory.CreateTcpServiceSessionProvider(options);
                 tcpSessionProvider.NotificationEventHandler += OnNotifyProc;
                 SessionProvider = tcpSessionProvider;
                 try
@@ -191,11 +187,10 @@ namespace SiMay.RemoteControlsCore
                     {
                         case TcpSessionNotify.OnConnected:
                             //先分配好工作类型，等待工作指令分配新的工作类型
-                            session.AppTokens = new object[SysConstants.INDEX_COUNT]
-                            {
-                                SessionKind.NONE,//未经验证的状态
-                                null
-                            };
+                            session.AppTokens = new object[SysConstants.INDEX_COUNT];
+                            session.AppTokens[SysConstants.INDEX_WORKER] = null;
+                            session.AppTokens[SysConstants.INDEX_WORKTYPE] = SessionKind.NONE_SESSION;//未经验证的状态
+                            session.AppTokens[SysConstants.INDEX_SYNC_SEQUENCE] = new ConcurrentDictionary<int, ApplicationSyncAwaiter>();
                             break;
                         case TcpSessionNotify.OnSend:
                             //耗时操作会导致性能严重降低
@@ -228,22 +223,41 @@ namespace SiMay.RemoteControlsCore
             var appTokens = session.AppTokens;
             var sessionWorkType = appTokens[SysConstants.INDEX_WORKTYPE].ConvertTo<SessionKind>();
 
-            if (sessionWorkType == SessionKind.APP_SERVICE)
+            if (sessionWorkType == SessionKind.APP_SERVICE_SESSION)
             {
-                //消息传给消息适配器,由消息适配器进行处理，通过事件反馈数据到展示层
-                var adapter = appTokens[SysConstants.INDEX_WORKER].ConvertTo<ApplicationAdapterHandler>();
+                var adapter = appTokens[SysConstants.INDEX_WORKER].ConvertTo<ApplicationBaseAdapterHandler>();
                 if (adapter.IsManualClose())
                     return;
+            }
+
+            /// <summary>
+            /// 同步完成
+            /// </summary>
+            if ((sessionWorkType == SessionKind.APP_SERVICE_SESSION || sessionWorkType == SessionKind.MAIN_SERVICE_SESSION) && session.GetMessageHead() == MessageHead.C_GLOBAL_SYNC_RESULT)
+            {
+                var asyncOperationSequence = session.AppTokens[SysConstants.INDEX_SYNC_SEQUENCE].ConvertTo<ConcurrentDictionary<int, ApplicationSyncAwaiter>>();
+                var syncResult = session.GetMessageEntity<CallSyncResultPacket>();
+
+                if (asyncOperationSequence.ContainsKey(syncResult.Id))
+                    asyncOperationSequence[syncResult.Id].Complete(syncResult);
+            }
+            else if (sessionWorkType == SessionKind.APP_SERVICE_SESSION)
+            {
+                //消息传给消息适配器,由消息适配器进行处理，通过事件反馈数据到展示层
+                var adapter = appTokens[SysConstants.INDEX_WORKER].ConvertTo<ApplicationBaseAdapterHandler>();
 
                 var messageHead = session.GetMessageHead();
-                if (messageHead == MessageHead.C_GLOBAL_SYNC_RESULT)
-                    adapter.CallSyncCompleted();
-                else
-                    adapter.HandlerBinder.CallFunctionPacketHandler(session, messageHead, adapter);
+                var operationResult = adapter.HandlerBinder.CallFunctionPacketHandler(session, messageHead, adapter);
+                if (!operationResult.successed)
+                    LogHelper.WriteErrorByCurrentMethod(operationResult.ex);
             }
-            else if (sessionWorkType == SessionKind.MAIN_SERVICE)
-                this.HandlerBinder.CallFunctionPacketHandler(session, session.GetMessageHead(), this);
-            else if (sessionWorkType == SessionKind.NONE) //未经过验证的连接的消息只能进入该方法块处理，连接密码验证正确才能正式处理消息
+            else if (sessionWorkType == SessionKind.MAIN_SERVICE_SESSION)
+            {
+                var operationResult = this.HandlerBinder.CallFunctionPacketHandler(session, session.GetMessageHead(), this);
+                if (!operationResult.successed)
+                    LogHelper.WriteErrorByCurrentMethod(operationResult.ex);
+            }
+            else if (sessionWorkType == SessionKind.NONE_SESSION) //未经过验证的连接的消息只能进入该方法块处理，连接密码验证正确才能正式处理消息
             {
                 switch (session.GetMessageHead())
                 {
@@ -273,10 +287,10 @@ namespace SiMay.RemoteControlsCore
             else
             {
                 //连接密码验证通过，设置成为主连接，正式接收处理数据包
-                session.AppTokens[SysConstants.INDEX_WORKTYPE] = SessionKind.MAIN_SERVICE;
+                session.AppTokens[SysConstants.INDEX_WORKTYPE] = SessionKind.MAIN_SERVICE_SESSION;
 
                 if (!ack.AssemblyLoad)
-                    SendServicePlugins(session);
+                    SendToAssemblyCoreFile(session);
 
                 //告诉服务端一切就绪
                 session.SendTo(MessageHead.S_GLOBAL_OK);
@@ -321,7 +335,7 @@ namespace SiMay.RemoteControlsCore
                         if (property.IsNull())
                             throw new ArgumentNullException("adapter not found!");
 
-                        var adapter = Activator.CreateInstance(property.PropertyType).ConvertTo<ApplicationAdapterHandler>();
+                        var adapter = Activator.CreateInstance(property.PropertyType).ConvertTo<ApplicationBaseAdapterHandler>();
                         adapter.App = application;
                         adapter.IdentifyId = identifyId;
                         adapter.OriginName = originName;
@@ -346,7 +360,7 @@ namespace SiMay.RemoteControlsCore
                         if (appAdapterProperty.IsNull())
                             throw new ApplicationException("adapter not declaration!");
 
-                        ApplicationAdapterHandler appHandlerBase = Activator.CreateInstance(appAdapterProperty.PropertyType).ConvertTo<ApplicationAdapterHandler>();
+                        ApplicationBaseAdapterHandler appHandlerBase = Activator.CreateInstance(appAdapterProperty.PropertyType).ConvertTo<ApplicationBaseAdapterHandler>();
                         IApplication app = Activator.CreateInstance(context.ApplicationType).ConvertTo<IApplication>();
 
                         appHandlerBase.App = app;
@@ -368,9 +382,9 @@ namespace SiMay.RemoteControlsCore
                 }
 
                 //应用资源情况检查
-                bool internalApplicationReadyExamine(ApplicationAdapterHandler adapter, IApplication app)
+                bool internalApplicationReadyExamine(ApplicationBaseAdapterHandler adapter, IApplication app)
                 {
-                    session.AppTokens[SysConstants.INDEX_WORKTYPE] = SessionKind.APP_SERVICE;
+                    session.AppTokens[SysConstants.INDEX_WORKTYPE] = SessionKind.APP_SERVICE_SESSION;
                     session.AppTokens[SysConstants.INDEX_WORKER] = adapter;
 
                     var handlerFieders = app
@@ -530,7 +544,7 @@ namespace SiMay.RemoteControlsCore
             syncContext[SysConstants.ExitsPlayerDevice] = login.ExitsPlayerDevice;
             syncContext[SysConstants.IdentifyId] = login.IdentifyId;
 
-            this.OnLoginUpdateHandlerEvent?.Invoke(syncContext);
+            //this.OnLoginUpdateHandlerEvent?.Invoke(syncContext);
         }
 
         /// <summary>
@@ -590,11 +604,18 @@ namespace SiMay.RemoteControlsCore
         {
             try
             {
+                var asyncSequence = session.AppTokens[SysConstants.INDEX_SYNC_SEQUENCE].ConvertTo<ConcurrentDictionary<int, ApplicationSyncAwaiter>>().Values.ToArray();
+                //释放所有异步任务
+                foreach (var operation in asyncSequence)
+                    operation.Complete(null);
+
+                Array.Clear(asyncSequence, 0, asyncSequence.Length);
+
                 object[] arguments = session.AppTokens;
                 var worktype = arguments[SysConstants.INDEX_WORKTYPE].ConvertTo<SessionKind>();
-                if (worktype == SessionKind.APP_SERVICE)
+                if (worktype == SessionKind.APP_SERVICE_SESSION)
                 {
-                    var adapterHandler = arguments[SysConstants.INDEX_WORKER].ConvertTo<ApplicationAdapterHandler>();
+                    var adapterHandler = arguments[SysConstants.INDEX_WORKER].ConvertTo<ApplicationBaseAdapterHandler>();
 
                     if (adapterHandler.IsManualClose())//如果是手动结束任务
                         return;
@@ -612,7 +633,7 @@ namespace SiMay.RemoteControlsCore
                         Topic = $"{adapterHandler.IdentifyId},{appName}.{adapterHandler.GetApplicationKey()}"
                     });
                 }
-                else if (worktype == SessionKind.MAIN_SERVICE)
+                else if (worktype == SessionKind.MAIN_SERVICE_SESSION)
                 {
                     var syncContext = arguments[SysConstants.INDEX_WORKER].ConvertTo<SessionSyncContext>();
                     if (syncContext.IsNull())
@@ -624,7 +645,7 @@ namespace SiMay.RemoteControlsCore
 
                     this.OnLogHandlerEvent?.Invoke($"计算机:{syncContext[SysConstants.MachineName].ConvertTo<string>()}({syncContext[SysConstants.Remark].ConvertTo<string>()}) --已与控制端断开连接!", LogOutLevel.Warning);
                 }
-                else if (worktype == SessionKind.NONE)
+                else if (worktype == SessionKind.NONE_SESSION)
                 {
                     LogHelper.WriteErrorByCurrentMethod("NONE Session Close");
                 }
@@ -672,14 +693,14 @@ namespace SiMay.RemoteControlsCore
         /// <param name="updateType"></param>
         /// <param name="file"></param>
         /// <param name="url"></param>
-        public void RemoteServiceUpdate(SessionSyncContext syncContext, RemoteUpdateType updateType, byte[] file, string url)
+        public void RemoteServiceUpdate(SessionSyncContext syncContext, RemoteUpdateKind updateType, byte[] file, string url)
         {
             syncContext.Session.SendTo(MessageHead.S_MAIN_UPDATE,
                 new RemoteUpdatePacket()
                 {
                     UrlOrFileUpdate = updateType,
-                    DownloadUrl = updateType == RemoteUpdateType.Url ? url : string.Empty,
-                    FileDate = updateType == RemoteUpdateType.File ? file : new byte[0]
+                    DownloadUrl = updateType == RemoteUpdateKind.Url ? url : string.Empty,
+                    FileData = updateType == RemoteUpdateKind.File ? file : new byte[0]
                 });
         }
 

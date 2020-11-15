@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace SiMay.RemoteControlsCore
+namespace SiMay.RemoteControls.Core
 {
     public class SysConstants
     {
-        public const int INDEX_COUNT = 2;
+        public const int INDEX_COUNT = 3;
         public const int INDEX_WORKTYPE = 0;
         public const int INDEX_WORKER = 1;
+        public const int INDEX_SYNC_SEQUENCE = 2;
 
         public const string IPV4 = "IPV4";
         public const string MachineName = "MachineName";

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SiMay.RemoteControlsCore.Enum
+namespace SiMay.RemoteControls.Core.Enum
 {
     public enum ScreenScanKind
     {

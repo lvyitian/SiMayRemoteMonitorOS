@@ -9,14 +9,14 @@ using SiMay.Core;
 using SiMay.Net.SessionProvider;
 using SiMay.Platform;
 using SiMay.Platform.Windows;
-using SiMay.RemoteControlsCore.Enum;
+using SiMay.RemoteControls.Core.Enum;
 using SiMay.ModelBinder;
 using static SiMay.Serialize.Standard.PacketSerializeHelper;
 
-namespace SiMay.RemoteControlsCore.HandlerAdapters
+namespace SiMay.RemoteControls.Core
 {
-    [ApplicationKeyAttribute(ApplicationKeyConstant.REMOTE_DESKTOP)]
-    public class RemoteScreenAdapterHandler : ApplicationAdapterHandler
+    [ApplicationServiceKey(ApplicationKeyConstant.REMOTE_DESKTOP)]
+    public class RemoteScreenAdapterHandler : ApplicationBaseAdapterHandler
     {
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         private int _frameCount = 0;
         public void RemoteMouseKeyEvent(MOUSEKEY_KIND @event, int point1, int point2)
         {
-            CurrentSession.SendTo(MessageHead.S_SCREEN_MOUSEKEYEVENT,
+            SendToAsync(MessageHead.S_SCREEN_MOUSEKEYEVENT,
                 new ScreenKeyPacket()
                 {
                     Key = @event,
@@ -92,7 +92,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             _frameCount = 0;
             //第一帧不计入连续帧
             for (int i = 0; i < 3; i++)
-                CurrentSession.SendTo(MessageHead.S_SCREEN_NEXT_SCREENBITMP, rect);
+                SendToAsync(MessageHead.S_SCREEN_NEXT_SCREENBITMP, rect);
         }
 
         public void GetNextScreen(int height, int width, int x, int y, ScreenDisplayMode mode)
@@ -114,7 +114,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
                     CtrlMode = mode.ConvertTo<int>()
                 });
                 for (int i = 0; i < 3; i++)
-                    CurrentSession.SendTo(MessageHead.S_SCREEN_NEXT_SCREENBITMP, rect);
+                    SendToAsync(MessageHead.S_SCREEN_NEXT_SCREENBITMP, rect);
             }
             else if (_frameCount == 3)
                 _frameCount = 0;
@@ -122,7 +122,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
         public void MonitorChange(int screenIndex)
         {
-            CurrentSession.SendTo(MessageHead.S_SCREEN_CHANGE_MONITOR,
+            SendToAsync(MessageHead.S_SCREEN_CHANGE_MONITOR,
                 new MonitorChangePacket()
                 {
                     MonitorIndex = screenIndex
@@ -131,36 +131,36 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
         public void GetInitializeBitInfo()
         {
-            CurrentSession.SendTo(MessageHead.S_SCREEN_GET_INIT_BITINFO);
+            SendToAsync(MessageHead.S_SCREEN_GET_INIT_BITINFO);
         }
         public void RemoteDeleteWallPaper()
         {
-            CurrentSession.SendTo(MessageHead.S_SCREEN_DELETE_WALLPAPER);
+            SendToAsync(MessageHead.S_SCREEN_DELETE_WALLPAPER);
         }
         public void RemoteMouseBlock(bool islock)
         {
             byte @lock = islock ? (byte)10 : (byte)11;
-            CurrentSession.SendTo(MessageHead.S_SCREEN_MOUSEBLOCK, new byte[] { @lock });
+            SendToAsync(MessageHead.S_SCREEN_MOUSEBLOCK, new byte[] { @lock });
         }
 
         public void RemoteScreenBlack()
         {
-            CurrentSession.SendTo(MessageHead.S_SCREEN_BLACKSCREEN);
+            SendToAsync(MessageHead.S_SCREEN_BLACKSCREEN);
         }
 
         public void RemoteChangeScanMode(ScreenScanKind scanMode)
         {
-            CurrentSession.SendTo(MessageHead.S_SCREEN_CHANGESCANMODE, new byte[] { (byte)scanMode });
+            SendToAsync(MessageHead.S_SCREEN_CHANGESCANMODE, new byte[] { (byte)scanMode });
         }
 
         public void RemoteResetBrandColor(BrandColorMode mode)
         {
-            CurrentSession.SendTo(MessageHead.S_SCREEN_RESET, new byte[] { (byte)mode });
+            SendToAsync(MessageHead.S_SCREEN_RESET, new byte[] { (byte)mode });
         }
 
         public void RemoteSetScreenQuantity(long qty)
         {
-            CurrentSession.SendTo(MessageHead.S_SCREEN_SETQTY,
+            SendToAsync(MessageHead.S_SCREEN_SETQTY,
                 new ScreenSetQtyPacket()
                 {
                     Quality = qty
@@ -169,7 +169,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
         public void SetRemoteClipoardText(string text)
         {
-            CurrentSession.SendTo(MessageHead.S_SCREEN_SET_CLIPBOARD_TEXT,
+            SendToAsync(MessageHead.S_SCREEN_SET_CLIPBOARD_TEXT,
                                     new ScreenSetClipoardPacket()
                                     {
                                         Text = text
@@ -177,12 +177,12 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         }
         public void SendCtrlAltDel()
         {
-            CurrentSession.SendTo(MessageHead.S_SCREEN_CTRL_ALT_DEL);
+            SendToAsync(MessageHead.S_SCREEN_CTRL_ALT_DEL);
         }
 
         public void GetRemoteClipoardText()
         {
-            CurrentSession.SendTo(MessageHead.S_SCREEN_GET_CLIPOARD_TEXT);
+            SendToAsync(MessageHead.S_SCREEN_GET_CLIPOARD_TEXT);
         }
         [PacketHandler(MessageHead.C_SCREEN_CLIPOARD_TEXT)]
         private void GetClipoardValueHandler(SessionProviderContext session)

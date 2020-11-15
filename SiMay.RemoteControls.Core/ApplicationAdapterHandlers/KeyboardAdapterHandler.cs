@@ -7,10 +7,10 @@ using SiMay.Core;
 using SiMay.ModelBinder;
 using SiMay.Net.SessionProvider;
 
-namespace SiMay.RemoteControlsCore.HandlerAdapters
+namespace SiMay.RemoteControls.Core
 {
-    [ApplicationKeyAttribute(ApplicationKeyConstant.REMOTE_KEYBOARD)]
-    public class KeyboardAdapterHandler : ApplicationAdapterHandler
+    [ApplicationServiceKey(ApplicationKeyConstant.REMOTE_KEYBOARD)]
+    public class KeyboardAdapterHandler : ApplicationBaseAdapterHandler
     {
         public event Action<KeyboardAdapterHandler, string> OnKeyboardDataEventHandler;
 
@@ -32,17 +32,17 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
         public void StartGetKeyorad()
         {
-            CurrentSession.SendTo(MessageHead.S_KEYBOARD_ONOPEN);
+            SendToAsync(MessageHead.S_KEYBOARD_ONOPEN);
         }
 
         public void StartOffLineKeyboard()
         {
-            CurrentSession.SendTo(MessageHead.S_KEYBOARD_OFFLINE);
+            SendToAsync(MessageHead.S_KEYBOARD_OFFLINE);
         }
 
         public void GetOffLineKeyboardData()
         {
-            CurrentSession.SendTo(MessageHead.S_KEYBOARD_GET_OFFLINEFILE);
+            SendToAsync(MessageHead.S_KEYBOARD_GET_OFFLINEFILE);
         }
     }
 }

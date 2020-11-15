@@ -34,13 +34,9 @@ namespace SiMay.ModelBinder
             var sourceName = source.GetType().Name;
             var actionKey = sourceName + "_" + Convert.ToInt16(head);
 
-            if (_reflectionCache.ContainsKey(actionKey))
-                return true;
+            var constains = _reflectionCache.ContainsKey(actionKey) || _reflectionFuncCache.ContainsKey(actionKey);
 
-            if (_reflectionFuncCache.ContainsKey(actionKey))
-                return true;
-
-            return false;
+            return constains;
         }
         private void InitCall(object source)
         {
@@ -67,10 +63,10 @@ namespace SiMay.ModelBinder
             }
         }
 
-        public bool CallFunctionPacketHandler(TSession session, TMessageHead head, object source)
+        public (bool successed, string ex) CallFunctionPacketHandler(TSession session, TMessageHead head, object source)
             => this.CallFunctionPacketHandler(session, head, source, out _);
 
-        public bool CallFunctionPacketHandler(TSession session, TMessageHead head, object source, out object returnEntity)
+        public (bool successed, string ex) CallFunctionPacketHandler(TSession session, TMessageHead head, object source, out object returnEntity)
         {
             var sourceName = source.GetType().Name;
             var actionKey = sourceName + "_" + Convert.ToInt16(head);
@@ -98,7 +94,7 @@ namespace SiMay.ModelBinder
                         && _reflectionFuncCache.TryGetValue(actionKey, out action))
                     {
                         returnEntity = action?.Invoke(session);
-                        return true;
+                        return (true, string.Empty);
                     }
                 }
 
@@ -109,15 +105,15 @@ namespace SiMay.ModelBinder
                         && _reflectionCache.TryGetValue(actionKey, out action))
                     {
                         action?.Invoke(session);
-                        return true;
+                        return (true, string.Empty);
                     }
                 }
 
-                return false;
+                return (false, string.Empty);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return false;
+                return (false, ex.Message + Environment.NewLine + ex.StackTrace);
             }
         }
 

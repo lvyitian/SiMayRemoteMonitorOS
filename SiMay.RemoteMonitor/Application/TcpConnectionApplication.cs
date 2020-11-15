@@ -1,7 +1,6 @@
-﻿using SiMay.Core;
-using SiMay.RemoteControlsCore;
-using SiMay.RemoteControlsCore.HandlerAdapters;
-using SiMay.RemoteMonitor.Attributes;
+﻿using SiMay.Basic;
+using SiMay.Core;
+using SiMay.RemoteControls.Core;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
@@ -35,23 +34,26 @@ namespace SiMay.RemoteMonitor.Application
             throw new NotImplementedException();
         }
 
-        public void SessionClose(ApplicationAdapterHandler handler)
+        public void SessionClose(ApplicationBaseAdapterHandler handler)
             => this.Text = _title + " [" + handler.State.ToString() + "]";
 
-        public void ContinueTask(ApplicationAdapterHandler handler)
+        public async void ContinueTask(ApplicationBaseAdapterHandler handler)
         {
             this.Text = _title;
-            TcpConnectionAdapterHandler.GetTcpList();
+            var tcpConnections = await TcpConnectionAdapterHandler.GetTcpList();
+            if (!tcpConnections.IsNull())
+                OnTcpListHandlerEvent(tcpConnections);
         }
 
-        private void TcpConnectionManager_Load(object sender, EventArgs e)
+        private async void TcpConnectionManager_Load(object sender, EventArgs e)
         {
             this.Text = _title = _title.Replace("#Name#", TcpConnectionAdapterHandler.OriginName);
-            TcpConnectionAdapterHandler.OnTcpListHandlerEvent += OnTcpListHandlerEvent;
-            TcpConnectionAdapterHandler.GetTcpList();
+            var tcpConnections = await TcpConnectionAdapterHandler.GetTcpList();
+            if (!tcpConnections.IsNull())
+                OnTcpListHandlerEvent(tcpConnections);
         }
 
-        private void OnTcpListHandlerEvent(TcpConnectionAdapterHandler adapterHandler, IEnumerable<TcpConnectionItem> tcplist)
+        private void OnTcpListHandlerEvent(IEnumerable<TcpConnectionItem> tcplist)
         {
             lstConnections.Items.Clear();
 
@@ -88,15 +90,16 @@ namespace SiMay.RemoteMonitor.Application
         /// <param name="e"></param>
         private void TestApp_FormClosing(object sender, FormClosingEventArgs e)
         {
-            TcpConnectionAdapterHandler.OnTcpListHandlerEvent -= OnTcpListHandlerEvent;
             TcpConnectionAdapterHandler.CloseSession();
         }
-        private void 刷新列表ToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void 刷新列表ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            TcpConnectionAdapterHandler.GetTcpList();
+            var tcpConnections = await TcpConnectionAdapterHandler.GetTcpList();
+            if (!tcpConnections.IsNull())
+                OnTcpListHandlerEvent(tcpConnections);
         }
 
-        private void 关闭连接ToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void 关闭连接ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             List<KillTcpConnectionItem> kills = new List<KillTcpConnectionItem>();
             foreach (ListViewItem lvi in lstConnections.SelectedItems)
@@ -109,7 +112,10 @@ namespace SiMay.RemoteMonitor.Application
                     RemotePort = lvi.SubItems[4].Text
                 });
             }
-            TcpConnectionAdapterHandler.CloseTcpList(kills);
+            await TcpConnectionAdapterHandler.CloseTcpList(kills);
+            var tcpConnections = await TcpConnectionAdapterHandler.GetTcpList();
+            if (!tcpConnections.IsNull())
+                OnTcpListHandlerEvent(tcpConnections);
         }
     }
 }

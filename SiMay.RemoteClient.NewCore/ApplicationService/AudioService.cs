@@ -3,12 +3,11 @@ using SiMay.Core;
 using SiMay.ModelBinder;
 using SiMay.Net.SessionProvider;
 using SiMay.Platform.Windows;
-using SiMay.ServiceCore.Attributes;
 
-namespace SiMay.ServiceCore
+namespace SiMay.Service.Core
 {
     [ServiceName("远程语音")]
-    [ApplicationKey(ApplicationKeyConstant.REMOTE_AUDIO)]
+    [ApplicationServiceKey(ApplicationKeyConstant.REMOTE_AUDIO)]
     public class AudioService : ApplicationRemoteService
     {
         private bool _isRun = true;
@@ -25,7 +24,7 @@ namespace SiMay.ServiceCore
             _isRun = false;
             this.Dispose();
         }
-        private void OpenAudio(int samplesPerSecond, int bitsPerSample, int channels)
+        private AudioDeviceStatesPacket OpenAudio(int samplesPerSecond, int bitsPerSample, int channels)
         {
             int inDeviceOpen = 0;
             int outDeviceOpen = 0;
@@ -60,12 +59,11 @@ namespace SiMay.ServiceCore
             }
             catch { }
 
-            CurrentSession.SendTo(MessageHead.C_AUDIO_DEVICE_OPENSTATE,
-                new AudioDeviceStatesPacket()
-                {
-                    PlayerEnable = outDeviceOpen == 0,
-                    RecordEnable = inDeviceOpen == 0
-                });
+            return new AudioDeviceStatesPacket()
+            {
+                PlayerEnable = outDeviceOpen == 0,
+                RecordEnable = inDeviceOpen == 0
+            };
         }
 
         private void Recorder_DataRecorded(byte[] bytes)
@@ -77,10 +75,10 @@ namespace SiMay.ServiceCore
         }
 
         [PacketHandler(MessageHead.S_AUDIO_START)]
-        public void SetOpenAudioInConfig(SessionProviderContext session)
+        public AudioDeviceStatesPacket SetOpenAudioInConfig(SessionProviderContext session)
         {
             var config = session.GetMessageEntity<AudioOptionsPacket>();
-            this.OpenAudio(config.SamplesPerSecond, config.BitsPerSample, config.Channels);
+            return this.OpenAudio(config.SamplesPerSecond, config.BitsPerSample, config.Channels);
         }
 
         [PacketHandler(MessageHead.S_AUDIO_DEIVCE_ONOFF)]

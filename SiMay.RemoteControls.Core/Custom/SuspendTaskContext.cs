@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace SiMay.RemoteControlsCore
+namespace SiMay.RemoteControls.Core
 {
     public interface ITaskSchedule
     {
@@ -65,7 +65,7 @@ namespace SiMay.RemoteControlsCore
 
         public IList<SessionSyncContext> SessionSyncContexts { get; set; }
 
-        public ApplicationAdapterHandler ApplicationAdapterHandler { get; set; }
+        public ApplicationBaseAdapterHandler ApplicationAdapterHandler { get; set; }
 
         public override void Execute()
         {
@@ -96,7 +96,7 @@ namespace SiMay.RemoteControlsCore
         {
             var taskResumEventArg = eventArgs as SuspendTaskResumEventArgs;
             var tokens = taskResumEventArg.Session.AppTokens;
-            tokens[SysConstants.INDEX_WORKTYPE] = SessionKind.APP_SERVICE;
+            tokens[SysConstants.INDEX_WORKTYPE] = SessionKind.APP_SERVICE_SESSION;
             tokens[SysConstants.INDEX_WORKER] = ApplicationAdapterHandler;
             ApplicationAdapterHandler.OriginName = taskResumEventArg.OriginName;
             ApplicationAdapterHandler.SetSession(taskResumEventArg.Session);
@@ -127,7 +127,7 @@ namespace SiMay.RemoteControlsCore
             var adapterPropertys = Application.GetApplicationAdapterProperty();
             foreach (var property in adapterPropertys)
             {
-                var adapter = property.GetValue(Application) as ApplicationAdapterHandler;
+                var adapter = property.GetValue(Application) as ApplicationBaseAdapterHandler;
                 if (!adapter.IsNull() && !adapter.IsManualClose() && adapter.GetAttachedConnectionState())
                     adapter.CloseSession();
             }

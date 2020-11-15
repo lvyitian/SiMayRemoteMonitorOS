@@ -99,7 +99,7 @@ namespace SiMay.Core
         public static T GetMessageEntity<T>(this byte[] data)
             where T : new()
         {
-            var entity = DeserializePacket<T>(GetMessagePayload(data));
+            var entity = DeserializePacket<T>(data);
             return entity;
         }
     }

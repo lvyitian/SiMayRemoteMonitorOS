@@ -5,10 +5,7 @@ using System.Drawing;
 using System.IO;
 using SiMay.Basic;
 using System.Windows.Forms;
-using SiMay.RemoteControlsCore;
-using SiMay.RemoteControlsCore.Enum;
 using SiMay.RemoteMonitor.MainApplication;
-using SiMay.RemoteControlsCore.HandlerAdapters;
 using static SiMay.RemoteMonitor.Win32Api;
 using static SiMay.Serialize.Standard.PacketSerializeHelper;
 using System.Diagnostics;
@@ -16,6 +13,8 @@ using Accord.Video.FFMPEG;
 using System.Threading;
 using System.Threading.Tasks;
 using SiMay.Platform.Windows;
+using SiMay.RemoteControls.Core;
+using SiMay.RemoteControls.Core.Enum;
 
 namespace SiMay.RemoteMonitor.Application
 {
@@ -84,13 +83,13 @@ namespace SiMay.RemoteMonitor.Application
         }
 
 
-        public void SessionClose(ApplicationAdapterHandler handler)
+        public void SessionClose(ApplicationBaseAdapterHandler handler)
         {
             _timer.Stop();
             this.Text = this._title.FormatTo(0, (_traffic / (float)1024).ToString("0.00")) + " [" + this.RemoteScreenAdapterHandler.State.ToString() + "]";
         }
 
-        public void ContinueTask(ApplicationAdapterHandler handler)
+        public void ContinueTask(ApplicationBaseAdapterHandler handler)
         {
             _continueTask = true;
             _timer.Start();

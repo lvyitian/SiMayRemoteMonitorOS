@@ -1,17 +1,16 @@
 ﻿using SiMay.Core;
 using SiMay.ModelBinder;
 using SiMay.Net.SessionProvider;
-using SiMay.ServiceCore.Attributes;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Threading;
 
-namespace SiMay.ServiceCore
+namespace SiMay.Service.Core
 {
     [ServiceName("远程监控摄像头")]
-    [ApplicationKey(ApplicationKeyConstant.REMOTE_VIDEO)]
+    [ApplicationServiceKey(ApplicationKeyConstant.REMOTE_VIDEO)]
     public class VideoService : ApplicationRemoteService
     {
         private int qty = 30;

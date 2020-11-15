@@ -1,15 +1,14 @@
 ﻿using SiMay.Core;
 using SiMay.ModelBinder;
 using SiMay.Net.SessionProvider;
-using SiMay.ServiceCore.Attributes;
 using System;
 using System.Diagnostics;
 using System.IO;
 
-namespace SiMay.ServiceCore
+namespace SiMay.Service.Core
 {
     [ServiceName("Shell管理")]
-    [ApplicationKey(ApplicationKeyConstant.REMOTE_SHELL)]
+    [ApplicationServiceKey(ApplicationKeyConstant.REMOTE_SHELL)]
     public class ShellService : ApplicationRemoteService
     {
         private Process _pipe;

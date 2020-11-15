@@ -7,10 +7,10 @@ using SiMay.Core;
 using SiMay.ModelBinder;
 using SiMay.Net.SessionProvider;
 
-namespace SiMay.RemoteControlsCore.HandlerAdapters
+namespace SiMay.RemoteControls.Core
 {
-    [ApplicationKeyAttribute(ApplicationKeyConstant.REMOTE_SHELL)]
-    public class ShellAdapterHandler : ApplicationAdapterHandler
+    [ApplicationServiceKey(ApplicationKeyConstant.REMOTE_SHELL)]
+    public class ShellAdapterHandler : ApplicationBaseAdapterHandler
     {
         /// <summary>
         /// 输出命令处理事件
@@ -26,7 +26,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
         public void InputCommand(string command)
         {
-            CurrentSession.SendTo( MessageHead.S_SHELL_INPUT, command);
+            SendToAsync( MessageHead.S_SHELL_INPUT, command);
         }
     }
 }

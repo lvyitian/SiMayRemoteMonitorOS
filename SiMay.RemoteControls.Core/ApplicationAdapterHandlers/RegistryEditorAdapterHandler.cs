@@ -4,10 +4,10 @@ using SiMay.Net.SessionProvider;
 using SiMay.ModelBinder;
 using SiMay.Platform.Windows;
 
-namespace SiMay.RemoteControlsCore.HandlerAdapters
+namespace SiMay.RemoteControls.Core
 {
-    [ApplicationKeyAttribute(ApplicationKeyConstant.REMOTE_REGEDIT)]
-    public class RegistryEditorAdapterHandler : ApplicationAdapterHandler
+    [ApplicationServiceKey(ApplicationKeyConstant.REMOTE_REGEDIT)]
+    public class RegistryEditorAdapterHandler : ApplicationBaseAdapterHandler
     {
         public delegate void KeysReceivedEventHandler(RegistryEditorAdapterHandler adapterHandler, string rootKey, RegSeekerMatchPacket[] matches);
         public delegate void KeyCreatedEventHandler(RegistryEditorAdapterHandler adapterHandler, string parentPath, RegSeekerMatchPacket match);
@@ -99,7 +99,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="rootKeyName">The root key name.</param>
         public void LoadRegistryKey(string rootKeyName)
         {
-            CurrentSession.SendTo( MessageHead.S_NREG_LOAD_REGKEYS,
+            SendToAsync( MessageHead.S_NREG_LOAD_REGKEYS,
                 new DoLoadRegistryKeyPacket()
                 {
                     RootKeyName = rootKeyName
@@ -112,7 +112,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="parentPath">The parent path.</param>
         public void CreateRegistryKey(string parentPath)
         {
-            CurrentSession.SendTo( MessageHead.S_NREG_CREATE_KEY,
+            SendToAsync( MessageHead.S_NREG_CREATE_KEY,
                                 new DoCreateRegistryKeyPacket()
                                 {
                                     ParentPath = parentPath
@@ -126,7 +126,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="keyName">The registry key name to delete.</param>
         public void DeleteRegistryKey(string parentPath, string keyName)
         {
-            CurrentSession.SendTo( MessageHead.S_NREG_DELETE_KEY,
+            SendToAsync( MessageHead.S_NREG_DELETE_KEY,
                                 new DoDeleteRegistryKeyPacket()
                                 {
                                     ParentPath = parentPath,
@@ -142,7 +142,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="newKeyName">The new name of the registry key.</param>
         public void RenameRegistryKey(string parentPath, string oldKeyName, string newKeyName)
         {
-            CurrentSession.SendTo( MessageHead.S_NREG_RENAME_KEY,
+            SendToAsync( MessageHead.S_NREG_RENAME_KEY,
                                         new DoRenameRegistryKeyPacket()
                                         {
                                             ParentPath = parentPath,
@@ -158,7 +158,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="kind">The kind of registry key value.</param>
         public void CreateRegistryValue(string keyPath, RegistryValueKind kind)
         {
-            CurrentSession.SendTo( MessageHead.S_NREG_CREATE_VALUE,
+            SendToAsync( MessageHead.S_NREG_CREATE_VALUE,
                                 new DoCreateRegistryValuePacket()
                                 {
                                     KeyPath = keyPath,
@@ -173,7 +173,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="valueName">The registry key value name to delete.</param>
         public void DeleteRegistryValue(string keyPath, string valueName)
         {
-            CurrentSession.SendTo( MessageHead.S_NREG_DELETE_VALUE,
+            SendToAsync( MessageHead.S_NREG_DELETE_VALUE,
                                         new DoDeleteRegistryValuePacket()
                                         {
                                             KeyPath = keyPath,
@@ -189,7 +189,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="newValueName">The new registry key value name.</param>
         public void RenameRegistryValue(string keyPath, string oldValueName, string newValueName)
         {
-            CurrentSession.SendTo( MessageHead.S_NREG_RENAME_VALUE,
+            SendToAsync( MessageHead.S_NREG_RENAME_VALUE,
                                     new DoRenameRegistryValuePacket()
                                     {
                                         KeyPath = keyPath,
@@ -205,7 +205,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="value">The updated registry key value.</param>
         public void ChangeRegistryValue(string keyPath, RegValueData value)
         {
-            CurrentSession.SendTo( MessageHead.S_NREG_CHANGE_VALUE,
+            SendToAsync( MessageHead.S_NREG_CHANGE_VALUE,
                                     new DoChangeRegistryValuePacket()
                                     {
                                         KeyPath = keyPath,

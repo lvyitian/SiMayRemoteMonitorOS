@@ -1,6 +1,5 @@
 ﻿using SiMay.Core;
-using SiMay.RemoteControlsCore;
-using SiMay.RemoteControlsCore.HandlerAdapters;
+using SiMay.RemoteControls.Core;
 using SiMay.RemoteMonitor.Attributes;
 using System;
 using System.Linq;
@@ -15,7 +14,9 @@ namespace SiMay.RemoteMonitor.Application
     [AppResourceName("ShellManager")]
     public partial class ShellApplication : Form, IApplication
     {
-
+        /// <summary>
+        /// 多会话测试
+        /// </summary>
         [ApplicationAdapterHandler]
         public TcpConnectionAdapterHandler TcpConnectionAdapterHandler { get; set; }
 
@@ -40,12 +41,12 @@ namespace SiMay.RemoteMonitor.Application
             throw new NotImplementedException();
         }
 
-        public void SessionClose(ApplicationAdapterHandler handler)
+        public void SessionClose(ApplicationBaseAdapterHandler handler)
         {
             this.Text = _title + " [" + handler.State.ToString() + "]";
         }
 
-        public void ContinueTask(ApplicationAdapterHandler handler)
+        public void ContinueTask(ApplicationBaseAdapterHandler handler)
         {
             this.Text = _title;
         }
@@ -55,16 +56,17 @@ namespace SiMay.RemoteMonitor.Application
         {
             this.Text = this._title = _title.Replace("#Name#", this.ShellAdapterHandler.OriginName);
             this.ShellAdapterHandler.OnOutputCommandEventHandler += OnOutputCommandEventHandler;
-            this.ShellAdapterHandler.InputCommand("");
+            this.ShellAdapterHandler.InputCommand(string.Empty);
 
-            TcpConnectionAdapterHandler.OnTcpListHandlerEvent += TcpConnectionAdapterHandler_OnTcpListHandlerEvent;
-            TcpConnectionAdapterHandler.GetTcpList();
+            //TcpConnectionAdapterHandler.OnTcpListHandlerEvent += TcpConnectionAdapterHandler_OnTcpListHandlerEvent;
+
+            //await TcpConnectionAdapterHandler.GetTcpList();
         }
 
-        private void TcpConnectionAdapterHandler_OnTcpListHandlerEvent(TcpConnectionAdapterHandler arg1, System.Collections.Generic.IEnumerable<TcpConnectionItem> arg2)
-        {
-            this.txtCommandLine.AppendText(DateTime.Now.ToString());
-        }
+        //private void TcpConnectionAdapterHandler_OnTcpListHandlerEvent(TcpConnectionAdapterHandler arg1, System.Collections.Generic.IEnumerable<TcpConnectionItem> arg2)
+        //{
+        //    this.txtCommandLine.AppendText(DateTime.Now.ToString());
+        //}
 
         private void OnOutputCommandEventHandler(ShellAdapterHandler adapterHandler, string outputLine)
         {
@@ -95,11 +97,7 @@ namespace SiMay.RemoteMonitor.Application
             {
                 this._lastLine = this.txtCommandLine.Text.Substring(this.txtCommandLine.GetFirstCharIndexOfCurrentLine());
                 var str = this._lastLine.Substring(this._lastLine.IndexOf('>') + 1);
-
-                TcpConnectionAdapterHandler.GetTcpList();
                 this.ShellAdapterHandler.InputCommand(str);
-
-                //Console.WriteLine($"TcpConnectionAdapterHandler:{TcpConnectionAdapterHandler.CurrentSession.Id},ShellAdapterHandler:{ShellAdapterHandler.CurrentSession.Id}");
 
                 e.Handled = true;
             }

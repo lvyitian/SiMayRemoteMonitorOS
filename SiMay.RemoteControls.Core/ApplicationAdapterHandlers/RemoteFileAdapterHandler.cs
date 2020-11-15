@@ -11,10 +11,10 @@ using SiMay.Net.SessionProvider;
 using SiMay.ModelBinder;
 using SiMay.Serialize.Standard;
 
-namespace SiMay.RemoteControlsCore.HandlerAdapters
+namespace SiMay.RemoteControls.Core
 {
-    [ApplicationKeyAttribute(ApplicationKeyConstant.REMOTE_FILE)]
-    public class RemoteFileAdapterHandler : ApplicationAdapterHandler
+    [ApplicationServiceKey(ApplicationKeyConstant.REMOTE_FILE)]
+    public class RemoteFileAdapterHandler : ApplicationBaseAdapterHandler
     {
         /// <summary>
         /// 文件列表项
@@ -82,7 +82,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// </summary>
         public void GetRemoteDriveItems()
         {
-            CurrentSession.SendTo(MessageHead.S_FILE_GET_DRIVES);
+            SendToAsync(MessageHead.S_FILE_GET_DRIVES);
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="path"></param>
         public void GetRemoteFiles(string path)
         {
-            CurrentSession.SendTo(MessageHead.S_FILE_GET_FILES,
+            SendToAsync(MessageHead.S_FILE_GET_FILES,
                 new FileListPack()
                 {
                     FilePath = path
@@ -104,7 +104,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="specialFolder"></param>
         public void GetRemoteSystemFoldFiles(Environment.SpecialFolder specialFolder)
         {
-            CurrentSession.SendTo(MessageHead.S_FILE_REDIRION,
+            SendToAsync(MessageHead.S_FILE_REDIRION,
                 new FileRedirectionPathPacket()
                 {
                     SpecialFolder = specialFolder
@@ -140,7 +140,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="files"></param>
         public void RemoteFilePaster(string root, string[] files)
         {
-            CurrentSession.SendTo(MessageHead.S_FILE_FILE_PASTER,
+            SendToAsync(MessageHead.S_FILE_FILE_PASTER,
                     new FileCopyPacket()
                     {
                         TargetDirectoryPath = root,
@@ -165,7 +165,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="path"></param>
         public void RemoteOpenText(string path)
         {
-            CurrentSession.SendTo(MessageHead.S_FILE_OPEN_TEXT,
+            SendToAsync(MessageHead.S_FILE_OPEN_TEXT,
                                         new FileOpenTextPack()
                                         {
                                             FileName = path
@@ -189,7 +189,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="files"></param>
         public void RemoteDeleteFiles(string[] files)
         {
-            CurrentSession.SendTo(MessageHead.S_FILE_DELETE,
+            SendToAsync(MessageHead.S_FILE_DELETE,
                     new FileDeletePacket()
                     {
                         FileNames = files
@@ -214,7 +214,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="noCallback">false = 回调</param>
         public void RemoteCreateDirectory(string path, bool noCallback = false)
         {
-            CurrentSession.SendTo(MessageHead.S_FILE_CREATE_DIR,
+            SendToAsync(MessageHead.S_FILE_CREATE_DIR,
                 new FileCreateDirectoryPacket()
                 {
                     DirectoryName = path,
@@ -240,7 +240,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="targetFileName"></param>
         public void RemoteFileRename(string srcFileName, string targetFileName)
         {
-            CurrentSession.SendTo(MessageHead.S_FILE_RENAME,
+            SendToAsync(MessageHead.S_FILE_RENAME,
                                 new FileReNamePacket()
                                 {
                                     SourceFileName = srcFileName,
@@ -265,7 +265,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="path"></param>
         public void GetRemoteRootTreeItems(string path)
         {
-            CurrentSession.SendTo(MessageHead.S_FILE_TREE_DIR,
+            SendToAsync(MessageHead.S_FILE_TREE_DIR,
                     new FileGetTreeDirectoryPacket()
                     {
                         TargetRoot = path
@@ -289,7 +289,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         /// <param name="path"></param>
         public void RemoteExecuteFile(string path)
         {
-            CurrentSession.SendTo(MessageHead.S_FILE_EXECUTE,
+            SendToAsync(MessageHead.S_FILE_EXECUTE,
                 new FileExcutePacket()
                 {
                     FilePath = path
@@ -389,7 +389,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         {
             return await Task.Run(() =>
             {
-                CurrentSession.SendTo(MessageHead.S_FILE_DOWNLOAD,
+                SendToAsync(MessageHead.S_FILE_DOWNLOAD,
                 new FileDownloadPacket()
                 {
                     FileName = remoteFileName,
@@ -421,7 +421,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             return await Task.Run(() =>
             {
 
-                CurrentSession.SendTo(MessageHead.S_FILE_NEXT_DATA);
+                SendToAsync(MessageHead.S_FILE_NEXT_DATA);
                 if (_isWorkSessionOfLines)
                 {
                     var data = _workerStreamEvent.AwaitOneData();
@@ -437,7 +437,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
         private void RemoteTaskStop()
         {
-            CurrentSession.SendTo(MessageHead.S_FILE_STOP);//停止任务，通知远程关闭文件
+            SendToAsync(MessageHead.S_FILE_STOP);//停止任务，通知远程关闭文件
         }
 
         /// <summary>
@@ -528,7 +528,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
             var data = await Task.Run(() => this.ReadFileStream(fileStream));
 
-            CurrentSession.SendTo(MessageHead.S_FILE_FRIST_DATA,//上传首数据块，带文件选项及长度
+            SendToAsync(MessageHead.S_FILE_FRIST_DATA,//上传首数据块，带文件选项及长度
                 new FileFristUploadDataPack()
                 {
                     FileMode = fileMode,
@@ -569,7 +569,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
                 data = await Task.Run(() => this.ReadFileStream(fileStream));
 
                 //底层通信库在正式发送数据包前会进行组包丶压缩等操作，由于文件数据块大，所处理耗时较长,此处使用线程以防止ui发生卡顿
-                await Task.Run(() => CurrentSession.SendTo(MessageHead.S_FILE_DATA,
+                await Task.Run(() => SendToAsync(MessageHead.S_FILE_DATA,
                             new FileUploadDataPack()
                             {
                                 FileSize = fileStream.Length,
@@ -629,7 +629,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         {
             return await Task.Run(() =>
             {
-                CurrentSession.SendTo(MessageHead.S_FILE_UPLOAD,
+                SendToAsync(MessageHead.S_FILE_UPLOAD,
                     new FileUploadPacket()
                     {
                         FileName = remoteFileName
@@ -719,7 +719,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         {
             return await Task.Run(() =>
             {
-                CurrentSession.SendTo(MessageHead.S_FILE_GETDIR_FILES,
+                SendToAsync(MessageHead.S_FILE_GETDIR_FILES,
                     new FileDirectoryGetFilesPacket()
                     {
                         DirectoryPath = remotedirectory

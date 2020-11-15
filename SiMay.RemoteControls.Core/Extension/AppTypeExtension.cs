@@ -6,7 +6,7 @@ using System.Text;
 using SiMay.Basic;
 using SiMay.Core;
 
-namespace SiMay.RemoteControlsCore
+namespace SiMay.RemoteControls.Core
 {
     public static class AppTypeExtension
     {
@@ -41,7 +41,7 @@ namespace SiMay.RemoteControlsCore
             var propertys = type
                 .GetProperties();
             return propertys
-                .Where(c => !c.GetCustomAttribute<ApplicationAdapterHandlerAttribute>(true).IsNull() && typeof(ApplicationAdapterHandler).IsAssignableFrom(c.PropertyType))
+                .Where(c => !c.GetCustomAttribute<ApplicationAdapterHandlerAttribute>(true).IsNull() && typeof(ApplicationBaseAdapterHandler).IsAssignableFrom(c.PropertyType))
                 .ToArray();
         }
 
@@ -66,7 +66,7 @@ namespace SiMay.RemoteControlsCore
         /// </summary>
         /// <param name="adapter"></param>
         /// <returns></returns>
-        public static string GetApplicationKey(this ApplicationAdapterHandler adapter)
+        public static string GetApplicationKey(this ApplicationBaseAdapterHandler adapter)
         {
             return GetApplicationKey(adapter.GetType());
         }
@@ -78,7 +78,7 @@ namespace SiMay.RemoteControlsCore
         /// <returns></returns>
         public static string GetApplicationKey(this Type type)
         {
-            var attr = type.GetCustomAttribute<ApplicationKeyAttribute>(true);
+            var attr = type.GetCustomAttribute<ApplicationServiceKeyAttribute>(true);
             return attr.Key;
         }
     }

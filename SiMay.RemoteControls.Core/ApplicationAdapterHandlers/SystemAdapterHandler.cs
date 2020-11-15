@@ -8,47 +8,46 @@ using SiMay.Core;
 using SiMay.ModelBinder;
 using SiMay.Net.SessionProvider;
 
-namespace SiMay.RemoteControlsCore.HandlerAdapters
+namespace SiMay.RemoteControls.Core
 {
-    [ApplicationKeyAttribute(ApplicationKeyConstant.REMOTE_SYSMANAGER)]
-    public class SystemAdapterHandler : ApplicationAdapterHandler
+    [ApplicationServiceKey(ApplicationKeyConstant.REMOTE_SYSMANAGER)]
+    public class SystemAdapterHandler : ApplicationBaseAdapterHandler
     {
-        public event Action<SystemAdapterHandler, IEnumerable<ProcessItem>> OnProcessListHandlerEvent;
-
-        public event Action<SystemAdapterHandler, IEnumerable<SystemInfoItem>> OnSystemInfoHandlerEvent;
-
-        public event Action<SystemAdapterHandler, IEnumerable<SessionItem>> OnSessionsEventHandler;
-
-        public event Action<SystemAdapterHandler, string, string> OnOccupyHandlerEvent;
-
-        public async Task GetSystemInfoItems()
+        public async Task<SystemInfoItem[]> GetSystemInfoItems()
         {
             var responsed = await SendTo(MessageHead.S_SYSTEM_GET_SYSTEMINFO);
             if (!responsed.IsNull() && responsed.IsOK)
             {
-                var pack = SiMay.Serialize.Standard.PacketSerializeHelper.DeserializePacket<SystemInfoPacket>(responsed.Datas);
-                OnSystemInfoHandlerEvent?.Invoke(this, pack.SystemInfos);
+                var pack = responsed.Datas.GetMessageEntity<ProcessPacket>();
+                return pack.SystemInfos;
             }
+
+            return null;
         }
 
-        public async Task GetProcessList()
+
+        public async Task<ProcessItem[]> GetProcessList()
         {
             var responsed = await SendTo(MessageHead.S_SYSTEM_GET_PROCESS_LIST);
             if (!responsed.IsNull() && responsed.IsOK)
             {
-                var pack = SiMay.Serialize.Standard.PacketSerializeHelper.DeserializePacket<ProcessListPack>(responsed.Datas);
-                OnProcessListHandlerEvent?.Invoke(this, pack.ProcessList);
+                var pack = responsed.Datas.GetMessageEntity<ProcessListPack>();
+                return pack.ProcessList;
             }
+
+            return null;
         }
 
-        public async Task GetOccupy()
+        public async Task<(string cpuusage, string memoryUsage)> GetOccupy()
         {
             var responsed = await SendTo(MessageHead.S_SYSTEM_GET_OCCUPY);
             if (!responsed.IsNull() && responsed.IsOK)
             {
-                var pack = SiMay.Serialize.Standard.PacketSerializeHelper.DeserializePacket<SystemOccupyPack>(responsed.Datas);
-                OnOccupyHandlerEvent?.Invoke(this, pack.CpuUsage, pack.MemoryUsage);
+                var pack = responsed.Datas.GetMessageEntity<SystemOccupyPack>();
+                return (pack.CpuUsage, pack.MemoryUsage);
             }
+
+            return (null, null);
         }
 
         public async Task SetProcessWindowMaxi(IEnumerable<int> pids)
@@ -61,14 +60,16 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             await SetProcessWindowState(0, pids);
         }
 
-        public async Task EnumSession()
+        public async Task<SessionItem[]> EnumSession()
         {
             var responsed = await SendTo(MessageHead.S_SYSTEM_ENUMSESSIONS);
-            if (!responsed.IsNull() && responsed.IsOK)
+            if (!responsed.IsNull() && responsed.IsOK && !responsed.Datas.IsNullOrEmpty())
             {
-                var sessionLst = SiMay.Serialize.Standard.PacketSerializeHelper.DeserializePacket<SessionsPacket>(responsed.Datas);
-                this.OnSessionsEventHandler?.Invoke(this, sessionLst.Sessions);
+                var sessionLst = responsed.Datas.GetMessageEntity<SessionsPacket>();
+                return sessionLst.Sessions;
             }
+
+            return null;
         }
 
         public async Task CreateProcessAsUser(int sessionId)
@@ -83,17 +84,16 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
         public async Task KillProcess(IEnumerable<int> pids)
         {
             await SendTo(MessageHead.S_SYSTEM_KILL,
-                 new KillProcessPacket()
+                 new KillPacket()
                  {
                      ProcessIds = pids.ToArray()
                  });
-            await GetProcessList();
         }
 
         private async Task SetProcessWindowState(int state, IEnumerable<int> pids)
         {
             await SendTo(MessageHead.S_SYSTEM_MAXIMIZE,
-                new SysWindowMaxPacket()
+                new SetWindowStatusPacket()
                 {
                     State = state,
                     Handlers = pids.ToArray()

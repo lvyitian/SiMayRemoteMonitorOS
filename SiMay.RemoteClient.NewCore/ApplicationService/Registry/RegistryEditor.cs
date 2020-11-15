@@ -2,7 +2,7 @@
 using Microsoft.Win32;
 using SiMay.Platform.Windows;
 
-namespace SiMay.ServiceCore
+namespace SiMay.Service.Core
 {
     public class RegistryEditor
     {

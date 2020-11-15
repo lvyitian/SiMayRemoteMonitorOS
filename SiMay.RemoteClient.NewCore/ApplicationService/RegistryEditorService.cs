@@ -2,16 +2,15 @@
 using SiMay.ModelBinder;
 using SiMay.Net.SessionProvider;
 using SiMay.Platform.Windows;
-using SiMay.ServiceCore.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace SiMay.ServiceCore
+namespace SiMay.Service.Core
 {
     [ServiceName("远程注册表")]
-    [ApplicationKey(ApplicationKeyConstant.REMOTE_REGEDIT)]
+    [ApplicationServiceKey(ApplicationKeyConstant.REMOTE_REGEDIT)]
     public class RegistryEditorService : ApplicationRemoteService
     {
         public override void SessionInited(SessionProviderContext session)

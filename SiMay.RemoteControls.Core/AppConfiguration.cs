@@ -4,7 +4,7 @@ using System;
 using System.IO;
 using SiMay.Core;
 
-namespace SiMay.RemoteControlsCore
+namespace SiMay.RemoteControls.Core
 {
     public abstract class DefaultConfigBase : AbstractAppConfigBase
     {

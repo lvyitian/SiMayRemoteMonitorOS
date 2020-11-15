@@ -1,7 +1,6 @@
 ﻿using SiMay.Basic;
 using SiMay.Core;
-using SiMay.RemoteControlsCore;
-using SiMay.RemoteControlsCore.HandlerAdapters;
+using SiMay.RemoteControls.Core;
 using SiMay.RemoteMonitor.Attributes;
 using SiMay.RemoteMonitor.UserControls;
 using System;
@@ -39,40 +38,42 @@ namespace SiMay.RemoteMonitor.Application
             throw new NotImplementedException();
         }
 
-        public void SessionClose(ApplicationAdapterHandler handler)
+        public void SessionClose(ApplicationBaseAdapterHandler handler)
         {
             this.Text = _title + " [" + this.SystemAdapterHandler.State.ToString() + "]";
         }
 
-        public void ContinueTask(ApplicationAdapterHandler handler)
+        public void ContinueTask(ApplicationBaseAdapterHandler handler)
         {
             this.Text = _title;
         }
 
-        private void SystemManager_Load(object sender, EventArgs e)
+        private async void SystemManager_Load(object sender, EventArgs e)
         {
             this.Text = _title;
-            this.processList.Columns.Add("映像名称", 150);
-            this.processList.Columns.Add("窗口标题", 150);
-            this.processList.Columns.Add("窗口句柄", 100);
-            this.processList.Columns.Add("内存", 100);
-            this.processList.Columns.Add("线程数量", 100);
-            this.processList.Columns.Add("会话标识", 100);
-            this.processList.Columns.Add("用户名称", 100);
-            this.processList.Columns.Add("文件位置", 300);
+            this.processListView.Columns.Add("映像名称", 150);
+            this.processListView.Columns.Add("窗口标题", 150);
+            this.processListView.Columns.Add("窗口句柄", 100);
+            this.processListView.Columns.Add("内存", 100);
+            this.processListView.Columns.Add("线程数量", 100);
+            this.processListView.Columns.Add("会话标识", 100);
+            this.processListView.Columns.Add("用户名称", 100);
+            this.processListView.Columns.Add("文件位置", 300);
 
-            this.SystemAdapterHandler.OnProcessListHandlerEvent += OnProcessListHandlerEvent;
-            this.SystemAdapterHandler.OnSystemInfoHandlerEvent += OnSystemInfoHandlerEvent;
-            this.SystemAdapterHandler.OnOccupyHandlerEvent += OnOccupyHandlerEvent;
-            this.SystemAdapterHandler.OnSessionsEventHandler += OnSessionsEventHandler;
             this._title = _title.Replace("#Name#", SystemAdapterHandler.OriginName);
             this.Text = this._title;
-            this.SystemAdapterHandler.GetSystemInfoItems();
-            this.SystemAdapterHandler.EnumSession();
+            var systemInfos = await this.SystemAdapterHandler.GetSystemInfoItems();
+            if (!systemInfos.IsNull())
+                OnSystemInfoHandlerEvent(systemInfos);
+
+            var sessions = await this.SystemAdapterHandler.EnumSession();
+            if (!sessions.IsNull())
+                OnSessionsEventHandler(sessions);
+
             this.GetSystemInfos();
         }
 
-        private void OnSessionsEventHandler(SystemAdapterHandler adapterHandler, IEnumerable<SessionItem> sessions)
+        private void OnSessionsEventHandler(IEnumerable<SessionItem> sessions)
         {
             this.sessionsListView.Items.Clear();
             this.sessionsListView.Items.AddRange(sessions
@@ -80,13 +81,13 @@ namespace SiMay.RemoteMonitor.Application
                 .ToArray());
         }
 
-        private void OnOccupyHandlerEvent(SystemAdapterHandler adapterHandler, string cpuOccupy, string memroyOccupy)
+        private void OnOccupyHandlerEvent(string cpuOccupy, string memroyOccupy)
         {
             this.cpuUse.Text = $"CPU使用率:{cpuOccupy}";
             this.moryUse.Text = $"内存:{memroyOccupy}";
         }
 
-        private void OnSystemInfoHandlerEvent(SystemAdapterHandler adapterHandler, IEnumerable<SystemInfoItem> infoItems)
+        private void OnSystemInfoHandlerEvent(IEnumerable<SystemInfoItem> infoItems)
         {
             systemInfoList.Items.Clear();
             foreach (var item in infoItems)
@@ -98,10 +99,10 @@ namespace SiMay.RemoteMonitor.Application
             }
         }
 
-        private void OnProcessListHandlerEvent(SystemAdapterHandler adapterHandler, IEnumerable<ProcessItem> processItems)
+        private void OnProcessListHandlerEvent(IEnumerable<ProcessItem> processItems)
         {
             var processLst = new List<ProcessItem>(processItems);
-            var listViews = processList.Items.Cast<ProcListViewItem>().ToArray();
+            var listViews = processListView.Items.Cast<ProcListViewItem>().ToArray();
 
             //待移除进程项
             var waitRemoveItems = new Queue<ProcListViewItem>();
@@ -131,7 +132,7 @@ namespace SiMay.RemoteMonitor.Application
                 else
                 {
                     var processItem = new ProcListViewItem(item.ProcessId, item.ProcessName, item.WindowName, item.WindowHandler, item.ProcessMemorySize, item.ProcessThreadCount, item.FilePath, item.SessionId, item.User);
-                    processList.Items.Add(processItem);
+                    processListView.Items.Add(processItem);
                 }
             }
 
@@ -141,34 +142,35 @@ namespace SiMay.RemoteMonitor.Application
                 item.Remove();
             }
 
-            m_proNum.Text = processList.Items.Count.ToString();
+            m_proNum.Text = processListView.Items.Count.ToString();
         }
 
         private void SystemManagerFom_FormClosing(object sender, FormClosingEventArgs e)
         {
             this.refreshTimer.Stop();
             this.refreshTimer.Dispose();
-            this.SystemAdapterHandler.OnProcessListHandlerEvent -= OnProcessListHandlerEvent;
-            this.SystemAdapterHandler.OnSystemInfoHandlerEvent -= OnSystemInfoHandlerEvent;
-            this.SystemAdapterHandler.OnOccupyHandlerEvent -= OnOccupyHandlerEvent;
-            this.SystemAdapterHandler.OnSessionsEventHandler -= OnSessionsEventHandler;
             this.SystemAdapterHandler.CloseSession();
         }
 
-        private void GetSystemInfos()
+        private async void GetSystemInfos()
         {
-            this.SystemAdapterHandler.GetOccupy();
-            this.SystemAdapterHandler.GetProcessList();
+            var occupyResult = await this.SystemAdapterHandler.GetOccupy();
+            if (!occupyResult.memoryUsage.IsNull() && !occupyResult.cpuusage.IsNull())
+                OnOccupyHandlerEvent(occupyResult.cpuusage, occupyResult.memoryUsage);
+
+            var processList = await this.SystemAdapterHandler.GetProcessList();
+            if (!processList.IsNull())
+                OnProcessListHandlerEvent(processList);
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private async void button2_Click(object sender, EventArgs e)
         {
-            ListView.SelectedListViewItemCollection SelectItem = processList.SelectedItems;
+            ListView.SelectedListViewItemCollection SelectItem = processListView.SelectedItems;
             for (int i = 0; i < SelectItem.Count; i++)
-                processList.Items[SelectItem[i].Index].Checked = true;
+                processListView.Items[SelectItem[i].Index].Checked = true;
 
             var ids = new List<int>();
-            foreach (ProcListViewItem item in processList.Items)
+            foreach (ProcListViewItem item in processListView.Items)
             {
                 if (item.Checked == true)
                     ids.Add(item.ProcessId);
@@ -185,28 +187,30 @@ namespace SiMay.RemoteMonitor.Application
             if (MessageBox.Show("确认要结束选中的进程吗?", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) != DialogResult.OK)
                 return;
 
-            this.SystemAdapterHandler.KillProcess(ids);
-            this.SystemAdapterHandler.GetProcessList();
+            await this.SystemAdapterHandler.KillProcess(ids);
+            var processList = await this.SystemAdapterHandler.GetProcessList();
+            if (!processList.IsNull())
+                OnProcessListHandlerEvent(processList);
         }
-        private void button3_Click(object sender, EventArgs e)
+        private async void button3_Click(object sender, EventArgs e)
         {
             var ids = this.GetSelectProcessIds();
-            this.SystemAdapterHandler.SetProcessWindowMaxi(ids);
+            await this.SystemAdapterHandler.SetProcessWindowMaxi(ids);
         }
-        private void button4_Click(object sender, EventArgs e)
+        private async void button4_Click(object sender, EventArgs e)
         {
             var ids = this.GetSelectProcessIds();
-            this.SystemAdapterHandler.SetProcessWindowMize(ids);
+            await this.SystemAdapterHandler.SetProcessWindowMize(ids);
         }
 
         private IEnumerable<int> GetSelectProcessIds()
         {
-            ListView.SelectedListViewItemCollection SelectItem = processList.SelectedItems;
+            ListView.SelectedListViewItemCollection SelectItem = processListView.SelectedItems;
             for (int i = 0; i < SelectItem.Count; i++)
-                processList.Items[SelectItem[i].Index].Checked = true;
+                processListView.Items[SelectItem[i].Index].Checked = true;
 
             var handlers = new List<int>();
-            foreach (ProcListViewItem item in processList.Items)
+            foreach (ProcListViewItem item in processListView.Items)
             {
                 if (item.Checked == true)
                 {
@@ -264,7 +268,7 @@ namespace SiMay.RemoteMonitor.Application
             this.Close();
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private async void button1_Click(object sender, EventArgs e)
         {
             ListView.SelectedListViewItemCollection SelectItem = this.sessionsListView.SelectedItems;
             for (int i = 0; i < SelectItem.Count; i++)
@@ -291,10 +295,12 @@ namespace SiMay.RemoteMonitor.Application
 
             foreach (var sessionId in ids)
             {
-                this.SystemAdapterHandler.CreateProcessAsUser(sessionId);
+                await this.SystemAdapterHandler.CreateProcessAsUser(sessionId);
             }
 
-            this.SystemAdapterHandler.EnumSession();
+            var sessions = await this.SystemAdapterHandler.EnumSession();
+            if (!sessions.IsNull())
+                OnSessionsEventHandler(sessions);
         }
     }
 }

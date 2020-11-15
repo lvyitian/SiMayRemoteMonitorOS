@@ -1,0 +1,52 @@
+﻿using SiMay.Basic;
+using SiMay.Core;
+using SiMay.ModelBinder;
+using SiMay.Net.SessionProvider;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace SiMay.Service.Core
+{
+    public static class SimpleServiceHelper
+    {
+        public static IDictionary<string, IRemoteSimpleService> SimpleServiceCollection = new Dictionary<string, IRemoteSimpleService>();
+
+        public static IDictionary<MessageHead, IRemoteSimpleService> SimpleServiceTargetHeadMaping = new Dictionary<MessageHead, IRemoteSimpleService>();
+        /// <summary>
+        /// 链式简单程序注册方法
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="simpleServiceCollection"></param>
+        /// <returns></returns>
+        public static IDictionary<string, IRemoteSimpleService> SimpleServiceRegister<T>(this IDictionary<string, IRemoteSimpleService> simpleServiceCollection)
+            where T : IRemoteSimpleService, new()
+        {
+            var instance = Activator.CreateInstance<T>();
+            simpleServiceCollection[typeof(T).FullName] = instance;
+
+            var methods = instance.GetType().GetMethods(BindingFlags.Instance | BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Public);
+            foreach (var method in methods)
+            {
+                var attr = method.GetCustomAttributes(typeof(PacketHandler), true).FirstOrDefault();
+                if (attr.IsNull())
+                    continue;
+
+                var messageHead = attr.ConvertTo<PacketHandler>().MessageHead.ConvertTo<MessageHead>();
+                SimpleServiceTargetHeadMaping[messageHead] = instance;
+            }
+
+
+            return simpleServiceCollection;
+        }
+
+        public static T GetSimpleService<T>(this IDictionary<string, IRemoteSimpleService> simpleServiceCollection)
+            where T : IRemoteSimpleService, new()
+            => simpleServiceCollection[typeof(T).FullName].ConvertTo<T>();
+
+    }
+}

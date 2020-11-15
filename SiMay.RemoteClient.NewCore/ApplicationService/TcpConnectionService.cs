@@ -1,7 +1,6 @@
 ﻿using SiMay.Core;
 using SiMay.ModelBinder;
 using SiMay.Net.SessionProvider;
-using SiMay.ServiceCore.Attributes;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -10,10 +9,10 @@ using System.Text;
 using System.Threading;
 using CommonWin32Api = SiMay.Platform.Windows.CommonWin32Api;
 
-namespace SiMay.ServiceCore
+namespace SiMay.Service.Core
 {
     [ServiceName("Tcp连接管理")]
-    [ApplicationKey(ApplicationKeyConstant.REMOTE_TCP)]
+    [ApplicationServiceKey(ApplicationKeyConstant.REMOTE_TCP)]
     public class TcpConnectionService : ApplicationRemoteService
     {
         public override void SessionInited(SessionProviderContext session)

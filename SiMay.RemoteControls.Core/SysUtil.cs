@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Resources;
 using System.Text;
 
-namespace SiMay.RemoteControlsCore
+namespace SiMay.RemoteControls.Core
 {
     public class SysUtil
     {

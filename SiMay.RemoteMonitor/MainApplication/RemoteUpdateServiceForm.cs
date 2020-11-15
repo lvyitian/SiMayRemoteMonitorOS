@@ -22,7 +22,7 @@ namespace SiMay.RemoteMonitor.MainApplication
             this.DialogResult = DialogResult.Cancel;
         }
 
-        public RemoteUpdateType UrlOrFileUpdate { get; set; }
+        public RemoteUpdateKind UrlOrFileUpdate { get; set; }
         public string Value { get; set; }
         private void BtnUpdate_Click(object sender, EventArgs e)
         {
@@ -39,13 +39,13 @@ namespace SiMay.RemoteMonitor.MainApplication
                     return;
                 }
                 Value = txtPath.Text;
-                UrlOrFileUpdate =  RemoteUpdateType.File;
+                UrlOrFileUpdate =  RemoteUpdateKind.File;
             }
             else
             {
 
                 Value = txtURL.Text;
-                UrlOrFileUpdate = RemoteUpdateType.Url;
+                UrlOrFileUpdate = RemoteUpdateKind.Url;
             }
 
             if (MessageBox.Show("该操作是危险操作，请确认文件或URL是否正确，否则可能导致上线失败!", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) == DialogResult.OK)

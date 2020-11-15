@@ -75,7 +75,7 @@ namespace SiMay.RemoteService.Loader
                     completed = true;
                     break;
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     //LogHelper.WriteErrorByCurrentMethod("trunkService open listen exception:" + ex.Message);
                 }

@@ -1,6 +1,5 @@
 ﻿using SiMay.Basic;
 using SiMay.Core;
-using SiMay.Core.Standard.Packets;
 using SiMay.ModelBinder;
 using SiMay.Net.SessionProvider;
 using System;
@@ -9,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SiMay.ServiceCore
+namespace SiMay.Service.Core
 {
     /// <summary>
     /// 远程应用服务
@@ -74,12 +73,13 @@ namespace SiMay.ServiceCore
 
             var targetMessageHead = session.GetMessageHead();
 
-            bool isOK = this.HandlerBinder.CallFunctionPacketHandler(session, targetMessageHead, this, out var returnEntity);
+            var operationResult = this.HandlerBinder.CallFunctionPacketHandler(session, targetMessageHead, this, out var returnEntity);
             var syncResultPacket = new CallSyncResultPacket
             {
                 Id = callTarget.Id,
                 Datas = returnEntity.IsNull() ? Array.Empty<byte>() : SiMay.Serialize.Standard.PacketSerializeHelper.SerializePacket(returnEntity),
-                IsOK = isOK
+                IsOK = operationResult.successed,
+                Message = operationResult.ex
             };
             session.SendTo(MessageHead.C_GLOBAL_SYNC_RESULT, syncResultPacket);
         }

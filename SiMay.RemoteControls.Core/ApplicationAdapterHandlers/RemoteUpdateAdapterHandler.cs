@@ -7,10 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 using SiMay.ModelBinder;
 
-namespace SiMay.RemoteControlsCore
+namespace SiMay.RemoteControls.Core
 {
-    [ApplicationKeyAttribute(ApplicationKeyConstant.REMOTE_UPDATE)]
-    public class RemoteUpdateAdapterHandler : ApplicationAdapterHandler
+    [ApplicationServiceKey(ApplicationKeyConstant.REMOTE_UPDATE)]
+    public class RemoteUpdateAdapterHandler : ApplicationBaseAdapterHandler
     {
         /// <summary>
         /// 远程更新就绪
@@ -32,6 +32,6 @@ namespace SiMay.RemoteControlsCore
             => OnNextDataEventHandler?.Invoke();
 
         public void SendFileData(byte[] data)
-            => CurrentSession.SendTo( MessageHead.S_REMOTE_UPDATE_DATA, data);
+            => SendToAsync( MessageHead.S_REMOTE_UPDATE_DATA, data);
     }
 }

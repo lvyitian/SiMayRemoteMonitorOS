@@ -8,7 +8,7 @@ using System.Timers;
 using System.Windows.Forms;
 using static SiMay.Platform.Windows.CommonWin32Api;
 
-namespace SiMay.ServiceCore
+namespace SiMay.Service.Core
 {
 
     public class Keyboard

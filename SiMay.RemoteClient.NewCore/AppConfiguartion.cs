@@ -5,7 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 
-namespace SiMay.ServiceCore
+namespace SiMay.Service.Core
 {
     public class ServiceAppConfig : AbstractAppConfigBase
     {

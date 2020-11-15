@@ -1,11 +1,10 @@
-﻿
-using SiMay.Platform.Windows;
+﻿using SiMay.Platform.Windows;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace SiMay.ServiceCore
+namespace SiMay.Service.Core
 {
     public class ImageExtensionHelper
     {

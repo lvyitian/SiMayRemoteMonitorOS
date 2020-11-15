@@ -10,10 +10,10 @@ using SiMay.Core;
 using SiMay.ModelBinder;
 using SiMay.Net.SessionProvider;
 
-namespace SiMay.RemoteControlsCore.HandlerAdapters
+namespace SiMay.RemoteControls.Core
 {
-    [ApplicationKey(ApplicationKeyConstant.REMOTE_VIDEO)]
-    public class VideoAppAdapterHandler : ApplicationAdapterHandler
+    [ApplicationServiceKey(ApplicationKeyConstant.REMOTE_VIDEO)]
+    public class VideoAppAdapterHandler : ApplicationBaseAdapterHandler
     {
         /// <summary>
         /// 图帧处理事件
@@ -32,7 +32,7 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
             using (MemoryStream ms = new MemoryStream(data))
                 OnImageFrameHandlerEvent?.Invoke(this, Image.FromStream(ms));
 
-            session.SendTo(MessageHead.S_VIEDO_GET_DATA);
+            SendToAsync(MessageHead.S_VIEDO_GET_DATA);
         }
 
         [PacketHandler(MessageHead.C_VIEDO_DEVICE_NOTEXIST)]
@@ -43,12 +43,12 @@ namespace SiMay.RemoteControlsCore.HandlerAdapters
 
         public void StartGetFrame()
         {
-            CurrentSession.SendTo(MessageHead.S_VIEDO_GET_DATA);
+            SendToAsync(MessageHead.S_VIEDO_GET_DATA);
         }
 
         public void RemoteSetFrameQuantity(int level)
         {
-            CurrentSession.SendTo(MessageHead.S_VIEDO_RESET, new byte[] { (byte)level });
+            SendToAsync(MessageHead.S_VIEDO_RESET, new byte[] { (byte)level });
         }
     }
 }
