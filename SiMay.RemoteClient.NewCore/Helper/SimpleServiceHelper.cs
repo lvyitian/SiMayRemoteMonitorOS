@@ -14,17 +14,17 @@ namespace SiMay.Service.Core
 {
     public static class SimpleServiceHelper
     {
-        public static IDictionary<string, IRemoteSimpleService> SimpleServiceCollection = new Dictionary<string, IRemoteSimpleService>();
+        public static IDictionary<string, RemoteSimpleServiceBase> SimpleServiceCollection = new Dictionary<string, RemoteSimpleServiceBase>();
 
-        public static IDictionary<MessageHead, IRemoteSimpleService> SimpleServiceTargetHeadMaping = new Dictionary<MessageHead, IRemoteSimpleService>();
+        public static IDictionary<int, RemoteSimpleServiceBase> SimpleServiceTargetHeadMaping = new Dictionary<int, RemoteSimpleServiceBase>();
         /// <summary>
         /// 链式简单程序注册方法
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="simpleServiceCollection"></param>
         /// <returns></returns>
-        public static IDictionary<string, IRemoteSimpleService> SimpleServiceRegister<T>(this IDictionary<string, IRemoteSimpleService> simpleServiceCollection)
-            where T : IRemoteSimpleService, new()
+        public static IDictionary<string, RemoteSimpleServiceBase> SimpleServiceRegister<T>(this IDictionary<string, RemoteSimpleServiceBase> simpleServiceCollection)
+            where T : RemoteSimpleServiceBase, new()
         {
             var instance = Activator.CreateInstance<T>();
             simpleServiceCollection[typeof(T).FullName] = instance;
@@ -36,7 +36,7 @@ namespace SiMay.Service.Core
                 if (attr.IsNull())
                     continue;
 
-                var messageHead = attr.ConvertTo<PacketHandler>().MessageHead.ConvertTo<MessageHead>();
+                var messageHead = attr.ConvertTo<PacketHandler>().MessageHead.ConvertTo<int>();
                 SimpleServiceTargetHeadMaping[messageHead] = instance;
             }
 
@@ -44,8 +44,8 @@ namespace SiMay.Service.Core
             return simpleServiceCollection;
         }
 
-        public static T GetSimpleService<T>(this IDictionary<string, IRemoteSimpleService> simpleServiceCollection)
-            where T : IRemoteSimpleService, new()
+        public static T GetSimpleService<T>(this IDictionary<string, RemoteSimpleServiceBase> simpleServiceCollection)
+            where T : RemoteSimpleServiceBase, new()
             => simpleServiceCollection[typeof(T).FullName].ConvertTo<T>();
 
     }

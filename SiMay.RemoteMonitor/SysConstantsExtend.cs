@@ -10,5 +10,7 @@ namespace SiMay.RemoteMonitor
         public const string SessionListItem = "SessionListItem";
 
         public const string OpenAutoDesktopViews = "OpenAutoDesktopViews";
+
+        public const string DesktopView = "DesktopView";
     }
 }

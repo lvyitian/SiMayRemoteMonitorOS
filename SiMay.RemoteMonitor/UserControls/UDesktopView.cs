@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SiMay.Basic;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -6,21 +7,20 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using SiMay.RemoteControlsCore;
+using SiMay.RemoteControls.Core;
+using System.Threading.Tasks;
 
 namespace SiMay.RemoteMonitor.UserControls
 {
-    public partial class UDesktopView : UserControl, IDesktopView
+    public partial class UDesktopView : UserControl
     {
         public delegate void OnDoubleClickEventHnadler(SessionSyncContext sessionSync);
         public event OnDoubleClickEventHnadler OnDoubleClickEvent;
 
-        //public MainApplicationAdapterHandler Owner { get; set; }
+        private bool _isRun = true;
 
-
-        public UDesktopView(SessionSyncContext syncContext)
+        public UDesktopView()
         {
-            SessionSyncContext = syncContext;
             InitializeComponent();
         }
 
@@ -37,6 +37,8 @@ namespace SiMay.RemoteMonitor.UserControls
         }
 
         public SessionSyncContext SessionSyncContext { get; set; }
+
+        public DesktopViewSimpleApplication DesktopViewSimpleApplication { get; set; }
 
         private void img_DoubleClick(object sender, EventArgs e)
         {
@@ -62,20 +64,27 @@ namespace SiMay.RemoteMonitor.UserControls
                 checkBox.Checked = true;
         }
 
-        public void PlayerDekstopView(Image image)
+
+        public void StartPlay()
         {
-            if (img == null)
-                return;
-
-            img.Image?.Dispose();
-            img.Image = image;
-
-            //Owner.GetDesktopViewFrame(SessionSyncContext);
+            this._isRun = true;
+            internalPlay();
         }
 
-        public void CloseDesktopView()
+        private async void internalPlay()
         {
-            this.Dispose();
+            var image = await DesktopViewSimpleApplication.GetDesktopViewFrame(SessionSyncContext.Session, this.Height, this.Width).ConfigureAwait(true);
+            if (!image.IsNull())
+            {
+                img.Image?.Dispose();
+                img.Image = image;
+            }
+            await Task.Delay(1000);
+            if (this._isRun)
+                internalPlay();
         }
+
+        public void StopPlay()
+            => this._isRun = false;
     }
 }

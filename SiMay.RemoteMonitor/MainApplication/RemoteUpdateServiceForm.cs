@@ -33,11 +33,11 @@ namespace SiMay.RemoteMonitor.MainApplication
                     MessageBoxHelper.ShowBoxError("请选择正确的文件路径!");
                     return;
                 }
-                if (new FileInfo(txtPath.Text).Length > 1024 * 1024)
-                {
-                    MessageBoxHelper.ShowBoxError("文件大于1M!");
-                    return;
-                }
+                //if (new FileInfo(txtPath.Text).Length > 1024 * 1024)
+                //{
+                //    MessageBoxHelper.ShowBoxError("文件大于1M!");
+                //    return;
+                //}
                 Value = txtPath.Text;
                 UrlOrFileUpdate =  RemoteUpdateKind.File;
             }

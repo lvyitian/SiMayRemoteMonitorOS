@@ -15,7 +15,7 @@ using System.Windows.Forms;
 
 namespace SiMay.Service.Core
 {
-    public class ExecuteFileUpdateSimpleService : IRemoteSimpleService
+    public class ExecuteFileUpdateSimpleService : RemoteSimpleServiceBase
     {
         [PacketHandler(MessageHead.S_SIMPLE_SERVICE_UPDATE)]
         public void UpdateService(SessionProviderContext session)

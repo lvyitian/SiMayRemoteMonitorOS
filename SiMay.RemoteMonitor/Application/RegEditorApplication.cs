@@ -6,8 +6,7 @@ using System.Windows.Forms;
 using Microsoft.Win32;
 using SiMay.Core;
 using SiMay.Platform.Windows;
-using SiMay.RemoteControlsCore;
-using SiMay.RemoteControlsCore.HandlerAdapters;
+using SiMay.RemoteControls.Core;
 using SiMay.RemoteMonitor.Attributes;
 using SiMay.RemoteMonitor.UserControls;
 
@@ -47,12 +46,12 @@ namespace SiMay.RemoteMonitor.Application
             throw new NotImplementedException();
         }
 
-        public void SessionClose(ApplicationAdapterHandler handler)
+        public void SessionClose(ApplicationBaseAdapterHandler handler)
         {
             this.Text = this._title + " [" + this.RegistryEditorAdapterHandler.State.ToString() + "]";
         }
 
-        public void ContinueTask(ApplicationAdapterHandler handler)
+        public void ContinueTask(ApplicationBaseAdapterHandler handler)
         {
             this.Text = this._title;
         }

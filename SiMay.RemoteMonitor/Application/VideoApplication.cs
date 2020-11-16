@@ -1,8 +1,7 @@
 ﻿using Accord.Video.FFMPEG;
 using SiMay.Basic;
 using SiMay.Core;
-using SiMay.RemoteControlsCore;
-using SiMay.RemoteControlsCore.HandlerAdapters;
+using SiMay.RemoteControls.Core;
 using SiMay.RemoteMonitor.Attributes;
 using System;
 using System.Drawing;
@@ -43,11 +42,11 @@ namespace SiMay.RemoteMonitor.Application
         }
 
 
-        public void SessionClose(ApplicationAdapterHandler handler)
+        public void SessionClose(ApplicationBaseAdapterHandler handler)
             => this.Text = _title + " [" + VideoAppAdapterHandler.State.ToString() + "]";
 
 
-        public void ContinueTask(ApplicationAdapterHandler handler)
+        public void ContinueTask(ApplicationBaseAdapterHandler handler)
         {
             this.Text = _title;
             VideoAppAdapterHandler.StartGetFrame();

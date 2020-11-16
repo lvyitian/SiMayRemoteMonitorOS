@@ -8,7 +8,7 @@ using System.Text;
 
 namespace SiMay.RemoteControls.Core
 {
-    public class SysUtil
+    public static class SysUtil
     {
         public class ApplicationItem
         {
@@ -22,19 +22,20 @@ namespace SiMay.RemoteControls.Core
             /// </summary>
             public Type ApplicationType { get; set; }
         }
-        public static IReadOnlyList<ApplicationItem> ApplicationTypes { get; private set; }
-        static SysUtil()
+
+        public static IList<ApplicationItem> ApplicationTypes { get; } = new List<ApplicationItem>();
+
+        public static IList<ApplicationItem> ApplicationRegister<T>(this IList<ApplicationItem> applications)
+            where T : IApplication, new()
         {
-            ApplicationTypes = AppDomain.CurrentDomain
-                .GetAssemblies()
-                .SelectMany(a => a.GetTypes())
-                .Where(t => typeof(IApplication).IsAssignableFrom(t) && t.IsClass && t.GetCustomAttribute<DisableAttribute>() == null)
-                .Select(type => new ApplicationItem()
-                {
-                    ApplicationName = type.Name,
-                    ApplicationType = type
-                })
-                .ToList();
+            var type = typeof(T);
+            applications.Add(new ApplicationItem()
+            {
+                ApplicationName = type.Name,
+                ApplicationType = type
+            });
+
+            return applications;
         }
     }
 }

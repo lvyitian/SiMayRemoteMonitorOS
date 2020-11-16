@@ -23,6 +23,7 @@ namespace SiMay.RemoteMonitor.Application
 
         [ApplicationAdapterHandler]
         public SystemAdapterHandler SystemAdapterHandler { get; set; }
+
         public SystemApplication()
         {
             InitializeComponent();

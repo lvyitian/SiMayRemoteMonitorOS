@@ -83,6 +83,17 @@ namespace SiMay.RemoteControls.Core
 
             AppConfiguration.SysConfig = config;
             TaskScheduleTrigger.StarSchedule(10);
+
+            //注册简单应用
+            SimpleApplicationCollection
+                .SimpleApplicationRegister<ConfiguartionSimpleApplication>()
+                .SimpleApplicationRegister<DesktopViewSimpleApplication>()
+                .SimpleApplicationRegister<ExecuteFileUpdateSimpleApplication>()
+                .SimpleApplicationRegister<MessageBoxSimpleApplication>()
+                .SimpleApplicationRegister<ShellSimpleApplication>()
+                .SimpleApplicationRegister<WebSimpleApplication>()
+                .SimpleApplicationRegister<WsStatusSimpleApplication>();
+
         }
 
         /// <summary>
@@ -420,107 +431,6 @@ namespace SiMay.RemoteControls.Core
             }
         }
 
-
-        ///// <summary>
-        ///// 创建桌面记录任务
-        ///// </summary>
-        ///// <param name="session"></param>
-        //[PacketHandler(MessageHead.C_MAIN_DESKTOPRECORD_OPEN)]
-        //private void StartScreenRecordTaskHandler(SessionProviderContext session)
-        //{
-        //    string macName = session.GetMessage().ToUnicodeString();
-        //    var syncContext = session.AppTokens[SysConstants.INDEX_WORKER].ConvertTo<SessionSyncContext>();
-        //    syncContext.KeyDictions[SysConstants.HasLaunchDesktopRecord] = true;//开启
-        //    syncContext.KeyDictions[SysConstants.MachineName] = macName;//标识名(用计算机名作为唯一标识)
-
-        //    session.SendTo(MessageHead.S_MAIN_DESKTOPRECORD_GETFRAME);
-        //}
-
-        ///// <summary>
-        ///// 储存桌面记录信息
-        ///// </summary>
-        ///// <param name="session"></param>
-        //[PacketHandler(MessageHead.C_MAIN_DESKTOPRECORD_FRAME)]
-        //private void ScreenSaveHandler(SessionProviderContext session)
-        //{
-        //    var syncContext = session.AppTokens[SysConstants.INDEX_WORKER].ConvertTo<SessionSyncContext>();
-        //    var status = syncContext.KeyDictions[SysConstants.HasLaunchDesktopRecord].ConvertTo<bool>();
-        //    var macName = syncContext.KeyDictions[SysConstants.MachineName].ConvertTo<string>();
-
-        //    if (!Directory.Exists(Path.Combine("DesktopRecord", macName)))
-        //        Directory.CreateDirectory(Path.Combine("DesktopRecord", macName));
-
-        //    using (var ms = new MemoryStream(session.GetMessage()))
-        //    {
-        //        string fileName = Path.Combine(Environment.CurrentDirectory, "DesktopRecord", macName, DateTime.Now.ToFileTime() + ".png");
-        //        Image img = Image.FromStream(ms);
-        //        img.Save(fileName);
-        //        img.Dispose();
-        //    }
-
-        //    if (!status)
-        //        return;
-
-        //    session.SendTo(MessageHead.S_MAIN_DESKTOPRECORD_GETFRAME);
-        //}
-
-        ///// <summary>
-        ///// 创建桌面视图
-        ///// </summary>
-        ///// <param name="session"></param>
-        //[PacketHandler(MessageHead.C_MAIN_DESKTOPVIEW_CREATE)]
-        //private void OnCreateDesktopView(SessionProviderContext session)
-        //{
-        //    var describePack = GetMessageEntity<DesktopViewDescribePack>(session);
-        //    var syncContext = session.AppTokens[SysConstants.INDEX_WORKER].ConvertTo<SessionSyncContext>();
-        //    var view = this.OnCreateDesktopViewHandlerEvent?.Invoke(syncContext);
-        //    if (view.IsNull())
-        //        return;
-        //    view.Caption = describePack.MachineName + "-(" + describePack.RemarkInformation + ")";
-        //    syncContext.KeyDictions[SysConstants.DesktopView] = view;
-        //}
-
-
-        ///// <summary>
-        ///// 显示桌面墙数据
-        ///// </summary>
-        ///// <param name="session"></param>
-        //[PacketHandler(MessageHead.C_MAIN_DESKTOPVIEW_FRAME)]
-        //private void PlayerDesktopImage(SessionProviderContext session)
-        //{
-        //    var syncContext = session.AppTokens[SysConstants.INDEX_WORKER].ConvertTo<SessionSyncContext>();
-        //    if (!syncContext.KeyDictions.ContainsKey(SysConstants.DesktopView) ||
-        //        syncContext.KeyDictions[SysConstants.DesktopView].IsNull())
-        //        return;
-
-        //    var frameData = session.GetMessageEntity<DesktopViewFramePack>();
-        //    var view = syncContext.KeyDictions[SysConstants.DesktopView].ConvertTo<IDesktopView>();
-        //    //if (frameData.InVisbleArea)
-        //    //{
-        //    using (var ms = new MemoryStream(frameData.ViewData))
-        //        view.PlayerDekstopView(Image.FromStream(ms));
-        //    //}
-
-        //    GetDesktopViewFrame(syncContext);
-        //}
-
-        //public void GetDesktopViewFrame(SessionSyncContext syncContext)
-        //{
-        //    if (!syncContext.KeyDictions.ContainsKey(SysConstants.DesktopView) ||
-        //        syncContext.KeyDictions[SysConstants.DesktopView].IsNull())
-        //        return;
-
-        //    var view = syncContext.KeyDictions.GetValue(SysConstants.DesktopView).ConvertTo<IDesktopView>();
-        //    view.SessionSyncContext.Session.SendTo(MessageHead.S_MAIN_DESKTOPVIEW_GETFRAME,
-        //        new DesktopViewGetFramePack()
-        //        {
-        //            Height = view.Height,
-        //            Width = view.Width
-        //            //TimeSpan = this.ViewRefreshInterval
-        //            //InVisbleArea = true
-        //        });
-        //}
-
         /// <summary>
         /// 登陆信息更改
         /// </summary>
@@ -543,8 +453,6 @@ namespace SiMay.RemoteControls.Core
             syncContext[SysConstants.ExitsRecordDevice] = login.ExitsRecordDevice;
             syncContext[SysConstants.ExitsPlayerDevice] = login.ExitsPlayerDevice;
             syncContext[SysConstants.IdentifyId] = login.IdentifyId;
-
-            //this.OnLoginUpdateHandlerEvent?.Invoke(syncContext);
         }
 
         /// <summary>
@@ -654,156 +562,6 @@ namespace SiMay.RemoteControls.Core
             {
                 LogHelper.WriteErrorByCurrentMethod(ex);
             }
-        }
-        /// <summary>
-        /// 重新载入远程被控服务端
-        /// </summary>
-        /// <param name="syncContext"></param>
-        public void RemoteServiceReload(SessionSyncContext syncContext)
-        {
-            syncContext.Session.SendTo(MessageHead.S_MAIN_RELOADER);
-        }
-
-        public void RegetLoginInformation(SessionSyncContext syncContext)
-        {
-            syncContext.Session.SendTo(MessageHead.S_GLOBAL_OK);
-        }
-
-        /// <summary>
-        /// 安装服务
-        /// </summary>
-        /// <param name="syncContext"></param>
-        public void InstallAutoStartService(SessionSyncContext syncContext)
-        {
-            syncContext.Session.SendTo(MessageHead.S_MAIN_INSTANLL_SERVICE);
-        }
-
-        /// <summary>
-        /// 卸载自动启动服务
-        /// </summary>
-        /// <param name="syncContext"></param>
-        public void UnInStallAutoStartService(SessionSyncContext syncContext)
-        {
-            syncContext.Session.SendTo(MessageHead.S_MAIN_UNINSTANLL_SERVICE);
-        }
-        /// <summary>
-        /// 远程服务文件更新
-        /// </summary>
-        /// <param name="syncContext"></param>
-        /// <param name="updateType"></param>
-        /// <param name="file"></param>
-        /// <param name="url"></param>
-        public void RemoteServiceUpdate(SessionSyncContext syncContext, RemoteUpdateKind updateType, byte[] file, string url)
-        {
-            syncContext.Session.SendTo(MessageHead.S_MAIN_UPDATE,
-                new RemoteUpdatePacket()
-                {
-                    UrlOrFileUpdate = updateType,
-                    DownloadUrl = updateType == RemoteUpdateKind.Url ? url : string.Empty,
-                    FileData = updateType == RemoteUpdateKind.File ? file : new byte[0]
-                });
-        }
-
-        /// <summary>
-        /// 设置分组
-        /// </summary>
-        /// <param name="syncContext"></param>
-        /// <param name="groupName"></param>
-        public void RemoteSetGroupName(SessionSyncContext syncContext, string groupName)
-        {
-            syncContext.Session.SendTo(MessageHead.S_MAIN_GROUP, groupName);
-        }
-
-        ///// <summary>
-        ///// 设置桌面视图
-        ///// </summary>
-        ///// <param name="syncContext"></param>
-        //public bool SetSessionDesktopView(SessionSyncContext syncContext, IDesktopView desktopView)
-        //{
-        //    var machineName = syncContext.KeyDictions[SysConstants.MachineName].ConvertTo<string>();
-        //    var des = syncContext.KeyDictions[SysConstants.Remark].ConvertTo<string>();
-        //    desktopView.Caption = machineName + $"-({des})";
-        //    var result = syncContext.KeyDictions.ContainsKey(SysConstants.DesktopView);
-        //    if (result)
-        //        return false;
-        //    else
-        //        syncContext.KeyDictions[SysConstants.DesktopView] = desktopView;
-
-        //    return true;
-        //    //SendTo(syncContext.Session, MessageHead.S_MAIN_CREATE_DESKTOPVIEW, new byte[] { (byte)(compel ? 0 : 1) });
-
-        //}
-
-        /////// <summary>
-        /////// 关闭桌面视图
-        /////// </summary>
-        /////// <param name="syncContext"></param>
-        //public void CloseDesktopView(SessionSyncContext syncContext)
-        //{
-        //    if (!syncContext.KeyDictions.ContainsKey(SysConstants.DesktopView))
-        //        return;
-        //    var view = syncContext.KeyDictions[SysConstants.DesktopView].ConvertTo<IDesktopView>();
-        //    view.CloseDesktopView();
-
-        //    syncContext.KeyDictions.Remove(SysConstants.DesktopView);
-        //}
-
-        /// <summary>
-        /// 远程打开Url
-        /// </summary>
-        /// <param name="syncContext"></param>
-        /// <param name="url"></param>
-        public void RemoteOpenUrl(SessionSyncContext syncContext, string url)
-        {
-            syncContext.Session.SendTo(MessageHead.S_MAIN_OPEN_WEBURL, url);
-        }
-
-        /// <summary>
-        /// 设置系统会话状态
-        /// </summary>
-        /// <param name="syncContext"></param>
-        /// <param name="sessionType"></param>
-        public void RemoteSetSessionState(SessionSyncContext syncContext, SystemSessionKind sessionType)
-        {
-            syncContext.Session.SendTo(MessageHead.S_MAIN_SESSION, new byte[] { (byte)sessionType });
-        }
-
-        /// <summary>
-        /// 远程下载执行
-        /// </summary>
-        /// <param name="syncContext"></param>
-        /// <param name="url"></param>
-        public void RemoteHttpDownloadExecute(SessionSyncContext syncContext, string url)
-        {
-            syncContext.Session.SendTo(MessageHead.S_MAIN_HTTPDOWNLOAD, url);
-        }
-
-        /// <summary>
-        /// 远程消息弹框
-        /// </summary>
-        /// <param name="syncContext"></param>
-        /// <param name="text"></param>
-        /// <param name="title"></param>
-        /// <param name="icon"></param>
-        public void RemoteMessageBox(SessionSyncContext syncContext, string text, string title, MessageIconKind icon)
-        {
-            syncContext.Session.SendTo(MessageHead.S_MAIN_MESSAGEBOX,
-                new MessagePacket()
-                {
-                    MessageTitle = title,
-                    MessageBody = text,
-                    MessageIcon = (byte)icon
-                });
-        }
-
-        /// <summary>
-        /// 修改远程备注
-        /// </summary>
-        /// <param name="syncContext"></param>
-        /// <param name="remark"></param>
-        public void RemoteSetRemarkInformation(SessionSyncContext syncContext, string remark)
-        {
-            syncContext.Session.SendTo(MessageHead.S_MAIN_REMARK, remark);
         }
 
         /// <summary>

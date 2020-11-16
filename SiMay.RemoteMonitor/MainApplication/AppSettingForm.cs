@@ -1,5 +1,5 @@
 ﻿using SiMay.Basic;
-using SiMay.RemoteControlsCore;
+using SiMay.RemoteControls.Core;
 using SiMay.RemoteMonitor.Entitys;
 using SiMay.RemoteMonitor.Extensions;
 using System;

@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace SiMay.Service.Core
 {
-    public class DesktopViewSimpleService : IRemoteSimpleService
+    public class DesktopViewSimpleService : RemoteSimpleServiceBase
     {
-        [PacketHandler(MessageHead.S_MAIN_DESKTOPVIEW_GETFRAME)]
+        [PacketHandler(MessageHead.S_SIMPLE_DESKTOPVIEW_REQUEST_FRAME)]
         public ResponseDesktopViewFramePacket SendNextFrameDesktopView(SessionProviderContext session)
         {
             var request = session.GetMessageEntity<RequestDesktopViewFramePacket>();

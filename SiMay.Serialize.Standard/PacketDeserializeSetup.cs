@@ -25,7 +25,7 @@ namespace SiMay.Serialize.Standard
         private void StartDeserialize(object instance, IMemberAccessor memberAccessor)
         {
             var properties = instance.GetType().GetProperties();
-            foreach (PropertyInfo property in properties)
+            foreach (PropertyInfo property in properties.OrderBy(c => c.Name))
             {
                 var type = property.PropertyType;
                 if (type.Equals(typeof(Boolean)))

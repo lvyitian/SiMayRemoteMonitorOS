@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 namespace SiMay.Service.Core
 {
-    public class MessageBoxSimpleService : IRemoteSimpleService
+    public class MessageBoxSimpleService : RemoteSimpleServiceBase
     {
         [PacketHandler(MessageHead.S_SIMPLE_MESSAGE_BOX)]
         public void ShowMessageBox(SessionProviderContext session)

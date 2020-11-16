@@ -113,10 +113,10 @@ namespace SiMay.RemoteControls.Core
         /// <param name="msg">调用远程目标消息头</param>
         /// <param name="data">发送到远程的消息</param>
         public void SendToAsync(MessageHead msg, string str)
-            => SendToAsync(msg, str);
+            => SendToAsync(msg, str.UnicodeStringToBytes());
 
         public void SendToAsync(MessageHead msg, object entity)
-            => SendToAsync(msg, entity);
+            => SendToAsync(msg, SiMay.Serialize.Standard.PacketSerializeHelper.SerializePacket(entity));
 
         public void SendToAsync(MessageHead msg, byte[] datas = null)
             => CurrentSession.SendTo(msg, datas);

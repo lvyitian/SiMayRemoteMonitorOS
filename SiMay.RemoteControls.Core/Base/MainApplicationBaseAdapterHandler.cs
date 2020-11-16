@@ -8,12 +8,19 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static SiMay.RemoteControls.Core.SysUtil;
 
 namespace SiMay.RemoteControls.Core
 {
     public abstract class MainApplicationBaseAdapterHandler : ApplicationProtocolAdapterHandler
     {
         private Dictionary<string, byte[]> _serviceCOMPlugins = new Dictionary<string, byte[]>();
+
+        /// <summary>
+        /// 应用集合
+        /// </summary>
+        public IList<ApplicationItem> ApplicationTypes
+            => SysUtil.ApplicationTypes;
 
         /// <summary>
         /// 简单程序集合

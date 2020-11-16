@@ -1,5 +1,5 @@
 ﻿using SiMay.Core;
-using SiMay.RemoteControlsCore;
+using SiMay.RemoteControls.Core;
 using SiMay.RemoteMonitor.Attributes;
 using System;
 using System.Collections.Generic;
@@ -15,12 +15,12 @@ namespace SiMay.RemoteMonitor.UnconventionalApplication
     //[Application(typeof(RemoteUpdateAdapterHandler), ApplicationKeyConstant.REMOTE_UPDATE, 40)]
     public class RemoteUpdateApplication : ListViewItem, IApplication
     {
-        public void ContinueTask(ApplicationAdapterHandler handler)
+        public void ContinueTask(ApplicationBaseAdapterHandler handler)
         {
             throw new NotImplementedException();
         }
 
-        public void SessionClose(ApplicationAdapterHandler handler)
+        public void SessionClose(ApplicationBaseAdapterHandler handler)
         {
             throw new NotImplementedException();
         }

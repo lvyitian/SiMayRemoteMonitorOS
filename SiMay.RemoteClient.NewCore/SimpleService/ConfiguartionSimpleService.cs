@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SiMay.Service.Core
 {
-    public class ConfiguartionSimpleService : IRemoteSimpleService
+    public class ConfiguartionSimpleService : RemoteSimpleServiceBase
     {
         [PacketHandler(MessageHead.S_SIMPLE_DES)]
         public void SetDescribe(SessionProviderContext session)

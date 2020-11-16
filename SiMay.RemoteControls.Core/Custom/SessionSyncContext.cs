@@ -23,7 +23,10 @@ namespace SiMay.RemoteControls.Core
         {
             get
             {
-                return _keyDictions[key];
+                if (_keyDictions.ContainsKey(key))
+                    return _keyDictions[key];
+                else
+                    return null;
             }
             set
             {

@@ -9,10 +9,13 @@ using System.Threading.Tasks;
 
 namespace SiMay.Service.Core
 {
-    public class WsStatusSimpleService : IRemoteSimpleService
+    public class WsStatusSimpleService : RemoteSimpleServiceBase
     {
         [PacketHandler(MessageHead.S_SIMPLE_SET_SESSION_STATUS)]
-        public void SetSystemSession(SessionProviderContext session)
-            => SystemHelper.SetWsStatus(session.GetMessage()[0]);
+        public void SetWsSession(SessionProviderContext session)
+        {
+            var state = int.Parse(session.GetMessage().ToUnicodeString());
+            SystemHelper.SetWsStatus(state);
+        }
     }
 }

@@ -127,6 +127,8 @@
     <Compile Include="ApplicationService\Registry\RegistrySeeker.cs" />
     <Compile Include="ApplicationService\StartupService.cs" />
     <Compile Include="ApplicationService\TcpConnectionService.cs" />
+    <Compile Include="Base\MainApplicationServiceBase.cs" />
+    <Compile Include="Base\RemoteSimpleServiceBase.cs" />
     <Compile Include="Custom\EventList.cs" />
     <Compile Include="Helper\ImageExtensionHelper.cs" />
     <Compile Include="Helper\ServiceInstallerHelper.cs" />

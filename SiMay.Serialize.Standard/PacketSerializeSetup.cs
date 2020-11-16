@@ -22,7 +22,7 @@ namespace SiMay.Serialize.Standard
         private void StartSerialize(object instance, IMemberAccessor memberAccessor)
         {
             var properties = instance.GetType().GetProperties();
-            foreach (System.Reflection.PropertyInfo property in properties)
+            foreach (System.Reflection.PropertyInfo property in properties.OrderBy(c => c.Name))
             {
                 var type = property.PropertyType;
                 var value = memberAccessor.GetValue(instance, property.Name); //property.GetValue(instance, null);

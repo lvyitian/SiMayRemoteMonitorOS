@@ -1,5 +1,5 @@
 ﻿using SiMay.Basic;
-using SiMay.RemoteControlsCore;
+using SiMay.RemoteControls.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;

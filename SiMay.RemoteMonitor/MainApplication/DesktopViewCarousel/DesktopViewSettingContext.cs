@@ -1,4 +1,5 @@
-﻿using SiMay.RemoteControlsCore;
+﻿using SiMay.RemoteControls.Core;
+using SiMay.RemoteMonitor.UserControls;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -72,7 +73,7 @@ namespace SiMay.RemoteMonitor.MainApplication
         /// <summary>
         /// 停留视图
         /// </summary>
-        public IList<IDesktopView> AlwaysViews { get; set; }
+        public IList<UDesktopView> AlwaysViews { get; set; }
 
         /// <summary>
         /// 视图高
@@ -101,7 +102,7 @@ namespace SiMay.RemoteMonitor.MainApplication
 
         public DesktopViewSettingContext()
         {
-            AlwaysViews = new List<IDesktopView>();
+            AlwaysViews = new List<UDesktopView>();
         }
     }
 }

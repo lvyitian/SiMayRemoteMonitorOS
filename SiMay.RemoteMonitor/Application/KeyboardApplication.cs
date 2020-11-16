@@ -1,6 +1,5 @@
 ﻿using SiMay.Basic;
-using SiMay.RemoteControlsCore;
-using SiMay.RemoteControlsCore.HandlerAdapters;
+using SiMay.RemoteControls.Core;
 using SiMay.RemoteMonitor.Attributes;
 using System;
 using System.IO;
@@ -11,7 +10,6 @@ using static SiMay.RemoteMonitor.Win32Api;
 
 namespace SiMay.RemoteMonitor.Application
 {
-    [Disable]
     [OnTools]
     [Rank(40)]
     [ApplicationName("输入记录")]
@@ -42,12 +40,12 @@ namespace SiMay.RemoteMonitor.Application
             throw new NotImplementedException();
         }
 
-        public void SessionClose(ApplicationAdapterHandler handler)
+        public void SessionClose(ApplicationBaseAdapterHandler handler)
         {
             this.Text = _title + " [" + this.KeyboardAdapterHandler.State.ToString() + "]";
         }
 
-        public void ContinueTask(ApplicationAdapterHandler handler)
+        public void ContinueTask(ApplicationBaseAdapterHandler handler)
         {
             this.Text = _title;
         }

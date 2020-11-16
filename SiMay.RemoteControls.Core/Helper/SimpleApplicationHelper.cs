@@ -28,7 +28,13 @@ namespace SiMay.RemoteControls.Core
 
         public static T GetSimpleApplication<T>(this IDictionary<string, SimpleApplicationBase> simpleApplicationCollection)
             where T : SimpleApplicationBase, new()
-            => simpleApplicationCollection[typeof(T).FullName].ConvertTo<T>();
+        {
+            var key = typeof(T).FullName;
+            if (simpleApplicationCollection.ContainsKey(key))
+                return simpleApplicationCollection[key].ConvertTo<T>();
+            else
+                throw new ArgumentException($"简单服务 {key} 尚未注册!");
+        }
 
     }
 }

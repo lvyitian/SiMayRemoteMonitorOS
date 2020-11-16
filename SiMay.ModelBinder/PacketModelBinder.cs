@@ -53,12 +53,12 @@ namespace SiMay.ModelBinder
                 if (method.ReturnType == typeof(void))
                 {
                     var targetAction = Delegate.CreateDelegate(typeof(Action<TSession>), source, method) as Action<TSession>;
-                    _reflectionCache.TryAdd(key, targetAction);
+                    _reflectionCache[key] = targetAction;
                 }
                 else
                 {
                     var targetAction = Delegate.CreateDelegate(typeof(Func<TSession, object>), source, method) as Func<TSession, object>;
-                    _reflectionFuncCache.TryAdd(key, targetAction);
+                    _reflectionFuncCache[key] = targetAction;
                 }
             }
         }

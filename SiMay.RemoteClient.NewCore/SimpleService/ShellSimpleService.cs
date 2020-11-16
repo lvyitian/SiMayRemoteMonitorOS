@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace SiMay.Service.Core
 {
-    public class ShellSimpleService : IRemoteSimpleService
+    public class ShellSimpleService : RemoteSimpleServiceBase
     {
         [PacketHandler(MessageHead.S_SIMPLE_EXE_SHELL)]
         public void ExecuteShell(SessionProviderContext session)

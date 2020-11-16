@@ -1,7 +1,8 @@
 ﻿using SiMay.Basic;
 using SiMay.Core;
 using SiMay.Net.SessionProvider;
-using SiMay.RemoteControlsCore;
+using SiMay.RemoteControls.Core;
+using SiMay.RemoteMonitor.Application;
 using SiMay.RemoteMonitor.Extensions;
 using SiMay.RemoteMonitor.Properties;
 using SiMay.RemoteMonitor.UserControls;
@@ -43,6 +44,18 @@ namespace SiMay.RemoteMonitor.MainApplication
         private MainApplicationAdapterHandler _appMainAdapterHandler = new MainApplicationAdapterHandler(new SystemAppConfig());
         private void MainApplication_Load(object sender, EventArgs e)
         {
+            //注册应用
+            this._appMainAdapterHandler.ApplicationTypes
+                .ApplicationRegister<AudioApplication>()
+                .ApplicationRegister<FileApplication>()
+                .ApplicationRegister<RegEditorApplication>()
+                .ApplicationRegister<ScreenApplication>()
+                .ApplicationRegister<ShellApplication>()
+                .ApplicationRegister<StartupApplication>()
+                .ApplicationRegister<SystemApplication>()
+                .ApplicationRegister<TcpConnectionApplication>()
+                .ApplicationRegister<VideoApplication>();
+
             this.ViewOnAdaptiveHandler();
             this.OnLoadConfiguration();
             this.RegisterMessageHandler();
@@ -176,7 +189,7 @@ namespace SiMay.RemoteMonitor.MainApplication
 
             this._viewCarouselContext.ViewWidth = width;
             this._viewCarouselContext.ViewHeight = height;
-            foreach (var view in desktopViewLayout.Controls.Cast<IDesktopView>())
+            foreach (var view in desktopViewLayout.Controls.Cast<UDesktopView>())
             {
                 if (view.Width == width && view.Height == height)
                     continue;
@@ -229,9 +242,9 @@ namespace SiMay.RemoteMonitor.MainApplication
             {
                 this.InvokeUI(() =>
                 {
-                    var view = this.desktopViewLayout.Controls[this.desktopViewLayout.Controls.Count - 1].ConvertTo<IDesktopView>();
+                    var view = this.desktopViewLayout.Controls[this.desktopViewLayout.Controls.Count - 1].ConvertTo<UDesktopView>();
                     if (!_viewCarouselContext.AlwaysViews.Contains(view))
-                        this.desktopViewLayout.Controls.SetChildIndex(view as Control, _viewCarouselContext.AlwaysViews.Count);
+                        this.desktopViewLayout.Controls.SetChildIndex(view, _viewCarouselContext.AlwaysViews.Count);
                 });
             }
 
@@ -253,7 +266,6 @@ namespace SiMay.RemoteMonitor.MainApplication
             this._appMainAdapterHandler.OnLogOutHandlerEvent += OnLogOutHandlerEvent;
             //this._appMainAdapterHandler.OnCreateDesktopViewHandlerEvent += OnCreateDesktopViewHandlerEvent;
             this._appMainAdapterHandler.OnLoginHandlerEvent += OnLoginHandlerEvent;
-            this._appMainAdapterHandler.OnLoginUpdateHandlerEvent += OnLoginUpdateHandlerEvent;
             this._appMainAdapterHandler.OnApplicationCreatedEventHandler += OnApplicationCreatedEventHandler;
             this._appMainAdapterHandler.OnLogHandlerEvent += OnLogHandlerEvent;
             this._appMainAdapterHandler.StartApp();
@@ -262,15 +274,6 @@ namespace SiMay.RemoteMonitor.MainApplication
         private bool OnApplicationCreatedEventHandler(IApplication app)
         {
             return true;
-        }
-
-        private void OnLoginUpdateHandlerEvent(SessionSyncContext syncContext)
-        {
-            var listItem = syncContext[SysConstantsExtend.SessionListItem].ConvertTo<USessionListItem>(); ;
-            listItem.UpdateListItemText();
-
-            //if (!syncContext[SysConstants.OpenScreenWall].ConvertTo<bool>())
-            //    listItem.BackColor = _closeScreenColor;
         }
 
         private void OnLogHandlerEvent(string log, LogOutLevel level)
@@ -297,11 +300,7 @@ namespace SiMay.RemoteMonitor.MainApplication
 
             //是否开启桌面视图
             //if (!syncContext[SysConstants.OpenScreenWall].ConvertTo<bool>())
-            //    listItem.BackColor = _closeScreenColor;
-            //else
-            //{
-
-            //}
+                listItem.BackColor = _closeScreenColor;
 
             var groupName = syncContext[SysConstants.GroupName].ConvertTo<string>();
             if (!groupBox.Items.Contains(groupName))
@@ -321,6 +320,8 @@ namespace SiMay.RemoteMonitor.MainApplication
         {
             //if (syncContext.KeyDictions.ContainsKey(SysConstants.DesktopView))                    //如果屏幕墙已开启,移除桌面墙
             //    this.DisposeDesktopView(syncContext[SysConstants.DesktopView].ConvertTo<UDesktopView>());
+
+            this.CloseDesktopView(syncContext);
 
             syncContext[SysConstantsExtend.SessionListItem].ConvertTo<USessionListItem>().Remove();
 
@@ -490,6 +491,45 @@ namespace SiMay.RemoteMonitor.MainApplication
             }
         }
 
+        private bool CreateDesktopView(SessionSyncContext syncContext)
+        {
+            if (syncContext[SysConstantsExtend.DesktopView].IsNull())
+            {
+                var machineName = syncContext[SysConstants.MachineName].ToString();
+                var des = syncContext[SysConstants.Remark].ToString();
+                var view = new UDesktopView()
+                {
+                    SessionSyncContext = syncContext,
+                    DesktopViewSimpleApplication = this._appMainAdapterHandler.SimpleApplicationCollection.GetSimpleApplication<DesktopViewSimpleApplication>(),
+                    Caption = $"{machineName}-{des}",
+                    Height = this._viewCarouselContext.ViewHeight,
+                    Width = this._viewCarouselContext.ViewWidth
+                };
+                view.OnDoubleClickEvent += DesktopViewDbClick;
+                view.StartPlay();
+                this.desktopViewLayout.Controls.Add(view);
+                syncContext[SysConstantsExtend.DesktopView] = view;
+                return true;
+            }
+            return false;
+        }
+
+        public bool CloseDesktopView(SessionSyncContext syncContext)
+        {
+            if (!syncContext[SysConstantsExtend.DesktopView].IsNull())
+            {
+                var view = syncContext[SysConstantsExtend.DesktopView] as UDesktopView;
+                view.OnDoubleClickEvent -= DesktopViewDbClick;
+                view.StopPlay();
+                view.Dispose();
+                this.desktopViewLayout.Controls.Remove(view);
+                syncContext[SysConstantsExtend.DesktopView] = null;
+                return true;
+            }
+
+            return false;
+        }
+
         private void SystemOption(object sender, EventArgs e)
         {
             AppSettingForm configForm = new AppSettingForm();
@@ -514,9 +554,9 @@ namespace SiMay.RemoteMonitor.MainApplication
         {
             if (MessageBox.Show("确定关闭远程计算机吗?", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) != DialogResult.OK)
                 return;
-            this.GetSelectedListItem().ForEach(c =>
+            this.GetSelectedListItem().ForEach(async c =>
             {
-                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionKind.Shutdown);
+                await this._appMainAdapterHandler.SimpleApplicationCollection.GetSimpleApplication<WsStatusSimpleApplication>().SetWsSession(c.SessionSyncContext.Session, WsStatusSimpleApplication.SYS_SHUTDOWN);
             });
         }
 
@@ -524,9 +564,9 @@ namespace SiMay.RemoteMonitor.MainApplication
         {
             if (MessageBox.Show("确定重启远程计算机吗?", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) != DialogResult.OK)
                 return;
-            this.GetSelectedListItem().ForEach(c =>
+            this.GetSelectedListItem().ForEach(async c =>
             {
-                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionKind.Reboot);
+                await this._appMainAdapterHandler.SimpleApplicationCollection.GetSimpleApplication<WsStatusSimpleApplication>().SetWsSession(c.SessionSyncContext.Session, WsStatusSimpleApplication.SYS_REBOOT);
             });
         }
 
@@ -534,9 +574,9 @@ namespace SiMay.RemoteMonitor.MainApplication
         {
             if (MessageBox.Show("该操作可能导致远程计算机安全软件警示，继续操作吗?", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) != DialogResult.OK)
                 return;
-            this.GetSelectedListItem().ForEach(c =>
+            this.GetSelectedListItem().ForEach(async c =>
             {
-                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionKind.RegStart);
+                await this._appMainAdapterHandler.SimpleApplicationCollection.GetSimpleApplication<WsStatusSimpleApplication>().SetWsSession(c.SessionSyncContext.Session, WsStatusSimpleApplication.REG_AUTO_START);
             });
         }
 
@@ -545,25 +585,25 @@ namespace SiMay.RemoteMonitor.MainApplication
             if (MessageBox.Show("该操作可能导致远程计算机安全软件警示，继续操作吗?", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) != DialogResult.OK)
                 return;
 
-            this.GetSelectedListItem().ForEach(c =>
+            this.GetSelectedListItem().ForEach(async c =>
             {
-                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionKind.RegCancelStart);
+                await this._appMainAdapterHandler.SimpleApplicationCollection.GetSimpleApplication<WsStatusSimpleApplication>().SetWsSession(c.SessionSyncContext.Session, WsStatusSimpleApplication.REG_CANCEL_AUTO_START);
             });
         }
 
         private void RemoteHideServiceFile(object sender, EventArgs e)
         {
-            this.GetSelectedListItem().ForEach(c =>
+            this.GetSelectedListItem().ForEach(async c =>
             {
-                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionKind.AttributeHide);
+                await this._appMainAdapterHandler.SimpleApplicationCollection.GetSimpleApplication<WsStatusSimpleApplication>().SetWsSession(c.SessionSyncContext.Session, WsStatusSimpleApplication.ATTRIB_EXE_HIDE);
             });
         }
 
         private void ToolStripMenuItem2_Click(object sender, EventArgs e)
         {
-            this.GetSelectedListItem().ForEach(c =>
+            this.GetSelectedListItem().ForEach(async c =>
             {
-                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionKind.AttributeShow);
+                await this._appMainAdapterHandler.SimpleApplicationCollection.GetSimpleApplication<WsStatusSimpleApplication>().SetWsSession(c.SessionSyncContext.Session, WsStatusSimpleApplication.ATTRIB_EXE_SHOW);
             });
         }
 
@@ -571,9 +611,9 @@ namespace SiMay.RemoteMonitor.MainApplication
         {
             if (MessageBox.Show("确定解除对该远程计算机的控制吗？", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) != DialogResult.OK)
                 return;
-            this.GetSelectedListItem().ForEach(c =>
+            this.GetSelectedListItem().ForEach(async c =>
             {
-                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionKind.Unstall);
+                await this._appMainAdapterHandler.SimpleApplicationCollection.GetSimpleApplication<WsStatusSimpleApplication>().SetWsSession(c.SessionSyncContext.Session, WsStatusSimpleApplication.UNINSTALL_SERVICE);
             });
         }
 
@@ -584,9 +624,9 @@ namespace SiMay.RemoteMonitor.MainApplication
             DialogResult result = f.ShowDialog();
             if (f.Value != "" && result == DialogResult.OK)
             {
-                this.GetSelectedListItem().ForEach(c =>
+                this.GetSelectedListItem().ForEach(async c =>
                 {
-                    this._appMainAdapterHandler.RemoteSetRemarkInformation(c.SessionSyncContext, f.Value);
+                    await this._appMainAdapterHandler.SimpleApplicationCollection.GetSimpleApplication<ConfiguartionSimpleApplication>().SetDescribe(c.SessionSyncContext.Session, f.Value);
                 });
             }
         }
@@ -632,9 +672,9 @@ namespace SiMay.RemoteMonitor.MainApplication
             DialogResult result = dlg.ShowDialog();
             if (result == System.Windows.Forms.DialogResult.OK)
             {
-                this.GetSelectedListItem().ForEach(c =>
+                this.GetSelectedListItem().ForEach(async c =>
                 {
-                    this._appMainAdapterHandler.RemoteMessageBox(c.SessionSyncContext, dlg.MessageBody, dlg.MessageTitle, dlg.MsgBoxIcon);
+                    await this._appMainAdapterHandler.SimpleApplicationCollection.GetSimpleApplication<MessageBoxSimpleApplication>().MessageBox(c.SessionSyncContext.Session, dlg.MessageBody, dlg.MessageTitle, dlg.MsgBoxIcon);
                 });
             }
         }
@@ -655,21 +695,21 @@ namespace SiMay.RemoteMonitor.MainApplication
 
         private void RemoteDownloadExecete(object sender, EventArgs e)
         {
-            EnterForm input = new EnterForm();
-            input.Caption = "可执行文件的下载地址!";
-            DialogResult result = input.ShowDialog();
-            if (input.Value != "" && result == DialogResult.OK)
-            {
-                if (input.Value.IndexOf("http://") == -1 && input.Value.IndexOf("https://") == -1)
-                {
-                    MessageBoxHelper.ShowBoxExclamation("输入的网址不合法");
-                    return;
-                }
-                this.GetSelectedListItem().ForEach(c =>
-                {
-                    this._appMainAdapterHandler.RemoteHttpDownloadExecute(c.SessionSyncContext, input.Value);
-                });
-            }
+            //EnterForm input = new EnterForm();
+            //input.Caption = "可执行文件的下载地址!";
+            //DialogResult result = input.ShowDialog();
+            //if (input.Value != "" && result == DialogResult.OK)
+            //{
+            //    if (input.Value.IndexOf("http://") == -1 && input.Value.IndexOf("https://") == -1)
+            //    {
+            //        MessageBoxHelper.ShowBoxExclamation("输入的网址不合法");
+            //        return;
+            //    }
+            //    this.GetSelectedListItem().ForEach(c =>
+            //    {
+            //        this._appMainAdapterHandler.RemoteHttpDownloadExecute(c.SessionSyncContext, input.Value);
+            //    });
+            //}
         }
 
         private void About(object sender, EventArgs e)
@@ -696,21 +736,8 @@ namespace SiMay.RemoteMonitor.MainApplication
         {
             this.GetSelectedListItem().ForEach(c =>
             {
-                var view = new UDesktopView(c.SessionSyncContext)
-                {
-                    //Owner = _appMainAdapterHandler,
-                    Height = this._viewCarouselContext.ViewHeight,
-                    Width = this._viewCarouselContext.ViewWidth
-                };
-                //if (this._appMainAdapterHandler.SetSessionDesktopView(c.SessionSyncContext, view))
-                //{
-                //    view.OnDoubleClickEvent += DesktopViewDbClick;
-
-                //    this.desktopViewLayout.Controls.Add(view);
-
-                //    this._appMainAdapterHandler.GetDesktopViewFrame(c.SessionSyncContext);
-                //    c.BackColor = Color.Transparent;
-                //}
+                if (this.CreateDesktopView(c.SessionSyncContext))
+                    c.BackColor = Color.Transparent;
             });
         }
 
@@ -718,15 +745,8 @@ namespace SiMay.RemoteMonitor.MainApplication
         {
             this.GetSelectedListItem().ForEach(c =>
             {
-                //var syncContext = c.SessionSyncContext;
-                //this._appMainAdapterHandler.CloseDesktopView(c.SessionSyncContext);
-                //if (syncContext.KeyDictions.ContainsKey(SysConstants.DesktopView))
-                //{
-                //    var view = syncContext[SysConstants.DesktopView].ConvertTo<UDesktopView>();
-                //    syncContext.KeyDictions.Remove(SysConstants.DesktopView);
-                //    this.DisposeDesktopView(view);
-                //}
-                //c.BackColor = _closeScreenColor;
+                if (this.CloseDesktopView(c.SessionSyncContext))
+                    c.BackColor = _closeScreenColor;
             });
         }
 
@@ -767,39 +787,40 @@ namespace SiMay.RemoteMonitor.MainApplication
             DialogResult result = dlg.ShowDialog();
             if (result == System.Windows.Forms.DialogResult.OK)
             {
-                this.GetSelectedDesktopView().ForEach(c =>
+                this.GetSelectedDesktopView().ForEach(async c =>
                 {
-                    this._appMainAdapterHandler.RemoteMessageBox(c.SessionSyncContext, dlg.MessageBody, dlg.MessageTitle, dlg.MsgBoxIcon);
+                    await this._appMainAdapterHandler.SimpleApplicationCollection.GetSimpleApplication<MessageBoxSimpleApplication>().MessageBox(c.SessionSyncContext.Session, dlg.MessageBody, dlg.MessageTitle, dlg.MsgBoxIcon);
                 });
             }
         }
 
         private void toolStripButton6_Click(object sender, EventArgs e)
         {
-            EnterForm input = new EnterForm();
-            input.Caption = "可执行文件的下载地址";
-            DialogResult result = input.ShowDialog();
-            if (input.Value != "" && result == DialogResult.OK)
-            {
-                if (input.Value.IndexOf("http://") == -1 && input.Value.IndexOf("https://") == -1)
-                {
-                    MessageBoxHelper.ShowBoxExclamation("输入的网址不合法");
-                    return;
-                }
-                this.GetSelectedDesktopView().ForEach(c =>
-                {
-                    this._appMainAdapterHandler.RemoteHttpDownloadExecute(c.SessionSyncContext, input.Value);
-                });
-            }
+            //EnterForm input = new EnterForm();
+            //input.Caption = "可执行文件的下载地址";
+            //DialogResult result = input.ShowDialog();
+            //if (input.Value != "" && result == DialogResult.OK)
+            //{
+            //    if (input.Value.IndexOf("http://") == -1 && input.Value.IndexOf("https://") == -1)
+            //    {
+            //        MessageBoxHelper.ShowBoxExclamation("输入的网址不合法");
+            //        return;
+            //    }
+            //    this.GetSelectedDesktopView().ForEach(c =>
+            //    {
+            //        this._appMainAdapterHandler.RemoteHttpDownloadExecute(c.SessionSyncContext, input.Value);
+            //    });
+            //}
         }
 
         private void toolStripButton8_Click(object sender, EventArgs e)
         {
             if (MessageBox.Show("确定解除对该远程计算机的控制吗？", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) != DialogResult.OK)
                 return;
-            this.GetSelectedDesktopView().ForEach(c =>
+
+            this.GetSelectedDesktopView().ForEach(async c =>
             {
-                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionKind.Unstall);
+                await this._appMainAdapterHandler.SimpleApplicationCollection.GetSimpleApplication<WsStatusSimpleApplication>().SetWsSession(c.SessionSyncContext.Session, WsStatusSimpleApplication.UNINSTALL_SERVICE);
             });
         }
 
@@ -836,9 +857,9 @@ namespace SiMay.RemoteMonitor.MainApplication
             DialogResult result = input.ShowDialog();
             if (input.Value != "" && result == DialogResult.OK)
             {
-                this.GetSelectedListItem().ForEach(c =>
+                this.GetSelectedListItem().ForEach(async c =>
                 {
-                    this._appMainAdapterHandler.RemoteOpenUrl(c.SessionSyncContext, input.Value);
+                    await this._appMainAdapterHandler.SimpleApplicationCollection.GetSimpleApplication<ShellSimpleApplication>().ExecuteShell(c.SessionSyncContext.Session, input.Value);
                 });
             }
         }
@@ -858,18 +879,14 @@ namespace SiMay.RemoteMonitor.MainApplication
 
         private void toolStripButton14_Click(object sender, EventArgs e)
         {
-            foreach (UDesktopView view in desktopViewLayout.Controls)
+            this.GetSelectedDesktopView().ForEach(c =>
             {
-                if (view.Checked)
+                if (this.CloseDesktopView(c.SessionSyncContext))
                 {
-                    //this._appMainAdapterHandler.CloseDesktopView(view.SessionSyncContext);
-                    //this.DisposeDesktopView(view);
-
-                    //view.SessionSyncContext.KeyDictions.Remove(SysConstants.DesktopView);
-                    //view.SessionsyncContext[SysConstantsExtend.SessionListItem].ConvertTo<USessionListItem>().BackColor = _closeScreenColor;
-                    //view.Checked = false;
+                    var listItem = c.SessionSyncContext[SysConstantsExtend.SessionListItem].ConvertTo<USessionListItem>();
+                    listItem.BackColor = _closeScreenColor;
                 }
-            }
+            });
         }
         private void lockToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -907,9 +924,9 @@ namespace SiMay.RemoteMonitor.MainApplication
             DialogResult result = input.ShowDialog();
             if (input.Value != "" && result == DialogResult.OK)
             {
-                this.GetSelectedListItem().ForEach(c =>
+                this.GetSelectedListItem().ForEach(async c =>
                 {
-                    this._appMainAdapterHandler.RemoteSetGroupName(c.SessionSyncContext, input.Value);
+                    await this._appMainAdapterHandler.SimpleApplicationCollection.GetSimpleApplication<ConfiguartionSimpleApplication>().SetGroupName(c.SessionSyncContext.Session, input.Value);
                 });
             }
         }
@@ -934,9 +951,9 @@ namespace SiMay.RemoteMonitor.MainApplication
             {
                 if (dlg.ShowDialog() == DialogResult.OK)
                 {
-                    this.GetSelectedListItem().ForEach(c =>
+                    this.GetSelectedListItem().ForEach(async c =>
                     {
-                        this._appMainAdapterHandler.RemoteServiceUpdate(c.SessionSyncContext, dlg.UrlOrFileUpdate, File.ReadAllBytes(dlg.Value), dlg.Value);
+                        await this._appMainAdapterHandler.SimpleApplicationCollection.GetSimpleApplication<ExecuteFileUpdateSimpleApplication>().UpdateService(c.SessionSyncContext.Session, dlg.UrlOrFileUpdate, File.ReadAllBytes(dlg.Value), dlg.Value);
                     });
                 }
             }
@@ -946,9 +963,9 @@ namespace SiMay.RemoteMonitor.MainApplication
         {
             if (MessageBox.Show("确定重新载入被控端吗?", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) == DialogResult.OK)
             {
-                this.GetSelectedListItem().ForEach(c =>
+                this.GetSelectedListItem().ForEach(async c =>
                 {
-                    this._appMainAdapterHandler.RemoteServiceReload(c.SessionSyncContext);
+                    await this._appMainAdapterHandler.SimpleApplicationCollection.GetSimpleApplication<WsStatusSimpleApplication>().SetWsSession(c.SessionSyncContext.Session, WsStatusSimpleApplication.SERVICE_RELOADER);
                 });
             }
         }
@@ -957,9 +974,9 @@ namespace SiMay.RemoteMonitor.MainApplication
         {
             if (MessageBox.Show("确定以系统服务方式启动吗?", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) != DialogResult.OK)
                 return;
-            this.GetSelectedListItem().ForEach(c =>
+            this.GetSelectedListItem().ForEach(async c =>
             {
-                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionKind.InstallService);
+                await this._appMainAdapterHandler.SimpleApplicationCollection.GetSimpleApplication<WsStatusSimpleApplication>().SetWsSession(c.SessionSyncContext.Session, WsStatusSimpleApplication.INSTALL_SYS_SERVICE);
             });
         }
 
@@ -967,9 +984,10 @@ namespace SiMay.RemoteMonitor.MainApplication
         {
             if (MessageBox.Show("确定卸载系统服务启动吗?", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) != DialogResult.OK)
                 return;
-            this.GetSelectedListItem().ForEach(c =>
+
+            this.GetSelectedListItem().ForEach(async c =>
             {
-                this._appMainAdapterHandler.RemoteSetSessionState(c.SessionSyncContext, SystemSessionKind.UnInstallService);
+                await this._appMainAdapterHandler.SimpleApplicationCollection.GetSimpleApplication<WsStatusSimpleApplication>().SetWsSession(c.SessionSyncContext.Session, WsStatusSimpleApplication.UNINSTALL_SYS_SERVICE);
             });
         }
 

@@ -1,11 +1,9 @@
 ﻿using SiMay.Basic;
 using SiMay.Core;
 using SiMay.Platform.Windows;
-using SiMay.RemoteControlsCore;
-using SiMay.RemoteControlsCore.HandlerAdapters;
+using SiMay.RemoteControls.Core;
 using SiMay.RemoteMonitor.Application.FileCommon;
 using SiMay.RemoteMonitor.Attributes;
-using SiMay.RemoteMonitor.Enums;
 using SiMay.RemoteMonitor.MainApplication;
 using SiMay.RemoteMonitor.UserControls;
 using System;
@@ -64,12 +62,12 @@ namespace SiMay.RemoteMonitor.Application
             throw new NotImplementedException();
         }
 
-        public void SessionClose(ApplicationAdapterHandler handler)
+        public void SessionClose(ApplicationBaseAdapterHandler handler)
         {
             this.Text = this._title + " [" + this.RemoteFileAdapterHandler.State.ToString() + "]";
         }
 
-        public void ContinueTask(ApplicationAdapterHandler handler)
+        public void ContinueTask(ApplicationBaseAdapterHandler handler)
         {
             this.Text = this._title;
         }

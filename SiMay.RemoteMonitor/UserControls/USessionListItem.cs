@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Windows.Forms;
 using SiMay.Basic;
-using SiMay.RemoteControlsCore;
+using SiMay.RemoteControls.Core;
 
 namespace SiMay.RemoteMonitor.UserControls
 {

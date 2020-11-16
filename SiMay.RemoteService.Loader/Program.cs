@@ -55,7 +55,7 @@ namespace SiMay.RemoteService.Loader
         /// <summary>
         /// 主核心库文件名
         /// </summary>
-        private const string MAIN_PLUGIN_COMNAME = "SiMayService.Core.dll";
+        private const string MAIN_PLUGIN_COMNAME = "SiMay.Service.Core.dll";
 
         private static IPEndPoint _ipendPoint;
         private static StartParameter _startParameter;

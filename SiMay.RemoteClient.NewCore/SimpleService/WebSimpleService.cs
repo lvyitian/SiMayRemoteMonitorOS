@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace SiMay.Service.Core
 {
-    public class WebSimpleService : IRemoteSimpleService
+    public class WebSimpleService : RemoteSimpleServiceBase
     {
         private IDictionary<int, HttpDownloadTaskItemContext> _downloadContexts = new Dictionary<int, HttpDownloadTaskItemContext>();
 
@@ -45,14 +45,14 @@ namespace SiMay.Service.Core
                 sender.ConvertTo<WebClient>().Dispose();//任务停止
         }
 
-        [PacketHandler(MessageHead.S_SIMPLE_JOIN_HTTP_DOWNLOAD)]
+        [PacketHandler(MessageHead.S_SIMPLE_SET_HTTP_DOWNLOAD_STATUS)]
         public void SetHttpDownloadStatus(SessionProviderContext session)
         {
             if (int.TryParse(session.GetMessage().ToUnicodeString(), out var id) && _downloadContexts.ContainsKey(id))
                 _downloadContexts[id].Status = 1;
         }
 
-        [PacketHandler(MessageHead.S_SIMPLE_JOIN_HTTP_DOWNLOAD)]
+        [PacketHandler(MessageHead.S_SIMPLE_HTTP_DOWNLOAD_STATUS_LIST)]
         public HttpDownloadStatusList GetHttpDownloadStatusContexts(SessionProviderContext session)
         {
             return new HttpDownloadStatusList()

@@ -1,4 +1,5 @@
 ﻿using SiMay.Net.SessionProvider;
+using SiMay.Net.SessionProvider.Providers;
 using SiMay.Sockets.Tcp;
 using System;
 using System.Collections.Generic;
@@ -18,7 +19,7 @@ namespace SiMay.RemoteService.Loader
         /// <summary>
         /// 会话提供对象
         /// </summary>
-        public SessionProvider SessionProvider { get; set; }
+        public TcpClientSessionProvider SessionProvider { get; set; }
 
         /// <summary>
         /// 服务器地址

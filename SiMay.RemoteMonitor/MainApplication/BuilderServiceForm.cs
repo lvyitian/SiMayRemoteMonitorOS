@@ -1,6 +1,6 @@
 ﻿using SiMay.Basic;
 using SiMay.Core;
-using SiMay.RemoteControlsCore;
+using SiMay.RemoteControls.Core;
 using SiMay.Serialize.Standard;
 using System;
 using System.Collections.Generic;
